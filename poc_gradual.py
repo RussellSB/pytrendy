@@ -29,7 +29,7 @@ plt.show()
 
 
 # %%
-# Improvement Attempt 1:
+# Improvement Attempt 1: (DISCARDED)
 # trying to improve and cater for trailing end flatlined
 ax = df[['value', 'smoothed_deriv', 'smoothed_deriv_2']].plot(figsize=(20,3), secondary_y=['smoothed_deriv_2'])
 ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
@@ -46,7 +46,7 @@ ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
 plt.show()
 
 # %%
-# Improvement Attempt 2
+# Improvement Attempt 2 (KEPT)
 # First detecting flat periods
 df['smoothed'] = savgol_filter(df['value'], window_length=15, polyorder=1)
 df['smoothed_std'] = df['smoothed'].rolling(14).std().shift(-7)
@@ -106,5 +106,78 @@ for index, value in df[['flag_temp']].itertuples():
     segment_length_prev = segment_length
 
 display(segments)
+
+# %%
+# Final Display Mock 1
+df[['value']].plot(figsize=(20,5), color='black')
+plt.show()# Ensure datetime index
+
+df.index = pd.to_datetime(df.index)
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+import matplotlib.patches as mpatches
+
+# Define colors
+color_map = {
+    'Up': 'lightgreen',
+    'Down': 'lightcoral',  # soft red
+    'Flat': 'lightblue'
+}
+
+fig, ax = plt.subplots(figsize=(20, 5))
+
+# Plot the value line
+ax.plot(df.index, df['value'], color='black', lw=1)
+
+# Add shaded regions with fill_between
+ymin, ymax = ax.get_ylim()  # get plot's visible y-range
+for seg in segments:
+    start = pd.to_datetime(seg['start'])
+    end = pd.to_datetime(seg['end'])
+    color = color_map.get(seg['direction'], 'gray')
+
+    mask = (df.index >= start) & (df.index <= end)
+    ax.fill_between(df.index[mask],
+                    ymin, ymax,
+                    color=color, alpha=0.4)
+
+
+# Set limits
+first_date = df.index.min()
+last_date = df.index.max()
+ax.set_xlim(first_date, last_date)
+ax.set_ylim(ymin, ymax)
+
+# Major ticks: every 7 days (with labels)
+ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+# Minor ticks: every day (no labels, just tick marks/grid)
+ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+# Rotate major tick labels
+plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
+
+# Optional: show grid lines for both
+ax.grid(True, which='major', color='gray', alpha=0.3)
+
+ax.set_title("PyTrendy Detection", fontsize=20)
+ax.set_xlabel("Date")
+ax.set_ylabel("Value")
+
+# Create custom legend handles (colored boxes)
+legend_handles = [
+    mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
+    mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
+    mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
+]
+ax.legend(handles=legend_handles, loc='upper right', 
+          bbox_to_anchor=(1, 1.15), ncol=3, frameon=True)
+
+
+plt.tight_layout()
+plt.show()
 
 # %%
