@@ -138,14 +138,11 @@ def get_segments(df: pd.DataFrame):
 
 
 def process_signals(df:pd.DataFrame, value_col: str):
-    # Main trend indicator with savgol filter
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
-    # 2. Uses first derivates (like diff). Results in signal that's uptrend > 0, else down.
-    # First detecting flat periods
-    
     df['smoothed'] = savgol_filter(df[value_col], window_length=15, polyorder=1)
 
-    # Calculating Flats, with leading and trailing to cater for periods centered windows doesnt cover
+    # 2. Flat detection using rolling std of savgol filter.
+    # with leading and trailing to cater for periods centered windows doesnt cover
     df['smoothed_std'] = df['smoothed'].rolling(14, center=True).std()
     df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=14).std().iloc[::-1]
     df['smoothed_std_trailing'] = df['smoothed'].rolling(14).std()
@@ -154,7 +151,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
     threshold_flat = df['value'].rolling(14, center=True).std().min() # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1
 
-    # Detect up or down based on smoothed derivative. As long as its not on a flat
+    # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
+    # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['flag_temp'] = 0
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=15, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
@@ -168,6 +166,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
 
 def main(df:pd.DataFrame, date_col:str, value_col: str):
     """Main pipeline TODO: talk about it all...!"""
+    df = df.copy()
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
@@ -207,4 +206,7 @@ noise_std = 50
 print(f'Noise value: {noise_std}')
 df = pd.read_csv('./data/series_gradual.csv')
 df['value_noisy'] = df['value'] + np.random.normal(0, noise_std, size=len(df))
+segments = main(df, date_col='date', value_col='value_noisy')
+
+# %%
 segments = main(df, date_col='date', value_col='value_noisy')
