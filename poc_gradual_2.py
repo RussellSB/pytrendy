@@ -114,6 +114,7 @@ def get_segments(df: pd.DataFrame):
 
     for index, value in df[['flag_temp']].itertuples():
         direction = map_direction[value]
+        if index == df.index.max(): direction = 'Done'
 
         if direction == direction_prev:
             segment_length += 1
@@ -141,27 +142,24 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     # 2. Uses first derivates (like diff). Results in signal that's uptrend > 0, else down.
     # First detecting flat periods
+    
     df['smoothed'] = savgol_filter(df[value_col], window_length=15, polyorder=1)
-    df['smoothed_std'] = df['smoothed'].rolling(14).std().shift(-7)
-    df['flat_flag'] = 0
 
-    threshold_flat = df['value'].rolling(14).std().min() # initially set at 2 for series_gradual example
+    # Calculating Flats, with leading and trailing to cater for periods centered windows doesnt cover
+    df['smoothed_std'] = df['smoothed'].rolling(14, center=True).std()
+    df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=14).std().iloc[::-1]
+    df['smoothed_std_trailing'] = df['smoothed'].rolling(14).std()
+    df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
+    df['flat_flag'] = 0
+    threshold_flat = df['value'].rolling(14, center=True).std().min() # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1
 
+    # Detect up or down based on smoothed derivative. As long as its not on a flat
     df['flag_temp'] = 0
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=15, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
     df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0), 'flag_temp'] = -1
 
-    # ax = df[[value_col, 'flag_temp']].plot(figsize=(20,3), secondary_y='flag_temp')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-
-    # Using the flat periods to filter out flatties
-    df['flag_temp'] = 0
-    df['smoothed_deriv_2'] = df['smoothed_deriv'].diff()
-    df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
-    df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0), 'flag_temp'] = -1
     # ax = df[[value_col, 'flag_temp']].plot(figsize=(20,3), secondary_y='flag_temp')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
