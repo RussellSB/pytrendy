@@ -188,5 +188,6 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 # %%
 # Use Case: Abrupt Trends (but using the correct, gradual trend detection logic)
 df = pd.read_csv('./data/series_abrupt.csv', infer_datetime_format=True)
+df.plot(figsize=(20,3))
 segments = main(df, date_col='date', value_col='value')
 # %%
