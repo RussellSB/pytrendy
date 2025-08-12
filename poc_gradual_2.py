@@ -141,8 +141,27 @@ def process_signals(df:pd.DataFrame, value_col: str):
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
 
+
+
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
+    # from scipy.signal import welch
+    # from scipy.stats import gmean
+
+    # def spectral_flatness(series):
+    #     f, Pxx = welch(series)
+    #     return gmean(Pxx) / np.mean(Pxx)  # 1.0 means flat spectrum
+
+    # df['test'] = df[value_col].rolling(200).apply(spectral_flatness, raw=True)
+
+    from antropy import app_entropy  # pip install antropy
+    df['test'] = df[value_col].rolling(15).apply(lambda s: app_entropy(s), raw=True)
+
+    ax = df[[value_col, 'test']].plot(figsize=(20,3), secondary_y='test')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    return df
 
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
@@ -173,11 +192,11 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
-    segments = get_segments(df)
-    segments = enhance_segments(df, value_col, segments)
-    plot_pytrendy(df, value_col, segments)
+    # segments = get_segments(df)
+    # segments = enhance_segments(df, value_col, segments)
+    # plot_pytrendy(df, value_col, segments)
 
-    return segments
+    # return segments
 
 # %%
 # Use Case 1: Simple
@@ -187,7 +206,6 @@ segments = main(df, date_col='date', value_col='value')
 
 # %%
 segments
-
 
 # %%
 # Use Case 2; Much higher magnitudes
