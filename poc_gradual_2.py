@@ -138,23 +138,26 @@ def get_segments(df: pd.DataFrame):
 
 
 def process_signals(df:pd.DataFrame, value_col: str):
+    WINDOW_SMOOTH = 15
+    WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
+
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
-    df['smoothed'] = savgol_filter(df[value_col], window_length=15, polyorder=1)
+    df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
 
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
-    df['smoothed_std'] = df['smoothed'].rolling(14, center=True).std()
-    df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=14).std().iloc[::-1]
-    df['smoothed_std_trailing'] = df['smoothed'].rolling(14).std()
+    df['smoothed_std'] = df['smoothed'].rolling(WINDOW_FLAT, center=True).std()
+    df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=WINDOW_FLAT).std().iloc[::-1]
+    df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
     df['flat_flag'] = 0
-    threshold_flat = df['value'].rolling(14, center=True).std().min() # initially set at 2 for series_gradual example
-    df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1
+    threshold_flat = df['value'].rolling(int(WINDOW_FLAT), center=True).std().min() # initially set at 2 for series_gradual example
+    df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
 
     # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['flag_temp'] = 0
-    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=15, polyorder=1, deriv=1)
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
     df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0), 'flag_temp'] = -1
 
@@ -176,11 +179,14 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
     return segments
 
-
 # %%
 # Use Case 1: Simple
 df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
+# df.plot(figsize=(20,3))
 segments = main(df, date_col='date', value_col='value')
+
+# %%
+segments
 
 
 # %%
