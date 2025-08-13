@@ -215,7 +215,7 @@ for noise_std in [0, 2, 5, 10, 20, 50]:
     # display(df['snr'].describe())
 
     df['noise_flag'] = 0
-    df.loc[df['snr'] <= 10, 'noise_flag'] = 1
+    df.loc[df['snr'] <= 5, 'noise_flag'] = 1
 
     ax = df[['value_noisy', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
     ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
