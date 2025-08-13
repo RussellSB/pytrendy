@@ -6,13 +6,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
+import numpy as np
 
 def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
     # Define colors
     color_map = {
         'Up': 'lightgreen',
         'Down': 'lightcoral',  # soft red
-        'Flat': 'lightblue'
+        'Flat': 'lightblue',
+        'Noise': 'lightgray',
     }
 
     fig, ax = plt.subplots(figsize=(20, 5))
@@ -30,10 +32,10 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         mask = (df.index >= start) & (df.index <= end + pd.Timedelta(days=1))
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
+        # Add ranking if up/down trend
         if seg['direction'] in ['Up', 'Down']:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
-
             ax.text(mid_date, y_pos, str(rank), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
@@ -64,11 +66,12 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
     # Create custom legend handles (colored boxes)
     legend_handles = [
         mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
-        mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
         mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
+        mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
+        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'),
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
-            bbox_to_anchor=(1, 1.15), ncol=3, frameon=True)
+            bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
 
     plt.tight_layout()
     plt.show()
@@ -105,6 +108,7 @@ def get_segments(df: pd.DataFrame):
         0: 'Flat'
         , 1: 'Up'
         , -1: 'Down'
+        , 35987: 'Noise'
     }
 
     segment_length = 0
@@ -112,7 +116,7 @@ def get_segments(df: pd.DataFrame):
     direction_prev = map_direction[0]
     segments = []
 
-    for index, value in df[['flag_temp']].itertuples():
+    for index, value in df[['trend_flag']].itertuples():
         direction = map_direction[value]
         if index == df.index.max(): direction = 'Done'
 
@@ -121,7 +125,8 @@ def get_segments(df: pd.DataFrame):
         elif direction != direction_prev: 
             if (    # Save only when satisfies min window for up/down or flat respectively.
                     (direction_prev in ['Up', 'Down'] and (segment_length_prev >= 7)) \
-                    or (direction_prev == 'Flat'  and (segment_length_prev >= 3)) \
+                    or (direction_prev == 'Flat' and (segment_length_prev >= 3)) \
+                    or (direction_prev == 'Noise' and (segment_length_prev >= 3)) \
                 ):
                 segments.append({
                     'direction': direction_prev
@@ -154,14 +159,30 @@ def process_signals(df:pd.DataFrame, value_col: str):
     threshold_flat = df['value'].rolling(int(WINDOW_FLAT), center=True).std().min() # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
 
-    # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
-    # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
-    df['flag_temp'] = 0
-    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
-    df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
-    df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0), 'flag_temp'] = -1
+    # 3. Noise detection via SNR. Make sure that up/down trend selection isn't overly sensitive to periods of noise
+    df['signal'] = df[value_col].rolling(window=15, center=True, min_periods=1).mean()
+    df['noise'] = df[value_col] - df['signal']
+    df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
+    df['noise_flag'] = 0
+    df.loc[df['snr'] <= 5, 'noise_flag'] = 1
 
-    # ax = df[[value_col, 'flag_temp']].plot(figsize=(20,3), secondary_y='flag_temp')
+    # signal_power = np.mean(df['signal']**2)
+    # noise_power = np.mean(df['noise']**2)
+    # snr_db = 10 * np.log10(signal_power / noise_power)
+    # print(f"SNR (dB): {snr_db:.2f}")
+    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
+    # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
+    df['trend_flag'] = 0
+    df.loc[df['noise_flag']==1, 'trend_flag'] = 35987
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
+    df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
+    df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+
+    # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
 
@@ -183,7 +204,6 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 # Use Case 1: Simple
 df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
 segments = main(df, date_col='date', value_col='value')
-segments
 
 # %%
 # Use Case 2; Much higher magnitudes
@@ -198,98 +218,5 @@ for noise_std in [0, 2, 5, 10, 20, 50]:
     print(f'Noise value: {noise_std}')
     df = pd.read_csv('./data/series_gradual.csv')
     df['value_noisy'] = df['value'] + np.random.normal(0, noise_std, size=len(df))
-    # segments = main(df, date_col='date', value_col='value_noisy')
+    segments = main(df, date_col='date', value_col='value_noisy')
 
-    df['signal'] = df['value_noisy'].rolling(window=15, center=True, min_periods=1).mean()
-    df['noise'] = df['value_noisy'] - df['signal']
-    signal_power = np.mean(df['signal']**2)
-    noise_power = np.mean(df['noise']**2)
-    snr_db = 10 * np.log10(signal_power / noise_power)
-    print(f"SNR (dB): {snr_db:.2f}")
-
-    df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
-
-    # ax = df[['value_noisy', 'snr']].plot(figsize=(20,3), secondary_y='snr')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-    # display(df['snr'].describe())
-
-    df['noise_flag'] = 0
-    df.loc[df['snr'] <= 5, 'noise_flag'] = 1
-
-    ax = df[['value_noisy', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-
-
-# %%
-# Trying the noise noise noise fix (I want it to not show trends when its noisy!)
-import numpy as np
-noise_std = 50
-print(f'Noise value: {noise_std}')
-df = pd.read_csv('./data/series_gradual.csv')
-df['value_noisy'] = df['value'] + np.random.normal(0, noise_std, size=len(df))
-segments = main(df, date_col='date', value_col='value_noisy')
-
-# %%
-segments = main(df, date_col='date', value_col='value_noisy')
-
-
-#%%
-# df['value_noisy'] = df['value'] + np.random.normal(0, 50, size=len(df))
-
-#%%
-# manual try
-# df['diff'] = df['value_noisy'] - df['value_noisy'].shift(-1).diff()
-# ax = df[['value_noisy', 'diff']].plot(figsize=(20,3), secondary_y='diff')
-# ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-# plt.show()
-
-#%% 
-df['signal'] = df['value_noisy'].rolling(window=7, center=True, min_periods=1).mean()
-df['noise'] = df['value_noisy'] - df['signal']
-signal_power = np.mean(df['signal']**2)
-noise_power = np.mean(df['noise']**2)
-snr_db = 10 * np.log10(signal_power / noise_power)
-print(f"SNR (dB): {snr_db:.2f}")
-
-df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
-
-ax = df[['value_noisy', 'snr']].plot(figsize=(20,3), secondary_y='snr')
-ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-plt.show()
-display(df['snr'].describe())
-
-df['noise_flag'] = 0
-df.loc[df['snr'] <= 9, 'noise_flag'] = 1
-
-ax = df[['value_noisy', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-plt.show()
-
-# %%
-df['signal'] = df['value'].rolling(window=7, center=True, min_periods=1).mean()
-df['noise'] = df['value'] - df['signal']
-signal_power = np.mean(df['signal']**2)
-noise_power = np.mean(df['noise']**2)
-snr_db = 10 * np.log10(signal_power / noise_power)
-print(f"SNR (dB): {snr_db:.2f}")
-
-df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
-ax = df[['value', 'snr']].plot(figsize=(20,3), secondary_y='snr')
-ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-plt.show()
-
-display(df['snr'].describe())
-
-df['noise_flag'] = 0
-df.loc[df['snr'] <= 9, 'noise_flag'] = 1
-
-ax = df[['value', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-plt.show()
-
-# %%
-
-
-# %%
