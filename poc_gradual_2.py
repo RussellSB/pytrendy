@@ -141,27 +141,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
 
-
-
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
-    # from scipy.signal import welch
-    # from scipy.stats import gmean
-
-    # def spectral_flatness(series):
-    #     f, Pxx = welch(series)
-    #     return gmean(Pxx) / np.mean(Pxx)  # 1.0 means flat spectrum
-
-    # df['test'] = df[value_col].rolling(200).apply(spectral_flatness, raw=True)
-
-    from antropy import app_entropy  # pip install antropy
-    df['test'] = df[value_col].rolling(15).apply(lambda s: app_entropy(s), raw=True)
-
-    ax = df[[value_col, 'test']].plot(figsize=(20,3), secondary_y='test')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-
-    return df
 
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
@@ -192,19 +173,16 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
-    # segments = get_segments(df)
-    # segments = enhance_segments(df, value_col, segments)
-    # plot_pytrendy(df, value_col, segments)
+    segments = get_segments(df)
+    segments = enhance_segments(df, value_col, segments)
+    plot_pytrendy(df, value_col, segments)
 
-    # return segments
+    return segments
 
 # %%
 # Use Case 1: Simple
 df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
-# df.plot(figsize=(20,3))
 segments = main(df, date_col='date', value_col='value')
-
-# %%
 segments
 
 # %%
@@ -234,3 +212,91 @@ segments = main(df, date_col='date', value_col='value_noisy')
 
 # %%
 segments = main(df, date_col='date', value_col='value_noisy')
+
+# %%
+import numpy as np
+import pandas as pd
+from scipy.stats import kurtosis
+from scipy.signal import periodogram
+
+def detect_noise_windows_kurtosis(df, value_col, window=15, kurtosis_thresh=0.8, autocorr_thresh=0.3, max_lag=3, spectral_ratio_thresh=3):
+    """
+    Detect 'pure noise' windows robust to seasonal/trending signals.
+    Marks df['test'] as 1 (noise) or 0 (not noise).
+    """
+    # Rolling kurtosis
+    roll_kurt = df[value_col].rolling(window).apply(
+        lambda s: kurtosis(s, fisher=False), raw=True
+    )
+
+    # Rolling mean autocorrelation over lags
+    def mean_abs_autocorr(s):
+        return np.mean([abs(s.autocorr(lag=lag)) for lag in range(1, max_lag+1)])
+    roll_ac_mean = df[value_col].rolling(window).apply(mean_abs_autocorr, raw=False)
+
+    # Rolling spectral dominance
+    def spectral_dominance(s):
+        f, Pxx = periodogram(s, window='hann')
+        if np.mean(Pxx) == 0:
+            return 0
+        return np.max(Pxx) / np.mean(Pxx)
+    roll_spec_dom = df[value_col].rolling(window).apply(spectral_dominance, raw=True)
+
+    # Noise flag: Gaussian-like, low autocorr, flat spectrum
+    df['test'] = (
+        ((roll_kurt - 3).abs() < kurtosis_thresh) &
+        (roll_ac_mean < autocorr_thresh) &
+        (roll_spec_dom < spectral_ratio_thresh)
+    ).astype(int)
+
+    
+    ax = df[[value_col, 'test']].plot(figsize=(20,3), secondary_y='test')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    return df
+
+# %%
+# Example
+np.random.seed(42)
+df = pd.DataFrame({'value_col': np.concatenate([
+    np.random.randn(100),             # noise
+    np.sin(np.linspace(0, 20, 100))   # signal
+])})
+
+df = detect_noise_windows_kurtosis(df, 'value_col', window=15)
+
+
+# %%
+df = detect_noise_windows_kurtosis(df, 'value_noisy', window=15)
+# df.plot(figsize=(20,3))
+
+# %%
+df = detect_noise_windows_kurtosis(df, 'value', window=15)
+
+
+#%%
+# df['value_noisy'] = df['value'] + np.random.normal(0, 50, size=len(df))
+
+#%%
+# manual try
+# df['diff'] = df['value_noisy'] - df['value_noisy'].shift(-1).diff()
+# ax = df[['value_noisy', 'diff']].plot(figsize=(20,3), secondary_y='diff')
+# ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+# plt.show()
+
+#%% 
+df['signal'] = df['value_noisy'].rolling(window=7, center=True, min_periods=1).mean()
+df['noise'] = df['value_noisy'] - df['signal']
+signal_power = np.mean(df['signal']**2)
+noise_power = np.mean(df['noise']**2)
+snr_db = 10 * np.log10(signal_power / noise_power)
+print(f"SNR (dB): {snr_db:.2f}")
+# %%
+
+df['signal'] = df['value'].rolling(window=7, center=True, min_periods=1).mean()
+df['noise'] = df['value'] - df['signal']
+signal_power = np.mean(df['signal']**2)
+noise_power = np.mean(df['noise']**2)
+snr_db = 10 * np.log10(signal_power / noise_power)
+print(f"SNR (dB): {snr_db:.2f}")
