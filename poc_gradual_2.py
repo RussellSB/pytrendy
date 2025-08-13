@@ -198,7 +198,28 @@ for noise_std in [0, 2, 5, 10, 20, 50]:
     print(f'Noise value: {noise_std}')
     df = pd.read_csv('./data/series_gradual.csv')
     df['value_noisy'] = df['value'] + np.random.normal(0, noise_std, size=len(df))
-    segments = main(df, date_col='date', value_col='value_noisy')
+    # segments = main(df, date_col='date', value_col='value_noisy')
+
+    df['signal'] = df['value_noisy'].rolling(window=15, center=True, min_periods=1).mean()
+    df['noise'] = df['value_noisy'] - df['signal']
+    signal_power = np.mean(df['signal']**2)
+    noise_power = np.mean(df['noise']**2)
+    snr_db = 10 * np.log10(signal_power / noise_power)
+    print(f"SNR (dB): {snr_db:.2f}")
+
+    df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
+
+    # ax = df[['value_noisy', 'snr']].plot(figsize=(20,3), secondary_y='snr')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+    # display(df['snr'].describe())
+
+    df['noise_flag'] = 0
+    df.loc[df['snr'] <= 10, 'noise_flag'] = 1
+
+    ax = df[['value_noisy', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
 
 
 # %%
@@ -212,67 +233,6 @@ segments = main(df, date_col='date', value_col='value_noisy')
 
 # %%
 segments = main(df, date_col='date', value_col='value_noisy')
-
-# %%
-import numpy as np
-import pandas as pd
-from scipy.stats import kurtosis
-from scipy.signal import periodogram
-
-def detect_noise_windows_kurtosis(df, value_col, window=15, kurtosis_thresh=0.8, autocorr_thresh=0.3, max_lag=3, spectral_ratio_thresh=3):
-    """
-    Detect 'pure noise' windows robust to seasonal/trending signals.
-    Marks df['test'] as 1 (noise) or 0 (not noise).
-    """
-    # Rolling kurtosis
-    roll_kurt = df[value_col].rolling(window).apply(
-        lambda s: kurtosis(s, fisher=False), raw=True
-    )
-
-    # Rolling mean autocorrelation over lags
-    def mean_abs_autocorr(s):
-        return np.mean([abs(s.autocorr(lag=lag)) for lag in range(1, max_lag+1)])
-    roll_ac_mean = df[value_col].rolling(window).apply(mean_abs_autocorr, raw=False)
-
-    # Rolling spectral dominance
-    def spectral_dominance(s):
-        f, Pxx = periodogram(s, window='hann')
-        if np.mean(Pxx) == 0:
-            return 0
-        return np.max(Pxx) / np.mean(Pxx)
-    roll_spec_dom = df[value_col].rolling(window).apply(spectral_dominance, raw=True)
-
-    # Noise flag: Gaussian-like, low autocorr, flat spectrum
-    df['test'] = (
-        ((roll_kurt - 3).abs() < kurtosis_thresh) &
-        (roll_ac_mean < autocorr_thresh) &
-        (roll_spec_dom < spectral_ratio_thresh)
-    ).astype(int)
-
-    
-    ax = df[[value_col, 'test']].plot(figsize=(20,3), secondary_y='test')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-
-    return df
-
-# %%
-# Example
-np.random.seed(42)
-df = pd.DataFrame({'value_col': np.concatenate([
-    np.random.randn(100),             # noise
-    np.sin(np.linspace(0, 20, 100))   # signal
-])})
-
-df = detect_noise_windows_kurtosis(df, 'value_col', window=15)
-
-
-# %%
-df = detect_noise_windows_kurtosis(df, 'value_noisy', window=15)
-# df.plot(figsize=(20,3))
-
-# %%
-df = detect_noise_windows_kurtosis(df, 'value', window=15)
 
 
 #%%
@@ -292,11 +252,44 @@ signal_power = np.mean(df['signal']**2)
 noise_power = np.mean(df['noise']**2)
 snr_db = 10 * np.log10(signal_power / noise_power)
 print(f"SNR (dB): {snr_db:.2f}")
-# %%
 
+df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
+
+ax = df[['value_noisy', 'snr']].plot(figsize=(20,3), secondary_y='snr')
+ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+plt.show()
+display(df['snr'].describe())
+
+df['noise_flag'] = 0
+df.loc[df['snr'] <= 9, 'noise_flag'] = 1
+
+ax = df[['value_noisy', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+plt.show()
+
+# %%
 df['signal'] = df['value'].rolling(window=7, center=True, min_periods=1).mean()
 df['noise'] = df['value'] - df['signal']
 signal_power = np.mean(df['signal']**2)
 noise_power = np.mean(df['noise']**2)
 snr_db = 10 * np.log10(signal_power / noise_power)
 print(f"SNR (dB): {snr_db:.2f}")
+
+df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
+ax = df[['value', 'snr']].plot(figsize=(20,3), secondary_y='snr')
+ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+plt.show()
+
+display(df['snr'].describe())
+
+df['noise_flag'] = 0
+df.loc[df['snr'] <= 9, 'noise_flag'] = 1
+
+ax = df[['value', 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+plt.show()
+
+# %%
+
+
+# %%
