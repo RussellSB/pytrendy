@@ -149,6 +149,10 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     df['smoothed'] = savgol_filter(df[value_col], window_length=15, polyorder=1)
 
+    ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
     df['smoothed_std'] = df['smoothed'].rolling(14, center=True).std()
@@ -159,16 +163,25 @@ def process_signals(df:pd.DataFrame, value_col: str):
     threshold_flat = df['value'].rolling(14, center=True).std().min() # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1
 
+    ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
     # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['flag_temp'] = 0
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=15, polyorder=1, deriv=1)
+
+    ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
     df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0), 'flag_temp'] = 1
     df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0), 'flag_temp'] = -1
 
-    # ax = df[[value_col, 'flag_temp']].plot(figsize=(20,3), secondary_y='flag_temp')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+    ax = df[[value_col, 'flag_temp']].plot(figsize=(20,3), secondary_y='flag_temp')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
 
     return df
 
