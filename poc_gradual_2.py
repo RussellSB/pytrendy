@@ -68,7 +68,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
         mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
         mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'),
+        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), # TODO: Show optionally later, based on up_only, down_only, robustness=False ... etc
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
@@ -103,12 +103,13 @@ def enhance_segments(df:pd.DataFrame, value_col: str, segments: list):
     return segments_enhanced
 
 
-def get_segments(df: pd.DataFrame):
+def get_segments(df: pd.DataFrame, value_col:str):
     map_direction = {
-        0: 'Flat'
+        0: 'Unknown'
         , 1: 'Up'
         , -1: 'Down'
-        , 35987: 'Noise'
+        , -2: 'Flat'
+        , -3: 'Noise'
     }
 
     segment_length = 0
@@ -128,11 +129,26 @@ def get_segments(df: pd.DataFrame):
                     or (direction_prev == 'Flat' and (segment_length_prev >= 3)) \
                     or (direction_prev == 'Noise' and (segment_length_prev >= 3)) \
                 ):
+                start = (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1))
+                end = (pd.to_datetime(index) - pd.Timedelta(days=1))
+
+                # Post process around start & ends to get exact peaks and troughs (TODO: get to work better, no overlaps)
+                start_area = df.loc[pd.to_datetime(start) - pd.Timedelta(days=7): pd.to_datetime(start) + pd.Timedelta(days=7)].index
+                end_area = df.loc[pd.to_datetime(end) - pd.Timedelta(days=7): pd.to_datetime(end) + pd.Timedelta(days=7)].index
+                if direction_prev == 'Up':
+                    print(df.loc[start_area])
+                    start = df.loc[start_area, value_col].idxmin() # idk dont overwrite flats or noise?
+                    end = df.loc[end_area, value_col].idxmax()
+                if direction_prev == 'Down':
+                    start = df.loc[start_area, value_col].idxmax()
+                    end = df.loc[end_area, value_col].idxmin()
+
+                # Save the segment
                 segments.append({
                     'direction': direction_prev
                     , 'segmenth_length': segment_length_prev
-                    , 'start': (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1)).strftime('%Y-%m-%d')
-                    , 'end': (pd.to_datetime(index) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    , 'start': start.strftime('%Y-%m-%d')
+                    , 'end': end.strftime('%Y-%m-%d')
                 })
                 segment_length=0
 
@@ -177,7 +193,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['trend_flag'] = 0
-    df.loc[df['noise_flag']==1, 'trend_flag'] = 35987
+    df.loc[df['flat_flag']==1, 'trend_flag'] = -2
+    df.loc[df['noise_flag']==1, 'trend_flag'] = -3
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
@@ -194,7 +211,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
-    segments = get_segments(df)
+    segments = get_segments(df, value_col)
     segments = enhance_segments(df, value_col, segments)
     plot_pytrendy(df, value_col, segments)
 
