@@ -77,7 +77,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
     plt.show()
 
 
-def enhance_segments(df:pd.DataFrame, value_col: str, segments: list):
+def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     segments_enhanced = []
     for segment in segments:
         segment_enhanced = segment.copy()
@@ -131,17 +131,6 @@ def get_segments(df: pd.DataFrame, value_col:str):
                 ):
                 start = (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1))
                 end = (pd.to_datetime(index) - pd.Timedelta(days=1))
-
-                # Post process around start & ends to get exact peaks and troughs (TODO: get to work better, no overlaps)
-                start_area = df.loc[pd.to_datetime(start) - pd.Timedelta(days=7): pd.to_datetime(start) + pd.Timedelta(days=7)].index
-                end_area = df.loc[pd.to_datetime(end) - pd.Timedelta(days=7): pd.to_datetime(end) + pd.Timedelta(days=7)].index
-                if direction_prev == 'Up':
-                    print(df.loc[start_area])
-                    start = df.loc[start_area, value_col].idxmin() # idk dont overwrite flats or noise?
-                    end = df.loc[end_area, value_col].idxmax()
-                if direction_prev == 'Down':
-                    start = df.loc[start_area, value_col].idxmax()
-                    end = df.loc[end_area, value_col].idxmin()
 
                 # Save the segment
                 segments.append({
@@ -212,7 +201,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
     segments = get_segments(df, value_col)
-    segments = enhance_segments(df, value_col, segments)
+    segments = analyse_segments(df, value_col, segments)
     plot_pytrendy(df, value_col, segments)
 
     return segments
