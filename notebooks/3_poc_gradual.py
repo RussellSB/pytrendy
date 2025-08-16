@@ -125,6 +125,8 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
 
         if segment['direction'] == 'Up':
 
+            ### EXPANSION
+
             # Refine uptrend's start date to be lower if possible
             if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
 
