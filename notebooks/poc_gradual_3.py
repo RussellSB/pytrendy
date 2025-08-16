@@ -30,7 +30,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        mask = (df.index >= start) & (df.index <= end + pd.Timedelta(days=1))
+        mask = (df.index >= start - pd.Timedelta(days=0.5)) & (df.index <= end + pd.Timedelta(days=0.5)) # TODO: make work by pixels somehow
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
@@ -106,9 +106,12 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
 
 
 def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
-    """Slight tweak of segment starts & ends for more precision. Most useful in abrupt case."""
+    """Post processing the segments. Slight tweak of segment starts & ends for more precision. Most useful in abrupt case."""
     segments_refined = segments.copy()
     for i in range(len(segments)):
+
+        if i == 7:
+            print('test')
 
         segment = segments[i]
         segment_prev = segments[i-1] if i != 0 else None
@@ -117,20 +120,20 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
         prev_distance = (pd.to_datetime(segment['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
         next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segment['end'])).days if segment_next else None
 
-        prev_exists_and_touching = (segment_prev and prev_distance == 1)
-        next_exists_and_touching = (segment_next and next_distance == 1)
+        prev_exists_and_touching = (segment_prev and prev_distance <= 1)
+        next_exists_and_touching = (segment_next and next_distance <= 1)
 
         if segment['direction'] == 'Up':
 
-            # Refine up starts to be lower if possible
+            # Refine uptrend's start date to be lower if possible
             if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
 
-                # Using diff, and checking from perspective of start backwards
+                # Using diff, check perspective of start backwards
                 temp = df.loc[:segment['start']].iloc[::-1]
-
                 temp['diff'] = temp[value_col].diff()
+
                 closestlow = temp.index[(temp["diff"] >= 0)][0]
-                furthesthigh = temp.index[(temp["diff"] <= 0)][-1]
+                furthesthigh = temp.index[(temp["diff"] < 0)][-1]
                 
                 start_value = df.loc[segment['start'], value_col]
                 closestlow_value = df.loc[closestlow, value_col]
@@ -139,11 +142,46 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
                 found_continuous = closestlow > furthesthigh
                 found_lower = closestlow_value < start_value
                 
-                if found_continuous and found_lower: # select new candidate if it passes edge case & update appropriate segments
-                    segments_refined[i]['start'] = closestlow.strftime('%Y-%m-%d')
-                    if prev_exists_and_touching: segments_refined[i-1]['end'] = closestlow - pd.Timedelta(days=1) 
+                if found_continuous and found_lower: 
+                    # Select new candidate if it passes edge cases
+                    betterstart = closestlow.strftime('%Y-%m-%d')
+                    segments_refined[i]['start'] = betterstart
 
-        if segment['direction'] == 'Down': pass
+                    # Update previous segment if touching/overlap
+                    prev_distance_refined = (pd.to_datetime(segments_refined[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
+                    prev_exists_and_touching_refined = (segment_prev and prev_distance_refined <= 1)
+                    if prev_exists_and_touching_refined: segments_refined[i-1]['end'] = (closestlow - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+            
+            # Refine uptrend's end date to be higher if possible
+            if segment['end'] != df.index[-1].strftime('%Y-%m-%d'):
+
+                # Using diff, check perspective of after end forwards
+                temp = df.loc[segment['end']:]
+                temp['diff'] = temp[value_col].diff()[2:]
+
+                closestlow = temp.index[(temp["diff"] <= 0)][0]
+                furthesthigh = closestlow - pd.Timedelta(days=1)
+
+                end_value = df.loc[segment['end'], value_col]
+                furthesthigh_value = df.loc[furthesthigh, value_col]
+                
+                # Edge cases
+                found_continuous = furthesthigh < closestlow
+                found_higher = furthesthigh_value > end_value
+
+                if found_continuous and found_higher:
+                    # Select new candidate if it passes edge cases
+                    betterend = furthesthigh.strftime('%Y-%m-%d')
+                    segments_refined[i]['end'] = betterend
+                    
+                    # Update next segment if touching/overlap
+                    next_distance_refined = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments_refined[i]['end'])).days if segment_next else None
+                    next_exists_and_touching_refined = (segment_next and next_distance_refined <= 1)
+                    if next_exists_and_touching_refined: segments_refined[i+1]['start'] = (furthesthigh + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+
+        elif segment['direction'] == 'Down': pass
 
     return segments_refined
 
