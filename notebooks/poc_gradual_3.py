@@ -114,25 +114,37 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
         segment_prev = segments[i-1] if i != 0 else None
         segment_next = segments[i+1] if i != len(segments)-1 else None
 
-        segment_refined = segment.copy()
+        prev_distance = (pd.to_datetime(segment['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
+        next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segment['end'])).days if segment_next else None
 
+        prev_exists_and_touching = (segment_prev and prev_distance == 1)
+        next_exists_and_touching = (segment_next and next_distance == 1)
 
-        # Post process around start & ends to get exact peaks and troughs (TODO: get to work better, no overlaps)
-        start_area = df.loc[pd.to_datetime(start) - pd.Timedelta(days=7): pd.to_datetime(start) + pd.Timedelta(days=7)].index
-        end_area = df.loc[pd.to_datetime(end) - pd.Timedelta(days=7): pd.to_datetime(end) + pd.Timedelta(days=7)].index
-        if direction_prev == 'Up':
-            print(df.loc[start_area])
-            start = df.loc[start_area, value_col].idxmin() # idk dont overwrite flats or noise?
-            end = df.loc[end_area, value_col].idxmax()
-        if direction_prev == 'Down':
-            start = df.loc[start_area, value_col].idxmax()
-            end = df.loc[end_area, value_col].idxmin()
+        if segment['direction'] == 'Up':
 
-        # Append
-        segments_refined.append(segment_refined)
+            # Refine up starts to be lower if possible
+            if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
 
-    # Rank steepest to shallowest change
-    segments_refined = sorted(segments_refined, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
+                # Using diff, and checking from perspective of start backwards
+                temp = df.loc[:segment['start']].iloc[::-1]
+
+                temp['diff'] = temp[value_col].diff()
+                closestlow = temp.index[(temp["diff"] >= 0)][0]
+                furthesthigh = temp.index[(temp["diff"] <= 0)][-1]
+                
+                start_value = df.loc[segment['start'], value_col]
+                closestlow_value = df.loc[closestlow, value_col]
+
+                # Edge cases
+                found_continuous = closestlow > furthesthigh
+                found_lower = closestlow_value < start_value
+                
+                if found_continuous and found_lower: # select new candidate if it passes edge case & update appropriate segments
+                    segments_refined[i]['start'] = closestlow.strftime('%Y-%m-%d')
+                    if prev_exists_and_touching: segments_refined[i-1]['end'] = closestlow - pd.Timedelta(days=1) 
+
+        if segment['direction'] == 'Down': pass
+
     return segments_refined
 
 
@@ -237,7 +249,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df = process_signals(df, value_col)
     segments = get_segments(df)
     segments = refine_segments(df, value_col, segments)
-    segments = analyse_segments(df, value_col, segments)
+    # segments = analyse_segments(df, value_col, segments)
     plot_pytrendy(df, value_col, segments)
 
     return segments
@@ -246,6 +258,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 # Use Case 1: Simple
 df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
 segments = main(df, date_col='date', value_col='value')
+segments
 
 # %%
 # Use Case 2; Much higher magnitudes
