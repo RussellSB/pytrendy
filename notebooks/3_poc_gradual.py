@@ -13,7 +13,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
     # Define colors
     color_map = {
         'Up': 'lightgreen',
-        'Down': 'lightcoral',  # soft red
+        'Down': 'lightcoral',
         'Flat': 'lightblue',
         'Noise': 'lightgray',
     }
