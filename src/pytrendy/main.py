@@ -20,7 +20,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
 # %%
 # Use Case 1: Simple
-df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
+df = pd.read_csv('../../data/series_gradual.csv', infer_datetime_format=True)
 segments = main(df, date_col='date', value_col='value')
 segments
 
