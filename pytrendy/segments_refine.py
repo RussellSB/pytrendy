@@ -6,9 +6,6 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
     segments_refined = segments.copy()
     for i in range(len(segments)):
 
-        if i == 7:
-            print('test')
-
         segment = segments[i]
         segment_prev = segments[i-1] if i != 0 else None
         segment_next = segments[i+1] if i != len(segments)-1 else None
@@ -27,7 +24,7 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
             if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
 
                 # Using diff, find closest low and closest high
-                temp = df.loc[:segment['start']]
+                temp = df.loc[:segment['start']].copy()
                 temp['diff'] = temp[value_col].diff()
                 temp = temp[:-2]
 
@@ -56,8 +53,8 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
             if segment['end'] != df.index[-1].strftime('%Y-%m-%d'):
 
                 # Using diff, check perspective of after end forwards
-                temp = df.loc[segment['end']:]
-                temp['diff'] = temp[value_col].diff()[2:]
+                temp = df.loc[segment['end']:].copy()
+                temp['diff'] = temp[value_col].diff()
                 temp = temp[2:]
                 
                 closestlow = temp.index[(temp["diff"] <= 0)][0]

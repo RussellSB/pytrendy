@@ -1,4 +1,10 @@
 # %%
+%load_ext autoreload
+%autoreload 2
+
+# %%
+%reload_ext autoreload
+
 import pandas as pd
 from pytrendy.process_signals import process_signals
 from pytrendy.segments_get import get_segments
@@ -20,7 +26,7 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     return segments
 
 # Use Case 1: Simple
-df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
+df = pd.read_csv('./data/series_gradual.csv')
 segments = main(df, date_col='date', value_col='value')
 segments
 
