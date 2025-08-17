@@ -4,7 +4,7 @@ from scipy.signal import savgol_filter
 import matplotlib.pyplot as plt
 
 # %%
-df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True, index_col="date")
+df = pd.read_csv('../../data/series_gradual.csv', infer_datetime_format=True, index_col="date")
 df.plot(figsize=(20,3))
 
 # %%

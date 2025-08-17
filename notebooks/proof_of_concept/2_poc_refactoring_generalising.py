@@ -9,11 +9,10 @@ import matplotlib.patches as mpatches
 import numpy as np
 
 def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
-    """Plot visuals of trend detected segments over signal of interest."""
     # Define colors
     color_map = {
         'Up': 'lightgreen',
-        'Down': 'lightcoral',
+        'Down': 'lightcoral',  # soft red
         'Flat': 'lightblue',
         'Noise': 'lightgray',
     }
@@ -30,7 +29,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        mask = (df.index >= start - pd.Timedelta(days=0.5)) & (df.index <= end + pd.Timedelta(days=0.5)) # TODO: make work by pixels somehow
+        mask = (df.index >= start) & (df.index <= end + pd.Timedelta(days=1))
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
@@ -79,7 +78,6 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
 
 
 def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
-    """Add change descriptors of period pretreatment vs posttreatment"""
     segments_enhanced = []
     for segment in segments:
         segment_enhanced = segment.copy()
@@ -105,93 +103,7 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     return segments_enhanced
 
 
-def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
-    """Post processing the segments. Slight tweak of segment starts & ends for more precision. Most useful in abrupt case."""
-    segments_refined = segments.copy()
-    for i in range(len(segments)):
-
-        if i == 7:
-            print('test')
-
-        segment = segments[i]
-        segment_prev = segments[i-1] if i != 0 else None
-        segment_next = segments[i+1] if i != len(segments)-1 else None
-
-        prev_distance = (pd.to_datetime(segment['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-        next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segment['end'])).days if segment_next else None
-
-        prev_exists_and_touching = (segment_prev and prev_distance <= 1)
-        next_exists_and_touching = (segment_next and next_distance <= 1)
-
-        if segment['direction'] == 'Up':
-
-            ### EXPANSION
-
-            # Refine uptrend's start date to be lower if possible
-            if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
-
-                # Using diff, find closest low and closest high
-                temp = df.loc[:segment['start']]
-                temp['diff'] = temp[value_col].diff()
-                temp = temp[:-2]
-
-                closestlow = temp.index[(temp["diff"] <= 0)][-1]
-                closesthigh = temp.index[(temp["diff"] > 0)][-1]
-                
-                start_value = df.loc[segment['start'], value_col]
-                closestlow_value = df.loc[closestlow, value_col]
-
-                # Edge cases
-                found_continuous = closestlow > closesthigh
-                found_lower = closestlow_value < start_value
-                
-                if found_continuous and found_lower: 
-                    # Select new candidate if it passes edge cases
-                    betterstart = closestlow.strftime('%Y-%m-%d')
-                    segments_refined[i]['start'] = betterstart
-
-                    # Update previous segment if touching/overlap
-                    prev_distance_refined = (pd.to_datetime(segments_refined[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                    prev_exists_and_touching_refined = (segment_prev and prev_distance_refined <= 1)
-                    if prev_exists_and_touching_refined: segments_refined[i-1]['end'] = (closestlow - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-            
-            # Refine uptrend's end date to be higher if possible
-            if segment['end'] != df.index[-1].strftime('%Y-%m-%d'):
-
-                # Using diff, check perspective of after end forwards
-                temp = df.loc[segment['end']:]
-                temp['diff'] = temp[value_col].diff()[2:]
-                temp = temp[2:]
-                
-                closestlow = temp.index[(temp["diff"] <= 0)][0]
-                closesthigh = temp.index[(temp["diff"] > 0)][0]
-
-                end_value = df.loc[segment['end'], value_col]
-                closesthigh_value = df.loc[closesthigh, value_col]
-                
-                # Edge cases
-                found_continuous = closesthigh < closestlow
-                found_higher = closesthigh_value > end_value
-
-                if found_continuous and found_higher:
-                    # Select new candidate if it passes edge cases
-                    betterend = closesthigh.strftime('%Y-%m-%d')
-                    segments_refined[i]['end'] = betterend
-                    
-                    # Update next segment if touching/overlap
-                    next_distance_refined = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments_refined[i]['end'])).days if segment_next else None
-                    next_exists_and_touching_refined = (segment_next and next_distance_refined <= 1)
-                    if next_exists_and_touching_refined: segments_refined[i+1]['start'] = (closesthigh + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-
-        elif segment['direction'] == 'Down': pass
-
-    return segments_refined
-
-
-def get_segments(df: pd.DataFrame):
-    """Chisels out continuous segments from signals that indicate the areas."""
+def get_segments(df: pd.DataFrame, value_col:str):
     map_direction = {
         0: 'Unknown'
         , 1: 'Up'
@@ -236,7 +148,6 @@ def get_segments(df: pd.DataFrame):
 
 
 def process_signals(df:pd.DataFrame, value_col: str):
-    """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods"""
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
 
@@ -260,7 +171,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['noise_flag'] = 0
     df.loc[df['snr'] <= 5, 'noise_flag'] = 1
 
-    # TODO: Move to analyse segments
     # signal_power = np.mean(df['signal']**2)
     # noise_power = np.mean(df['noise']**2)
     # snr_db = 10 * np.log10(signal_power / noise_power)
@@ -290,22 +200,20 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
-    segments = get_segments(df)
-    segments = refine_segments(df, value_col, segments)
-    # segments = analyse_segments(df, value_col, segments)
+    segments = get_segments(df, value_col)
+    segments = analyse_segments(df, value_col, segments)
     plot_pytrendy(df, value_col, segments)
 
     return segments
 
 # %%
 # Use Case 1: Simple
-df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
+df = pd.read_csv('../../data/series_gradual.csv', infer_datetime_format=True)
 segments = main(df, date_col='date', value_col='value')
-segments
 
 # %%
 # Use Case 2; Much higher magnitudes
-df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
+df = pd.read_csv('../../data/series_gradual.csv', infer_datetime_format=True)
 df['value'] = df['value'] * 50
 segments = main(df, date_col='date', value_col='value')
 
@@ -314,7 +222,7 @@ segments = main(df, date_col='date', value_col='value')
 import numpy as np
 for noise_std in [0, 2, 5, 10, 20, 50]:
     print(f'Noise value: {noise_std}')
-    df = pd.read_csv('./data/series_gradual.csv')
+    df = pd.read_csv('../../data/series_gradual.csv')
     df['value_noisy'] = df['value'] + np.random.normal(0, noise_std, size=len(df))
     segments = main(df, date_col='date', value_col='value_noisy')
 
