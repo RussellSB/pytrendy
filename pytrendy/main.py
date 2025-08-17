@@ -1,9 +1,10 @@
+# %%
 import pandas as pd
-from process_signals import process_signals
-from segments_get import get_segments
-from segments_refine import refine_segments
-from segments_analyse import analyse_segments
-from plot_pytrendy import plot_pytrendy
+from pytrendy.process_signals import process_signals
+from pytrendy.segments_get import get_segments
+from pytrendy.segments_refine import refine_segments
+from pytrendy.segments_analyse import analyse_segments
+from pytrendy.plot_pytrendy import plot_pytrendy
 
 def main(df:pd.DataFrame, date_col:str, value_col: str):
     """Main pipeline TODO: talk about it all...!"""
@@ -18,9 +19,8 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
     return segments
 
-# %%
 # Use Case 1: Simple
-df = pd.read_csv('../../data/series_gradual.csv', infer_datetime_format=True)
+df = pd.read_csv('./data/series_gradual.csv', infer_datetime_format=True)
 segments = main(df, date_col='date', value_col='value')
 segments
 
