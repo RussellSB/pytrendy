@@ -6,9 +6,11 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
     segments_refined = segments.copy()
     for i in range(len(segments)):
 
-        segment = segments[i]
-        segment_prev = segments[i-1] if i != 0 else None
-        segment_next = segments[i+1] if i != len(segments)-1 else None
+        # TODO: refactor this all.
+
+        segment = segments_refined[i]
+        segment_prev = segments_refined[i-1] if i != 0 else None
+        segment_next = segments_refined[i+1] if i != len(segments_refined)-1 else None
 
         prev_distance = (pd.to_datetime(segment['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
         next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segment['end'])).days if segment_next else None
@@ -29,10 +31,11 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
                 # Using diff, find closest low and closest high
                 temp = df.loc[:segment['start']].copy()
                 temp['diff'] = temp[value_col].diff()
-                temp = temp[:-2]
+                temp = temp[:-1] 
 
                 closestlow = temp.index[(temp["diff"] <= 0)][-1]
                 closesthigh = temp.index[(temp["diff"] > 0)][-1]
+                closestlow = closesthigh + pd.Timedelta(days=1)
                 
                 start_value = df.loc[segment['start'], value_col]
                 closestlow_value = df.loc[closestlow, value_col]
@@ -58,10 +61,11 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
                 # Using diff, check perspective of after end forwards
                 temp = df.loc[segment['end']:].copy()
                 temp['diff'] = temp[value_col].diff()
-                temp = temp[2:]
+                temp = temp[2:] # TODO: Make sure this is expanding end segment[0]
                 
                 closestlow = temp.index[(temp["diff"] <= 0)][0]
-                closesthigh = temp.index[(temp["diff"] > 0)][0]
+                # closesthigh = closestlow - pd.Timedelta(days=1)
+                closesthigh = temp.index[(temp["diff"] > 0)][0] # TODO: maybe worth while to just take inverse, subtract one day. No need for continuous check then
 
                 end_value = df.loc[segment['end'], value_col]
                 closesthigh_value = df.loc[closesthigh, value_col]
@@ -93,7 +97,8 @@ def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
                 temp = temp[:-1]
 
                 closestlow = temp.index[(temp["diff"] <= 0)][-1]
-                closesthigh = temp.index[(temp["diff"] > 0)][-1]
+                closesthigh = closestlow + pd.Timedelta(days=1)
+                # closesthigh = temp.index[(temp["diff"] > 0)][-1]
                 
                 start_value = df.loc[segment['start'], value_col]
                 closesthigh_value = df.loc[closesthigh, value_col]
