@@ -1,9 +1,9 @@
-# %%
-%load_ext autoreload
-%autoreload 2
+# # %%
+# %load_ext autoreload
+# %autoreload 2
 
-# %%
-%reload_ext autoreload
+# # %%
+# %reload_ext autoreload
 
 #%%
 import pandas as pd
@@ -32,3 +32,4 @@ segments = main(df, date_col='date', value_col='value')
 # segments
 
 # %%
+segments
