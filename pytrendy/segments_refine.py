@@ -1,72 +1,59 @@
-
 import pandas as pd
 from copy import deepcopy
 
-def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
-    """Post processing the segments. Slight tweak of segment starts & ends for more precision. Most useful in abrupt case."""
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
+    """
+    Post-process detected segments by refining their start and end points.
+    Adjusts boundaries by looking ±7 days around each boundary for more precision.
+    Is there an appropriately higher or lower point worth taking? Take it.
+    """
     segments_refined = deepcopy(segments)
-    for i in range(len(segments)):
 
-        segment = segments_refined[i]
-        segment_prev = segments_refined[i-1] if i != 0 else None
-        segment_next = segments_refined[i+1] if i != len(segments_refined)-1 else None
+    def _get_window_df(center, days=7):
+        """Return a slice of df around a center date ±days."""
+        pre = (pd.to_datetime(center) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        post = (pd.to_datetime(center) + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        return df.loc[pre:post].copy()
 
-        pre_start = (pd.to_datetime(segment['start']) - pd.Timedelta(days=7)).strftime('%Y-%m-%d')
-        post_start = (pd.to_datetime(segment['start']) + pd.Timedelta(days=7)).strftime('%Y-%m-%d')
-        df_start = df.loc[pre_start:post_start].copy()
-        
-        pre_end = (pd.to_datetime(segment['end']) - pd.Timedelta(days=7)).strftime('%Y-%m-%d') 
-        post_end = (pd.to_datetime(segment['end']) + pd.Timedelta(days=7)).strftime('%Y-%m-%d')
-        df_end = df.loc[pre_end:post_end].copy()
-            
+    def _update_prev_segment(i, new_start):
+        """Shift previous segment end if overlapping with updated start (or original start)."""
+        if i == 0:
+            return
+        distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
+        distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
+        if distance_refined <= 1 or distance_orig <= 1:
+            segments_refined[i - 1]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+    def _update_next_segment(i, new_end):
+        """Shift next segment start if overlapping with updated end (or original end)."""
+        if i == len(segments_refined) - 1:
+            return
+        distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
+        distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
+        if distance_refined <= 1 or distance_orig <= 1:
+            segments_refined[i + 1]['start'] = (pd.to_datetime(new_end) + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+    for i, segment in enumerate(segments_refined):
+        start_df = _get_window_df(segment['start'])
+        end_df = _get_window_df(segment['end'])
+
         if segment['direction'] == 'Up':
+            new_start = start_df[value_col].idxmin() + pd.Timedelta(days=1)
+            new_end = end_df[value_col].idxmax()
+        elif segment['direction'] == 'Down':
+            new_start = start_df[value_col].idxmax() + pd.Timedelta(days=1)
+            new_end = end_df[value_col].idxmin()
+        else:
+            continue
 
-            lower_start = df_start.loc[:, value_col].idxmin() + pd.Timedelta(days=1)
-            if lower_start != pd.to_datetime(segment['start']):
-                segments_refined[i]['start'] = lower_start.strftime('%Y-%m-%d')
+        # refine start
+        if new_start != pd.to_datetime(segment['start']):
+            segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+            _update_prev_segment(i, new_start)
 
-                # Update previous segment if overlaps (or used to overlap)
-                prev_distance_refined = (pd.to_datetime(segments_refined[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                prev_distance = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                prev_exists_and_touching = (segment_prev and prev_distance_refined <= 1) or (segment_prev and prev_distance <= 1)
-                if prev_exists_and_touching: 
-                    segments_refined[i-1]['end'] = (lower_start - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-            higher_end = df_end.loc[:, value_col].idxmax()
-            if higher_end != pd.to_datetime(segment['end']):
-                segments_refined[i]['end'] = higher_end.strftime('%Y-%m-%d')
-
-                # Update next segment if overlaps (or used to overlap)
-                next_distance_refined = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments_refined[i]['end'])).days if segment_next else None
-                next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments[i]['end'])).days if segment_next else None
-                next_exists_and_touching = (segment_next and next_distance <= 1) or (segment_next and next_distance_refined <= 1)
-                if next_exists_and_touching: 
-                    segments_refined[i+1]['start'] = (higher_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-        if segment['direction'] == 'Down':
-
-            higher_start = df_start.loc[:, value_col].idxmax() + pd.Timedelta(days=1)
-            if higher_start != pd.to_datetime(segment['start']):
-                segments_refined[i]['start'] = higher_start.strftime('%Y-%m-%d')
-
-                # Update previous segment if overlaps (or used to overlap)
-                prev_distance_refined = (pd.to_datetime(segments_refined[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                prev_distance = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                prev_exists_and_touching = (segment_prev and prev_distance_refined <= 1) or (segment_prev and prev_distance <= 1)
-
-                if prev_exists_and_touching: 
-                    segments_refined[i-1]['end'] = (higher_start - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-            lower_end = df_end.loc[:, value_col].idxmin()
-            if lower_end != pd.to_datetime(segment['end']):
-                segments_refined[i]['end'] = lower_end.strftime('%Y-%m-%d')
-
-                # Update next segment if touching/overlap (or used to overlap)
-                next_distance_refined = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments_refined[i]['end'])).days if segment_next else None
-                next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments[i]['end'])).days if segment_next else None
-                next_exists_and_touching = (segment_next and next_distance <= 1) or (segment_next and next_distance_refined <= 1)
-
-                if next_exists_and_touching: 
-                    segments_refined[i+1]['start'] = (lower_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+        # refine end
+        if new_end != pd.to_datetime(segment['end']):
+            segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+            _update_next_segment(i, new_end)
 
     return segments_refined
