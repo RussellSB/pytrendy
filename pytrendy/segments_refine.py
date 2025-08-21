@@ -7,6 +7,8 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     Adjusts boundaries by looking ±7 days around each boundary for more precision.
     Is there an appropriately higher or lower point worth taking? Take it.
     """
+    THRESHOLD_DISTANCE = 3
+
     segments_refined = deepcopy(segments)
 
     def _get_window_df(center, days=7):
@@ -21,7 +23,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
             return
         distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
         distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
-        if distance_refined <= 1 or distance_orig <= 1:
+        if distance_refined <= THRESHOLD_DISTANCE or distance_orig <= THRESHOLD_DISTANCE:
             segments_refined[i - 1]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
     def _update_next_segment(i, new_end):
@@ -30,7 +32,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
             return
         distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
         distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
-        if distance_refined <= 1 or distance_orig <= 1:
+        if distance_refined <= THRESHOLD_DISTANCE or distance_orig <= THRESHOLD_DISTANCE:
             segments_refined[i + 1]['start'] = (pd.to_datetime(new_end) + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
     for i, segment in enumerate(segments_refined):
@@ -46,6 +48,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
         else:
             continue
 
+        print(i, segment['direction'])
         # refine start
         if new_start != pd.to_datetime(segment['start']):
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
@@ -56,4 +59,8 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             _update_next_segment(i, new_end)
 
+        print('reasy')
+
+    print(segments[5])
+    print(segments_refined[5])
     return segments_refined
