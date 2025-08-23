@@ -71,7 +71,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
 def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
     Classifies appropriate segments as pre-defined typed of trends; 
-    Gradual or Abrupt.
+    Gradual or Abrupt. Utilises DTW to compare to synthesized signals.
     """
 
     df_class = pd.read_csv('data/classes_trends.csv')
@@ -112,13 +112,13 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
     segments_refined = deepcopy(segments)
     for i, segment in enumerate(segments_refined):
-        if segment['direction'] not in ['Up', 'Down']: 
+        if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
             continue
 
         # Get start end padded for some leniency
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=7)
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=7)
-        df_segment = df.loc[start:end]
+        df_segment = df.loc[start:end].copy()
 
         df_segment['diff'] = df_segment[value_col].diff()
         df_segment = df_segment.iloc[1:]
@@ -137,17 +137,17 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
         # ax = df_segment[[value_col, 'z_score']].plot(figsize=(20,3), secondary_y='z_score')
         # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         # plt.show()
-        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        plt.show()
+        # ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        # plt.show()
 
-        # new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
-        # segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
-        # _update_prev_segment(i, new_start, segments, segments_refined)
+        new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
+        segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+        _update_prev_segment(i, new_start, segments, segments_refined)
 
-        # new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
-        # segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-        # _update_next_segment(i, new_end, segments, segments_refined)
+        new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
+        segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+        _update_next_segment(i, new_end, segments, segments_refined)
 
     return segments_refined
 
@@ -156,5 +156,5 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     segments_refined = expand_contract_segments(df, value_col, segments)
     segments_refined = classify_trends(df, value_col, segments)
-    # segments_refined = shave_abrupt_trends(df, value_col, segments)
+    segments_refined = shave_abrupt_trends(df, value_col, segments)
     return segments_refined

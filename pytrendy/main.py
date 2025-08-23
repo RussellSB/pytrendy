@@ -20,27 +20,20 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
     df.set_index(date_col, inplace=True)
     df = process_signals(df, value_col)
     segments = get_segments(df)
-    segments = refine_segments(df, value_col, segments) #TODO: abrupt contractor (3), and grouping (1?)
-    # segments = analyse_segments(df, value_col, segments)
-    # plot_pytrendy(df, value_col, segments)
+    segments = refine_segments(df, value_col, segments) #TODO: grouping (1?)
+    segments = analyse_segments(df, value_col, segments)
+    plot_pytrendy(df, value_col, segments)
 
     return segments
 
 # Run
 df = pd.read_csv('./data/series_gradual.csv')
 segments = main(df, date_col='date', value_col='value')
-display(segments)
+# display(segments)
 df = pd.read_csv('./data/series_abrupt.csv')
 segments = main(df, date_col='date', value_col='value')
-display(segments)
+# display(segments)
 # segments
-
-# %%
-# Use Case 1: Simple
-# df = pd.read_csv('./data/series_gradual.csv')
-# segments = main(df, date_col='date', value_col='value')
-
-# %%
 
 
 # %%
