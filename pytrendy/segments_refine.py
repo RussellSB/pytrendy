@@ -73,6 +73,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     Classifies appropriate segments as pre-defined typed of trends; 
     Gradual or Abrupt. Utilises DTW to compare to synthesized signals.
     """
+    segments_classified = deepcopy(segments)
 
     df_class = pd.read_csv('data/classes_trends.csv')
     df_class.set_index('date', inplace=True)
@@ -90,19 +91,19 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
             _, cost_gradual_up, _, _, _ = dtw(df_segment[value_col], df_class['gradual_up'])
             _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
             if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
-                segments[i]['trend_class'] = 'gradual'
+                segments_classified[i]['trend_class'] = 'gradual'
             else:
-                segments[i]['trend_class'] = 'abrupt'
+                segments_classified[i]['trend_class'] = 'abrupt'
         
         if segment['direction'] == 'Down': 
             _, cost_gradual_down, _, _, _ = dtw(df_segment[value_col], df_class['gradual_down'])
             _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
             if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
-                segments[i]['trend_class'] = 'gradual'
+                segments_classified[i]['trend_class'] = 'gradual'
             else:
-                segments[i]['trend_class'] = 'abrupt'
+                segments_classified[i]['trend_class'] = 'abrupt'
 
-    return segments
+    return segments_classified
 
 
 def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
@@ -155,6 +156,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     segments_refined = expand_contract_segments(df, value_col, segments)
-    segments_refined = classify_trends(df, value_col, segments)
-    segments_refined = shave_abrupt_trends(df, value_col, segments)
+    segments_refined = classify_trends(df, value_col, segments_refined)
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
     return segments_refined
