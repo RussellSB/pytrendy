@@ -23,7 +23,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
     df['flat_flag'] = 0
-    threshold_flat = df['value'].rolling(WINDOW_FLAT, center=True).std().quantile(THRESHOLD_FLAT) # initially set at 2 for series_gradual example
+    threshold_flat = df[value_col].rolling(WINDOW_FLAT, center=True).std().quantile(THRESHOLD_FLAT) # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
 
     # 3. Noise detection via SNR. Make sure that up/down trend selection isn't overly sensitive to periods of noise
