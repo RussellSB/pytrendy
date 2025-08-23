@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from .simpledtw import dtw
 import numpy as np
 
-THRESHOLD_DISTANCE = 3
+NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to a segment in days 
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
@@ -12,7 +12,7 @@ def _update_prev_segment(i, new_start, segments, segments_refined):
         return
     distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
     distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
-    if distance_refined <= THRESHOLD_DISTANCE or distance_orig <= THRESHOLD_DISTANCE:
+    if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
         segments_refined[i - 1]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
 
@@ -22,7 +22,7 @@ def _update_next_segment(i, new_end, segments, segments_refined):
         return
     distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
     distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
-    if distance_refined <= THRESHOLD_DISTANCE or distance_orig <= THRESHOLD_DISTANCE:
+    if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
         segments_refined[i + 1]['start'] = (pd.to_datetime(new_end) + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
 
@@ -55,12 +55,12 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         else:
             continue
 
-        # refine start
+        # Refine start
         if new_start != pd.to_datetime(segment['start']):
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             _update_prev_segment(i, new_start, segments, segments_refined)
 
-        # refine end
+        # Refine end
         if new_end != pd.to_datetime(segment['end']):
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             _update_next_segment(i, new_end, segments, segments_refined)
@@ -121,37 +121,24 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=7)
         df_segment = df.loc[start:end].copy()
 
+        # Use z-score on diff, to know when a change is an anomoly in the trend
         df_segment['diff'] = df_segment[value_col].diff()
         df_segment = df_segment.iloc[1:]
-        
         df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
         df_segment['abrupt_flag'] = 0
         df_segment.loc[df_segment['z_score'].abs() > 2, 'abrupt_flag'] = 1
 
-        # ax = df_segment[[value_col, 'diff']].plot(figsize=(20,3), secondary_y='diff')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
-
-        # print('--- 35th percentile', df_segment['diff'].abs().quantile(0.35))
-        # print('% higher:', ((df_segment['diff'].abs() > df_segment['diff'].abs().quantile(0.5)).sum()) / len(df_segment))
-
-        # ax = df_segment[[value_col, 'z_score']].plot(figsize=(20,3), secondary_y='z_score')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
-        # ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
-
+        # Refine start
         new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
         segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
         _update_prev_segment(i, new_start, segments, segments_refined)
 
+        # Refine end
         new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
         segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
         _update_next_segment(i, new_end, segments, segments_refined)
 
     return segments_refined
-
 
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
