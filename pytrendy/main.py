@@ -26,14 +26,29 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
     return segments
 
-# Run
-df = pd.read_csv('./data/series_synthetic.csv')
-segments = main(df, date_col='date', value_col='abrupt')
-segments = main(df, date_col='date', value_col='gradual')
+segments = main(df, date_col='date', value_col='value_noisy')
 
+# Run
+# df = pd.read_csv('./data/series_synthetic.csv')
+# segments = main(df, date_col='date', value_col='abrupt')
+# segments = main(df, date_col='date', value_col='gradual')
+
+
+# %%
+segments
+
+# %%
+noise_std = 20
+df = pd.read_csv('./data/series_synthetic.csv')
+df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
+segments = main(df, date_col='date', value_col='value_noisy')
+
+# %%
 import numpy as np
-for noise_std in [0, 2, 5, 10, 20, 50]:
+for noise_std in [0, 10, 20, 50]:
     print(f'Noise value: {noise_std}')
     df = pd.read_csv('./data/series_synthetic.csv')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
     segments = main(df, date_col='date', value_col='value_noisy')
+
+

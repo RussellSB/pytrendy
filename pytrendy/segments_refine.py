@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 from .simpledtw import dtw
 import numpy as np
 
-NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to a segment in days 
+NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
+GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
@@ -141,8 +142,52 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
     return segments_refined
 
 
+def group_segments(segments):
+    """
+    Groups segments provided they are of same direction, and close enough distance.
+    This caters for sporadic indications (especially for noise & flat regions).
+    """
+    def flush_history(segment_history, output):
+        """Append either a single or grouped segment to output."""
+        if not segment_history:
+            return
+        if len(segment_history) == 1:
+            output.append(segment_history[0])
+        else:
+            first, last = segment_history[0], segment_history[-1]
+            grouped = last.copy()
+            grouped['start'] = first['start']
+            grouped['end'] = last['end']
+            grouped['segment_length'] = (
+                pd.to_datetime(last['end']) - pd.to_datetime(first['start'])
+            ).days
+            output.append(grouped)
+
+    segments_refined = []
+    segment_history = []
+    direction_prev = None
+
+    for segment in segments:
+        direction = segment['direction']
+
+        if direction == direction_prev:
+            segment_history.append(segment)
+        else:
+            # flush current history before starting a new group
+            flush_history(segment_history, segments_refined)
+            segment_history = [segment]
+
+        direction_prev = direction
+
+    # flush any remaining history
+    flush_history(segment_history, segments_refined)
+
+    return segments_refined
+
+
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     segments_refined = expand_contract_segments(df, value_col, segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
+    segments_refined = group_segments(segments)
     return segments_refined
