@@ -5,7 +5,7 @@ from .simpledtw import dtw
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
-GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
+GROUPING_DISTANCE = 3 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
@@ -144,8 +144,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
 
 def group_segments(segments):
     """
-    Groups segments provided they are of same direction, and close enough distance.
-    This caters for sporadic indications (especially for noise & flat regions).
+    Groups segments if they have the same direction AND their gap is <= GROUPING_DISTANCE.
+    This reduces noise from sporadic short segments.
     """
     def flush_history(segment_history, output):
         """Append either a single or grouped segment to output."""
@@ -170,7 +170,12 @@ def group_segments(segments):
     for segment in segments:
         direction = segment['direction']
 
-        if direction == direction_prev:
+        if (
+            direction == direction_prev
+            and segment_history
+            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+        ):
+            # same direction and within allowed distance -> extend history
             segment_history.append(segment)
         else:
             # flush current history before starting a new group
