@@ -5,7 +5,7 @@ from .simpledtw import dtw
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
-GROUPING_DISTANCE = 3 # Distance for grouping segments of same type in group_segments
+GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
@@ -194,5 +194,5 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     segments_refined = expand_contract_segments(df, value_col, segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
-    segments_refined = group_segments(segments)
+    segments_refined = group_segments(segments_refined)
     return segments_refined

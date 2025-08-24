@@ -26,12 +26,12 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
     return segments
 
-segments = main(df, date_col='date', value_col='value_noisy')
+# segments = main(df, date_col='date', value_col='value_noisy')
 
 # Run
-# df = pd.read_csv('./data/series_synthetic.csv')
-# segments = main(df, date_col='date', value_col='abrupt')
-# segments = main(df, date_col='date', value_col='gradual')
+df = pd.read_csv('./data/series_synthetic.csv')
+segments = main(df, date_col='date', value_col='abrupt')
+segments = main(df, date_col='date', value_col='gradual')
 
 
 # %%
@@ -52,3 +52,5 @@ for noise_std in [0, 10, 20, 50]:
     segments = main(df, date_col='date', value_col='value_noisy')
 
 
+
+# %%
