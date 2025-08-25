@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 
 def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     """Add change descriptors of period pretreatment vs posttreatment"""
@@ -6,7 +7,9 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     for segment in segments:
         segment_enhanced = segment.copy()
         df_segment = df.loc[segment['start']:segment['end']]
-        # Best to use min/max instead of first/last to be more robust to noise.
+
+        # Calculate absolute and relative change from first point to last point of trend.
+        # (Using min/max instead of first/last to be more robust to noise.)
         if segment['direction'] == 'Up': # max - min
             segment_enhanced['change'] = float(df_segment[value_col].max() - df_segment[value_col].min())
             segment_enhanced['pct_change'] = float(df_segment[value_col].max()/df_segment[value_col].min() -1)
@@ -19,7 +22,11 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
         if segment['direction'] in ['Up', 'Down']:
             segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())
 
-        # Append
+        # Calculate Signal to Noise Ratio
+        signal_power = np.mean(df_segment['signal']**2)
+        noise_power = np.mean(df_segment['noise']**2)
+        segment_enhanced['SNR'] = float(10 * np.log10(signal_power / noise_power))
+
         segments_enhanced.append(segment_enhanced)
 
     # Rank steepest to shallowest change
