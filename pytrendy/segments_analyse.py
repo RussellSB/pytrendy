@@ -24,4 +24,7 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
 
     # Rank steepest to shallowest change
     segments_enhanced = sorted(segments_enhanced, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
+    for i, _ in enumerate(segments):
+        segments_enhanced[i]['change_rank'] = i+1
+
     return segments_enhanced

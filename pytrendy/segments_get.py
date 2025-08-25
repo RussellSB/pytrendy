@@ -43,6 +43,6 @@ def get_segments(df: pd.DataFrame):
         segment_length_prev = segment_length
 
     for i, _ in enumerate(segments):
-        segments[i]['time_index'] = i
+        segments[i]['time_index'] = i+1
 
     return segments # main result
