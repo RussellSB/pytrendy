@@ -1,7 +1,6 @@
 import pandas as pd
 from copy import deepcopy
-import matplotlib.pyplot as plt
-from .simpledtw import dtw
+from simpledtw import dtw
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
