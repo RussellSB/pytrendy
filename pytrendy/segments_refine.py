@@ -145,7 +145,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
 def group_segments(segments):
     """
     Groups segments if they have the same direction AND their gap is <= GROUPING_DISTANCE.
-    This reduces noise from sporadic short segments.
+    This reduces noisy selections from sporadic short segments.
     """
     def flush_history(segment_history, output):
         """Append either a single or grouped segment to output."""
