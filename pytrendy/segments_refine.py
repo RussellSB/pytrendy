@@ -1,83 +1,198 @@
-
 import pandas as pd
+from copy import deepcopy
+import matplotlib.pyplot as plt
+from .simpledtw import dtw
+import numpy as np
 
-def refine_segments(df:pd.DataFrame, value_col: str, segments: list):
-    """Post processing the segments. Slight tweak of segment starts & ends for more precision. Most useful in abrupt case."""
-    segments_refined = segments.copy()
-    for i in range(len(segments)):
+NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
+GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
-        segment = segments[i]
-        segment_prev = segments[i-1] if i != 0 else None
-        segment_next = segments[i+1] if i != len(segments)-1 else None
+def _update_prev_segment(i, new_start, segments, segments_refined):
+    """Shift previous segment end if overlapping with updated start (or original start)."""
+    if i == 0:
+        return
+    distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
+    distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
+    if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
+        segments_refined[i - 1]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
-        prev_distance = (pd.to_datetime(segment['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-        next_distance = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segment['end'])).days if segment_next else None
 
-        prev_exists_and_touching = (segment_prev and prev_distance <= 1)
-        next_exists_and_touching = (segment_next and next_distance <= 1)
+def _update_next_segment(i, new_end, segments, segments_refined):
+    """Shift next segment start if overlapping with updated end (or original end)."""
+    if i == len(segments_refined) - 1:
+        return
+    distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
+    distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
+    if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
+        segments_refined[i + 1]['start'] = (pd.to_datetime(new_end) + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
+    """
+    Post-process detected segments by assessing their start and end points.
+    Adjusts boundaries by looking ±7 days around each boundary for more precision.
+    Is there an appropriately higher or lower point worth taking? Take it.
+    If it increases the segment - "expand". If it decreases the segment - "contract".
+    """
+    segments_refined = deepcopy(segments)
+
+    def _get_window_df(center, days=7):
+        """Return a slice of df around a center date ±days."""
+        pre = (pd.to_datetime(center) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        post = (pd.to_datetime(center) + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        return df.loc[pre:post].copy()
+
+    for i, segment in enumerate(segments_refined):
+
+        start_df = _get_window_df(segment['start'])
+        end_df = _get_window_df(segment['end'])
 
         if segment['direction'] == 'Up':
+            new_start = start_df[value_col].idxmin() + pd.Timedelta(days=1)
+            new_end = end_df[value_col].idxmax()
+        elif segment['direction'] == 'Down':
+            new_start = start_df[value_col].idxmax() + pd.Timedelta(days=1)
+            new_end = end_df[value_col].idxmin()
+        else:
+            continue
 
-            ### EXPANSION
+        # Refine start
+        if new_start != pd.to_datetime(segment['start']):
+            segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+            _update_prev_segment(i, new_start, segments, segments_refined)
 
-            # Refine uptrend's start date to be lower if possible
-            if segment['start'] != df.index[0].strftime('%Y-%m-%d'):
+        # Refine end
+        if new_end != pd.to_datetime(segment['end']):
+            segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+            _update_next_segment(i, new_end, segments, segments_refined)
 
-                # Using diff, find closest low and closest high
-                temp = df.loc[:segment['start']].copy()
-                temp['diff'] = temp[value_col].diff()
-                temp = temp[:-2]
-
-                closestlow = temp.index[(temp["diff"] <= 0)][-1]
-                closesthigh = temp.index[(temp["diff"] > 0)][-1]
-                
-                start_value = df.loc[segment['start'], value_col]
-                closestlow_value = df.loc[closestlow, value_col]
-
-                # Edge cases
-                found_continuous = closestlow > closesthigh
-                found_lower = closestlow_value < start_value
-                
-                if found_continuous and found_lower: 
-                    # Select new candidate if it passes edge cases
-                    betterstart = closestlow.strftime('%Y-%m-%d')
-                    segments_refined[i]['start'] = betterstart
-
-                    # Update previous segment if touching/overlap
-                    prev_distance_refined = (pd.to_datetime(segments_refined[i]['start']) - pd.to_datetime(segment_prev['end'])).days if segment_prev else None
-                    prev_exists_and_touching_refined = (segment_prev and prev_distance_refined <= 1)
-                    if prev_exists_and_touching_refined: segments_refined[i-1]['end'] = (closestlow - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-
-            
-            # Refine uptrend's end date to be higher if possible
-            if segment['end'] != df.index[-1].strftime('%Y-%m-%d'):
-
-                # Using diff, check perspective of after end forwards
-                temp = df.loc[segment['end']:].copy()
-                temp['diff'] = temp[value_col].diff()
-                temp = temp[2:]
-                
-                closestlow = temp.index[(temp["diff"] <= 0)][0]
-                closesthigh = temp.index[(temp["diff"] > 0)][0]
-
-                end_value = df.loc[segment['end'], value_col]
-                closesthigh_value = df.loc[closesthigh, value_col]
-                
-                # Edge cases
-                found_continuous = closesthigh < closestlow
-                found_higher = closesthigh_value > end_value
-
-                if found_continuous and found_higher:
-                    # Select new candidate if it passes edge cases
-                    betterend = closesthigh.strftime('%Y-%m-%d')
-                    segments_refined[i]['end'] = betterend
-                    
-                    # Update next segment if touching/overlap
-                    next_distance_refined = (pd.to_datetime(segment_next['start']) - pd.to_datetime(segments_refined[i]['end'])).days if segment_next else None
-                    next_exists_and_touching_refined = (segment_next and next_distance_refined <= 1)
-                    if next_exists_and_touching_refined: segments_refined[i+1]['start'] = (closesthigh + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+    return segments_refined
 
 
-        elif segment['direction'] == 'Down': pass
+def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
+    """
+    Classifies appropriate segments as pre-defined typed of trends; 
+    Gradual or Abrupt. Utilises DTW to compare to synthesized signals.
+    """
+    segments_classified = deepcopy(segments)
 
+    df_class = pd.read_csv('data/classes_trends.csv')
+    df_class.set_index('date', inplace=True)
+    df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
+
+    for i, segment in enumerate(segments):
+
+        if segment['direction'] not in ['Up', 'Down']: 
+            continue
+
+        df_segment = df.loc[segment['start']:segment['end']]
+        df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
+
+        if segment['direction'] == 'Up': 
+            _, cost_gradual_up, _, _, _ = dtw(df_segment[value_col], df_class['gradual_up'])
+            _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
+            if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
+                segments_classified[i]['trend_class'] = 'gradual'
+            else:
+                segments_classified[i]['trend_class'] = 'abrupt'
+        
+        if segment['direction'] == 'Down': 
+            _, cost_gradual_down, _, _, _ = dtw(df_segment[value_col], df_class['gradual_down'])
+            _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
+            if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
+                segments_classified[i]['trend_class'] = 'gradual'
+            else:
+                segments_classified[i]['trend_class'] = 'abrupt'
+
+    return segments_classified
+
+
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
+    """
+    Handles case of abrupt trends since changepoint detection is missed by rolling statistics
+    We analyse the segment for diff outliers, and take the earliest and latest points from here.
+    """
+    segments_refined = deepcopy(segments)
+    for i, segment in enumerate(segments_refined):
+        if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
+            continue
+
+        # Get start end padded for some leniency
+        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=7)
+        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=7)
+        df_segment = df.loc[start:end].copy()
+
+        # Use z-score on diff, to know when a change is an anomoly in the trend
+        df_segment['diff'] = df_segment[value_col].diff()
+        df_segment = df_segment.iloc[1:]
+        df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
+        df_segment['abrupt_flag'] = 0
+        df_segment.loc[df_segment['z_score'].abs() > 2, 'abrupt_flag'] = 1
+
+        # Refine start
+        new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
+        segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+        _update_prev_segment(i, new_start, segments, segments_refined)
+
+        # Refine end
+        new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
+        segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+        _update_next_segment(i, new_end, segments, segments_refined)
+
+    return segments_refined
+
+
+def group_segments(segments):
+    """
+    Groups segments if they have the same direction AND their gap is <= GROUPING_DISTANCE.
+    This reduces noisy selections from sporadic short segments.
+    """
+    def flush_history(segment_history, output):
+        """Append either a single or grouped segment to output."""
+        if not segment_history:
+            return
+        if len(segment_history) == 1:
+            output.append(segment_history[0])
+        else:
+            first, last = segment_history[0], segment_history[-1]
+            grouped = last.copy()
+            grouped['start'] = first['start']
+            grouped['end'] = last['end']
+            grouped['segment_length'] = (
+                pd.to_datetime(last['end']) - pd.to_datetime(first['start'])
+            ).days
+            output.append(grouped)
+
+    segments_refined = []
+    segment_history = []
+    direction_prev = None
+
+    for segment in segments:
+        direction = segment['direction']
+
+        if (
+            direction == direction_prev
+            and segment_history
+            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+        ):
+            # same direction and within allowed distance -> extend history
+            segment_history.append(segment)
+        else:
+            # flush current history before starting a new group
+            flush_history(segment_history, segments_refined)
+            segment_history = [segment]
+
+        direction_prev = direction
+
+    # flush any remaining history
+    flush_history(segment_history, segments_refined)
+
+    return segments_refined
+
+
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
+    segments_refined = expand_contract_segments(df, value_col, segments)
+    segments_refined = classify_trends(df, value_col, segments_refined)
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
+    segments_refined = group_segments(segments_refined)
     return segments_refined

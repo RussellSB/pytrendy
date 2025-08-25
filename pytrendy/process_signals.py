@@ -1,11 +1,17 @@
 import pandas as pd
 from scipy.signal import savgol_filter
 import numpy as np
+import matplotlib.pyplot as plt
 
 def process_signals(df:pd.DataFrame, value_col: str):
     """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods"""
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
+    WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
+
+    THRESHOLD_FLAT = 0 # Sensitivity to detecting flats (recommended 0-0.5)
+    THRESHOLD_NOISE = 5 # Sensitivity to detecting noise (recommended 0-10)
+    THRESHOLD_SMOOTH = 0.25 # Sensetivity to detecting trends (recommended 0-0.5)
 
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
@@ -17,22 +23,26 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
     df['flat_flag'] = 0
-    threshold_flat = df['value'].rolling(int(WINDOW_FLAT), center=True).std().min() # initially set at 2 for series_gradual example
+    threshold_flat = df[value_col].rolling(WINDOW_FLAT, center=True).std().quantile(THRESHOLD_FLAT) # initially set at 2 for series_gradual example
     df.loc[df['smoothed_std'] < threshold_flat, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
 
     # 3. Noise detection via SNR. Make sure that up/down trend selection isn't overly sensitive to periods of noise
-    df['signal'] = df[value_col].rolling(window=15, center=True, min_periods=1).mean()
+    df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()
     df['noise'] = df[value_col] - df['signal']
     df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
     df['noise_flag'] = 0
-    df.loc[df['snr'] <= 5, 'noise_flag'] = 1
+    df.loc[df['snr'] <= THRESHOLD_NOISE, 'noise_flag'] = 1
 
     # TODO: Move to analyse segments
     # signal_power = np.mean(df['signal']**2)
     # noise_power = np.mean(df['noise']**2)
     # snr_db = 10 * np.log10(signal_power / noise_power)
     # print(f"SNR (dB): {snr_db:.2f}")
-    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    # ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
 
@@ -42,9 +52,11 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df.loc[df['flat_flag']==1, 'trend_flag'] = -2
     df.loc[df['noise_flag']==1, 'trend_flag'] = -3
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
-    df.loc[(df['smoothed_deriv'] >= 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
-    df.loc[(df['smoothed_deriv'] < 0) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
-
+    df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
+    df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+    # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
     # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
