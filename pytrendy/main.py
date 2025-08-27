@@ -1,17 +1,15 @@
 # %%
 %load_ext autoreload
 %autoreload 2
-
-# %%
-%reload_ext autoreload
+%reload_ext autoreload 
 
 #%%
 import pandas as pd
-from pytrendy.process_signals import process_signals
-from pytrendy.segments_get import get_segments
-from pytrendy.segments_refine import refine_segments
-from pytrendy.segments_analyse import analyse_segments
-from pytrendy.plot_pytrendy import plot_pytrendy
+from process_signals import process_signals
+from segments_get import get_segments
+from segments_refine import refine_segments
+from segments_analyse import analyse_segments
+from plot_pytrendy import plot_pytrendy
 
 def main(df:pd.DataFrame, date_col:str, value_col: str):
     """Main pipeline TODO: talk about it all...!"""
@@ -26,11 +24,13 @@ def main(df:pd.DataFrame, date_col:str, value_col: str):
 
     return segments
 
+#%%
 # Example Runs
-df = pd.read_csv('./data/series_synthetic.csv')
+df = pd.read_csv('../data/series_synthetic.csv')
 segments = main(df, date_col='date', value_col='abrupt')
 segments = main(df, date_col='date', value_col='gradual')
 segments = main(df, date_col='date', value_col='gradual-noisy-20')
+
 
 
 # %%
@@ -40,10 +40,11 @@ segments = main(df, date_col='date', value_col='gradual-noisy-20')
 # segments = main(df, date_col='date', value_col='value_noisy')
 # segments = main(df, date_col='date', value_col='value_noisy')
 
-# # %%
-# import numpy as np
-# for noise_std in [0, 10, 20, 50]:
-#     print(f'Noise value: {noise_std}')
-#     df = pd.read_csv('./data/series_synthetic.csv')
-#     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-#     segments = main(df, date_col='date', value_col='value_noisy')
+# %%
+import numpy as np
+for noise_std in [0, 10, 20, 50]:
+    print(f'Noise value: {noise_std}')
+    df = pd.read_csv('../data/series_synthetic.csv')
+    df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
+    segments = main(df, date_col='date', value_col='value_noisy')
+# %%
