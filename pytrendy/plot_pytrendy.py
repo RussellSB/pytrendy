@@ -25,7 +25,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        mask = (df.index >= start - pd.Timedelta(days=0.5)) & (df.index <= end + pd.Timedelta(days=0.5)) # TODO: make work by pixels somehow
+        mask = (df.index >= start - pd.Timedelta(days=1)) & (df.index <= end) # TODO: make work by pixels somehow
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
