@@ -1,3 +1,11 @@
+
+# %%
+%load_ext autoreload
+%autoreload 2
+
+# %%
+%reload_ext autoreload
+
 #%%
 import pandas as pd
 from process_signals import process_signals
@@ -142,7 +150,8 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True):
 df = pd.read_csv('./data/series_synthetic.csv')
 # results = detect_trends(df, date_col='date', value_col='gradual-noisy-20')
 # results = detect_trends(df, date_col='date', value_col='abrupt')
-results = detect_trends(df, date_col='date', value_col='gradual')
+results = detect_trends(df, date_col='date', value_col='gradual', plot=False)
+results.filter_segments(sort_by='time_index')[:3]
 
 
 # %%

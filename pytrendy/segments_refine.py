@@ -189,9 +189,27 @@ def group_segments(segments):
     return segments_refined
 
 
+def clean_artifacts(segments):
+    """
+    Sometimes the neighbour repositioning can create tiny artifacts (eg. for Flats)
+    Cleaning to make sure it does not make its way to final indication
+    """
+    segments_refined = []
+    print('cleaning...')
+    for segment in segments:
+        start = pd.to_datetime(segment['start'])
+        end =  pd.to_datetime(segment['end'])
+        if (end - start).days < 3: # must align with constants in segments_get
+            continue
+        segments_refined.append(segment)
+    return segments_refined
+
+
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
     segments_refined = expand_contract_segments(df, value_col, segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
     segments_refined = group_segments(segments_refined)
+
+    segments_refined = clean_artifacts(segments_refined)
     return segments_refined
