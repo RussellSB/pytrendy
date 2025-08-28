@@ -33,19 +33,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['noise_flag'] = 0
     df.loc[df['snr'] <= THRESHOLD_NOISE, 'noise_flag'] = 1
 
-    # TODO: Move to analyse segments
-    # signal_power = np.mean(df['signal']**2)
-    # noise_power = np.mean(df['noise']**2)
-    # snr_db = 10 * np.log10(signal_power / noise_power)
-    # print(f"SNR (dB): {snr_db:.2f}")
-    # ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-
-    # ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['trend_flag'] = 0
@@ -54,11 +41,5 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
-    # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-    # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
 
     return df
