@@ -22,7 +22,7 @@ class PyTrendyResults:
     def set_best(self):
         """
         results.best returns best based on total_change (cumulative sum of differences). 
-        This prioritises both longest segment length (days) and steepness if trend.
+        This prioritises both longest segment length (days) and steepness of trend.
         """
         best = self.segments[0]
         if best['direction'] not in ['Up', 'Down']:
@@ -78,6 +78,7 @@ class PyTrendyResults:
         Simple helper for getting segments 
         - filtered by direction ['Any', 'Up/Down', 'Up', 'Down', 'Flat', 'Noise']
         - sorted by time_index (ascending) or change_rank (descending)
+        - return format, either of ['dict', 'df']
         """
         segments = self.segments
 
