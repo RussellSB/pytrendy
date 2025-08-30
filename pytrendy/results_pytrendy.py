@@ -95,7 +95,7 @@ class PyTrendyResults:
             return
 
         if format not in ['dict', 'df']:
-            print(f'{sort_by} is not a valid format. Please try one of [\'dict\', \'df\']')
+            print(f'{format} is not a valid format. Please try one of [\'dict\', \'df\']')
         if format=='dict':
             return segments
         elif format == 'df':
