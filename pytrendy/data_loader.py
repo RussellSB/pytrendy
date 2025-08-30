@@ -1,7 +1,7 @@
 from pathlib import Path
 import pandas as pd
 
-def load_data(dataset:str) -> pd.DataFrame:
+def load_data(dataset:str='series_synthetic') -> pd.DataFrame:
 
     options = ['classes_trends', 'series_synthetic']
     if dataset not in options:
