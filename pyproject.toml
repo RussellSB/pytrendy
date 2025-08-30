@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytrendy"
+version = "0.0.1"
+description = "Trend Detection in Python. Applicable for real-world industry use cases in time series."
+authors = [
+    { name = "Russell Sammut Bonnici", email = "r.sammutbonnici@gmail.com" },
+    { name = "Barsha Deb", email = "debbarsha1503@gmail.com" }
+]
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.8"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "matplotlib"
+]
+
+[tool.setuptools]
+packages = ["pytrendy"]
+
+[tool.setuptools.package-data]
+pytrendy = ["py.typed"]
