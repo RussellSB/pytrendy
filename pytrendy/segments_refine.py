@@ -75,7 +75,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
     segments_classified = deepcopy(segments)
 
-    df_class = pd.read_csv('../data/classes_trends.csv')
+    df_class = pd.read_csv('./data/classes_trends.csv')
     df_class.set_index('date', inplace=True)
     df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
 
