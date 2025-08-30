@@ -196,7 +196,6 @@ def clean_artifacts(segments):
     Cleaning to make sure it does not make its way to final indication
     """
     segments_refined = []
-    print('cleaning...')
     for segment in segments:
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
