@@ -1,10 +1,10 @@
 import pandas as pd
-from process_signals import process_signals
-from segments_get import get_segments
-from segments_refine import refine_segments
-from segments_analyse import analyse_segments
-from plot_pytrendy import plot_pytrendy
-from results_pytrendy import PyTrendyResults
+from .process_signals import process_signals
+from .segments_get import get_segments
+from .segments_refine import refine_segments
+from .segments_analyse import analyse_segments
+from .plot_pytrendy import plot_pytrendy
+from .results_pytrendy import PyTrendyResults
 
 def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True):
     """

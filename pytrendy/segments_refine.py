@@ -1,7 +1,7 @@
 import pandas as pd
 from copy import deepcopy
-from simpledtw import dtw
-from data_loader import load_data
+from .simpledtw import dtw
+from .data_loader import load_data
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
