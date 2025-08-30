@@ -9,9 +9,11 @@
 #%%
 import pandas as pd
 from detect_trends import detect_trends
+from data_loader import load_data
 
 # Example Runs
-df = pd.read_csv('./data/series_synthetic.csv')
+
+df = load_data('series_synthetic')
 # results = detect_trends(df, date_col='date', value_col='gradual-noisy-20')
 # results = detect_trends(df, date_col='date', value_col='abrupt')
 results = detect_trends(df, date_col='date', value_col='gradual', plot=False)
