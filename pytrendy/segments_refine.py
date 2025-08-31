@@ -229,6 +229,7 @@ def clean_artifacts(segments):
         if (end - start).days < 1: # must align with constants in segments_get
             continue
         segments_refined.append(segment)
+        
     return segments_refined
 
 
