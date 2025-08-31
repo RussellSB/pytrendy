@@ -199,7 +199,7 @@ def clean_artifacts(segments):
     for segment in segments:
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days <= 1: # must align with constants in segments_get
+        if (end - start).days < 1: # must align with constants in segments_get
             continue
         segments_refined.append(segment)
     return segments_refined
