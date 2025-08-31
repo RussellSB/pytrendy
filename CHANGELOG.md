@@ -1,0 +1,13 @@
+# 1.0.0 (2025-08-31)
+
+
+### Bug Fixes
+
+* **ci:** updating with .releaserc for version bumping ([625b8ee](https://github.com/RussellSB/pytrendy/commit/625b8eecd63931df9c9762f9a015a97a118c620a))
+* **clean_artifacts:** Catering for 1 day abrupt period, by relaxing to < 1 filtering ([5ede69f](https://github.com/RussellSB/pytrendy/commit/5ede69f8787e8cee3403a1aa864a0036e5e995eb))
+* **dummy-commit:** testing new ci version bumping ([d23546e](https://github.com/RussellSB/pytrendy/commit/d23546e68cbec8af2ebbdf5308af272ad52925bf))
+
+
+### Features
+
+* Toggle abrupt padding functionality. Allows you to pad abrupt trends for quasi-experimental pre vs post use cases ([8832469](https://github.com/RussellSB/pytrendy/commit/8832469e81e359252c7ad103cc08967082ba281e))
