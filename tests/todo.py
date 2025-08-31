@@ -6,4 +6,4 @@
 # Test on Grouping - make sure for noisy scenaio (save test-signal) that it groups correctly
 # Test on Segment Classification - make sure it classifies abrupt / gradual correctly
 # Test for results
-# Test for abrupt flag once implemented
+# Test for abrupt flag once implemented - one for simple curr case, another for nuanced new signal case (nonflat overlap)

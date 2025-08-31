@@ -107,7 +107,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict):
     """
     Handles case of abrupt trends since changepoint detection is missed by rolling statistics
     We analyse the segment for diff outliers, and take the earliest and latest points from here.
@@ -134,12 +134,39 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list):
         segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
         _update_prev_segment(i, new_start, segments, segments_refined)
 
-        # Refine end
+        # Refine end, with custom logic for padding if specified
         new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
         segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
         _update_next_segment(i, new_end, segments, segments_refined)
 
-    return segments_refined
+    # Second pass to pad segments if specified
+    segments_padded = deepcopy(segments_refined)
+    if method_params.get('is_abrupt_padded', False):
+
+        df = pd.DataFrame(segments_refined)
+        df['start'] = pd.to_datetime(df['start'])
+        df['end'] = pd.to_datetime(df['end'])
+
+        for i, segment in enumerate(segments_refined):
+
+            if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
+                continue
+
+            # Simulate new end with padding and any overlaps it might cayse
+            print(method_params)
+            new_end = pd.to_datetime(segment['end']) + pd.Timedelta(days=method_params['abrupt_padding'])
+            overlaps = df.loc[(df['start'] <= new_end) & (df['end'] >= new_end)]
+            overlaps_nonflats = overlaps[overlaps['direction']!='Flat']
+
+            # Adjust padding to be before first nonflat segment that it would overlap
+            if not overlaps.empty and not overlaps_nonflats.empty:
+                first_notflat_overlap = overlaps_nonflats.iloc[0]
+                new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
+
+            segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
+            _update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
+
+    return segments_padded
 
 
 def group_segments(segments):
@@ -205,10 +232,10 @@ def clean_artifacts(segments):
     return segments_refined
 
 
-def refine_segments(df: pd.DataFrame, value_col: str, segments: list):
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = expand_contract_segments(df, value_col, segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined)
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
     segments_refined = group_segments(segments_refined)
 
     segments_refined = clean_artifacts(segments_refined)
