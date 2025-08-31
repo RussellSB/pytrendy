@@ -1,4 +1,4 @@
-name: Semantic Release
+name: Release
 
 on:
   push:
@@ -6,36 +6,41 @@ on:
       - main
 
 jobs:
-  release:
+  semantic-release:
+    name: Semantic Release
     runs-on: ubuntu-latest
     permissions:
-      id-token: write     # for PyPI trusted publishing
-      contents: write     # needed to create tags and GitHub releases
-      issues: write       # optional, if you want release notes/comments
-      pull-requests: write # optional, for PR comments
-
+      contents: write   # push tags, changelog, pyproject.toml updates
+      id-token: write   # OIDC for PyPI (needed in publish job)
+    outputs:
+      released: ${{ steps.release.outputs.released }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # full history required for semantic-release
+          fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
       - name: Install semantic-release
-        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/exec
 
       - name: Run semantic-release
+        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx semantic-release
+        run: |
+          if npx semantic-release; then
+            echo "released=true" >> $GITHUB_OUTPUT
+          else
+            echo "released=false" >> $GITHUB_OUTPUT
+          fi
 
-  build_and_publish:
-    needs: release
-    if: needs.release.outputs.released == 'true'
+  build-and-publish:
+    name: Build & Publish to PyPI
+    needs: semantic-release
+    if: needs.semantic-release.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -43,13 +48,11 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -58,18 +61,12 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Set version from tag
-        run: |
-          VERSION=$(git describe --tags --abbrev=0)
-          poetry version "${VERSION#v}"
-
       - name: Install deps & build
         run: |
           poetry install --no-interaction --sync
           poetry build
 
-      - name: Upload dist
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
