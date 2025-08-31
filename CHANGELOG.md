@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/RussellSB/pytrendy/compare/v1.0.1...v1.0.2) (2025-08-31)
+
+
+### Bug Fixes
+
+* **ci:** setting environment to release ([9a8a983](https://github.com/RussellSB/pytrendy/commit/9a8a98330d7eaf19e137046fdbc8ece3f3def7d7))
+
 ## [1.0.1](https://github.com/RussellSB/pytrendy/compare/v1.0.0...v1.0.1) (2025-08-31)
 
 
