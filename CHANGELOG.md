@@ -1,3 +1,12 @@
+## [1.0.1](https://github.com/RussellSB/pytrendy/compare/v1.0.0...v1.0.1) (2025-08-31)
+
+
+### Bug Fixes
+
+* **ci:** add poetry for npm build semantic release ([9049260](https://github.com/RussellSB/pytrendy/commit/9049260781838917ec46b8cb2b6a0fb46e7c8ffe))
+* **ci:** install conventional changelog dependancy ([49a1a64](https://github.com/RussellSB/pytrendy/commit/49a1a649813404631e165d4e2823ee9d12d280de))
+* **ci:** output from semantic release commit scan and enable version bumping ([c863285](https://github.com/RussellSB/pytrendy/commit/c86328560ff8491cd207000e6477d929e8f83d7b))
+
 # 1.0.0 (2025-08-31)
 
 
