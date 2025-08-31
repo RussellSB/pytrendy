@@ -1,4 +1,4 @@
-name: Release
+name: Semantic Release
 
 on:
   push:
@@ -6,20 +6,22 @@ on:
       - main
 
 jobs:
-  semantic-release:
-    name: Semantic Release
+  release:
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # to push tags & commits
-      id-token: write   # to publish to PyPI
-    outputs:
-      released: ${{ steps.release.outputs.released }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      id-token: write     # for PyPI trusted publishing
+      contents: write     # needed to create tags and GitHub releases
+      issues: write       # optional, if you want release notes/comments
+      pull-requests: write # optional, for PR comments
 
-      - uses: actions/setup-node@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history required for semantic-release
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
@@ -27,16 +29,13 @@ jobs:
         run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
 
       - name: Run semantic-release
-        id: release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx semantic-release || echo "released=false" >> $GITHUB_OUTPUT
+        run: npx semantic-release
 
-  build-and-publish:
-    name: Build & Publish to PyPI
-    needs: semantic-release
-    if: needs.semantic-release.outputs.released == 'true'
+  build_and_publish:
+    needs: release
+    if: needs.release.outputs.released == 'true'
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -44,11 +43,13 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -57,7 +58,7 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Sync version from tag
+      - name: Set version from tag
         run: |
           VERSION=$(git describe --tags --abbrev=0)
           poetry version "${VERSION#v}"
@@ -67,7 +68,8 @@ jobs:
           poetry install --no-interaction --sync
           poetry build
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload dist
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
