@@ -7,12 +7,19 @@ authors = [
     { name = "Russell Sammut Bonnici", email = "r.sammutbonnici@gmail.com" },
     { name = "Barsha Deb", email = "debbarsha1503@gmail.com" }
 ]
+maintainers = [
+    { name = "Russell Sammut Bonnici", email = "r.sammutbonnici@gmail.com" },
+    { name = "Barsha Deb", email = "debbarsha1503@gmail.com" }
+]
 readme = "README.md"
 license = { file = "LICENSE" }
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 dependencies = [
     "numpy",
     "pandas",
     "scipy",
     "matplotlib"
 ]
+
+[project.urls]
+repository = "https://github.com/RussellSB/pytrendy"
