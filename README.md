@@ -1,6 +1,6 @@
 # PyTrendy 
 
-![alt-text](plots/pytrendy-gradual-demo.gif)
+![alt-text](https://github.com/RussellSB/pytrendy/blob/main/plots/pytrendy-gradual-demo.gif)
 
 PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing. It is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
 
@@ -42,7 +42,7 @@ Run trend detection & plot the results.
 ```py
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 ```
-![alt-text](plots/pytrendy-gradual.png)
+![alt-text](https://github.com/RussellSB/pytrendy/blob/main/plots/pytrendy-gradual.png)
 
 The results object can be used to summarise, further analyse, and generally inspect the trend detections.
 ```py
@@ -93,7 +93,7 @@ results.segments_df
 
 </small>
 
-By default, trends are sorted by their change_rank. This is ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
+By default, trends are sorted by their change_rank. This ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
 ```
 results.filter_segments(sort_by='time_index')
 ```
