@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/RussellSB/pytrendy/compare/v1.0.2...v1.0.3) (2025-09-01)
+
+
+### Bug Fixes
+
+* **ci:** triggering version patch bump to update docs on pypi ([35beed4](https://github.com/RussellSB/pytrendy/commit/35beed45932208dae6a749434227a2ad5e8a514f))
+
 ## [1.0.2](https://github.com/RussellSB/pytrendy/compare/v1.0.1...v1.0.2) (2025-08-31)
 
 
