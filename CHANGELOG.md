@@ -1,3 +1,13 @@
+## [1.0.7](https://github.com/RussellSB/pytrendy/compare/v1.0.6...v1.0.7) (2025-09-01)
+
+
+### Bug Fixes
+
+* **ci:** remove semantic release dry run mode, to allow version bumping ([29e3b69](https://github.com/RussellSB/pytrendy/commit/29e3b69895300523e35f0863b7e1cbc5f2f593d2))
+* **ci:** resolving non-version bumped workflow issue ([f1ccf50](https://github.com/RussellSB/pytrendy/commit/f1ccf50fe930589024b3ea4e82af249ea36ebebd))
+* **ci:** run semantic release trigger ([92dcc80](https://github.com/RussellSB/pytrendy/commit/92dcc802063138c76c96a47e3fca12cdf3002bd8))
+* python 3.10 bug of single quotation marks in f string ([88e35dc](https://github.com/RussellSB/pytrendy/commit/88e35dc2cb74c72688d3e17ed8c0ebc264fed930))
+
 ## [1.0.6](https://github.com/RussellSB/pytrendy/compare/v1.0.5...v1.0.6) (2025-09-01)
 
 
