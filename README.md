@@ -88,6 +88,7 @@ results.segments_df
 </small>
 
 ## Upcoming
+
 - More DEMO examples.
 - Automated testing in CI/CD pipeline.
 - Full documentation with all features.
