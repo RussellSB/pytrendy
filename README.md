@@ -93,7 +93,7 @@ results.segments_df
 
 </small>
 
-By default, trends are sorted by there change_rank. This is ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
+By default, trends are sorted by their change_rank. This is ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
 ```
 results.filter_segments(sort_by='time_index')
 ```
