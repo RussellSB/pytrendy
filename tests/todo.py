@@ -7,3 +7,4 @@
 # Test on Segment Classification - make sure it classifies abrupt / gradual correctly
 # Test for results
 # Test for abrupt flag once implemented - one for simple curr case, another for nuanced new signal case (nonflat overlap)
+# 
