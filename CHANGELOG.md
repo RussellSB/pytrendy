@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/RussellSB/pytrendy/compare/v1.0.3...v1.0.4) (2025-09-01)
+
+
+### Bug Fixes
+
+* **docs:** update README.md to be more clear and concise. ([0acd8e3](https://github.com/RussellSB/pytrendy/commit/0acd8e3dc5ae84d34260a1303b28834d0df6ca90))
+
 ## [1.0.3](https://github.com/RussellSB/pytrendy/compare/v1.0.2...v1.0.3) (2025-09-01)
 
 
