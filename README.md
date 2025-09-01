@@ -1,8 +1,9 @@
 # PyTrendy 
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing, and handles both for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
-
 ![alt-text](plots/pytrendy-gradual-demo.gif)
+
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing, and is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
+
 
 ## Quickstart
 Install the package from PyPi.
@@ -19,19 +20,6 @@ df = pt.load_data('series_synthetic')
 display(df)
 ```
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -165,19 +153,6 @@ You can directly call the object as a pandas dataframe.
 results.segments_df
 ```
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -340,24 +315,12 @@ results.segments_df
 </table>
 </div>
 </br>
+
 By default, trends are sorted by there change_rank. This is ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
 ```
 results.filter_segments(sort_by='time_index')
 ```
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
@@ -521,25 +484,14 @@ results.filter_segments(sort_by='time_index')
 </div>
 </br>
 
+
 As well as filter only for a specific direction.
+
 ```
 results.filter_segments(direction='Up')
 ```
 
 <div>
-<style scoped>
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
 <table border="1" class="dataframe">
   <thead>
     <tr style="text-align: right;">
