@@ -10,16 +10,22 @@ jobs:
     name: Semantic Release
     runs-on: ubuntu-latest
     permissions:
-      contents: write   # push tags, changelog, pyproject.toml updates
-      id-token: write   # OIDC for PyPI (needed in publish job)
+      # This permission is needed to push the release commit, tag, and changelog
+      contents: write
+      # This permission is needed for OIDC trusted publishing to PyPI
+      id-token: write
     outputs:
+      # This output tells subsequent jobs whether a release actually happened
       released: ${{ steps.release.outputs.released }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
+          # Fetches all history for semantic-release to analyze commits
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -28,11 +34,12 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install semantic-release
+      - name: Install semantic-release plugins
         run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/exec conventional-changelog-conventionalcommits
 
       - name: Run semantic-release
@@ -40,6 +47,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # This script checks if semantic-release created a release.
+          # If it does, it exits 0, and 'released' is set to 'true'.
+          # If not (no relevant commits), it exits non-zero, and 'released' is set to 'false'.
           if npx semantic-release; then
             echo "released=true" >> $GITHUB_OUTPUT
           else
@@ -49,19 +59,28 @@ jobs:
   build-and-publish:
     name: Build & Publish to PyPI
     needs: semantic-release
+    # This condition is crucial: the job only runs if the first job's output was 'true'.
     if: needs.semantic-release.outputs.released == 'true'
     runs-on: ubuntu-latest
-    environment: release
+    environment: release # Optional: for protection rules and environment secrets
     permissions:
+      # This permission is required for trusted publishing to PyPI.
       id-token: write
+      # Read permission is sufficient for this job.
       contents: read
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
+          # This is the most important fix!
+          # It checks out the HEAD of the 'main' branch, which now includes the
+          # new commit with the version bump from the 'semantic-release' job.
+          ref: main
           fetch-depth: 0
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -70,17 +89,18 @@ jobs:
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-      - name: Install deps & build
+      - name: Install dependencies & build package
         run: |
           poetry install --no-interaction --sync
           poetry build
 
-      - uses: actions/upload-artifact@v4
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist/
 
-      - name: Publish to PyPI
+      - name: Publish package to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           package-dir: dist/
