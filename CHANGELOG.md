@@ -1,3 +1,10 @@
+## [1.0.6](https://github.com/RussellSB/pytrendy/compare/v1.0.5...v1.0.6) (2025-09-01)
+
+
+### Bug Fixes
+
+* **docs:** updating image links in README to raw github to work on pypi ([d8c0733](https://github.com/RussellSB/pytrendy/commit/d8c0733c0b960d0d76883b9ad3bd19738f3a373c))
+
 ## [1.0.5](https://github.com/RussellSB/pytrendy/compare/v1.0.4...v1.0.5) (2025-09-01)
 
 
