@@ -10,18 +10,14 @@ jobs:
     name: Semantic Release
     runs-on: ubuntu-latest
     permissions:
-      # This permission is needed to push the release commit, tag, and changelog
       contents: write
-      # This permission is needed for OIDC trusted publishing to PyPI
       id-token: write
     outputs:
-      # This output tells subsequent jobs whether a release actually happened
       released: ${{ steps.release.outputs.released }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # Fetches all history for semantic-release to analyze commits
           fetch-depth: 0
 
       - name: Setup Python
@@ -47,35 +43,23 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # This script checks if semantic-release created a release.
-          # If it does, it exits 0, and 'released' is set to 'true'.
-          # If not (no relevant commits), it exits non-zero, and 'released' is set to 'false'.
-          if npx semantic-release; then
-            echo "released=true" >> $GITHUB_OUTPUT
-          else
-            echo "released=false" >> $GITHUB_OUTPUT
-          fi
+          RELEASED=$(npx semantic-release --dry-run | grep -q "Release note" && echo "true" || echo "false")
+          echo "released=$RELEASED" >> $GITHUB_OUTPUT
 
   build-and-publish:
     name: Build & Publish to PyPI
     needs: semantic-release
-    # This condition is crucial: the job only runs if the first job's output was 'true'.
     if: needs.semantic-release.outputs.released == 'true'
     runs-on: ubuntu-latest
-    environment: release # Optional: for protection rules and environment secrets
+    environment: release 
     permissions:
-      # This permission is required for trusted publishing to PyPI.
       id-token: write
-      # Read permission is sufficient for this job.
       contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          # This is the most important fix!
-          # It checks out the HEAD of the 'main' branch, which now includes the
-          # new commit with the version bump from the 'semantic-release' job.
           ref: main
           fetch-depth: 0
 
