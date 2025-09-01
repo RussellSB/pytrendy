@@ -52,7 +52,7 @@ class PyTrendyResults:
             print('Detected no trends...')
             return
         else:
-            print(f'The best detected trend is {self.best['direction']} between dates {self.best['start']} - {self.best['end']}\n')
+            print(f'The best detected trend is {self.best["direction"]} between dates {self.best["start"]} - {self.best["end"]}\n')
 
         print('Full Results:')
         print('-------------------------------------------------------------------------------\n', 
