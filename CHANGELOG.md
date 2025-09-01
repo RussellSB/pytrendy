@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/RussellSB/pytrendy/compare/v1.0.4...v1.0.5) (2025-09-01)
+
+
+### Bug Fixes
+
+* **docs:** plot display on PyPi ([609c112](https://github.com/RussellSB/pytrendy/commit/609c11255b49f8bb4c5ae293da35d85f39e4cac7))
+
 ## [1.0.4](https://github.com/RussellSB/pytrendy/compare/v1.0.3...v1.0.4) (2025-09-01)
 
 
