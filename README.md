@@ -4,6 +4,11 @@
 
 PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing, and is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
 
+<style scoped>
+table {
+  font-size: 11px;
+}
+</style>
 
 ## Quickstart
 Install the package from PyPi.
@@ -19,7 +24,7 @@ Load daily time series data. In this case, we're using one of pytrendy's custom 
 df = pt.load_data('series_synthetic')
 display(df)
 ```
-<small>
+
 
 | | date | abrupt | gradual | gradual-noisy-20 |
 |:---|:----------:|-----------:|----------:|-------------------:|
@@ -36,7 +41,7 @@ display(df)
 | 180 | 2025-06-30 | 4.435105 | 22.240260 | 3.343233 |
 
 *181 rows × 4 columns*
-</small>
+
 
 Run trend detection & plot the results.
 ```py
@@ -77,7 +82,7 @@ You can directly call the object as a pandas dataframe.
 results.segments_df
 ```
 
-<small>
+
 
 | time_index | direction | segmenth_length | start | end | trend_class | change | pct_change | days | total_change | SNR | change_rank |
 |:----------:|:----------|----------------:|:-----------|:-----------|:------------|-----------:|-----------:|-----:|-------------:|----------:|------------:|
@@ -91,14 +96,14 @@ results.segments_df
 | 6 | Flat | 4 | 2025-03-15 | 2025-03-17 | NaN | NaN | NaN | 2 | NaN | 17.350339 | 8 |
 | 10 | Flat | 13 | 2025-06-18 | 2025-06-29 | NaN | NaN | NaN | 11 | NaN | 19.039273 | 9 |
 
-</small>
+
 
 By default, trends are sorted by there change_rank. This is ranks higher duration and magnitude of change to describe a trend's gravity erlative to others. You can sort by time index instead with filter_segments.
 ```
 results.filter_segments(sort_by='time_index')
 ```
 
-<small>
+
 
 | time_index | direction | segmenth_length | start       | end         | trend_class | change      | pct_change | days | total_change | SNR       | change_rank |
 |------------|-----------|-----------------|-------------|-------------|-------------|-------------|------------|------|--------------|-----------|-------------|
@@ -112,7 +117,7 @@ results.filter_segments(sort_by='time_index')
 | 9          | Down      | 38              | 2025-05-09  | 2025-06-17  | gradual     | -73.253968  | -0.805442  | 39   | -73.253968   | 21.122099 | 1           |
 | 10         | Flat      | 13              | 2025-06-18  | 2025-06-29  | NaN         | NaN         | NaN        | 11   | NaN          | 19.039273 | 9           |
 
-</small>
+
 
 As well as filter only for a specific direction.
 
@@ -120,7 +125,7 @@ As well as filter only for a specific direction.
 results.filter_segments(direction='Up')
 ```
 
-<small>
+
 
 | time_index | direction | segmenth_length | start       | end         | trend_class | change     | pct_change | days | total_change | SNR       | change_rank |
 |------------|-----------|-----------------|-------------|-------------|-------------|------------|------------|------|--------------|-----------|-------------|
@@ -128,7 +133,7 @@ results.filter_segments(direction='Up')
 | 5          | Up        | 22              | 2025-02-10  | 2025-03-14  | gradual     | 26.015512  | 1.974942   | 32   | 24.632035    | 18.871430 | 3           |
 | 1          | Up        | 17              | 2025-01-02  | 2025-01-24  | gradual     | 14.013348  | 1.044080   | 22   | 14.013348    | 22.207980 | 5           |
 
-</small>
+
 
 ## Upcoming
 - More DEMO examples.
