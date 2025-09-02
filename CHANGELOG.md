@@ -1,3 +1,13 @@
+## [1.0.8](https://github.com/RussellSB/pytrendy/compare/v1.0.7...v1.0.8) (2025-09-02)
+
+
+### Bug Fixes
+
+* **edge case:** no trends case crashing because it tries to access change_rank when doesnt exist ([45ff56c](https://github.com/RussellSB/pytrendy/commit/45ff56cc9e6e2815de7946dd5c6e6f28d07a542c))
+* **visual:** abrupt plot, making it visually tighter while not affecting presentation choice for gradual and other signals ([f175c62](https://github.com/RussellSB/pytrendy/commit/f175c62c41a3e13cea31ef8343147abb0c251363))
+* **visual:** abrupt trend leaving white line when neighbouring ([86fd02a](https://github.com/RussellSB/pytrendy/commit/86fd02a266bc3db1e001735cb0abe0e2f90aaf91))
+* **visual:** no left displacement for abrupt trends ([0f33e08](https://github.com/RussellSB/pytrendy/commit/0f33e0891cd32e5782ba6bc24310024a7d56d12b))
+
 ## [1.0.7](https://github.com/RussellSB/pytrendy/compare/v1.0.6...v1.0.7) (2025-09-01)
 
 
