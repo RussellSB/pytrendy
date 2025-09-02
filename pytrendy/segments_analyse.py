@@ -30,8 +30,9 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
         segments_enhanced.append(segment_enhanced)
 
     # Rank steepest to shallowest change
-    segments_enhanced = sorted(segments_enhanced, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
-    for i, _ in enumerate(segments):
-        segments_enhanced[i]['change_rank'] = i+1
+    sorted_segments = sorted(segments_enhanced, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
+    rank_map = {segment.get('time_index'): i + 1 for i, segment in enumerate(sorted_segments)} # Create a mapping from time_index to rank
+    for segment in segments_enhanced: # Assign ranks to the original, unsorted segments
+        segment['change_rank'] = rank_map.get(segment.get('time_index'))
 
     return segments_enhanced
