@@ -2,7 +2,7 @@
 
 ![](http://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual-demo.gif)
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing. It is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
 
 ## Quickstart
 Install the package from PyPi.
