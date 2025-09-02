@@ -20,7 +20,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
 
     # Add shaded regions with fill_between
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
-    for rank, seg in enumerate(segments_enhanced, start=1):
+    for i, seg in enumerate(segments_enhanced, start=1):
         start = pd.to_datetime(seg['start'])
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
@@ -37,7 +37,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         if seg['direction'] in ['Up', 'Down']:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
-            ax.text(mid_date, y_pos, str(rank), fontsize=12,
+            ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
 
