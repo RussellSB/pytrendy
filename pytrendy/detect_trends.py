@@ -20,6 +20,7 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     df = df.copy()
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
+    df = df[[value_col]]
 
     # Configures trend detection heuristics
     method_params = {
