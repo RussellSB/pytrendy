@@ -16,10 +16,10 @@ class PyTrendyResults:
         results.best returns best based on total_change (cumulative sum of differences). 
         This prioritises both longest segment length (days) and steepness of trend.
         """
-        best = self.segments[0]
-        if best['direction'] not in ['Up', 'Down']:
-            best = None
-        self.best = best
+        if not any('change_rank' in segment for segment in self.segments):
+            self.best = None
+            return
+        self.best = min(self.segments, key=lambda x: x.get('change_rank'))
 
     def set_summary(self):
         summary = {}
@@ -31,13 +31,18 @@ class PyTrendyResults:
         summary["trend_class_counts"] = dict(trend_class_counts)
 
         changes = [seg.get("total_change", 0) for seg in self.segments if "total_change" in seg]
-        summary['highest_total_change'] = np.max(changes)
+        summary['highest_total_change'] = np.max(changes) if len(changes) > 0 else None
 
+        # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
-        df = df[['direction', 'start', 'end', 'days', 'total_change', 'change_rank', 'time_index']]
-        df = df.set_index('time_index')
-        summary['df']  = df
+        cols = ['time_index', 'direction', 'start', 'end', 'days']
+        if len(changes) > 1: cols += ['total_change', 'change_rank']
+        df = df[cols]
 
+        df = df.set_index('time_index')
+        summary['df'] = df
+
+        # Set summary
         self.summary = summary
 
     def print_summary(self):
@@ -65,7 +70,7 @@ class PyTrendyResults:
         df = df.set_index('time_index')
         self.segments_df = df
 
-    def filter_segments(self, direction:str='Any', sort_by:str='change_rank', format='df'):
+    def filter_segments(self, direction:str='Any', sort_by:str='time_index', format='df'):
         """
         Simple helper for getting segments 
         - filtered by direction ['Any', 'Up/Down', 'Up', 'Down', 'Flat', 'Noise']
@@ -91,8 +96,7 @@ class PyTrendyResults:
             print(f'{direction} is not a valid direction. Please try one of [\'Any\', \'Up/Down\', \'Up\', \'Down\', \'Flat\', \'Noise\']')
 
         if len(segments) == 0:
-            print('No segments found...')
-            return
+            return []
 
         if format not in ['dict', 'df']:
             print(f'{format} is not a valid format. Please try one of [\'dict\', \'df\']')
