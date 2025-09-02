@@ -66,7 +66,7 @@ results.print_summary()
 #  -------------------------------------------------------------------------------
 ```
 
-You can directly call the object as a pandas dataframe. By default, it is sorted by change_rank which prioritises long duration and high magnitude of change.
+You can directly call the object as a pandas dataframe. Note change_rank which prioritises long duration and high magnitude of change.
 ```py
 results.segments_df
 ```
