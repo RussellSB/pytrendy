@@ -20,19 +20,31 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
 
     # Add shaded regions with fill_between
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
-    for rank, seg in enumerate(segments_enhanced, start=1):
+    for i, seg in enumerate(segments_enhanced):
         start = pd.to_datetime(seg['start'])
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        mask = (df.index >= start - pd.Timedelta(days=1)) & (df.index <= end) # TODO: make work by pixels somehow
+        if 'trend_class' in seg and seg['trend_class'] == 'abrupt': 
+            start = start # Conditional logic for making abrupt visually tighter
+        else: start = start - pd.Timedelta(days=1) # Everything else displaced left start
+
+        # Adjust neighbouring segment before abrupt (visually). Avoid white lines
+        next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
+        next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
+        neighbouring = next_seg_abrupt and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        if next_seg_abrupt and neighbouring:
+            end = end + pd.Timedelta(days=1)
+        else: end = end
+
+        mask = (df.index >= start) & (df.index <= end) 
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
         if seg['direction'] in ['Up', 'Down']:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
-            ax.text(mid_date, y_pos, str(rank), fontsize=12,
+            ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
 
