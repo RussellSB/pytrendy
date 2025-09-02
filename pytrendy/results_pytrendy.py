@@ -65,7 +65,7 @@ class PyTrendyResults:
         df = df.set_index('time_index')
         self.segments_df = df
 
-    def filter_segments(self, direction:str='Any', sort_by:str='change_rank', format='df'):
+    def filter_segments(self, direction:str='Any', sort_by:str='time_index', format='df'):
         """
         Simple helper for getting segments 
         - filtered by direction ['Any', 'Up/Down', 'Up', 'Down', 'Flat', 'Noise']
