@@ -89,7 +89,8 @@ results.segments_df
 
 ## Upcoming
 
-- More DEMO examples.
+- More robust edge case testing & generalising.
 - Automated testing in CI/CD pipeline.
 - Full documentation with all features.
 - Customising more options for windows.
+- More DEMO examples.
