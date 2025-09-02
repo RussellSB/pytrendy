@@ -48,7 +48,7 @@ results.print_summary()
 #  - 3 Flats.
 #  - 0 Noise.
 
-#  The best detected trend is Up between dates 2025-01-02 - 2025-01-24
+#  The best detected trend is Down between dates 2025-05-09 - 2025-06-17
 
 #  Full Results:
 #  -------------------------------------------------------------------------------
