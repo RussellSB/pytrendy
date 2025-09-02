@@ -31,10 +31,11 @@ class PyTrendyResults:
         summary["trend_class_counts"] = dict(trend_class_counts)
 
         changes = [seg.get("total_change", 0) for seg in self.segments if "total_change" in seg]
-        summary['highest_total_change'] = np.max(changes)
+        summary['highest_total_change'] = np.max(changes) if len(changes) > 0 else None
 
         df = pd.DataFrame(self.segments)
-        df = df[['direction', 'start', 'end', 'days', 'total_change', 'change_rank', 'time_index']]
+        summary_cols = ['time_index', 'direction', 'start', 'end', 'days']
+        if len(changes) > 1: summary_cols += ['total_change', 'change_rank']
         df = df.set_index('time_index')
         summary['df']  = df
 
@@ -91,8 +92,7 @@ class PyTrendyResults:
             print(f'{direction} is not a valid direction. Please try one of [\'Any\', \'Up/Down\', \'Up\', \'Down\', \'Flat\', \'Noise\']')
 
         if len(segments) == 0:
-            print('No segments found...')
-            return
+            return []
 
         if format not in ['dict', 'df']:
             print(f'{format} is not a valid format. Please try one of [\'dict\', \'df\']')
