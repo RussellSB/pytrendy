@@ -42,26 +42,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # 3.3 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
-    
-    ax = df[[value_col, 'zeros_pct_trailing']].plot(figsize=(20,3), secondary_y='zeros_pct_trailing')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()   
-    
-    ax = df[[value_col, 'zeros_pct_leading']].plot(figsize=(20,3), secondary_y='zeros_pct_leading')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-
-    ax = df[[value_col, 'zeros_pct']].plot(figsize=(20,3), secondary_y='zeros_pct')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-
-    ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
-    
-    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
 
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
