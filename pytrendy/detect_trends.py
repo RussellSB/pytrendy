@@ -31,7 +31,7 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     # Core 5-step pipeline
     df = process_signals(df, value_col)
     segments = get_segments(df)
-    segments = refine_segments(df, value_col, segments, method_params)
+    # segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
     if plot: plot_pytrendy(df, value_col, segments)
 

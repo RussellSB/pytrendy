@@ -15,14 +15,14 @@ import pytrendy as pt
 
 # Example Runs
 df = pt.load_data('series_synthetic')
-df['str_var'] = 'str_example'
-results = pt.detect_trends(df, date_col='date', value_col='abrupt')
+df.set_index('date', inplace=True)
+df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
+# df[['abrupt']].plot(figsize=(20,5))
+results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
-#%%
 # df = pt.load_data('series_synthetic')
-# results = pt.detect_trends(df, date_col='date', value_col='gradual-noisy-20')
-# results = pt.detect_trends(df, date_col='date', value_col='abrupt')
-# results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+# results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
+# results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True)
 
 # %%
 # noise_std = 20
