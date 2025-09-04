@@ -27,10 +27,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
     min_nonzero_std = rolling_std[rolling_std > 0].min()
     df.loc[df['smoothed_std'] <= min_nonzero_std, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
 
-    # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
-
     # 3. Noise detection via SNR. 
 
     # 3.1 Compute zero flat edge cases
@@ -46,10 +42,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # 3.3 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
-
-    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
 
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
