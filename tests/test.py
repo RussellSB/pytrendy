@@ -16,8 +16,9 @@ import pytrendy as pt
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # recently added
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # added
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
+df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250 # added more recently
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
