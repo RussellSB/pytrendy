@@ -142,19 +142,9 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment['abrupt_flag'] = 0
         df_segment.loc[df_segment['z_score'].abs() > 1, 'abrupt_flag'] = 1
 
-        # import matplotlib.pyplot as plt
-        # ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
-
         # Zoom in to focus on centre of window (dont confuse with neighbouring)
         i_quarter = int(0.25*len(df_segment))
         seg_zoomed = df_segment.iloc[i_quarter:-i_quarter]
-
-        # import matplotlib.pyplot as plt
-        # ax = seg_zoomed[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
 
         # Refine start
         new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
