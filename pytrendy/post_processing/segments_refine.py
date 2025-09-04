@@ -8,9 +8,17 @@ NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in ex
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
-    """Shift previous segment end if overlapping with updated start (or original start)."""
-    if i == 0:
+    """
+    Shift previous segment end if overlapping with updated start (or original start).
+    Don't touch neighbouring segment if an abrupt signal, it should remain precise and sensitive.
+    """
+    if (i == 0):
         return
+    
+    prev_has_class = 'trend_class' in segments_refined[i-1]
+    if prev_has_class and segments_refined[i-1]['trend_class'] == 'abrupt':
+        return
+
     distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
     distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
     if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
@@ -19,8 +27,13 @@ def _update_prev_segment(i, new_start, segments, segments_refined):
 
 def _update_next_segment(i, new_end, segments, segments_refined):
     """Shift next segment start if overlapping with updated end (or original end)."""
-    if i == len(segments_refined) - 1:
+    if (i == len(segments_refined) - 1):
         return
+    
+    next_has_class = 'trend_class' in segments_refined[i+1]
+    if next_has_class and segments_refined[i+1]['trend_class'] == 'abrupt':
+        return
+
     distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
     distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
     if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
@@ -127,16 +140,39 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment = df_segment.iloc[1:]
         df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
         df_segment['abrupt_flag'] = 0
-        df_segment.loc[df_segment['z_score'].abs() > 2, 'abrupt_flag'] = 1
+        df_segment['abrupt_threshold'] = np.where(df_segment['zeros_pct'] >= 0.5, 1, 2) # 2 stdev under normal circumstances, 1 when zeros_pct >= 0.50.
+        df_segment.loc[df_segment['z_score'].abs() > df_segment['abrupt_threshold'], 'abrupt_flag'] = 1
+
+        import matplotlib.pyplot as plt
+        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.show()
+
+        # Zoom in to focus on centre of window (dont confuse with neighbouring)
+        i_quarter = int(0.25*len(df_segment))
+        seg_zoomed = df_segment.iloc[i_quarter:-i_quarter]
+
+        import matplotlib.pyplot as plt
+        ax = seg_zoomed[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.show()
 
         # Refine start
-        new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
+        new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
+        new_start = new_start_temp - pd.Timedelta(days=1)
         segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
         _update_prev_segment(i, new_start, segments, segments_refined)
 
         # Refine end, with custom logic for padding if specified
-        new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
+        seg_post = seg_zoomed.loc[new_start_temp:] # filter to after new_start
+        new_end_temp = seg_post.loc[seg_post['abrupt_flag'] == 0].index[0] # get where first 0 after new_start
+        new_end = new_end_temp - pd.Timedelta(days=1)
+
+        print(seg_post.loc[seg_post['abrupt_flag'] == 0].index)
+        print(new_end)
+
         segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+        print(segments_refined[i]['end'])
         _update_next_segment(i, new_end, segments, segments_refined)
 
     # Second pass to pad segments if specified
@@ -238,7 +274,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = expand_contract_segments(df, value_col, segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
-    segments_refined = group_segments(segments_refined)
-    segments_refined = clean_artifacts(segments_refined)
+    # segments_refined = group_segments(segments_refined)
+    # segments_refined = clean_artifacts(segments_refined)
 
     return segments_refined

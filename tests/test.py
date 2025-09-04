@@ -10,7 +10,6 @@ os.getcwd()
 %reload_ext autoreload
 
 #%%
-import pandas as pd
 import pytrendy as pt
 
 # Example Runs
