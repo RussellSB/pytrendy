@@ -1,0 +1,10 @@
+site_name: Pytrendy Docs
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Features: features.md
+  - Usage: usage.md
+
+
+
