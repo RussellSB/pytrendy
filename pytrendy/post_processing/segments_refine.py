@@ -1,7 +1,7 @@
 import pandas as pd
 from copy import deepcopy
-from .simpledtw import dtw
-from .data_loader import load_data
+from ..simpledtw import dtw
+from ..io.data_loader import load_data
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
@@ -233,9 +233,12 @@ def clean_artifacts(segments):
 
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
-    segments_refined = expand_contract_segments(df, value_col, segments)
+    segments_refined = deepcopy(segments)
+
+    segments_refined = expand_contract_segments(df, value_col, segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
     segments_refined = group_segments(segments_refined)
     segments_refined = clean_artifacts(segments_refined)
+
     return segments_refined

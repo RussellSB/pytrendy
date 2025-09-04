@@ -1,10 +1,10 @@
 import pandas as pd
 from .process_signals import process_signals
-from .segments_get import get_segments
-from .segments_refine import refine_segments
-from .segments_analyse import analyse_segments
-from .plot_pytrendy import plot_pytrendy
-from .results_pytrendy import PyTrendyResults
+from .post_processing.segments_get import get_segments
+from .post_processing.segments_refine import refine_segments
+from .post_processing.segments_analyse import analyse_segments
+from .io.plot_pytrendy import plot_pytrendy
+from .io.results_pytrendy import PyTrendyResults
 
 def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict={}):
     """
@@ -31,7 +31,7 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     # Core 5-step pipeline
     df = process_signals(df, value_col)
     segments = get_segments(df)
-    # segments = refine_segments(df, value_col, segments, method_params)
+    segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
     if plot: plot_pytrendy(df, value_col, segments)
 
