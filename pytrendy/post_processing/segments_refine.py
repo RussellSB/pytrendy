@@ -144,7 +144,15 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
         # Zoom in to focus on centre of window (dont confuse with neighbouring)
         i_quarter = int(0.25*len(df_segment))
-        seg_zoomed = df_segment.iloc[i_quarter:-i_quarter]
+        seg_zoomed = df_segment.iloc[i_quarter:-i_quarter] # zoom centre
+
+        # Check if that worked ... if not keep zooming until you find something
+        if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+            seg_zoomed = df_segment.iloc[-i_quarter:] # zoom right
+            if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+                seg_zoomed = df_segment.iloc[:i_quarter] # zoom left
+                if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+                    continue # just leaving this in as precaution
 
         # Refine start
         new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
