@@ -140,22 +140,21 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment = df_segment.iloc[1:]
         df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
         df_segment['abrupt_flag'] = 0
-        df_segment['abrupt_threshold'] = np.where(df_segment['zeros_pct'] >= 0.5, 1, 2) # 2 stdev under normal circumstances, 1 when zeros_pct >= 0.50.
-        df_segment.loc[df_segment['z_score'].abs() > df_segment['abrupt_threshold'], 'abrupt_flag'] = 1
+        df_segment.loc[df_segment['z_score'].abs() > 1, 'abrupt_flag'] = 1
 
-        import matplotlib.pyplot as plt
-        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        plt.show()
+        # import matplotlib.pyplot as plt
+        # ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        # plt.show()
 
         # Zoom in to focus on centre of window (dont confuse with neighbouring)
         i_quarter = int(0.25*len(df_segment))
         seg_zoomed = df_segment.iloc[i_quarter:-i_quarter]
 
-        import matplotlib.pyplot as plt
-        ax = seg_zoomed[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        plt.show()
+        # import matplotlib.pyplot as plt
+        # ax = seg_zoomed[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        # plt.show()
 
         # Refine start
         new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
@@ -167,12 +166,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         seg_post = seg_zoomed.loc[new_start_temp:] # filter to after new_start
         new_end_temp = seg_post.loc[seg_post['abrupt_flag'] == 0].index[0] # get where first 0 after new_start
         new_end = new_end_temp - pd.Timedelta(days=1)
-
-        print(seg_post.loc[seg_post['abrupt_flag'] == 0].index)
-        print(new_end)
-
         segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-        print(segments_refined[i]['end'])
         _update_next_segment(i, new_end, segments, segments_refined)
 
     # Second pass to pad segments if specified
@@ -274,7 +268,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = expand_contract_segments(df, value_col, segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
-    # segments_refined = group_segments(segments_refined)
-    # segments_refined = clean_artifacts(segments_refined)
+    segments_refined = group_segments(segments_refined)
+    segments_refined = clean_artifacts(segments_refined)
 
     return segments_refined
