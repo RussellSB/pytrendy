@@ -229,6 +229,7 @@ def group_segments(segments):
             direction == direction_prev
             and segment_history
             and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+            and 'trend_class' not in segment or ('trend_class' in segment and segment['trend_class'] == 'graduaul') # dont group up abrupt trends
         ):
             # same direction and within allowed distance -> extend history
             segment_history.append(segment)
@@ -265,9 +266,8 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
 
     segments_refined = expand_contract_segments(df, value_col, segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    # segments_refined = group_segments(segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
-    # segments_refined = group_segments(segments_refined)
+    segments_refined = group_segments(segments_refined)
     segments_refined = clean_artifacts(segments_refined)
 
     return segments_refined
