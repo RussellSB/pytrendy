@@ -60,6 +60,9 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         start_df = _get_window_df(segment['start'])
         end_df = _get_window_df(segment['end'])
 
+        if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
+            continue # don't expand/contract abrupt trends. Leave precise to shave.
+
         if segment['direction'] == 'Up':
             new_start = start_df[value_col].idxmin() + pd.Timedelta(days=1)
             new_end = end_df[value_col].idxmax()
@@ -283,9 +286,9 @@ def clean_artifacts(segments):
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
 
-    segments_refined = expand_contract_segments(df, value_col, segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+    segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = group_segments(segments_refined)
     segments_refined = clean_artifacts(segments_refined)
 
