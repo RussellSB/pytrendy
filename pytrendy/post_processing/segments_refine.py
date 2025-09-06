@@ -146,12 +146,31 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         i_quarter = int(0.25*len(df_segment))
         seg_zoomed = df_segment.iloc[i_quarter:-i_quarter] # zoom centre
 
-        # Check if that worked ... if not keep zooming until you find something
-        if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+        # Checks for edge cases, to shave appropriately
+        def has_abrupt(seg_zoomed: pd.DataFrame):
+            """Checks that segment zoomed into actually has abrupt."""
+            return len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) > 0
+
+        def is_aligned(seg_zoomed:pd.DataFrame, direction:str):
+            """Checks that abrupt zoomed into actually is of same segment direction."""
+            new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
+            seg_post = seg_zoomed.loc[new_start_temp:] # filter to after new_start
+            new_end_temp = seg_post.loc[seg_post['abrupt_flag'] == 0].index[0]
+
+            aligned = False
+            if direction == 'Up':
+                aligned = df_segment.loc[new_start_temp, value_col] > df_segment.loc[new_end_temp, value_col]
+            elif direction == 'Down':
+                aligned = df_segment.loc[new_start_temp, value_col] < df_segment.loc[new_end_temp, value_col]
+
+            return aligned
+
+        # Check if focused area is the appropriate abrupt. Sometimes multi[ple abrupts exist in same segment, need to shave to right one.
+        if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
             seg_zoomed = df_segment.iloc[-i_quarter:] # zoom right
-            if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+            if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
                 seg_zoomed = df_segment.iloc[:i_quarter] # zoom left
-                if len(seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1]) == 0:
+                if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
                     continue # just leaving this in as precaution
 
         # Refine start
