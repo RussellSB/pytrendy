@@ -177,17 +177,11 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
         # Check if focused area is the appropriate abrupt. Sometimes multi[ple abrupts exist in same segment, need to shave to right one.
         if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
-            print('center', has_abrupt(seg_zoomed), segment['direction'])
             seg_zoomed = df_segment.iloc[-i_quarter:] # zoom right
             if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
-                print('right', has_abrupt(seg_zoomed), segment['direction'])
                 seg_zoomed = df_segment.iloc[:i_quarter] # zoom left
                 if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
-                    print('left', has_abrupt(seg_zoomed), segment['direction'])
-                    print('SADDEM')
                     continue # just leaving this in as precaution
-
-        print('GOTTEM')
 
         # Refine start
         new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
