@@ -145,6 +145,11 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment['abrupt_flag'] = 0
         df_segment.loc[df_segment['z_score'].abs() > 1, 'abrupt_flag'] = 1
 
+        import matplotlib.pyplot as plt
+        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.show()
+
         # Zoom in to focus on centre of window (dont confuse with neighbouring)
         i_quarter = int(0.25*len(df_segment))
         seg_zoomed = df_segment.iloc[i_quarter:-i_quarter] # zoom centre
@@ -160,21 +165,29 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             seg_post = seg_zoomed.loc[new_start_temp:] # filter to after new_start
             new_end_temp = seg_post.loc[seg_post['abrupt_flag'] == 0].index[0]
 
+            new_start = new_start_temp - pd.Timedelta(days=1)
+
             aligned = False
             if direction == 'Up':
-                aligned = df_segment.loc[new_start_temp, value_col] > df_segment.loc[new_end_temp, value_col]
+                aligned = df_segment.loc[new_start, value_col] < df_segment.loc[new_end_temp, value_col]
             elif direction == 'Down':
-                aligned = df_segment.loc[new_start_temp, value_col] < df_segment.loc[new_end_temp, value_col]
+                aligned = df_segment.loc[new_start, value_col] > df_segment.loc[new_end_temp, value_col]
 
             return aligned
 
         # Check if focused area is the appropriate abrupt. Sometimes multi[ple abrupts exist in same segment, need to shave to right one.
-        if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
+        if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
+            print('center', has_abrupt(seg_zoomed), segment['direction'])
             seg_zoomed = df_segment.iloc[-i_quarter:] # zoom right
-            if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
+            if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
+                print('right', has_abrupt(seg_zoomed), segment['direction'])
                 seg_zoomed = df_segment.iloc[:i_quarter] # zoom left
-                if not has_abrupt(seg_zoomed) or is_aligned(seg_zoomed, segment['direction']):
+                if not has_abrupt(seg_zoomed) or not is_aligned(seg_zoomed, segment['direction']):
+                    print('left', has_abrupt(seg_zoomed), segment['direction'])
+                    print('SADDEM')
                     continue # just leaving this in as precaution
+
+        print('GOTTEM')
 
         # Refine start
         new_start_temp = seg_zoomed.loc[seg_zoomed['abrupt_flag'] == 1].index[0]
