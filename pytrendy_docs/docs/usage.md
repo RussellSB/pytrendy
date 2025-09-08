@@ -10,7 +10,7 @@ This guide walks through the core usage of PyTrendy, from raw signal input to re
 
 <p></p>
 
-PyTrendy expects a `pandas.DataFrame` indexed by datetime, with at minimum:
+PyTrendy expects a `pandas.DataFrame` with two columns. Their reference will be passed through `detect_trends()`:
 
 
 <table style="border-collapse: collapse; width: 100%; font-size: 14px;">
@@ -22,30 +22,26 @@ PyTrendy expects a `pandas.DataFrame` indexed by datetime, with at minimum:
   </thead>
   <tbody>
     <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 8px;">signal</td>
-      <td style="padding: 8px;">Primary time series signal</td>
+      <td style="padding: 8px;">date_col</td>
+      <td style="padding: 8px;">Currently only dates are supported (daily data).</td>
     </tr>
     <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 8px;">noise</td>
-      <td style="padding: 8px;">Noise estimate (used for SNR calculation)</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 8px;">trend_flag</td>
-      <td style="padding: 8px;">Precomputed directional flags (e.g. from rolling slope or derivative analysis)</td>
+      <td style="padding: 8px;">value_col</td>
+      <td style="padding: 8px;">Primary time series signal.</td>
     </tr>
   </tbody>
 </table>
 
 <p></p>
 
-These columns are typically generated during preprocessing via `process_signals()`.
+These columns are currently the only two columns required for trend detection.
 
 <br>
 
 ## 2. Full Pipeline Execution
 
 <p></p>
-he simplest way to use PyTrendy is via the high-level API. This approach runs the complete 5-stage pipeline and returns a structured `PyTrendyResults` object.
+The simplest way to use PyTrendy is via the high-level API. This approach runs the complete 5-stage pipeline and returns a structured `PyTrendyResults` object.
 
 ```python
 from pytrendy import detect_trends
@@ -53,12 +49,12 @@ from pytrendy import detect_trends
 # Run full pipeline on your time series DataFrame
 results = detect_trends(
     df,
-    date_col="date",           # Column containing datetime values
-    value_col="signal",        # Column with signal values
-    plot=True,                 # Enable visualization
-    method_params={            # Optional method-specific parameters
-        "is_abrupt_padded": True,
-        "abrupt_padding": 5
+    date_col="date",                # Column containing datetime values
+    value_col="signal",             # Column with signal values
+    plot=True,                      # Enable visualization
+    method_params={                 # Optional method-specific parameters
+        "is_abrupt_padded": True,   # Optional, defaulted to False. Pads abrupt for Quasi-experimental use-cases.
+        "abrupt_padding": 5         # Default 28. Only used when is abrupt padded True. Controls padding after abrupt.
     }
 )
 
@@ -201,9 +197,9 @@ print(summary_df.head())
 You can also apply custom filters using pandas directly on `summary_df`:
 
 ```python
-# Filter segments with slope > 0.05 and duration > 10
+# Filter segments with total_change > 50 and days > 10
 strong_trends = summary_df[
-    (summary_df["slope"] > 0.05) & (summary_df["duration"] > 10)
+    (summary_df["total_change"] > 50) & (summary_df["days"] > 10)
 ]
 
 ```
@@ -235,10 +231,10 @@ segments_raw = get_segments(df)
 
 # Step 3: Refinement and classification
 method_params = {"is_abrupt_padded": True, "abrupt_padding": 5}
-segments_refined = refine_segments(df, value_col="signal", segments=segments_raw, method_params=method_params)
+segments_refined = refine_segments(df, time_col="date", value_col="signal", segments=segments_raw, method_params=method_params)
 
 # Step 4: Metric analysis and ranking
-segments_final = analyse_segments(df, value_col="signal", segments=segments_refined)
+segments_final = analyse_segments(df, time_col="date", value_col="signal", segments=segments_refined)
 
 # Step 5: Wrap results
 results = PyTrendyResults(segments_final)
@@ -258,7 +254,7 @@ To visualize the detected segments:
 ```python
 from pytrendy import plot_pytrendy
 
-plot_pytrendy(df, value_col="signal", segments_enhanced=segments_final)
+plot_pytrendy(df, time_col="date", value_col="signal", segments_enhanced=segments_final)
 
 ```
 

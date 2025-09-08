@@ -8,7 +8,6 @@
 - `numpy`  
 - `matplotlib`  
 - `scipy`  
-- `simpledtw`
 
 ```python
 print(1)

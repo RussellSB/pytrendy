@@ -4,7 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 def process_signals(df:pd.DataFrame, value_col: str):
-    """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods"""
+    """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods
+    
+    @df (pd.DataFrame): df with daily data...
+    @value_col()
+    """
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
     WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)

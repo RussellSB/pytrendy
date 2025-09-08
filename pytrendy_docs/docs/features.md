@@ -24,8 +24,8 @@ PyTrendy performs signal conditioning prior to trend analysis through the follow
 
 Following preprocessing, the signal is segmented into contiguous regions based on directional characteristics:
 
-- **Uptrend**: Monotonic or sustained positive slope
-- **Downtrend**: Monotonic or sustained negative slope
+- **Up**: Monotonic or sustained positive slope
+- **Down**: Monotonic or sustained negative slope
 - **Flat**: Minimal variance within threshold bounds
 - **Noise**: High-frequency volatility exceeding SNR limits
 
@@ -79,11 +79,11 @@ Each refined segment is enriched with quantitative metrics to evaluate its behav
 
 PyTrendy applies quantitative evaluation to rank trend segments by statistical significance:
 
-- **Magnitude-based sorting**: Segments are ordered by the absolute value of their relative (%) change, from steepest to shallowest.
+- **Magnitude-based sorting (`change_rank`)**: Segments are ordered by the absolute value of their relative (%) change, from steepest to shallowest.
 
-- **Primary trend extraction**: Identifies the dominant segment exhibiting the highest directional impact.
+- **Order of time (`time_index`)**: A simple ranking of consequitive order in time. Later segments are assigned higher time index.
 
-- **Directional classification**: Labels each ranked segment as either `Uptrend` or `Downtrend` based on its slope sign.
+- **Directional classification (`direction`)**: Labels each ranked segment as either `Up` or `Down` based on its slope sign.
 
 **Result**: Enables rapid identification of high-impact trends, facilitating prioritization and focused analysis within the time series.
 
@@ -104,7 +104,7 @@ PyTrendy includes a built-in visualization engine for generating interactive, da
 
 - **Trend rank annotation**: Top-ranked segments are automatically labeled with ordinal markers for rapid identification.
 
-- **Interactive rendering**: Visual outputs are fully interactive in environments such as Jupyter Notebooks and Google Colab, supporting zoom, hover, and dynamic filtering.
+- **Static rendering**: Visual outputs are fully static in environments such as Jupyter Notebooks and Google Colab.
 
 **Result**: Generates publication-ready visualizations that facilitate intuitive interpretation and seamless integration into analytical workflows.
 
@@ -118,7 +118,7 @@ from pytrendy import detect_trends
 
 results = detect_trends(df, date_col="date", value_col="gradual", plot=True)
 ```
-This single function executes the full 5-stage pipeline and returns a PyTrendyResults object with the following attributes:
+This single function executes the full 5-stage pipeline and returns a `PyTrendyResults` object with the following attributes:
 
 - **best**: Most statistically significant trend segment
 
