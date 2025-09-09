@@ -1,0 +1,5 @@
+date,gradual_up,gradual_down,abrupt_up,abrupt_down,noise_up,noise_down
+2025-01-01,0,3,0,10,0,10
+2025-01-02,1,2,0,10,10,0
+2025-01-03,2,1,10,0,0,10
+2025-01-04,3,0,10,0,0,10

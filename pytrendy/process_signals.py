@@ -3,6 +3,9 @@ from scipy.signal import savgol_filter
 import numpy as np
 import matplotlib.pyplot as plt
 
+from .io.data_loader import load_data
+from .simpledtw import dtw
+
 def process_signals(df:pd.DataFrame, value_col: str):
     """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods"""
     WINDOW_SMOOTH = 15
@@ -43,6 +46,80 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
 
+    # 3.4 Double check & refresh noise flag. Distinguish noise from abrupt change. TODO
+    import matplotlib.pyplot as plt
+    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    df['noise_flag_diff'] = df['noise_flag'].diff()
+    noise_starts = df.loc[df['noise_flag_diff'] == 1].index
+    noise_ends = df.loc[df['noise_flag_diff'] == -1].index
+
+    # print(noise_starts)
+    # print(noise_ends)
+
+    noise_segments = []
+
+    # Loops from first start onwards
+    for noise_start in noise_starts:
+        after_ends = [end for end in noise_ends if end > noise_start]
+        noise_end = after_ends[0] if len(after_ends) > 0 else df.index[-1]
+        noise_segments.append(dict(start=noise_start, end=noise_end))
+
+    # Adds noise end with no start if at beginning
+    if len(noise_ends) > 0:
+        noise_end = noise_ends[0]
+        early_starts = [start for start in noise_starts if start < noise_end]
+        if len(early_starts) == 0:
+            noise_start = df.index[0]
+            noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+
+    print('--------------')
+    print(noise_segments)
+    print('--------------')
+
+    if len(noise_segments) > 0:
+        df_class = load_data('classes_signals')
+        df_class.set_index('date', inplace=True)
+        df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
+
+        print(df_class)
+
+    for i, segment in enumerate(noise_segments):
+
+        print(segment)
+
+        print('0')
+
+        width = (segment['end'] - segment['start']).days
+        start = segment['start'] - pd.Timedelta(days=width)
+        end = segment['end'] + pd.Timedelta(days=width)
+
+        print('1')
+
+        df_segment = df.loc[start:end]
+        df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
+
+        print('2')
+        print(df_segment)
+
+        _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
+        _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
+        
+        _, cost_noise_up, _, _, _ = dtw(df_segment[value_col], df_class['noise_up'])
+        _, cost_noise_down, _, _, _ = dtw(df_segment[value_col], df_class['noise_down'])
+
+        if np.argmin([cost_abrupt_up, cost_abrupt_down, cost_noise_up, cost_noise_down]) < 2:
+            df.loc[segment['start']:segment['end'], 'noise_flag'] = 0
+
+
+    import matplotlib.pyplot as plt
+    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
     df['trend_flag'] = 0
@@ -51,5 +128,16 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+
+
+    # import matplotlib.pyplot as plt
+    # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+    
+    # import matplotlib.pyplot as plt
+    # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
 
     return df
