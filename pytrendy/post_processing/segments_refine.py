@@ -64,10 +64,10 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
             continue # don't expand/contract abrupt trends. Leave precise to shave.
 
         if segment['direction'] == 'Up':
-            new_start = start_df[value_col].idxmin() + pd.Timedelta(days=1)
+            new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1) # get min, latest if all same
             new_end = end_df[value_col].idxmax()
         elif segment['direction'] == 'Down':
-            new_start = start_df[value_col].idxmax() + pd.Timedelta(days=1)
+            new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1) # get max, latest if all same
             new_end = end_df[value_col].idxmin()
         else:
             continue
