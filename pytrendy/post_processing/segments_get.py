@@ -33,7 +33,6 @@ def get_segments(df: pd.DataFrame):
                 # Save the segment
                 segments.append({
                     'direction': direction_prev
-                    , 'segmenth_length': segment_length_prev
                     , 'start': start.strftime('%Y-%m-%d')
                     , 'end': end.strftime('%Y-%m-%d')
                 })
