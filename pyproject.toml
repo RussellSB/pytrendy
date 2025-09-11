@@ -23,5 +23,6 @@ dependencies = [
 [project.urls]
 repository = "https://github.com/RussellSB/pytrendy"
 
-[tool.setuptools]
-packages = ["pytrendy"]
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["pytrendy*"]
