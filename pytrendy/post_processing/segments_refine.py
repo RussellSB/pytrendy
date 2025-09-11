@@ -159,7 +159,15 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         abrupt_subsegs = []
         for abrupt_start in abrupt_starts: # Loops from first start onwards
             after_ends = [end for end in abrupt_ends if end > abrupt_start]
-            abrupt_end = after_ends[0] if len(after_ends) > 0 else df.index[-1]
+
+            # Get abrupt end as
+            if len(after_ends) > 0:
+                abrupt_end = after_ends[0]  # first if aligned
+            elif abrupt_start == df.index[-1]: 
+                abrupt_end = df.index[-1] # last if unaligned at end
+            else:
+                continue # neither if not connected
+
             abrupt_subsegs.append(dict(start=abrupt_start, end=abrupt_end))
 
         if len(abrupt_ends) > 0: # Adds abrupt end with no start if at beginning
@@ -169,6 +177,11 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 abrupt_start = df.index[0]
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
+        import matplotlib.pyplot as plt
+        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.show()
+
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
 
@@ -176,6 +189,9 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
             new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
             new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
+
+            print(new_start, new_end)
+            display(df_segment[value_col])
 
             value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
             print(df_segment.loc[new_start, value_col], df_segment.loc[new_end, value_col])

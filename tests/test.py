@@ -43,3 +43,20 @@ for noise_std in [0, 10, 20, 50]:
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
     results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
 # %%
+
+
+# %% 
+import matplotlib.pyplot as plt
+import pandas as pd
+
+temp_df = df.copy()
+temp_df['date'] = pd.to_datetime(temp_df['date'])
+temp_df = temp_df.set_index('date')
+temp_df['value_noisy'].plot(figsize=(20,3))
+plt.show()
+
+# %%
+results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
+
+# %%
+df[['date', 'value_noisy']]
