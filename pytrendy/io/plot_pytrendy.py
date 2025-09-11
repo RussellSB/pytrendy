@@ -29,10 +29,19 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
             start = start # Conditional logic for making abrupt visually tighter
         else: start = start - pd.Timedelta(days=1) # Everything else displaced left start
 
+<<<<<<< HEAD:pytrendy/plot_pytrendy.py
         # Adjust neighbouring segment before abrupt (visually). Avoid white lines
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
         next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
         neighbouring = next_seg_abrupt and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+=======
+        # Get context on next seg if possible
+        next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
+        neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+
+        # Adjust neighbouring segment before abrupt (visually). Avoid white lines
+        next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
+>>>>>>> fix/RS/edge-case-issues:pytrendy/io/plot_pytrendy.py
         if next_seg_abrupt and neighbouring:
             end = end + pd.Timedelta(days=1)
         else: end = end
@@ -47,6 +56,11 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
+            
+        # Add vertical line if next seg is same & touching
+        if next_seg and neighbouring and next_seg['direction'] == seg['direction']:
+            line_date = pd.to_datetime(seg['end'])
+            ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits
     first_date = df.index.min()

@@ -4,11 +4,11 @@ Summary of what this does
 
 import pandas as pd
 from .process_signals import process_signals
-from .segments_get import get_segments
-from .segments_refine import refine_segments
-from .segments_analyse import analyse_segments
-from .plot_pytrendy import plot_pytrendy
-from .results_pytrendy import PyTrendyResults
+from .post_processing.segments_get import get_segments
+from .post_processing.segments_refine import refine_segments
+from .post_processing.segments_analyse import analyse_segments
+from .io.plot_pytrendy import plot_pytrendy
+from .io.results_pytrendy import PyTrendyResults
 
 def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict={}):
     """
@@ -31,6 +31,7 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     df = df.copy()
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
+    df = df[[value_col]]
 
     # Configures trend detection heuristics
     method_params = {

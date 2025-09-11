@@ -1,16 +1,23 @@
 import pandas as pd
 from copy import deepcopy
-from .simpledtw import dtw
-from .data_loader import load_data
+from ..simpledtw import dtw
+from ..io.data_loader import load_data
 import numpy as np
 
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
-    """Shift previous segment end if overlapping with updated start (or original start)."""
-    if i == 0:
+    """
+    Shift previous segment end if overlapping with updated start (or original start).
+    Don't touch neighbouring segment if an abrupt signal, it should remain precise and sensitive.
+    """
+    if (i == 0):
         return
+    prev_has_class = 'trend_class' in segments_refined[i-1]
+    if prev_has_class and segments_refined[i-1]['trend_class'] == 'abrupt':
+        return
+
     distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
     distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
     if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
@@ -19,8 +26,12 @@ def _update_prev_segment(i, new_start, segments, segments_refined):
 
 def _update_next_segment(i, new_end, segments, segments_refined):
     """Shift next segment start if overlapping with updated end (or original end)."""
-    if i == len(segments_refined) - 1:
+    if (i == len(segments_refined) - 1):
         return
+    next_has_class = 'trend_class' in segments_refined[i+1]
+    if next_has_class and segments_refined[i+1]['trend_class'] == 'abrupt':
+        return
+
     distance_refined = (pd.to_datetime(segments_refined[i + 1]['start']) - pd.to_datetime(new_end)).days
     distance_orig = (pd.to_datetime(segments[i + 1]['start']) - pd.to_datetime(segments[i]['end'])).days
     if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
@@ -47,11 +58,14 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         start_df = _get_window_df(segment['start'])
         end_df = _get_window_df(segment['end'])
 
+        if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
+            continue # don't expand/contract abrupt trends. Leave precise to shave.
+
         if segment['direction'] == 'Up':
-            new_start = start_df[value_col].idxmin() + pd.Timedelta(days=1)
+            new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1) # get min, latest if all same
             new_end = end_df[value_col].idxmax()
         elif segment['direction'] == 'Down':
-            new_start = start_df[value_col].idxmax() + pd.Timedelta(days=1)
+            new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1) # get max, latest if all same
             new_end = end_df[value_col].idxmin()
         else:
             continue
@@ -76,7 +90,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
     segments_classified = deepcopy(segments)
 
-    df_class = load_data('classes_trends')
+    df_class = load_data('classes_signals')
     df_class.set_index('date', inplace=True)
     df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
 
@@ -85,20 +99,27 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         if segment['direction'] not in ['Up', 'Down']: 
             continue
 
-        df_segment = df.loc[segment['start']:segment['end']]
+        # Assume some padding for abrupt cases
+        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
+        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+
+        df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
 
         if segment['direction'] == 'Up': 
             _, cost_gradual_up, _, _, _ = dtw(df_segment[value_col], df_class['gradual_up'])
             _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
+
             if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
             else:
                 segments_classified[i]['trend_class'] = 'abrupt'
         
         if segment['direction'] == 'Down': 
+
             _, cost_gradual_down, _, _, _ = dtw(df_segment[value_col], df_class['gradual_down'])
             _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
+
             if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
             else:
@@ -118,8 +139,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             continue
 
         # Get start end padded for some leniency
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=7)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=7)
+        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
+        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
         df_segment = df.loc[start:end].copy()
 
         # Use z-score on diff, to know when a change is an anomoly in the trend
@@ -127,17 +148,86 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment = df_segment.iloc[1:]
         df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
         df_segment['abrupt_flag'] = 0
-        df_segment.loc[df_segment['z_score'].abs() > 2, 'abrupt_flag'] = 1
+        df_segment.loc[df_segment['z_score'].abs() > 1, 'abrupt_flag'] = 1
 
-        # Refine start
-        new_start = df_segment.loc[df_segment['abrupt_flag'] == 1].index[0] - pd.Timedelta(days=1)
-        segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
-        _update_prev_segment(i, new_start, segments, segments_refined)
+        # Note: Follows very similar code to process signals 3.4. 
+        df_segment['abrupt_flag_diff'] = df_segment['abrupt_flag'].diff()
+        abrupt_starts = df_segment.loc[df_segment['abrupt_flag_diff'] == 1].index
+        abrupt_ends = df_segment.loc[df_segment['abrupt_flag_diff'] == -1].index
 
-        # Refine end, with custom logic for padding if specified
-        new_end = df_segment.loc[df_segment['abrupt_flag'] == 1].index[-1]
-        segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-        _update_next_segment(i, new_end, segments, segments_refined)
+        # Construct abrupt sub-segments list based on flag_diff
+        abrupt_subsegs = []
+        for abrupt_start in abrupt_starts: # Loops from first start onwards
+            after_ends = [end for end in abrupt_ends if end > abrupt_start]
+
+            # Get abrupt end as
+            if len(after_ends) > 0:
+                abrupt_end = after_ends[0]  # first if aligned
+            elif abrupt_start == df.index[-1]: 
+                abrupt_end = df.index[-1] # last if unaligned at end
+            else:
+                continue # neither if not connected
+
+            abrupt_subsegs.append(dict(start=abrupt_start, end=abrupt_end))
+
+        if len(abrupt_ends) > 0: # Adds abrupt end with no start if at beginning
+            abrupt_end = abrupt_ends[0]
+            early_starts = [start for start in abrupt_starts if start < abrupt_end]
+            if len(early_starts) == 0:
+                abrupt_start = df.index[0]
+                abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
+
+        import matplotlib.pyplot as plt
+        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.show()
+
+        # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
+        for j, abrupt_subseg in enumerate(abrupt_subsegs):
+
+            print(abrupt_subseg)
+
+            new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
+            new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
+
+            print(new_start, new_end)
+            display(df_segment[value_col])
+
+            value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
+            print(df_segment.loc[new_start, value_col], df_segment.loc[new_end, value_col])
+            direction = 'Up' if value_change > 0 else 'Down'
+
+            if direction != segment['direction']:
+                print(abrupt_subseg, value_change, direction, segment['direction'], 'Not Matched')
+                continue
+
+            if j == 0:
+
+                print('Updating current')
+
+                # Update current segment
+                segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+                _update_prev_segment(i, new_start, segments, segments_refined)
+                
+                segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+                _update_next_segment(i, new_end, segments, segments_refined)
+
+            elif j > 0:
+
+                print('Wedging in a new one')
+                
+                # Wedge in a new segment between current and next (needed for edge case of many abrupt near eachother)
+                new_index = i + j
+                new_seg = segment.copy()
+                segments_refined.insert(new_index, new_seg)
+
+                # Update new segment
+                segments_refined[new_index]['start'] = new_start.strftime('%Y-%m-%d')
+                _update_prev_segment(new_index, new_start, segments, segments_refined)
+                
+                segments_refined[new_index]['end'] = new_end.strftime('%Y-%m-%d')
+                _update_next_segment(new_index, new_end, segments, segments_refined)
+
 
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
@@ -201,6 +291,7 @@ def group_segments(segments):
             direction == direction_prev
             and segment_history
             and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+            and 'trend_class' not in segment or ('trend_class' in segment and segment['trend_class'] == 'graduaul') # dont group up abrupt trends
         ):
             # same direction and within allowed distance -> extend history
             segment_history.append(segment)
@@ -226,18 +317,18 @@ def clean_artifacts(segments):
     for segment in segments:
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days < 1: # must align with constants in segments_get
+        if (end - start).days < 1: 
             continue
         segments_refined.append(segment)
-        
     return segments_refined
 
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
-    segments_refined = expand_contract_segments(df, value_col, segments)
+    segments_refined = deepcopy(segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params)
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+    segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = group_segments(segments_refined)
-
     segments_refined = clean_artifacts(segments_refined)
+
     return segments_refined

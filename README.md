@@ -2,7 +2,7 @@
 
 ![](http://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual-demo.gif)
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it considers post-processing. It is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
 
 ## Quickstart
 Install the package from PyPi.
@@ -55,6 +55,7 @@ results.print_summary()
 #              direction       start         end  days  total_change  change_rank
 #  time_index                                                                   
 #  1                 Up  2025-01-02  2025-01-24    22     14.013348            5
+<<<<<<< HEAD
 #  3               Down  2025-01-25  2025-02-05    11    -13.564214            6
 #  4               Flat  2025-02-06  2025-02-09     3           NaN            7
 #  5                 Up  2025-02-10  2025-03-14    32     24.632035            3
@@ -63,6 +64,16 @@ results.print_summary()
 #  8                 Up  2025-04-02  2025-05-08    36     72.611833            2
 #  9               Down  2025-05-09  2025-06-17    39    -73.253968            1
 #  10              Flat  2025-06-18  2025-06-29    11           NaN            9 
+=======
+#  2               Down  2025-01-25  2025-02-05    11    -13.564214            6
+#  3               Flat  2025-02-06  2025-02-09     3           NaN            7
+#  4                 Up  2025-02-10  2025-03-14    32     24.632035            3
+#  5               Flat  2025-03-15  2025-03-17     2           NaN            8
+#  6               Down  2025-03-18  2025-04-01    14    -22.721861            4
+#  7                 Up  2025-04-02  2025-05-08    36     72.611833            2
+#  8               Down  2025-05-09  2025-06-17    39    -73.253968            1
+#  9               Flat  2025-06-18  2025-06-29    11           NaN            9 
+>>>>>>> fix/RS/edge-case-issues
 #  -------------------------------------------------------------------------------
 ```
 
@@ -73,6 +84,7 @@ results.segments_df
 
 <small>
 
+<<<<<<< HEAD
 | time_index | direction | segmenth_length | start       | end         | trend_class | change      | pct_change | days | total_change | SNR       | change_rank |
 |------------|-----------|-----------------|-------------|-------------|-------------|-------------|------------|------|--------------|-----------|-------------|
 | 1          | Up        | 17              | 2025-01-02  | 2025-01-24  | gradual     | 14.013348   | 1.044080   | 22   | 14.013348    | 22.207980 | 5           |
@@ -84,6 +96,19 @@ results.segments_df
 | 8          | Up        | 34              | 2025-04-02  | 2025-05-08  | gradual     | 73.687771   | 3.944243   | 36   | 72.611833    | 21.701162 | 2           |
 | 9          | Down      | 38              | 2025-05-09  | 2025-06-17  | gradual     | -73.253968  | -0.805442  | 39   | -73.253968   | 21.122099 | 1           |
 | 10         | Flat      | 13              | 2025-06-18  | 2025-06-29  | NaN         | NaN         | NaN        | 11   | NaN          | 19.039273 | 9           |
+=======
+| time_index | direction | start       | end         | trend_class | change      | pct_change | days | total_change | SNR        | change_rank |
+|------------|-----------|-------------|-------------|-------------|-------------|------------|------|--------------|------------|-------------|
+| 1          | Up        | 2025-01-02  | 2025-01-24  | gradual     | 14.013348   | 1.044080   | 22   | 14.013348    | 22.207980  | 5           |
+| 2          | Down      | 2025-01-25  | 2025-02-05  | gradual     | -13.564214  | -0.554982  | 11   | -13.564214   | 17.360657  | 6           |
+| 3          | Flat      | 2025-02-06  | 2025-02-09  | NaN         | NaN         | NaN        | 3    | NaN          | 20.126008  | 7           |
+| 4          | Up        | 2025-02-10  | 2025-03-14  | gradual     | 26.015512   | 1.974942   | 32   | 24.632035    | 18.871430  | 3           |
+| 5          | Flat      | 2025-03-15  | 2025-03-17  | NaN         | NaN         | NaN        | 2    | NaN          | 17.350339  | 8           |
+| 6          | Down      | 2025-03-18  | 2025-04-01  | gradual     | -22.721861  | -0.591909  | 14   | -22.721861   | 16.762790  | 4           |
+| 7          | Up        | 2025-04-02  | 2025-05-08  | gradual     | 73.687771   | 3.944243   | 36   | 72.611833    | 21.701162  | 2           |
+| 8          | Down      | 2025-05-09  | 2025-06-17  | gradual     | -73.253968  | -0.805442  | 39   | -73.253968   | 21.122099  | 1           |
+| 9          | Flat      | 2025-06-18  | 2025-06-29  | NaN         | NaN         | NaN        | 11   | NaN          | 19.039273  | 9           |
+>>>>>>> fix/RS/edge-case-issues
 
 </small>
 

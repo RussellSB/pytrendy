@@ -23,9 +23,9 @@ def get_segments(df: pd.DataFrame):
             segment_length += 1
         elif direction != direction_prev: 
             if (    # Save only when satisfies min window for up/down or flat respectively.
-                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= 7)) \
-                    or (direction_prev == 'Flat' and (segment_length_prev >= 3)) \
-                    or (direction_prev == 'Noise' and (segment_length_prev >= 3)) \
+                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= 3)) \
+                    or (direction_prev == 'Flat' and (segment_length_prev >= 1)) \
+                    or (direction_prev == 'Noise' and (segment_length_prev >= 1)) \
                 ):
                 start = (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1))
                 end = (pd.to_datetime(index) - pd.Timedelta(days=1))
@@ -33,7 +33,6 @@ def get_segments(df: pd.DataFrame):
                 # Save the segment
                 segments.append({
                     'direction': direction_prev
-                    , 'segmenth_length': segment_length_prev
                     , 'start': start.strftime('%Y-%m-%d')
                     , 'end': end.strftime('%Y-%m-%d')
                 })
@@ -41,8 +40,5 @@ def get_segments(df: pd.DataFrame):
 
         direction_prev = direction
         segment_length_prev = segment_length
-
-    for i, _ in enumerate(segments):
-        segments[i]['time_index'] = i+1
 
     return segments # main result
