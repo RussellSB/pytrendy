@@ -191,7 +191,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
 
             print(new_start, new_end)
-            display(df_segment[value_col])
+            # display(df_segment[value_col])
 
             value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
             print(df_segment.loc[new_start, value_col], df_segment.loc[new_end, value_col])

@@ -1,3 +1,5 @@
+"""Module B."""
+
 import numpy as np
 
 def dtw(series_1, series_2, norm_func = np.linalg.norm):

@@ -1,3 +1,5 @@
+"""Module B."""
+
 import pandas as pd
 from scipy.signal import savgol_filter
 import numpy as np
