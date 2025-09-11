@@ -5,7 +5,53 @@ nav:
   - Installation: installation.md
   - Features: features.md
   - Usage: usage.md
-  - API Reference: api.md
+  - API Reference: reference
+
+theme: 
+  name: material # flatly, material, minty
+  features:
+    - navigation.indexes
+  palette:
+    - scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_section_style: list # or "table"
+            docstring_style: "google"
+            filters: ["!^_"]
+            heading_level: 1
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false 
+            show_signature_annotations: false
+            show_symbol_type_heading: false
+            show_symbol_type_toc: false
+            summary: true
+  - api-autonav:
+      modules: ['../pytrendy']
+
+
+
 
 
 

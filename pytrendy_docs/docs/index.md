@@ -2,9 +2,9 @@
 # PyTrendy
 **PyTrendy** is a modular Python toolkit for detecting, refining, and analyzing trend segments in time series data. Designed for developers and analysts working with noisy signals, PyTrendy offers a robust pipeline that combines statistical preprocessing, dynamic segmentation, and DTW-based classification to extract meaningful patterns from complex datasets.
 
-Whether you're analyzing financial indicators, sensor outputs, or behavioral metrics, PyTrendy helps you surface directional trends, classify their nature (gradual vs abrupt), and quantify their steepness and duration — all with developer-friendly access and extensibility.
+Whether you're analyzing financial indicators, sensor outputs, or behavioral metrics, PyTrendy helps you surface directional trends, classify their nature (gradual vs abrupt), and quantify their steepness and duration - all with developer-friendly access and extensibility.
 
-## What PyTrendy Does? 
+## Key Features 
 
 - Detects directional segments (Up, Down, Flat, Noise) from preprocessed signal flags
 

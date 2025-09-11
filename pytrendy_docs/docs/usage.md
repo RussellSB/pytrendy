@@ -260,8 +260,8 @@ plot_pytrendy(df, time_col="date", value_col="signal", segments_enhanced=segment
 
 Plots include shaded regions for each segment type:
 
-<table style="border-collapse: collapse; width: 60%; font-size: 14px;">
-  <thead>
+<table style="border-collapse: collapse; width: 100%; max-width: 600px; font-size: 14px;">
+  <thead style="background-color: #f5f5f5;">
     <tr style="border-bottom: 1px solid #ccc;">
       <th style="padding: 8px; text-align: left;">Segment Type</th>
       <th style="padding: 8px; text-align: left;">Color</th>
@@ -286,6 +286,7 @@ Plots include shaded regions for each segment type:
     </tr>
   </tbody>
 </table>
+
 <p></p>
 
 Top-ranked trends are annotated directly on the chart.
@@ -368,7 +369,7 @@ These datasets are ideal for testing PyTrendy across financial, sensor, and beha
 
 Detect trends in stock prices to isolate bullish or bearish runs. Useful for quant strategies, backtesting, or market phase detection.
 
-<details> <summary><strong>Example: Stock Price Trend Detection</strong></summary>
+<details><summary><strong>Example: Stock Price Trend Detection</strong></summary>
 
 ```python
 import pandas as pd
