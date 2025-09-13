@@ -12,21 +12,38 @@ from .io.results_pytrendy import PyTrendyResults
 
 def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict={}):
     """
-    Detects trends through a 5-step pipeline.
-    1. Process Signals; Rolling statistics for detecting segments of flat, noise, and uptrend/downtrend
-    2. Get Segments; Partitions the areas into segments provided long enough
-    3. Refine Segments: Post processes the data to cater for rolling statistic edge cases.
-    4. Analyse Segments: Provides change stats and ranking for each trend.
-    5. Plot Trends (optional): Plots results with matplotlib.
+    Detects trend segments in a time series using a five-stage pipeline.
+
+    This function identifies patterns—such as uptrends, downtrends, flat regions, and noise by applying rolling statistics, segmentation heuristics, and post-processing refinements.
+    It optionally visualizes the results and returns a structured object containing segment metadata.
+
+    The pipeline includes:
+    1. **Signal Processing**: Applies Savitzky-Golay smoothing and computes flags for flat and noisy regions.
+    2. **Segmentation**: Extracts contiguous segments based on signal classification.
+    3. **Refinement**: Adjusts segment boundaries and classifies trends as gradual or abrupt.
+    4. **Analysis**: Computes metrics like total change, percent change, and signal-to-noise ratio.
+    5. **Visualization (optional)**: Plots the original signal with annotated segments.
 
     Args:
-        df (pd.DataFrame): Dataframe input....
-        date_col (str): Column for date reference. Currently only dates are supported (daily data)
-        value_col (str): Column for value reference. Primary time series signal.
-        plot (bool): If true, plots the trend segments detected over the signal.
-        method_params (dict): Parameters to tweak the methods functionality (optional).
+        df (pd.DataFrame):
+            Input time series data containing at least the specified `date_col` and `value_col`.
+            The `date_col` must contain datetime-like values (daily frequency recommended).
+        date_col (str):
+            Name of the column representing timestamps. This column is converted to datetime and set as the index.
+        value_col (str):
+            Name of the column containing the primary signal to analyze for trend detection.
+        plot (bool, optional):
+            If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
+            Defaults to `True`.
+        method_params (dict, optional):
+            Dictionary of optional parameters to customize detection heuristics. Supported keys:
+            - `'is_abrupt_padded'` (bool): Whether to pad abrupt transitions between segments.
+            - `'abrupt_padding'` (int): Number of days to pad around abrupt transitions. Defaults to 28.
 
-    Returns: PyTrendyResults (obj)
+    Returns:
+        PyTrendyResults:
+            An object encapsulating the detected segments and associated metadata.
+            Use this object to access segment statistics, rankings, and export utilities.
     """
     df = df.copy()
     df[date_col] = pd.to_datetime(df[date_col])
