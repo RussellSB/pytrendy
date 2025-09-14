@@ -7,6 +7,10 @@ class PyTrendyResults:
 
     def __init__(self, segments):
         self.segments = segments
+
+        if len(segments) == 0:
+            return # Silently exits of no flats, ups, downs, or noise detected
+
         self.set_best()
         self.set_summary()
         self.set_segments_df()
