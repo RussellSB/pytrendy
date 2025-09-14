@@ -46,7 +46,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
 
-    # 3.4 Double check & refresh noise flag. Distinguish noise from abrupt change. TODO
+    # 3.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
     noise_starts = df.loc[df['noise_flag_diff'] == 1].index
     noise_ends = df.loc[df['noise_flag_diff'] == -1].index
@@ -71,25 +71,38 @@ def process_signals(df:pd.DataFrame, value_col: str):
         df_class.set_index('date', inplace=True)
         df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
 
-    # Distinguishes noise signals from abrupt change trends.
-    for segment in noise_segments:
 
-        width = (segment['end'] - segment['start']).days
-        start = segment['start'] - pd.Timedelta(days=width)
-        end = segment['end'] + pd.Timedelta(days=width)
-
+    def is_noise_signal(df, start, end):
+        """Checks if noise signal using DTW cost function."""
         df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
 
         _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
         _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
-        
         _, cost_noise_up, _, _, _ = dtw(df_segment[value_col], df_class['noise_up'])
         _, cost_noise_down, _, _, _ = dtw(df_segment[value_col], df_class['noise_down'])
 
-        # If signal more like abrupt (e.g. up but stays up), then not noise (e.g. up then down). Set noise flag to 0.
-        if np.argmin([cost_noise_up, cost_noise_down, cost_abrupt_up, cost_abrupt_down]) >= 2:
-            df.loc[segment['start']:segment['end'], 'noise_flag'] = 0
+        if np.argmin([cost_noise_up, cost_noise_down, cost_abrupt_up, cost_abrupt_down]) < 2:
+            return True
+        else: 
+            return False
+
+    # Distinguishes noise signals from abrupt change trends, sets noise flag to 0 when overlaps abrupt.
+    for segment in noise_segments:
+
+        # Pass 1: Check if immediate noise segment matches
+        start = segment['start'] 
+        end = segment['end'] 
+        if is_noise_signal(df, start, end):
+            df.loc[start:end, 'noise_flag'] = 0
+            continue
+
+        # Pass 2: If it doesn't, check once more with more leniency.
+        width = (segment['end'] - segment['start']).days
+        start_padded = segment['start'] - pd.Timedelta(days=width)
+        end_padded = segment['end'] + pd.Timedelta(days=width)
+        if is_noise_signal(df, start_padded, end_padded):
+            df.loc[start:end, 'noise_flag'] = 0
 
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.
