@@ -88,9 +88,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
         _, cost_noise_down, _, _, _ = dtw(df_segment[value_col], df_class['noise_down'])
 
         # If signal more like abrupt (e.g. up but stays up), then not noise (e.g. up then down). Set noise flag to 0.
-        if np.argmin([cost_abrupt_up, cost_abrupt_down, cost_noise_up, cost_noise_down]) < 2:
+        if np.argmin([cost_noise_up, cost_noise_down, cost_abrupt_up, cost_abrupt_down]) >= 2:
             df.loc[segment['start']:segment['end'], 'noise_flag'] = 0
-
 
     # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat.

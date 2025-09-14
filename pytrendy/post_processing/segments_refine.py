@@ -177,33 +177,19 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 abrupt_start = df.index[0]
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
-        import matplotlib.pyplot as plt
-        ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        plt.show()
-
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
-
-            print(abrupt_subseg)
 
             new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
             new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
 
-            print(new_start, new_end)
-            display(df_segment[value_col])
-
             value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
-            print(df_segment.loc[new_start, value_col], df_segment.loc[new_end, value_col])
             direction = 'Up' if value_change > 0 else 'Down'
 
             if direction != segment['direction']:
-                print(abrupt_subseg, value_change, direction, segment['direction'], 'Not Matched')
                 continue
 
             if j == 0:
-
-                print('Updating current')
 
                 # Update current segment
                 segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
@@ -213,8 +199,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 _update_next_segment(i, new_end, segments, segments_refined)
 
             elif j > 0:
-
-                print('Wedging in a new one')
                 
                 # Wedge in a new segment between current and next (needed for edge case of many abrupt near eachother)
                 new_index = i + j
@@ -242,8 +226,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
                 continue
 
-            # Simulate new end with padding and any overlaps it might cayse
-            print(method_params)
+            # Simulate new end with padding and cater for any overlaps it might cause
             new_end = pd.to_datetime(segment['end']) + pd.Timedelta(days=method_params['abrupt_padding'])
             overlaps = df.loc[(df['start'] <= new_end) & (df['end'] >= new_end)]
             overlaps_nonflats = overlaps[overlaps['direction']!='Flat']
@@ -313,13 +296,46 @@ def clean_artifacts(segments):
     Sometimes the neighbour repositioning can create tiny artifacts (eg. for Flats)
     Cleaning to make sure it does not make its way to final indication
     """
-    segments_refined = []
-    for segment in segments:
+
+    def has_inverse(segment):
+        """Checks that if end moved before start from neighbour adjustment, removes artifact."""
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days < 1: 
-            continue
+        if (end - start).days < 1:
+            return True
+        return False
+
+    def has_overlap(segment, segment_next):
+        """Checks whether overlap exists, and current is more insignificant"""
+        dir = segment['direction']
+        start =  pd.to_datetime(segment['start'])
+        end =  pd.to_datetime(segment['end'])
+        width = (end - start).days
+
+        next_dir = segment_next['direction']
+        next_start = pd.to_datetime(segment_next['start'])
+        next_end = pd.to_datetime(segment_next['end'])
+        next_width = (next_end - next_start).days
+
+        if end >= next_start and width <= next_width and dir == next_dir:
+            return True
+        return False
+
+    # Pass 1: Cleans inverse length segments. Artifacts from expansion/contraction
+    segments_refined = []
+    for i, segment in enumerate(segments):
+        if has_inverse(segment): 
+            continue # Excludes segment.
         segments_refined.append(segment)
+
+    # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detec
+    segments = deepcopy(segments_refined)
+    segments_refined = [] 
+    for i, segment in enumerate(segments):
+        if (i < len(segments)-1 and has_overlap(segment, segments[i+1])): 
+            continue 
+        segments_refined.append(segment)
+
     return segments_refined
 
 
