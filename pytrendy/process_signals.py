@@ -71,7 +71,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
         df_class.set_index('date', inplace=True)
         df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
 
-
+    # Distinguishes noise signals from abrupt change trends, sets noise flag to 0 when overlaps abrupt.
     def is_noise_signal(df, start, end):
         """Checks if noise signal using DTW cost function."""
         df_segment = df.loc[start:end]
@@ -86,8 +86,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
             return True
         else: 
             return False
-
-    # Distinguishes noise signals from abrupt change trends, sets noise flag to 0 when overlaps abrupt.
+        
     for segment in noise_segments:
 
         # Pass 1: Check if immediate noise segment matches

@@ -83,7 +83,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
         mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
         mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), # TODO: Show optionally later, based on up_only, down_only, robustness=False ... etc
+        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
