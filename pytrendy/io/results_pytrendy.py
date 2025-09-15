@@ -7,10 +7,6 @@ class PyTrendyResults:
 
     def __init__(self, segments):
         self.segments = segments
-
-        if len(segments) == 0:
-            return # Silently exits of no flats, ups, downs, or noise detected
-
         self.set_best()
         self.set_summary()
         self.set_segments_df()
@@ -20,13 +16,18 @@ class PyTrendyResults:
         results.best returns best based on total_change (cumulative sum of differences). 
         This prioritises both longest segment length (days) and steepness of trend.
         """
-        if not any('change_rank' in segment for segment in self.segments):
+        if len(self.segments) == 0 or not any('change_rank' in segment for segment in self.segments):
             self.best = None
             return
         self.best = min(self.segments, key=lambda x: x.get('change_rank'))
 
     def set_summary(self):
         summary = {}
+
+        # Exit if nothing to report on
+        if len(self.segments) == 0:
+            summary['df'] = pd.DataFrame()
+            return
 
         direction_counts = Counter(seg["direction"] for seg in self.segments)
         summary["direction_counts"] = dict(direction_counts)
@@ -70,6 +71,10 @@ class PyTrendyResults:
 
     def set_segments_df(self):
         """Alternative data representation to segments. In dataframe rather than dict"""
+        # Exit if nothing to report on
+        if len(self.segments) == 0:
+            return pd.DataFrame()
+        
         df = pd.DataFrame(self.segments)
         df = df.set_index('time_index')
         self.segments_df = df
@@ -82,6 +87,8 @@ class PyTrendyResults:
         - return format, either of ['dict', 'df']
         """
         segments = self.segments
+        if len(segments) == 0:
+            return [] # return nothing if edge case
 
         # Sort segments by index/rank
         if sort_by == 'change_rank':
@@ -99,8 +106,6 @@ class PyTrendyResults:
         if direction not in options:
             print(f'{direction} is not a valid direction. Please try one of [\'Any\', \'Up/Down\', \'Up\', \'Down\', \'Flat\', \'Noise\']')
 
-        if len(segments) == 0:
-            return []
 
         if format not in ['dict', 'df']:
             print(f'{format} is not a valid format. Please try one of [\'dict\', \'df\']')
