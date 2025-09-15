@@ -4,7 +4,26 @@ import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
 def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
-    """Plot visuals of trend detected segments over signal of interest."""
+    """
+    Visualizes detected trend segments over the original time series signal.
+
+    This function overlays shaded regions on the signal to indicate trends such as Up, Down, Flat, and Noise.
+    
+    It also annotates ranked segments and handles visual adjustments for abrupt transitions.
+
+    Args:
+        df (pd.DataFrame):
+            Time series data with datetime index and signal column.
+        value_col (str):
+            Name of the column containing the signal to plot.
+        segments_enhanced (list):
+            List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
+
+    Returns:
+        None:
+            Displays a matplotlib plot inline. Does not return any object.
+    """
+    
     # Define colors
     color_map = {
         'Up': 'lightgreen',

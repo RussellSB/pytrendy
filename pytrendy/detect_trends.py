@@ -18,10 +18,15 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     It optionally visualizes the results and returns a structured object containing segment metadata.
 
     The pipeline includes:
+    
     1. **Signal Processing**: Applies Savitzky-Golay smoothing and computes flags for flat and noisy regions.
+
     2. **Segmentation**: Extracts contiguous segments based on signal classification.
+
     3. **Refinement**: Adjusts segment boundaries and classifies trends as gradual or abrupt.
+
     4. **Analysis**: Computes metrics like total change, percent change, and signal-to-noise ratio.
+    
     5. **Visualization (optional)**: Plots the original signal with annotated segments.
 
     Args:

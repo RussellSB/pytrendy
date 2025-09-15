@@ -3,9 +3,22 @@ import numpy as np
 from collections import Counter
 
 class PyTrendyResults: 
-    """Wrapper for segment results."""
+    """
+    Wrapper class for accessing and analyzing detected trend segments.
+
+    This class provides utilities for summarizing, filtering, and exporting trend segments
+    detected by the `detect_trends` pipeline. It encapsulates both raw segment data and
+    enhanced metrics such as rankings and signal-to-noise ratios.
+    """
 
     def __init__(self, segments):
+        """
+        Initializes the results object with a list of segments.
+
+        Args:
+            segments (list):
+                List of dictionaries representing individual trend segments.
+        """
         self.segments = segments
         self.set_best()
         self.set_summary()
@@ -13,8 +26,13 @@ class PyTrendyResults:
 
     def set_best(self):
         """
-        results.best returns best based on total_change (cumulative sum of differences). 
         This prioritises both longest segment length (days) and steepness of trend.
+        
+        results.best returns best based on total_change (cumulative sum of differences). 
+
+        Identifies the best trend segment based on steepness and duration.
+
+        The segment with the lowest `change_rank` is selected as the best.
         """
         if not any('change_rank' in segment for segment in self.segments):
             self.best = None
@@ -22,6 +40,11 @@ class PyTrendyResults:
         self.best = min(self.segments, key=lambda x: x.get('change_rank'))
 
     def set_summary(self):
+        """
+        Computes summary statistics and stores a compact DataFrame of segments.
+
+        Includes counts by direction and trend class, highest total change, and a tabular view.
+        """
         summary = {}
 
         direction_counts = Counter(seg["direction"] for seg in self.segments)
@@ -46,6 +69,11 @@ class PyTrendyResults:
         self.summary = summary
 
     def print_summary(self):
+        """
+        Prints a human-readable summary of detected trends.
+
+        Includes counts, best segment info, and a full tabular display.
+        """
 
         uptrends = self.summary['direction_counts']['Up'] if 'Up' in self.summary['direction_counts'] else 0
         downtrends = self.summary['direction_counts']['Down'] if 'Down' in self.summary['direction_counts'] else 0
@@ -65,17 +93,33 @@ class PyTrendyResults:
             '\n-------------------------------------------------------------------------------')
 
     def set_segments_df(self):
-        """Alternative data representation to segments. In dataframe rather than dict"""
+        """
+        Converts the segment list into a pandas DataFrame.
+
+        Useful for downstream analysis and export.
+        
+        Alternative data representation to segments. In dataframe rather than dict
+        """
+
         df = pd.DataFrame(self.segments)
         df = df.set_index('time_index')
         self.segments_df = df
 
     def filter_segments(self, direction:str='Any', sort_by:str='time_index', format='df'):
         """
-        Simple helper for getting segments 
-        - filtered by direction ['Any', 'Up/Down', 'Up', 'Down', 'Flat', 'Noise']
-        - sorted by time_index (ascending) or change_rank (descending)
-        - return format, either of ['dict', 'df']
+        Filters and sorts segments based on direction and ranking.
+
+        Args:
+            direction (str, optional):
+                Filter by trend direction. Options: `'Any'`, `'Up/Down'`, `'Up'`, `'Down'`, `'Flat'`, `'Noise'`.
+            sort_by (str, optional):
+                Sort segments by `'time_index'` (ascending) or `'change_rank'` (descending).
+            format (str, optional):
+                Output format. `'df'` returns a DataFrame, `'dict'` returns a list of dictionaries.
+
+        Returns:
+            Union[list, pd.DataFrame]:
+                Filtered and sorted segments in the specified format.
         """
         segments = self.segments
 

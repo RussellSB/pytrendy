@@ -1,5 +1,3 @@
-"""Module B."""
-
 import pandas as pd
 from scipy.signal import savgol_filter
 import numpy as np
@@ -9,10 +7,34 @@ from .io.data_loader import load_data
 from .simpledtw import dtw
 
 def process_signals(df:pd.DataFrame, value_col: str):
-    """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods
-    
-    @df (pd.DataFrame): df with daily data...
-    @value_col()
+    """
+    Applies signal processing techniques to classify regions of a time series.
+
+    This function uses Savitzky-Golay smoothing and rolling statistics to identify:
+    - Flat regions (low standard deviation)
+    - Noisy regions (low signal-to-noise ratio)
+    - Uptrends and downtrends (based on smoothed derivatives)
+
+    Flags are added to the DataFrame to indicate each region type:
+    - `flat_flag`: 1 for flat regions
+    - `noise_flag`: 1 for noisy regions
+    - `trend_flag`: 
+        - 1 for uptrend
+        - -1 for downtrend
+        - -2 for flat
+        - -3 for noise
+
+    Args:
+        df (pd.DataFrame): 
+            Input time series data with a datetime index and signal column.
+        value_col (str): 
+            Name of the column containing the signal to process.
+
+    Returns:
+        pd.DataFrame: 
+            Modified DataFrame with additional columns:
+            - `'smoothed'`, `'smoothed_std'`, `'snr'`, `'smoothed_deriv'`
+            - `'flat_flag'`, `'noise_flag'`, `'trend_flag'`
     """
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
