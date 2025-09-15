@@ -49,6 +49,17 @@ plugins:
             summary: true
   - api-autonav:
       modules: ['../pytrendy']
+      module_options:
+        ".*":
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          heading_level: 1
+      nav_section_title: "API Reference"
+      api_root_uri: "reference"
+      nav_item_prefix: "<code class='doc-symbol doc-symbol-nav'></code>" #"<code class='doc-symbol doc-symbol-nav doc-symbol-module'></code>"
+      exclude_private: false
+      show_full_namespace: false
+      on_implicit_namespace_package: "warn"
 
 
 
