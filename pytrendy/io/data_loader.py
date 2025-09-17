@@ -1,4 +1,4 @@
-"""Module B."""
+"""**Load Built-In Datasets for Testing and Classification**"""
 
 from pathlib import Path
 import pandas as pd
@@ -18,7 +18,7 @@ def load_data(dataset:str='series_synthetic') -> pd.DataFrame:
             - `'series_synthetic'`: A synthetic time series with embedded trends.
 
             - `'classes_trends'`: Reference signals for classifying trends as gradual or abrupt.
-            
+
             Defaults to `'series_synthetic'`.
 
     Returns:
@@ -32,7 +32,7 @@ def load_data(dataset:str='series_synthetic') -> pd.DataFrame:
 
     options = ['classes_signals', 'series_synthetic']
     if dataset not in options:
-        print(f'{dataset} is not a valid dataset to load from Pytrendy. Please try either of {options}')
+        print(f'{dataset} is not a valid dataset to load from PyTrendy. Please try either of {options}')
 
     dir_path = str(Path(__file__).resolve().parent)
     df = pd.read_csv(dir_path + '/data/' + dataset + '.csv')

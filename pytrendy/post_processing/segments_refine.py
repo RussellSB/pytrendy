@@ -1,3 +1,5 @@
+"""**Adjust Boundaries and Classify Trends**"""
+
 import pandas as pd
 from copy import deepcopy
 from ..simpledtw import dtw
@@ -317,9 +319,10 @@ def group_segments(segments):
     Groups consecutive segments with the same direction if their gap is small.
 
     Segments are grouped if:
-    - They share the same `'direction'`
-    - Their gap is ≤ `GROUPING_DISTANCE`
-    - They are not classified as `'abrupt'`
+
+        - They share the same `'direction'`
+        - Their gap is ≤ `GROUPING_DISTANCE`
+        - They are not classified as `'abrupt'`
 
     This reduces fragmentation caused by short, noisy segments.
 
@@ -376,9 +379,10 @@ def group_segments(segments):
 
 def clean_artifacts(segments):
     """
-    Removes segments that are too short to be meaningful.
+    Gets rid of short segments that are likely artifacts.
 
-    This is typically used to clean up artifacts introduced by boundary adjustments.
+        - Removes segments that are too short to be meaningful.
+        - This is typically used to clean up artifacts introduced by boundary adjustments.
 
     Args:
         segments (list): List of segment dictionaries.

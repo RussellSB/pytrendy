@@ -1,3 +1,5 @@
+"""**Extract Contiguous Segments from Signal Flags**"""
+
 import pandas as pd
 
 def get_segments(df: pd.DataFrame):
@@ -9,16 +11,17 @@ def get_segments(df: pd.DataFrame):
     constraints to ensure meaningful segments are retained.
 
     Segment directions are mapped as follows:
+
     - `1`: Up
     - `-1`: Down
     - `-2`: Flat
     - `-3`: Noise
 
+
     Only segments meeting the following minimum lengths are retained:
 
-    - Up/Down: ≥ 7 days
-
-    - Flat/Noise: ≥ 3 days
+    - Up/Down: ≥ 3 days
+    - Flat/Noise: ≥ 1 days
 
     Args:
         df (pd.DataFrame): 

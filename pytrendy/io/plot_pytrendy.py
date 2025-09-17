@@ -1,3 +1,5 @@
+"""**Visualize Detected Trends Over Time Series**"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
@@ -5,11 +7,11 @@ import matplotlib.patches as mpatches
 
 def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
     """
-    Visualizes detected trend segments over the original time series signal.
+    - Visualizes detected trend segments over the original time series signal.
 
-    This function overlays shaded regions on the signal to indicate trends such as Up, Down, Flat, and Noise.
-    
-    It also annotates ranked segments and handles visual adjustments for abrupt transitions.
+    - This function overlays shaded regions on the signal to indicate trends such as Up, Down, Flat, and Noise
+
+    - It also annotates ranked segments and handles visual adjustments for abrupt transitions.
 
     Args:
         df (pd.DataFrame):

@@ -1,4 +1,4 @@
-"""Module B."""
+"""**Add Metrics and Rank Trend Segments**"""
 
 import pandas as pd
 import numpy as np
@@ -8,11 +8,14 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     Enhances trend segments with quantitative metrics and rankings.
 
     This function compares signal behavior before and after each trend period to characterize
-    the magnitude and clarity of change. It computes descriptors that reflect how the signal
+    the magnitude and clarity of change. 
+
+    It computes descriptors that reflect how the signal
     transitions from a pretreatment state (before the trend) to a post-treatment state (after the trend),
     helping to validate the significance of each detected segment.
 
     Metrics added include:
+    
     - Absolute and percent change (based on min/max values)
 
     - Duration in days
@@ -20,7 +23,7 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     - Cumulative total change (sum of diffs)
 
     - Signal-to-noise ratio (SNR)
-    
+
     - Change rank (based on total change magnitude)
 
     These enhancements support downstream filtering, ranking, and visualization.

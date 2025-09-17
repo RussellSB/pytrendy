@@ -1,3 +1,5 @@
+"""**Structured Access to Detection Results**"""
+
 import pandas as pd
 import numpy as np
 from collections import Counter
@@ -26,13 +28,11 @@ class PyTrendyResults:
 
     def set_best(self):
         """
-        This prioritises both longest segment length (days) and steepness of trend.
+        Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.
         
-        results.best returns best based on total_change (cumulative sum of differences). 
-
-        Identifies the best trend segment based on steepness and duration.
-
-        The segment with the lowest `change_rank` is selected as the best.
+            - `results.best` returns best based on `total_change` (cumulative sum of differences). 
+            - Identifies the best trend segment based on steepness and duration.
+            - The segment with the lowest `change_rank` is selected as the best.
         """
         if not any('change_rank' in segment for segment in self.segments):
             self.best = None
@@ -41,9 +41,10 @@ class PyTrendyResults:
 
     def set_summary(self):
         """
-        Computes summary statistics and stores a compact DataFrame of segments.
+        Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.
 
-        Includes counts by direction and trend class, highest total change, and a tabular view.
+            - Computes summary statistics and stores a compact `DataFrame` of segments.
+            - Includes counts by direction and trend class, highest total change, and a tabular view.
         """
         summary = {}
 
@@ -70,7 +71,7 @@ class PyTrendyResults:
 
     def print_summary(self):
         """
-        Prints a human-readable summary of detected trends.
+        Prints a readable summary of detected trends.
 
         Includes counts, best segment info, and a full tabular display.
         """
@@ -94,11 +95,11 @@ class PyTrendyResults:
 
     def set_segments_df(self):
         """
-        Converts the segment list into a pandas DataFrame.
+        Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.
 
-        Useful for downstream analysis and export.
-        
-        Alternative data representation to segments. In dataframe rather than dict
+            - Converts the segment list into a pandas `DataFrame`.
+            - Useful for downstream analysis and export.
+            - Alternative data representation to segments. In `dataframe` rather than `dict`
         """
 
         df = pd.DataFrame(self.segments)
@@ -118,8 +119,8 @@ class PyTrendyResults:
                 Output format. `'df'` returns a DataFrame, `'dict'` returns a list of dictionaries.
 
         Returns:
-            Union[list, pd.DataFrame]:
-                Filtered and sorted segments in the specified format.
+            Union[`list`, `pd.DataFrame`]: Filtered and sorted segments in the specified format.
+                
         """
         segments = self.segments
 

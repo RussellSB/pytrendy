@@ -1,3 +1,5 @@
+"""**Signal Smoothing and Region Classification**"""
+
 import pandas as pd
 from scipy.signal import savgol_filter
 import numpy as np
@@ -11,14 +13,17 @@ def process_signals(df:pd.DataFrame, value_col: str):
     Applies signal processing techniques to classify regions of a time series.
 
     This function uses Savitzky-Golay smoothing and rolling statistics to identify:
+
     - Flat regions (low standard deviation)
     - Noisy regions (low signal-to-noise ratio)
     - Uptrends and downtrends (based on smoothed derivatives)
 
     Flags are added to the DataFrame to indicate each region type:
+
     - `flat_flag`: 1 for flat regions
     - `noise_flag`: 1 for noisy regions
     - `trend_flag`: 
+    
         - 1 for uptrend
         - -1 for downtrend
         - -2 for flat
@@ -31,8 +36,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
             Name of the column containing the signal to process.
 
     Returns:
-        pd.DataFrame: 
-            Modified DataFrame with additional columns:
+        `pd.DataFrame`: Modified DataFrame with additional columns.
+           
             - `'smoothed'`, `'smoothed_std'`, `'snr'`, `'smoothed_deriv'`
             - `'flat_flag'`, `'noise_flag'`, `'trend_flag'`
     """

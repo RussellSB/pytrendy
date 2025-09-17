@@ -1,6 +1,4 @@
-"""
-Summary of what this does
-"""
+"""**End-to-End Trend Detection**"""
 
 import pandas as pd
 from .process_signals import process_signals
@@ -12,12 +10,16 @@ from .io.results_pytrendy import PyTrendyResults
 
 def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict={}):
     """
-    Detects trend segments in a time series using a five-stage pipeline.
+    This function runs the full PyTrendy pipeline in five stages: signal smoothing, segment extraction, 
+    boundary refinement, metric analysis, and optional visualization. It returns a `PyTrendyResults` 
+    object containing ranked, classified, and trend segments, ready for filtering, plotting, or export. 
+    Designed for quick integration and iterative tuning, `detect_trends` is the recommended entry point for most users.
 
-    This function identifies patterns—such as uptrends, downtrends, flat regions, and noise by applying rolling statistics, segmentation heuristics, and post-processing refinements.
+    Furthermore, it identifies patterns such as uptrends, downtrends, flat regions, and noise by applying rolling statistics, segmentation heuristics, and post-processing refinements.
     It optionally visualizes the results and returns a structured object containing segment metadata.
 
     The pipeline includes:
+
     
     1. **Signal Processing**: Applies Savitzky-Golay smoothing and computes flags for flat and noisy regions.
 
