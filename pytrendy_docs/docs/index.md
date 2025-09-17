@@ -19,16 +19,13 @@ Whether you're analyzing financial indicators, sensor outputs, or behavioral met
 ## Quickstart
 
 ```python
-from pytrendy import detect_trends, PyTrendyResults
+import pytrendy as pt
 
-# Load your time series DataFrame
-df = load_your_data()  # Must include columns: ['signal', 'noise', 'trend_flag']
+# Load your time series DataFrame (using example df)
+df = pt.load_data('series_synthetic') 
 
-# Run detection pipeline
-segments = detect_trends(df, value_col='signal')
-
-# Wrap results for filtering and summary
-results = PyTrendyResults(segments)
+# Run detection pipeline on date_col & value_col reference
+results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 # Print summary
 results.print_summary()
@@ -38,7 +35,6 @@ best_trend = results.best
 ```
 
 For a full walkthrough, see Usage. 
-
 For detailed module references, see API Reference.
 
 ## Modular Architecture
