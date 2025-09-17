@@ -46,7 +46,7 @@ plugins:
             show_signature_annotations: false
             show_symbol_type_heading: false
             show_symbol_type_toc: false
-            summary: true
+            summary: false
   - api-autonav:
       modules: ['../pytrendy']
       module_options:

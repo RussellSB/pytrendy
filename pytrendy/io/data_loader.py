@@ -12,22 +12,14 @@ def load_data(dataset:str='series_synthetic') -> pd.DataFrame:
 
     Args:
         dataset (str, optional):
-
             Name of the dataset to load. Options include:
 
             - `'series_synthetic'`: A synthetic time series with embedded trends.
-
             - `'classes_trends'`: Reference signals for classifying trends as gradual or abrupt.
-
-            Defaults to `'series_synthetic'`.
 
     Returns:
         pd.DataFrame:
             A pandas DataFrame containing the requested dataset.
-
-    Raises:
-        ValueError:
-            If the specified dataset name is not recognized.
     """
 
     options = ['classes_signals', 'series_synthetic']

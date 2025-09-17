@@ -11,9 +11,9 @@ def dtw(series_1, series_2, norm_func = np.linalg.norm):
 	comparing segments to reference signals.
 
 	Args:
-		series_1 (array-like):
+		series_1 (array):
 			First time series to compare. Should be a 1D or 2D array of numeric values.
-		series_2 (array-like):
+		series_2 (array):
 			Second time series to compare. Must be of compatible shape with `series_1`.
 		norm_func (callable, optional):
 			Function to compute distance between elements. Defaults to `np.linalg.norm`.
@@ -28,7 +28,7 @@ def dtw(series_1, series_2, norm_func = np.linalg.norm):
 			- `matrix` (ndarray): Full DTW cost matrix.
 
 	Credits:
-		Based on the implementation from the [simpledtw GitHub repository](https://github.com/talcs/simpledtw).
+		This is directly extracted from the [simpledtw GitHub repository](https://github.com/talcs/simpledtw).
 
 	"""
 

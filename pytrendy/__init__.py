@@ -2,7 +2,7 @@
 
 
 At its core is the `detect_trends` pipeline, which carries out signal preprocessing, segment extraction, refinement, classification, 
-and analysis. The package is structured into cohesive submodules— `io`, `post_processing`, `process_signals`, and `simpledtw` to 
+and analysis. The package is structured into cohesive submodules - `io`, `post_processing`, `process_signals`, and `simpledtw` to 
 support a flexible and interpretable workflow. These components work together to load sample datasets, visualize annotated trends, 
 apply classification heuristics, and access structured results for downstream analysis or integration.
 

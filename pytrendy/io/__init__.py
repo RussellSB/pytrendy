@@ -12,7 +12,7 @@ larger workflows.
 Loads built-in datasets packaged with PyTrendy. These include:
 
 - `'series_synthetic'`: A synthetic time series with embedded uptrends, downtrends, and flat regions.
-- `'classes_trends'`: Reference signals used for classifying segments as gradual or abrupt.
+- `'classes_trends'`: Reference signals used internally for classifying segments as gradual or abrupt.
 
 Useful for testing, demos, and validating detection logic.
 
@@ -28,8 +28,6 @@ Wraps the output of `detect_trends` into a structured `PyTrendyResults` object. 
 - Summary statistics (counts, rankings, best segment)
 - Filtering by direction and ranking
 - Tabular access to segment metadata
-
-Ideal for downstream analysis, reporting, and exporting results.
 
 ---
 
