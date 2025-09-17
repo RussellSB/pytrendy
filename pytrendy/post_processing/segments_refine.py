@@ -8,20 +8,28 @@ NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in ex
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def _update_prev_segment(i, new_start, segments, segments_refined):
-    """
-    Shift previous segment end if overlapping with updated start (or original start).
-    Don't touch neighbouring segment if an abrupt signal, it should remain precise and sensitive.
-    """
+    """Shift previous segment end if overlapping with updated start (or original start)."""
     if (i == 0):
         return
     prev_has_class = 'trend_class' in segments_refined[i-1]
     if prev_has_class and segments_refined[i-1]['trend_class'] == 'abrupt':
         return
+    
+    # TODO: Clean this mess
+    if pd.to_datetime(segments[i-1]['start']) >= new_start and pd.to_datetime(segments[i-1]['start']) <= pd.to_datetime(segments[i]['start']):
+        j = i - 2 
+        segments_refined[i-1]['end'] = segments_refined[i-1]['start'] # make it commit seppuku
+    else:
+        j = i - 1
 
-    distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[i - 1]['end'])).days
-    distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[i - 1]['end'])).days
+    # j = i - 1
+
+    distance_refined = (pd.to_datetime(new_start) - pd.to_datetime(segments_refined[j]['end'])).days
+    distance_orig = (pd.to_datetime(segments[i]['start']) - pd.to_datetime(segments[j]['end'])).days
+
     if distance_refined <= NEIGHBOUR_DISTANCE or distance_orig <= NEIGHBOUR_DISTANCE:
-        segments_refined[i - 1]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+
+        segments_refined[j]['end'] = (pd.to_datetime(new_start) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
 
 
 def _update_next_segment(i, new_end, segments, segments_refined):
