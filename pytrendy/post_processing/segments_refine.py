@@ -379,10 +379,9 @@ def group_segments(segments):
 
 def clean_artifacts(segments):
     """
-    Gets rid of short segments that are likely artifacts.
-
-        - Removes segments that are too short to be meaningful.
-        - This is typically used to clean up artifacts introduced by boundary adjustments.
+    Removes segments that are too short to be meaningful.
+    
+    This is typically used to clean up artifacts introduced by boundary adjustments.
 
     Args:
         segments (list): List of segment dictionaries.
