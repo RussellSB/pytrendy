@@ -53,9 +53,9 @@ plugins:
             show_root_heading: true
             show_root_full_path: false 
             show_signature_annotations: false
-            show_symbol_type_heading: false
-            show_symbol_type_toc: false
             summary: false
+            reload: true
+            paths: ['../pytrendy']   # <-- tell it where to load from
   - api-autonav:
       modules: ['../pytrendy']
       module_options:
