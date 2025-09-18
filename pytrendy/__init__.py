@@ -8,25 +8,22 @@ apply classification heuristics, and access structured results for downstream an
 
 ---
 
-**This package is organized into the following modules:**
+This package is organized into the following modules:
 
-# 1. `detect_trends`
+# 1. detect_trends
 
 - Defines the primary pipeline function for executing PyTrendy's trend detection workflow.
 - This function coordinates signal preprocessing, segment extraction, boundary refinement, metric analysis, and optional visualization in a single call.
 - It returns a structured `PyTrendyResults` object containing enriched, ranked, and classified trend segments suitable for filtering, plotting, or downstream integration.
 
 
-# 2. `io`
+# 2. io
 
-The `io` module provides essential interfaces for interacting with the input and output layers of PyTrendy.  
-It streamlines access to curated datasets, supports detailed visualization of trend segments,  
-and offers structured result handling for downstream analysis.  
+The `io` module provides essential interfaces for interacting with the input and output layers of PyTrendy. 
+It streamlines access to curated datasets, supports detailed visualization of trend segments, and offers structured result handling for downstream analysis.  
+Designed for both exploratory workflows and programmatic integration, this module enables users to efficiently load data, interpret results, and present findings.
 
-Designed for both exploratory workflows and programmatic integration,  
-this module enables users to efficiently load data, interpret results, and present findings.
-
-## 2.1 *`data_loader`*
+## 2.1 data_loader
 
 - Provides access to built-in datasets packaged with PyTrendy.
 - Enables quick loading of synthetic time series and classification references.
@@ -34,7 +31,7 @@ this module enables users to efficiently load data, interpret results, and prese
 - Delivers standardized input formats optimized for trend detection and segment analysis.
 
 
-## 2.2 *`plot_pytrendy`*
+## 2.2 plot_pytrendy
 
 - Generates annotated visualizations of trend segments over time series data.
 - Highlights matplotlib plots with Up, Down, Flat, and Noise regions using shaded overlays and metadata.
@@ -42,7 +39,7 @@ this module enables users to efficiently load data, interpret results, and prese
 - Makes the visualization ready for reporting, presentation, and analytical review.
 
 
-## 2.3 *`results_pytrendy`*
+## 2.3 results_pytrendy
 
 - Wraps detection output into a structured results object.
 - Implements the `PyTrendyResults` class for segment filtering, ranking, and summarization.
@@ -51,21 +48,21 @@ this module enables users to efficiently load data, interpret results, and prese
 
 
 
-# 3. `post_processing`
+# 3. post_processing
 
 The `post_processing` module provides utilities for refining, classifying, and analyzing trend segments.
 It transforms raw detections into interpretable, ranked structures by adjusting boundaries, labeling temporal behavior, and computing signal metrics.  
 This module ensures that the output is analytically robust and ready for downstream use.
 
-## 3.1 *`segments_get`*
+## 3.1 segments_get
 
-- Extracts contiguous segments from the `trend_flag` column.
+- Extracts continuous segments from the `trend_flag` column.
 - Applies minimum length constraints to filter out noise.
 - Supports directional trends (Up/Down) and neutral regions (Flat/Noise).
 - Serves as the first step in segment-level post-processing.
 
 
-## 3.2 *`segments_refine`*
+## 3.2 segments_refine
 
 - Adjusts segment boundaries based on local extrema and changepoint detection.
 - Classifies segments as 'gradual' or 'abrupt' using DTW alignment.
@@ -73,7 +70,7 @@ This module ensures that the output is analytically robust and ready for downstr
 - Groups short consecutive segments and removes artifacts.
 
 
-## 3.3 *`segments_analyse`*
+## 3.3 segments_analyse
 
 - Computes metrics for each segment, comparing pretreatment vs post-treatment behavior.
 - Includes absolute and percent change, duration, and cumulative movement.
@@ -82,14 +79,14 @@ This module ensures that the output is analytically robust and ready for downstr
 
 
 
-# 4. `process_signals`
+# 4. process_signals
 
 - Implements core signal processing logic to identify meaningful regions within a time series.
 - By applying Savitzky-Golay smoothing and rolling statistical measures, this module flags flat, noisy, and directional trends.
 - These flags serve as the foundation for segment extraction and subsequent analysis within the PyTrendy pipeline.
 
 
-# 5. `simpledtw`
+# 5. simpledtw
 
 - Provides an efficient implementation of Dynamic Time Warping (DTW) for comparing time series segments.
 - This module is used internally to classify trends by aligning detected segments with reference signals and evaluating similarity based on alignment cost.
