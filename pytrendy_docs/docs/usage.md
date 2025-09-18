@@ -4,11 +4,8 @@
 
 This guide walks through the core usage of PyTrendy, from raw signal input to refined and classified trend segments. The pipeline is modular, allowing developers to use the full workflow or integrate individual components into custom analysis routines.
 
-<br>
 
 ## 1. Input Requirements
-
-<p></p>
 
 PyTrendy expects a `pandas.DataFrame` with two columns. Their reference will be passed through `detect_trends()`:
 
@@ -36,7 +33,6 @@ PyTrendy expects a `pandas.DataFrame` with two columns. Their reference will be 
 
 These columns are currently the only two columns required for trend detection.
 
-<br>
 
 ## 2. Full Pipeline Execution
 
@@ -108,14 +104,9 @@ This function wraps the following stages:
 The output is a `PyTrendyResults` object, which provides structured access to trends, metrics, and visual summaries.
 
 
-<br>
-
-
-
 ## 3. Accessing Results
 
 <p></p>
-
 
 Once your segments are wrapped in PyTrendyResults, you can filter, rank, and inspect trends. These methods are designed to support both exploratory analysis and downstream integration.
 
@@ -123,7 +114,6 @@ Once your segments are wrapped in PyTrendyResults, you can filter, rank, and ins
 
 ##### **3.1 Print Segment Summary**
 
-<p></p>
 
 Use `print_summary()` to display a concise overview of all detected segments, including direction, slope, duration, and start/end indices.
 
@@ -136,9 +126,9 @@ results.print_summary()
 
 <br>
 
+
 ##### **3.2 Access Top Trends**
 
-<p></p>
 
 Retrieve the most prominent trends based on steepness and duration using `results.best`. You can specify how many top segments to return and which metric to rank by.
 
@@ -156,7 +146,6 @@ longest_segments = results.best(n=5, metric="duration")
 
 ##### **3.3 Filter by Direction**
 
-<p></p>
 
 Filter segments by trend direction (`"up"` or `"down"`) and choose the output format (`"df"` for DataFrame or `"list"` for raw segment objects).
 
@@ -174,7 +163,6 @@ downward_segments = results.filter_segments(direction="down", format="list")
 
 ##### **3.4 Access Full Summary DataFrame**
 
-<p></p>
 
 The `summary` attribute provides a dictionary of precomputed summaries. The `"df"` key returns a full DataFrame with all segment metadata.
 
@@ -192,7 +180,6 @@ print(summary_df.head())
 
 ##### **3.5 Advanced Filtering (Optional)**
 
-<p></p>
 
 You can also apply custom filters using pandas directly on `summary_df`:
 
@@ -205,7 +192,6 @@ strong_trends = summary_df[
 ```
 **Use case:** Fine-grained control for domain-specific thresholds or anomaly detection.
 
-<br>
 
 ## 4. Custom Pipeline (Advanced)
 
@@ -243,7 +229,7 @@ results = PyTrendyResults(segments_final)
 
 This approach is ideal for experimentation, debugging, or integrating PyTrendy into larger workflows.
 
-<br>
+
 
 ## 5. Plotting Trends
 
@@ -291,7 +277,7 @@ Plots include shaded regions for each segment type:
 
 Top-ranked trends are annotated directly on the chart.
 
-<br>
+
 
 ## 6. Use Cases
 <p></p>
@@ -518,11 +504,11 @@ top_segments = results.best(n=3, metric="slope")
 ```
 </details>
 
-<br>
+
 
 ## 7. Configuration Parameters
 
-<br>
+
 
 <table style="border-collapse: collapse; width: 100%; font-size: 14px;">
   <thead>
@@ -555,17 +541,13 @@ top_segments = results.best(n=3, metric="slope")
   </tbody>
 </table>
 
-<br>
 
 These can be passed via `method_params` in `detect_trends()`.
-
-<br>
-
 
 
 ## 8. Version Compatibility and Changelog
 
-<br>
+
 
 <table style="border-collapse: collapse; width: 100%; font-size: 14px;">
   <thead>
