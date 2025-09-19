@@ -110,9 +110,9 @@ The output is a `PyTrendyResults` object, which provides structured access to tr
 
 Once your segments are wrapped in PyTrendyResults, you can filter, rank, and inspect trends. These methods are designed to support both exploratory analysis and downstream integration.
 
-<br>
 
-##### **3.1 Print Segment Summary**
+
+### *3.1 Print Segment Summary*
 
 
 Use `print_summary()` to display a concise overview of all detected segments, including direction, slope, duration, and start/end indices.
@@ -124,10 +124,10 @@ results.print_summary()
 ```
 **Use case:** Quick inspection during development or debugging.
 
-<br>
 
 
-##### **3.2 Access Top Trends**
+
+### *3.2 Access Top Trends*
 
 
 Retrieve the most prominent trends based on steepness and duration using `results.best`. You can specify how many top segments to return and which metric to rank by.
@@ -142,9 +142,9 @@ longest_segments = results.best(n=5, metric="duration")
 ```
 **Use case:** Highlighting dominant patterns for reporting, dashboards, or strategic insights.
 
-<br>
 
-##### **3.3 Filter by Direction**
+
+### *3.3 Filter by Direction*
 
 
 Filter segments by trend direction (`"up"` or `"down"`) and choose the output format (`"df"` for DataFrame or `"list"` for raw segment objects).
@@ -159,9 +159,9 @@ downward_segments = results.filter_segments(direction="down", format="list")
 ```
 **Use case:** Isolating bullish/bearish runs, rising/falling sensor values, or engagement spikes/drops.
 
-<br>
 
-##### **3.4 Access Full Summary DataFrame**
+
+### *3.4 Access Full Summary DataFrame*
 
 
 The `summary` attribute provides a dictionary of precomputed summaries. The `"df"` key returns a full DataFrame with all segment metadata.
@@ -176,9 +176,9 @@ print(summary_df.head())
 ```
 **Use case:** Exporting to CSV, integrating with BI tools, or feeding into alerting systems.
 
-<br>
 
-##### **3.5 Advanced Filtering (Optional)**
+
+### *3.5 Advanced Filtering (Optional)*
 
 
 You can also apply custom filters using pandas directly on `summary_df`:
@@ -190,7 +190,7 @@ strong_trends = summary_df[
 ]
 
 ```
-**Use case:** Fine-grained control for domain-specific thresholds or anomaly detection.
+*Use case:* Fine-grained control for domain-specific thresholds or anomaly detection.
 
 
 ## 4. Custom Pipeline (Advanced)
@@ -349,13 +349,14 @@ These datasets are ideal for testing PyTrendy across financial, sensor, and beha
 </table>
 
 
-<br>
 
-#####   a) **Financial Time Series: Detecting Bullish/Bearish Runs**
+
+###   (a) *Financial Time Series: Detecting Bullish/Bearish Runs*
 
 Detect trends in stock prices to isolate bullish or bearish runs. Useful for quant strategies, backtesting, or market phase detection.
 
-<details><summary><strong>Example: Stock Price Trend Detection</strong></summary>
+<details class="admonition example">
+<summary><strong>Stock Price Trend Detection</strong></summary>
 
 ```python
 import pandas as pd
@@ -397,19 +398,23 @@ results = PyTrendyResults(segments)
 bullish_runs = results.filter_segments(direction="up")
 bearish_runs = results.filter_segments(direction="down")
 
-
 ```
+
 </details>
 
-<br>
 
-#####   b) **Sensor Data (IoT): Detecting Temperature Shifts**
+
+
+
+###   (b) *Sensor Data (IoT): Detecting Temperature Shifts*
 
 Track environmental shifts like temperature or humidity changes. Ideal for anomaly detection, predictive maintenance, or alerting systems.
 
-<details> <summary><strong>Example: Temperature Shift Detection</strong></summary>
+<details class="admonition example">
+<summary><strong>Example: Temperature Shift Detection</strong></summary>
 
 ```python
+
 import pandas as pd
 from pytrendy import (
     process_signals,
@@ -452,13 +457,14 @@ summary_df = results.segments_df
 ```
 </details>
 
-<br>
 
-#####   c) **Behavioral Analytics: Identifying Peak Engagement**
+
+###   (c) *Behavioral Analytics: Identifying Peak Engagement*
 
 Analyze user engagement metrics to identify peak activity periods. Great for product usage insights, campaign timing, or retention analysis.
 
-<details> <summary><strong>Example: Engagement Peak Detection</strong></summary>
+<details class="admonition example">
+<summary><strong>Example: Engagement Peak Detection</strong></summary>
 
 
 ```python
