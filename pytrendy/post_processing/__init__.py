@@ -7,9 +7,9 @@ boundary adjustments, classification heuristics, and quantitative analysis.
 
 ---
 
-**Included Modules**
+# Included Modules
 
-**1. `segments_get`**
+## 1. [segments_get](segments_get)
 Extracts contiguous segments from the `trend_flag` column produced by signal processing.
 
 Applies minimum length constraints to ensure meaningful segments are retained:
@@ -18,7 +18,7 @@ Applies minimum length constraints to ensure meaningful segments are retained:
 - Flat/Noise regions: ≥ 3 days
 
 
-**2. `segments_refine`**
+## 2. [segments_refine](segments_refine)
 Refines segment boundaries and improves classification accuracy through multiple steps:
 
 - `expand_contract_segments`: Adjusts boundaries based on local extrema.
@@ -28,7 +28,7 @@ Refines segment boundaries and improves classification accuracy through multiple
 - `clean_artifacts`: Removes segments that are too short to be meaningful.
 
 
-**3. `segments_analyse`**
+## 3. [segments_analyse](segments_analyse)
 Adds quantitative descriptors to each segment, comparing pretreatment vs post-treatment behavior.
 
 Metrics include:

@@ -6,9 +6,9 @@ larger workflows.
 
 ---
 
-**Included Modules**
+# Included Modules
 
-**1. `data_loader`**
+## 1. [data_loader](data_loader)
 Loads built-in datasets packaged with PyTrendy. These include:
 
 - `'series_synthetic'`: A synthetic time series with embedded uptrends, downtrends, and flat regions.
@@ -16,13 +16,13 @@ Loads built-in datasets packaged with PyTrendy. These include:
 
 Useful for testing, demos, and validating detection logic.
 
-**2. `plot_pytrendy`**
+## 2. [plot_pytrendy](plot_pytrendy)
 
 - Generates annotated matplotlib plots of detected trend segments over the original signal.
 - Highlights Up, Down, Flat, and Noise regions with shaded overlays and ranks significant trends.
 - Supports visual debugging and presentation-ready output.
 
-**3. `results_pytrendy`**
+## 3. [results_pytrendy](results_pytrendy)
 Wraps the output of `detect_trends` into a structured `PyTrendyResults` object. It provides:
 
 - Summary statistics (counts, rankings, best segment)
