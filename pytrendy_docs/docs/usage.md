@@ -551,33 +551,6 @@ top_segments = results.best(n=3, metric="slope")
 These can be passed via `method_params` in `detect_trends()`.
 
 
-## 8. Version Compatibility and Changelog
+## 8. Version Changelog
 
-
-
-<table style="border-collapse: collapse; width: 100%; font-size: 14px;">
-  <thead>
-    <tr style="border-bottom: 1px solid #ccc;">
-      <th style="padding: 8px; text-align: left;">PyTrendy Version</th>
-      <th style="padding: 8px; text-align: left;">Python Support</th>
-      <th style="padding: 8px; text-align: left;">Notes</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 8px;">&ge;1.0.0</td>
-      <td style="padding: 8px;">&ge;3.8</td>
-      <td style="padding: 8px;">Initial stable release</td>
-    </tr>
-    <tr style="border-bottom: 1px solid #eee;">
-      <td style="padding: 8px;">&ge;1.1.0</td>
-      <td style="padding: 8px;">&ge;3.8</td>
-      <td style="padding: 8px;">Added DTW classification and abrupt trend handling</td>
-    </tr>
-  </tbody>
-</table>
-
-<br>
-
-
-See [GitHub](https://github.com/RussellSB/pytrendy/) Releases for detailed version history.
+See [GitHub Releases](https://github.com/RussellSB/pytrendy/releases) for detailed version history.
