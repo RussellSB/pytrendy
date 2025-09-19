@@ -9,6 +9,8 @@ nav:
 
 theme: 
   name: material # flatly, material, minty
+  font:
+    text: PT Serif   #  Merriweather, Nunito Sans, PT Serif, Source Sans 3
   features:
     - navigation.indexes
   palette:
@@ -34,6 +36,8 @@ markdown_extensions:
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - admonition
+  - markdown.extensions.admonition
 
 plugins:
   - search
