@@ -114,4 +114,4 @@ Each stage of the pipeline is exposed as a standalone function, allowing develop
 
 For a full walkthrough of how to use PyTrendy, refer to the [Usage](usage.md) guide.
 
-For detailed documentation on each function and module, see the [API Reference](reference).
+For detailed documentation on each function and module, see the [API Reference](reference/pytrendy).
