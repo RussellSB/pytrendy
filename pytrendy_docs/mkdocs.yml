@@ -9,10 +9,9 @@ nav:
 
 theme: 
   name: material # flatly, material, minty
-  font:
-    text: PT Serif   #  Merriweather, Nunito Sans, PT Serif, Source Sans 3
   features:
     - navigation.indexes
+    - content.tabs.link
   palette:
     - scheme: default
       primary: cyan
@@ -33,6 +32,8 @@ markdown_extensions:
   - codehilite:
       guess_lang: false
       linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
   - pymdownx.highlight
   - pymdownx.inlinehilite
   - pymdownx.superfences

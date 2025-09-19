@@ -56,42 +56,36 @@ pip install --upgrade pytrendy
 
 For developers who want to install the package directly from the GitHub repository, we recommend creating a virtual environment first.
 
-## Step 1: Create and Activate a Virtual Environment
+### Step 1: Create and Activate a Virtual Environment
 
 It is a best practice to install PyTrendy in a virtual environment to avoid conflicts with other projects.
 
+Create a new virtual environment:
+
 ```bash
-python -m venv venv
+python -m venv .venv
 ```
 
-### 1. Create a new virtual environment:
+Activate the environment:
+
+=== "Linux"
+
+    ```bash
+    source .venv/bin/activate
+    ```
+
+=== "Windows"
+
+    ```powershell
+    venv\Scripts\activate
+    ```
+
+### Step 2: Install from PyPi
+
+Once your virtual environment is active, install the package from PyPi:
 
 ```bash
-python -m venv venv
-```
-
-### 2. Activate the environment:
-
-- On Windows:
-
-```bash
-venv\Scripts\activate
-```
-
-- On macOS/Linux
-
-```bash
-source venv/bin/activate
-```
-
-## Step 2: Install from GitHub
-
-Once your virtual environment is active, clone the repository and install the package in editable mode:
-
-```bash
-git clone https://github.com/RussellSB/pytrendy.git
-cd pytrendy
-pip install -e .
+pip install pytrendy
 ```
 
 
