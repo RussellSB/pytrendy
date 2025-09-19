@@ -9,6 +9,8 @@ nav:
 
 theme: 
   name: material # flatly, material, minty
+  logo: logo.png
+  favicon: logo.png
   features:
     - navigation.indexes
     - content.tabs.link
@@ -17,16 +19,15 @@ theme:
       primary: cyan
       accent: cyan
       toggle:
-        icon: material/weather-night
+        icon: material/lightbulb
         name: Switch to dark mode
 
     - scheme: slate
       primary: cyan
       accent: cyan
       toggle:
-        icon: material/weather-sunny
+        icon: material/lightbulb-outline
         name: Switch to light mode
-
 
 markdown_extensions:
   - codehilite:
