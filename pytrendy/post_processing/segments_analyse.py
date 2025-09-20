@@ -38,6 +38,6 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
     sorted_trends = [seg for seg in sorted_segments if 'total_change' in seg and abs(seg['total_change']) > 0]
     for i, seg in enumerate(sorted_trends):
         j = seg['time_index'] - 1
-        segments_enhanced[j]['change_rank'] = i+1
+        segments_enhanced[j]['change_rank'] = int(i+1)
 
     return segments_enhanced
