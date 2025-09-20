@@ -19,7 +19,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
-        # Edge case 1: do not distrurb abrupt trends, leave procise
+        # Edge case 1: do not disturb abrupt trends, leave precise
         if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
             continue
 
@@ -49,7 +49,7 @@ def update_next_segment(i, new_end, segments, segments_refined):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
-        # Edge case 1: do not distrurb abrupt trends, leave procise
+        # Edge case 1: do not disturb abrupt trends, leave precise
         if ('trend_class' in nextseg and nextseg['trend_class'] == 'abrupt'):
             continue
 
