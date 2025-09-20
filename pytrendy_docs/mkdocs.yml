@@ -9,8 +9,8 @@ nav:
 
 theme: 
   name: material # flatly, material, minty
-  logo: logo.png
-  favicon: logo.png
+  logo: icon.png
+  favicon: icon.png
   features:
     - navigation.indexes
     - content.tabs.link
