@@ -9,8 +9,8 @@ class PyTrendyResults:
     def __init__(self, segments):
         self.segments = segments
         self.set_best()
+        self.set_df()
         self.set_summary()
-        self.set_segments_df()
 
     def set_best(self):
         """
@@ -46,7 +46,7 @@ class PyTrendyResults:
         df = df[cols]
 
         df = df.set_index('time_index')
-        summary['df'] = df
+        self.df_summary = df
 
         # Set summary
         self.summary = summary
@@ -67,10 +67,10 @@ class PyTrendyResults:
 
         print('Full Results:')
         print('-------------------------------------------------------------------------------\n', 
-              self.summary['df'],
+              self.df_summary,
             '\n-------------------------------------------------------------------------------')
 
-    def set_segments_df(self):
+    def set_df(self):
         """Alternative data representation to segments. In dataframe rather than dict"""
         # Exit if nothing to report on
         if len(self.segments) == 0:
@@ -78,7 +78,7 @@ class PyTrendyResults:
         
         df = pd.DataFrame(self.segments)
         df = df.set_index('time_index')
-        self.segments_df = df
+        self.df = df
 
     def filter_segments(self, direction:str='Any', sort_by:str='time_index', format='df'):
         """
