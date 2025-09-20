@@ -43,7 +43,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
-        if seg['direction'] in ['Up', 'Down']:
+        if 'change_rank' in seg:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,

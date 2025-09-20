@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 from collections import Counter
+import math
 
 class PyTrendyResults: 
     """Wrapper for segment results."""
@@ -19,7 +20,7 @@ class PyTrendyResults:
         if len(self.segments) == 0 or not any('change_rank' in segment for segment in self.segments):
             self.best = None
             return
-        self.best = min(self.segments, key=lambda x: x.get('change_rank'))
+        self.best = min(self.segments, key=lambda x: x.get('change_rank', math.inf))
 
     def set_summary(self):
         summary = {}
