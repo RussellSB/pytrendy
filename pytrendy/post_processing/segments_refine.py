@@ -9,16 +9,10 @@ GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_seg
 
 def update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
-    print('...')
 
     if (i == 0): return
-    print(i, len(segments), len(segments_refined))
     old_start = pd.to_datetime(segments[i]['start'])
-    print(1)
     prev_segments = reversed(segments[:i])
-    print(2)
-
-    print('update prevseg')
 
     for j, prevseg in enumerate(prev_segments):
         prev_start = pd.to_datetime(prevseg['start'])
@@ -33,8 +27,6 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         if prev_start >= new_start and prev_start <= old_start:
             segments_refined[i_neighbour]['end'] = segments_refined[i_neighbour]['start']
             continue
-
-        print(prevseg)
 
         # Update when a valid neighbour of close enough distance.
         new_dist = (new_start - prev_end).days
@@ -51,8 +43,6 @@ def update_next_segment(i, new_end, segments, segments_refined):
     if (i == len(segments) - 1): return
     old_end = pd.to_datetime(segments[i]['end'])
     next_segments = segments[i+1:]
-
-    print('update nextseg')
 
     for j, nextseg in enumerate(next_segments):
         next_start = pd.to_datetime(nextseg['start'])
@@ -112,13 +102,11 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         # Refine start
         if new_start != pd.to_datetime(segment['start']):
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
-            print('gradual prev', segments_refined[i]['start'])
             update_prev_segment(i, new_start, segments, segments_refined)
 
         # Refine end
         if new_end != pd.to_datetime(segment['end']):
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-            print('gradual next', segments_refined[i]['end'])
             update_next_segment(i, new_end, segments, segments_refined)
 
     return segments_refined
@@ -224,28 +212,20 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 abrupt_start = df.index[0]
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
-        print(abrupt_subsegs) # TODO: Fix construct logic for new edge case. And also in process_signals...
+        # TODO: Fix construct logic for new edge case. And also in process_signals...
 
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
-
-            print(abrupt_subseg)
-            print('here')
             new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
             new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
-            print('there')
 
             value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
             direction = 'Up' if value_change > 0 else 'Down'
-
-            print('dp')
 
             if direction != segment['direction']:
                 continue
 
             if j == 0:
-
-                print('abrupt 0', abrupt_subseg)
 
                 # Update current segment
                 segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
@@ -255,8 +235,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 update_next_segment(i, new_end, segments, segments_refined)
 
             elif j > 0:
-
-                print('abrupt 1', abrupt_subseg)
                 
                 # Wedge in a new segment between current and next (needed for edge case of many abrupt near eachother)
                 new_index = i + j
@@ -273,7 +251,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
 
     # Second pass to pad segments if specified
-    print('6')
     segments_padded = deepcopy(segments_refined)
     if method_params.get('is_abrupt_padded', False):
 
@@ -299,8 +276,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
 
-
-    print('7')
     return segments_padded
 
 
