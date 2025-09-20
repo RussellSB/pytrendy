@@ -55,14 +55,17 @@ def process_signals(df:pd.DataFrame, value_col: str):
     noise_segments = []
     for noise_start in noise_starts: # Loops from first start onwards
         after_ends = [end for end in noise_ends if end > noise_start]
-        noise_end = after_ends[0] if len(after_ends) > 0 else df.index[-1]
+        if len(after_ends) > 0:
+            noise_end = after_ends[0]
+        else:
+            noise_end = min(noise_start + pd.Timedelta(days=1), df.index[-1])
         noise_segments.append(dict(start=noise_start, end=noise_end))
 
     if len(noise_ends) > 0: # Adds noise end with no start if at beginning
         noise_end = noise_ends[0]
         early_starts = [start for start in noise_starts if start < noise_end]
         if len(early_starts) == 0:
-            noise_start = df.index[0]
+            noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
 
     # Loads classes signals

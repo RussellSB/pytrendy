@@ -198,7 +198,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             if len(after_ends) > 0:
                 abrupt_end = after_ends[0]  # first if aligned
             elif abrupt_start == df.index[-1]: 
-                abrupt_end = df.index[-1] # last if unaligned at end
+                abrupt_end = min(abrupt_start + pd.Timedelta(days=1), df.index[-1])
             else:
                 continue # neither if not connected
 
@@ -207,9 +207,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         if len(abrupt_ends) > 0: # Adds abrupt end with no start if at beginning
             abrupt_end = abrupt_ends[0]
             early_starts = [start for start in abrupt_starts if start < abrupt_end]
-            is_close_to_start = (abrupt_end - df.index[0]).days <= NEIGHBOUR_DISTANCE
-            if len(early_starts) == 0 and is_close_to_start:
-                abrupt_start = df.index[0]
+            if len(early_starts) == 0:
+                abrupt_start = max(abrupt_end - pd.Timedelta(days=1), df.index[0])
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
         # TODO: Fix construct logic for new edge case. And also in process_signals...
@@ -219,7 +218,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
             new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
 
-            value_change = df_segment.loc[new_end, value_col] - df_segment.loc[new_start, value_col]
+            start_value = df.loc[new_start, value_col] # referencing df, in case outside df_segment scope
+            end_value = df.loc[new_end, value_col]
+            value_change = end_value - start_value
+
             direction = 'Up' if value_change > 0 else 'Down'
 
             if direction != segment['direction']:
