@@ -42,7 +42,7 @@ class PyTrendyResults:
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
         cols = ['time_index', 'direction', 'start', 'end', 'days']
-        if len(changes) > 1: cols += ['total_change', 'change_rank']
+        if len(changes) > 1: cols += ['total_change', 'change_rank', 'trend_class']
         df = df[cols]
 
         df = df.set_index('time_index')
