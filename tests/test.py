@@ -29,25 +29,32 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True)
 
 # %%
-# noise_std = 20
-# df = pt.load_data('series_synthetic')
-# df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-# results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
-# results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
-
-# # %%
 import numpy as np
-for noise_std in [0, 10, 15, 20, 50]:
-    print(f'Noise value: {noise_std}')
-    df = pt.load_data('series_synthetic')
-    df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-    results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
+for i in range(50):
+    for noise_std in [10]: #[0, 10, 15, 20,50]
+        print(f'Noise value: {noise_std}')
+        df = pt.load_data('series_synthetic')
+        df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
+        results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
+
+
+# %%
+df.to_csv('../temp_noisy_crash_3.csv')        
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
+noise_df['date'] = pd.to_datetime(noise_df['date'])
+noise_df = noise_df.set_index('date')
+noise_df['value_noisy'].plot(figsize=(20,3))
+
+# %%
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy')
 
 # %% 
 import matplotlib.pyplot as plt
 import pandas as pd
 
-temp_df = pd.read_csv('../temp.csv')
+temp_df = pd.read_csv('../temp_2.csv')
 temp_df['date'] = pd.to_datetime(temp_df['date'])
 temp_df = temp_df.set_index('date')
 temp_df['value_noisy'].plot(figsize=(20,3))
