@@ -23,7 +23,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
             continue
 
-        # Edge case 2: swallow neighbours that get fully overlap.
+        # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
             segments_refined[i_neighbour]['end'] = segments_refined[i_neighbour]['start']
             continue
@@ -49,21 +49,33 @@ def update_next_segment(i, new_end, segments, segments_refined):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
+        if i == 4: print('checking 1:', next_start, next_end)
+
         # Edge case 1: do not disturb abrupt trends, leave precise
         if ('trend_class' in nextseg and nextseg['trend_class'] == 'abrupt'):
+            if i == 4: print('exit 1')
             continue
 
-        # Edge case 2: swallow neighbours that get fully overlap.
+        # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
+            if i == 4: print('before', segments_refined[i_neighbour])
             segments_refined[i_neighbour]['start'] = segments_refined[i_neighbour]['end']
+            if i == 4: print('after', segments_refined[i_neighbour])
+            if i == 4: print('exit 2')
             continue
+
+        if i == 4:
+            print('checking 2:', nextseg)
 
         # Update when a valid neighbour of close enough distance.
         new_dist = (next_start - new_end).days
         old_dist = (next_start - old_end).days
         is_neighbour = (new_dist <= NEIGHBOUR_DISTANCE) or (old_dist <= NEIGHBOUR_DISTANCE)
         if is_neighbour:
+            if i == 4: print('before', segments_refined[i_neighbour])
             segments_refined[i_neighbour]['start'] = (new_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+            if i == 4: print('after', segments_refined[i_neighbour])
+            if i == 4: print('exit 3')
             return
 
 
@@ -87,6 +99,11 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         start_df = _get_window_df(segment['start'])
         end_df = _get_window_df(segment['end'])
 
+        print(i)
+
+        if i == 4:
+            print('I should update next segment as I expand\n', segment)
+
         if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
             continue # don't expand/contract abrupt trends. Leave precise to shave.
 
@@ -107,7 +124,13 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         # Refine end
         if new_end != pd.to_datetime(segment['end']):
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+            if i == 4: print('updating next', new_end, '\n', segments[i+1])
             update_next_segment(i, new_end, segments, segments_refined)
+            if i == 4:
+                print('now_updated')
+                print(segments_refined[i+1])
+                print(segments_refined[i+2])
+
 
     return segments_refined
 
@@ -385,9 +408,9 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+    # segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = clean_artifacts(df, value_col, segments_refined)
-    segments_refined = group_segments(segments_refined)
+    # segments_refined = group_segments(segments_refined)
 
     return segments_refined
