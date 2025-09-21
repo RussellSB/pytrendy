@@ -12,12 +12,14 @@ def update_prev_segment(i, new_start, segments, segments_refined):
 
     if (i == 0): return
     old_start = pd.to_datetime(segments[i]['start'])
-    prev_segments = reversed(segments[:i])
+    prev_segments = reversed(segments_refined[:i])
 
     for j, prevseg in enumerate(prev_segments):
         prev_start = pd.to_datetime(prevseg['start'])
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
+
+        if i == 6: print('checking 1:', prev_start, prev_end)
 
         # Edge case 1: do not disturb abrupt trends, leave precise
         if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
@@ -25,7 +27,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
-            segments_refined[i_neighbour]['end'] = segments_refined[i_neighbour]['start']
+            segments_refined[i_neighbour]['end'] = new_start - pd.Timedelta(days=1)
             continue
 
         # Update when a valid neighbour of close enough distance.
@@ -42,7 +44,7 @@ def update_next_segment(i, new_end, segments, segments_refined):
     """Shift next segment start if overlapping with updated end (or original end)."""
     if (i == len(segments) - 1): return
     old_end = pd.to_datetime(segments[i]['end'])
-    next_segments = segments[i+1:]
+    next_segments = segments_refined[i+1:]
 
     for j, nextseg in enumerate(next_segments):
         next_start = pd.to_datetime(nextseg['start'])
@@ -59,7 +61,7 @@ def update_next_segment(i, new_end, segments, segments_refined):
         # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
             if i == 4: print('before', segments_refined[i_neighbour])
-            segments_refined[i_neighbour]['start'] = segments_refined[i_neighbour]['end']
+            segments_refined[i_neighbour]['start'] = new_end + pd.Timedelta(days=1)
             if i == 4: print('after', segments_refined[i_neighbour])
             if i == 4: print('exit 2')
             continue
@@ -104,6 +106,10 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         if i == 4:
             print('I should update next segment as I expand\n', segment)
 
+        
+        if i == 6:
+            print('I should update prev segment as I expand, but not revert prev guys progress of trying to swallow overlap\n', segment)
+
         if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
             continue # don't expand/contract abrupt trends. Leave precise to shave.
 
@@ -119,7 +125,11 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         # Refine start
         if new_start != pd.to_datetime(segment['start']):
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+            if i == 6: print('updating prev', new_start, '\n', segments[i-1])
             update_prev_segment(i, new_start, segments, segments_refined)
+            if i == 6:
+                print('now_updated')
+                print(segments_refined[i-1])
 
         # Refine end
         if new_end != pd.to_datetime(segment['end']):
@@ -408,9 +418,9 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    # segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = clean_artifacts(df, value_col, segments_refined)
-    # segments_refined = group_segments(segments_refined)
+    segments_refined = group_segments(segments_refined)
 
     return segments_refined
