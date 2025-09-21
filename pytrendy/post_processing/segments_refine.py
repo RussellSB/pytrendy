@@ -10,8 +10,6 @@ GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_seg
 def update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
 
-    print(i, segments[i])
-
     if (i == 0): return
     old_start = pd.to_datetime(segments[i]['start'])
     prev_segments = reversed(segments[:i])
@@ -231,8 +229,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
             if j == 0:
 
-                print('abrupt 0')
-
                 # Update current segment
                 segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
                 update_prev_segment(i, new_start, segments, segments_refined)
@@ -241,8 +237,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 update_next_segment(i, new_end, segments, segments_refined)
 
             elif j > 0:
-
-                print('abrupt 1')
                 
                 # Wedge in a new segment between current and next (needed for edge case of many abrupt near eachother)
                 new_index = i + j
