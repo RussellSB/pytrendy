@@ -19,13 +19,14 @@ df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # added
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250 # added more recently
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
+df.loc['2025-05-27':'2025-05-28', 'abrupt'] = 200 # TODO: fix last edge case
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
 #%%
 df = pt.load_data('series_synthetic')
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
-results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True)
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True))
 
 # %%
 import numpy as np
@@ -47,7 +48,7 @@ noise_df = noise_df.set_index('date')
 noise_df['value_noisy'].plot(figsize=(20,3))
 
 # %%
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy')
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
 # %% 
 import matplotlib.pyplot as plt
@@ -60,5 +61,5 @@ temp_df['value_noisy'].plot(figsize=(20,3))
 plt.show()
 
 # %%
-results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy')
+results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 # %%

@@ -248,24 +248,27 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
-    if method_params.get('is_abrupt_padded', False):
+    if method_params.get('is_abrupt_padded', False) == True:
 
-        df = pd.DataFrame(segments_refined)
-        df['start'] = pd.to_datetime(df['start'])
-        df['end'] = pd.to_datetime(df['end'])
+        meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by datetime easily
+        meta_df['start'] = pd.to_datetime(meta_df['start'])
+        meta_df['end'] = pd.to_datetime(meta_df['end'])
 
         for i, segment in enumerate(segments_refined):
 
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
                 continue
 
+            abrupt_start = pd.to_datetime(segment['start'])
+            abrupt_end = pd.to_datetime(segment['end'])
+
             # Simulate new end with padding and cater for any overlaps it might cause
-            new_end = pd.to_datetime(segment['end']) + pd.Timedelta(days=method_params['abrupt_padding'])
-            overlaps = df.loc[(df['start'] <= new_end) & (df['end'] >= new_end)]
+            new_end = abrupt_end + pd.Timedelta(days=method_params['abrupt_padding'])
+            overlaps = meta_df.loc[(meta_df['start'] > abrupt_end) & (meta_df['start'] <= new_end)]
             overlaps_nonflats = overlaps[overlaps['direction']!='Flat']
 
             # Adjust padding to be before first nonflat segment that it would overlap
-            if not overlaps.empty and not overlaps_nonflats.empty:
+            if not overlaps_nonflats.empty:
                 first_notflat_overlap = overlaps_nonflats.iloc[0]
                 new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
 
@@ -385,8 +388,8 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
     segments_refined = classify_trends(df, value_col, segments_refined)
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
     segments_refined = clean_artifacts(df, value_col, segments_refined)
     segments_refined = group_segments(segments_refined)
 
