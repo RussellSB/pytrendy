@@ -11,7 +11,6 @@ os.getcwd()
 
 #%%
 import pytrendy as pt
-
 # Example Runs
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
