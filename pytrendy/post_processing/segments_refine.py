@@ -4,7 +4,7 @@ from ..simpledtw import dtw
 from ..io.data_loader import load_data
 import numpy as np
 
-NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to readjust in expand_contract_segments 
+NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust after expand_contract or shave logic
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def update_prev_segment(i, new_start, segments, segments_refined):
