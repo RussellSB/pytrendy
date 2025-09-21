@@ -10,6 +10,8 @@ GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_seg
 def update_prev_segment(i, new_start, segments, segments_refined):
     """Shift previous segment end if overlapping with updated start (or original start)."""
 
+    print(i, segments[i])
+
     if (i == 0): return
     old_start = pd.to_datetime(segments[i]['start'])
     prev_segments = reversed(segments[:i])
@@ -229,6 +231,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
             if j == 0:
 
+                print('abrupt 0')
+
                 # Update current segment
                 segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
                 update_prev_segment(i, new_start, segments, segments_refined)
@@ -237,11 +241,14 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 update_next_segment(i, new_end, segments, segments_refined)
 
             elif j > 0:
+
+                print('abrupt 1')
                 
                 # Wedge in a new segment between current and next (needed for edge case of many abrupt near eachother)
                 new_index = i + j
                 new_seg = segment.copy()
                 segments_refined.insert(new_index, new_seg)
+                segments.insert(new_index, new_seg)
                 # segments.insert(new_index, new_seg)
 
                 # Update new segment
@@ -281,7 +288,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
     return segments_padded
 
 
-def group_segments(segments):
+def group_segments(segments: list):
     """
     Groups segments if they have the same direction AND their gap is <= GROUPING_DISTANCE.
     This reduces noisy selections from sporadic short segments.
@@ -330,17 +337,27 @@ def group_segments(segments):
     return segments_refined
 
 
-def clean_artifacts(segments):
+def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     """
     Sometimes the neighbour repositioning can create tiny artifacts (eg. for Flats)
     Cleaning to make sure it does not make its way to final indication
     """
 
-    def has_inverse(segment):
-        """Checks that if end moved before start from neighbour adjustment, removes artifact."""
+    def has_inverse(df, value_col, segment):
+        """
+        Checks that if end moved before start from neighbour adjustment, removes artifact.
+        Also if trend, but total_change is actually in opposing direction, also remove
+        """
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
         if (end - start).days < 1:
+            return True
+
+        total_change = df.loc[start:end, value_col].diff().sum()
+        
+        if \
+            (segment['direction'] == 'Up' and total_change < 0) or \
+            (segment['direction'] == 'Down' and total_change >= 0):
             return True
         return False
 
@@ -363,7 +380,7 @@ def clean_artifacts(segments):
     # Pass 1: Cleans inverse length segments. Artifacts from expansion/contraction
     segments_refined = []
     for i, segment in enumerate(segments):
-        if has_inverse(segment): 
+        if has_inverse(df, value_col, segment): 
             continue # Excludes segment.
         segments_refined.append(segment)
 
@@ -383,7 +400,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
-    segments_refined = clean_artifacts(segments_refined)
+    segments_refined = clean_artifacts(df, value_col, segments_refined)
     segments_refined = group_segments(segments_refined)
 
     return segments_refined
