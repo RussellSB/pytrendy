@@ -206,8 +206,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 abrupt_start = max(abrupt_end - pd.Timedelta(days=1), df.index[0])
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
-        # TODO: Fix construct logic for new edge case. And also in process_signals...
-
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
             new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
