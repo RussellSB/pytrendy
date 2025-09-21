@@ -169,7 +169,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
         # Get start end padded for some leniency
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+        end = pd.to_datetime(segment['end'])
         df_segment = df.loc[start:end].copy()
 
         # Use z-score on diff, to know when a change is an anomoly in the trend
@@ -183,11 +183,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment['abrupt_flag_diff'] = df_segment['abrupt_flag'].diff()
         abrupt_starts = df_segment.loc[df_segment['abrupt_flag_diff'] == 1].index
         abrupt_ends = df_segment.loc[df_segment['abrupt_flag_diff'] == -1].index
-
-        # import matplotlib.pyplot as plt
-        # ax = df_segment[[value_col, 'abrupt_flag']].plot(figsize=(20,3), secondary_y='abrupt_flag')
-        # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-        # plt.show()
 
         # Construct abrupt sub-segments list based on flag_diff
         abrupt_subsegs = []
