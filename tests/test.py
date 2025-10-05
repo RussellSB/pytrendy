@@ -34,7 +34,7 @@ df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # added
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250 # added more recently
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
-df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODO: make it so noise is shaved more precisely
+df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODO: shave noise more precisely
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
@@ -47,10 +47,10 @@ df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # added
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250 # added more recently
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
-df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODO: shave more precisely
+df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODO: shave noise more precisely
 
-df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODONE: detect the noise well
-df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500 # TODO: detect the noise well
+df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODONE: detect the noise appropriately
+df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500 # TODONE: detect the noise appropriately
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
@@ -78,8 +78,8 @@ for noise_std in [0, 10, 15, 20, 50]:
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
-# TODO: remove green right before spike. Will do this by extending flat.
-# TODO: make it so noise is shaved more precisely
+# TODONE: detect the noise appropriately
+# TODO: shave noise more precisely
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 # results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True))
