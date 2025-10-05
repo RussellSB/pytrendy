@@ -7,7 +7,7 @@ import numpy as np
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust after expand_contract or shave logic
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
-def update_prev_segment(i, new_start, segments, segments_refined):
+def update_prev_segment(i, new_start, segments, segments_refined, df, value_col):
     """Shift previous segment end if overlapping with updated start (or original start)."""
 
     if (i == 0): return
@@ -19,9 +19,16 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
-        # Edge case 1: do not disturb abrupt trends, leave precise
+        # Edge case 1.1: do not disturb abrupt trends (leave precise)
         if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
             continue
+
+        # # Edge case 1.2: do not disturb noise spikes (leave precise)
+        if (prevseg['direction'] == 'Noise'):
+            diff = df.loc[prev_end, value_col] - df.loc[prev_start, value_col]
+            small_value = df[value_col].quantile(.10)
+            if diff <= small_value:  # only skip if a noise that spikes
+                continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
@@ -38,7 +45,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
             return
         
 
-def update_next_segment(i, new_end, segments, segments_refined):
+def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
     """Shift next segment start if overlapping with updated end (or original end)."""
     if (i == len(segments) - 1): return
     old_end = pd.to_datetime(segments[i]['end'])
@@ -49,9 +56,16 @@ def update_next_segment(i, new_end, segments, segments_refined):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
-        # Edge case 1: do not disturb abrupt trends, leave precise
+        # Edge case 1: do not disturb abrupt trends (leave precise)
         if ('trend_class' in nextseg and nextseg['trend_class'] == 'abrupt'):
             continue
+
+        # Edge case 1.2: do not disturb noise spikes (leave precise)
+        if (nextseg['direction'] == 'Noise'):
+            diff = abs(df.loc[next_end, value_col] - df.loc[next_start, value_col])
+            small_value = df[value_col].quantile(.10)
+            if diff <= small_value: # only skip if a noise that spikes
+                continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
@@ -102,12 +116,12 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         # Refine start
         if new_start != pd.to_datetime(segment['start']):
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
-            update_prev_segment(i, new_start, segments, segments_refined)
+            update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # Refine end
         if new_end != pd.to_datetime(segment['end']):
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-            update_next_segment(i, new_end, segments, segments_refined)
+            update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
     return segments_refined
 
@@ -224,10 +238,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
                 # Update current segment
                 segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
-                update_prev_segment(i, new_start, segments, segments_refined)
+                update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
                 
                 segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
-                update_next_segment(i, new_end, segments, segments_refined)
+                update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
             elif j > 0:
                 
@@ -240,10 +254,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
                 # Update new segment
                 segments_refined[new_index]['start'] = new_start.strftime('%Y-%m-%d')
-                update_prev_segment(new_index, new_start, segments, segments_refined)
+                update_prev_segment(new_index, new_start, segments, segments_refined, df, value_col)
                 
                 segments_refined[new_index]['end'] = new_end.strftime('%Y-%m-%d')
-                update_next_segment(new_index, new_end, segments, segments_refined)
+                update_next_segment(new_index, new_end, segments, segments_refined, df, value_col)
 
 
     # Second pass to pad segments if specified
@@ -273,7 +287,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
 
             segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
-            update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
+            update_next_segment(i, new_end, segments_refined, segments_padded, df, value_col) # will always be a flat it adjusts/overwrites
 
     return segments_padded
 
@@ -387,10 +401,14 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
+    
     segments_refined = classify_trends(df, value_col, segments_refined)
+    segments_refined = group_segments(segments_refined) # grouping 1st pass: sporadic flats & noises
+
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
-    segments_refined = clean_artifacts(df, value_col, segments_refined)
-    segments_refined = group_segments(segments_refined)
+
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc
+    segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
 
     return segments_refined
