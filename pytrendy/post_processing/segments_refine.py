@@ -379,13 +379,27 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         next_end = pd.to_datetime(segment_next['end'])
         next_width = (next_end - next_start).days
 
-        if end >= next_start and dir == next_dir \
-            and (
-                    (dir not in ('Up', 'Down') and width <= next_width) or # choose longest if noise/flat.
-                    ('trend_class' in segment_next and segment_next['trend_class'] == 'gradual' and width <= next_width) or  # choose the longest if gradual
-                    ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt' and next_width <= width) # choose the shortest if abrupt
-                ):
-            return True
+        # Define conditions
+        is_end_overlap = (end >= next_start)
+        is_same_dir = (dir == next_dir)
+        is_curr_shorter = (width <= next_width)
+
+        is_trend = (dir in ('Up', 'Down'))
+        is_next_noise = (next_dir == 'Noise')
+
+        is_next_gradual = ('trend_class' in segment_next and segment_next['trend_class'] == 'gradual')
+        is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
+
+        # Trigger edge cases of overlap if satisfied
+        if is_end_overlap and is_same_dir:
+            return True # overlap when same direction
+        if is_end_overlap and (is_trend and is_next_noise and is_curr_shorter):
+            return True # overlap when curr is trend and next is noise of larger window
+        if is_end_overlap and is_same_dir and (is_next_gradual and is_curr_shorter):
+            return True # overlap when next is also gradual but larger
+        if is_end_overlap and is_same_dir and (is_next_abrupt and not is_curr_shorter):
+            return True  # overlap when next is also abrupt but shorter
+
         return False
 
     # Pass 1: Cleans inverse length segments. Artifacts from expansion/contraction
