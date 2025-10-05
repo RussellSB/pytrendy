@@ -18,7 +18,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     THRESHOLD_SMOOTH = 0.25 # Sensetivity to detecting trends (recommended 0-0.5)
 
     # 1. Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
-    df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_FLAT, polyorder=1)
+    df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
 
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
