@@ -1,6 +1,6 @@
+# import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
-
 from scipy.signal import savgol_filter
 
 def process_signals(df:pd.DataFrame, value_col: str):
@@ -42,6 +42,37 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
 
+    # 3.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
+    df['noise_flag_diff'] = df['noise_flag'].diff()
+    noise_starts = df.loc[df['noise_flag_diff'] == 1].index
+    noise_ends = df.loc[df['noise_flag_diff'] == -1].index
+    
+    # Construct noise segments list based on flag_diff
+    noise_segments = []
+    for noise_start in noise_starts: # Loops from first start onwards
+        after_ends = [end for end in noise_ends if end > noise_start]
+        if len(after_ends) > 0:
+            noise_end = after_ends[0]
+        else:
+            noise_end = min(noise_start + pd.Timedelta(days=1), df.index[-1])
+        noise_segments.append(dict(start=noise_start, end=noise_end))
+
+    if len(noise_ends) > 0: # Adds noise end with no start if at beginning
+        noise_end = noise_ends[0]
+        early_starts = [start for start in noise_starts if start < noise_end]
+        if len(early_starts) == 0:
+            noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
+            noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+        
+    for segment in noise_segments:
+        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
+        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
+
+        diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
+        small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
+        if diff > small_value:
+            df.loc[start:end, 'noise_flag'] = 0
+
     # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat or noise.
@@ -51,5 +82,29 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+
+    # ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+    
+    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+
+    # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
 
     return df
