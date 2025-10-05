@@ -25,7 +25,7 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
         if (prevseg['direction'] == 'Noise'):
-            diff = df.loc[prev_end, value_col] - df.loc[prev_start, value_col]
+            diff = abs(df.loc[prev_end, value_col] - df.loc[prev_start, value_col])
             small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
             if diff <= small_value:  # only skip if a noise that spikes
                 continue
@@ -191,7 +191,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         df_segment = df_segment.iloc[1:]
         df_segment['z_score'] = (df_segment['diff'] - df_segment['diff'].mean()) / df_segment['diff'].std()
         df_segment['abrupt_flag'] = 0
-        df_segment.loc[df_segment['z_score'].abs() > 1, 'abrupt_flag'] = 1
+        df_segment.loc[(df_segment['z_score'].abs() > 1), 'abrupt_flag'] = 1
 
         # Note: Follows very similar code to process signals 3.4. 
         df_segment['abrupt_flag_diff'] = df_segment['abrupt_flag'].diff()
@@ -379,7 +379,12 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         next_end = pd.to_datetime(segment_next['end'])
         next_width = (next_end - next_start).days
 
-        if end >= next_start and width <= next_width and dir == next_dir:
+        if end >= next_start and dir == next_dir \
+            and (
+                    (dir not in ('Up', 'Down') and width <= next_width) or # choose longest if noise/flat.
+                    ('trend_class' in segment_next and segment_next['trend_class'] == 'gradual' and width <= next_width) or  # choose the longest if gradual
+                    ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt' and next_width <= width) # choose the shortest if abrupt
+                ):
             return True
         return False
 
