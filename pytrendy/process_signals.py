@@ -1,11 +1,7 @@
-import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
 from scipy.signal import savgol_filter
-from scipy.signal import butter, filtfilt
-from .io.data_loader import load_data
-from .simpledtw import dtw
 
 def process_signals(df:pd.DataFrame, value_col: str):
     """Core logic. Uses savgol filter derivative to find uptrend & downtred, robust to flat (std) & noisy (snr) periods"""
