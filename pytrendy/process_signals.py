@@ -39,8 +39,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
 
     # 2.3 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
-    df.loc[(df['snr'] <= THRESHOLD_NOISE) & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1
-
+    df.loc[(df['snr'] <= THRESHOLD_NOISE)  & (df['zeros_pct'] <= THRESHOLD_ZEROS), 'noise_flag'] = 1 
+    
     # 3.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
     noise_starts = df.loc[df['noise_flag_diff'] == 1].index
@@ -74,7 +74,9 @@ def process_signals(df:pd.DataFrame, value_col: str):
         diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
         small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
         if diff > small_value:
-            df.loc[start:end, 'noise_flag'] = 0
+            df.loc[start:end, 'noise_flag'] = 0 # caters for edge coise of noise, but its actually an abrupt trend.
+        elif (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days == 1:
+            df.loc[start:end, 'noise_flag'] = 1 # caters for edge case of noise outlier, stretch it out for visibility
 
     # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
@@ -85,5 +87,32 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+
+
+    import matplotlib.pyplot as plt
+
+    ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+    
+    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
+
+    ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
 
     return df
