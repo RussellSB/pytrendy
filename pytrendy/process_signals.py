@@ -7,7 +7,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     WINDOW_SMOOTH = 15
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
     WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
-    
+
     THRESHOLD_NOISE = 5 # Sensitivity to detecting noise (recommended 0-10)
     THRESHOLD_SMOOTH = 0.25 # Sensetivity to detecting trends (recommended 0-0.5)
 
@@ -75,7 +75,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['flat_flag'] = 0
     rolling_std = df[value_col].rolling(WINDOW_FLAT, center=True).std()
     min_nonzero_std = rolling_std[rolling_std > 0].min()
-    df.loc[df['smoothed_std'] <= min_nonzero_std, 'flat_flag'] = 1 # can comment out to not care about flats. Just take flats with up/down
+    df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0), 'flat_flag'] = 1 
 
     # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
