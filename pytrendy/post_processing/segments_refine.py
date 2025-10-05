@@ -354,14 +354,16 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         """
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days < 1:
+        if (end - start).days < 1: # inverse if start before end
             return True
 
         total_change = df.loc[start:end, value_col].diff().sum()
         
+        # inverse if tagged direction does not match total change
         if \
             (segment['direction'] == 'Up' and total_change < 0) or \
-            (segment['direction'] == 'Down' and total_change >= 0):
+            (segment['direction'] == 'Down' and total_change >= 0) or \
+            (segment['direction'] in ('Up', 'Down') and abs(total_change) <= df.loc[df[value_col] > 0, value_col].quantile(0.05)): # or too flat
             return True
         return False
 
