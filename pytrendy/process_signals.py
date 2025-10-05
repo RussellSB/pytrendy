@@ -1,4 +1,3 @@
-# import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
@@ -68,6 +67,10 @@ def process_signals(df:pd.DataFrame, value_col: str):
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
 
+        # Cap to bounds of df in case at beginning or end.
+        start = max(start, df.index.min())
+        end = min(end, df.index.max())
+
         diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
         small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
         if diff > small_value:
@@ -82,6 +85,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+
+    # import matplotlib.pyplot as plt
 
     # ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
