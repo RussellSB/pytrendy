@@ -33,8 +33,8 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
         neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
 
-        # Adjust neighbouring segment before abrupt (visually). Avoid white lines
-        next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
+        # Adjust neighbouring segment before abrupt or noise (visually). Avoid white lines
+        next_seg_abrupt = next_seg and ((('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')) or next_seg['direction'] == 'Noise')
         if next_seg_abrupt and neighbouring:
             end = end + pd.Timedelta(days=1)
         else: end = end
