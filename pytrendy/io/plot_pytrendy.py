@@ -25,7 +25,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        if 'trend_class' in seg and seg['trend_class'] == 'abrupt': 
+        if ('trend_class' in seg and seg['trend_class'] == 'abrupt') or seg['direction'] == 'Noise': 
             start = start # Conditional logic for making abrupt visually tighter
         else: start = start - pd.Timedelta(days=1) # Everything else displaced left start
 

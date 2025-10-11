@@ -49,19 +49,51 @@ def process_signals(df:pd.DataFrame, value_col: str):
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
         
     for segment in noise_segments:
+        width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
 
         # Cap to bounds of df in case at beginning or end.
         start = max(start, df.index.min())
         end = min(end, df.index.max())
+        width_padded = end - start
 
+        # Cater for edge coise of noise, but its actually an abrupt trend.
         diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
         small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
-        if diff > small_value:
-            df.loc[start:end, 'noise_flag'] = 0 # caters for edge coise of noise, but its actually an abrupt trend.
-        elif (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days == 1:
-            df.loc[start:end, 'noise_flag'] = 1 # caters for edge case of noise outlier, stretch it out for visibility
+        abrupt_ends = diff > small_value
+
+        # check if possibly abrupt, provided that window is narrow enough
+        if (width <= 4) and abrupt_ends:
+            df.loc[start:end, 'noise_flag'] = 0 # filter it out when abrupt trend
+        # # if too narrow a noise window, stretch it out for visibility.
+        elif (width == 1):
+            df.loc[start:end, 'noise_flag'] = 1 # stretch it out
+
+        # Conversely, if a spike-type noise, shave to be precise around peak
+        ts_max = df.loc[start:end, value_col].abs().idxmax()
+
+        # Define center as 40% - 60% of window.
+        center_start = start + 0.4 * width_padded 
+        center_end   = start + 0.6 * width_padded
+        is_central = ts_max >= center_start and ts_max <= center_end
+
+        # Identify spike-type noise by peak in center, then shave for precision
+        if is_central or not abrupt_ends:
+            df_left = df.loc[:ts_max].copy()
+            df_left['diff'] = df_left[value_col].diff(periods=-1)
+            lowers = df_left.loc[df_left['diff'] >= 0]
+            if len(lowers) > 0: 
+                noise_start = lowers.index[-1] #- pd.Timedelta(days=width)
+                df.loc[start:noise_start, 'noise_flag'] = 0
+
+            df_right = df.loc[ts_max:].copy()
+            df_right['diff'] = df_right[value_col].diff()
+            highers = df_right.loc[df_right['diff'] >= 0]
+            if len(highers) > 0:
+                noise_end = highers.index[0] #+ pd.Timedelta(days=width)
+                df.loc[noise_end:end, 'noise_flag'] = 0
 
     # 2. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
@@ -87,23 +119,23 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
     # ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
 
-    ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
+    # ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
 
-    ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
+    # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
     
-    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    plt.show()
+    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
 
     # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
