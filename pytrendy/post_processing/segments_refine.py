@@ -367,8 +367,8 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
             return True
         return False
 
-    def has_overlap(segment, segment_next):
-        """Checks whether overlap exists, and current is more insignificant"""
+    def has_overlap_next(segment, segment_next):
+        """Checks whether overlap exists between curr & next, and current is more insignificant"""
         dir = segment['direction']
         start =  pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
@@ -380,7 +380,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         next_width = (next_end - next_start).days
 
         # Define conditions
-        is_end_overlap = (end >= next_start)
+        is_overlap_next = (end >= next_start)
         is_same_dir = (dir == next_dir)
         is_curr_shorter = (width <= next_width)
 
@@ -391,15 +391,38 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
 
         # Trigger edge cases of overlap if satisfied
-        if is_end_overlap and is_same_dir:
-            return True # overlap when same direction
-        if is_end_overlap and (is_trend and is_next_noise and is_curr_shorter):
+        if is_overlap_next and is_same_dir: # and not is_trend and is_curr_shorter:
+            return True # overlap when same direction, not trend, and curr is shorter
+        if is_overlap_next and (is_trend and is_next_noise and is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
-        if is_end_overlap and is_same_dir and (is_next_gradual and is_curr_shorter):
+        if is_overlap_next and is_same_dir and (is_next_gradual and is_curr_shorter):
             return True # overlap when next is also gradual but larger
-        if is_end_overlap and is_same_dir and (is_next_abrupt and not is_curr_shorter):
+        if is_overlap_next and is_same_dir and (is_next_abrupt and not is_curr_shorter):
             return True  # overlap when next is also abrupt but shorter
 
+        return False
+    
+    
+    def has_overlap_prev(segment, segment_prev):
+        """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
+        dir = segment['direction']
+        start =  pd.to_datetime(segment['start'])
+        end =  pd.to_datetime(segment['end'])
+        width = (end - start).days
+
+        prev_dir = segment_prev['direction']
+        prev_start = pd.to_datetime(segment_prev['start'])
+        prev_end = pd.to_datetime(segment_prev['end'])
+        prev_width = (prev_end - prev_start).days
+
+        # Define conditions
+        is_overlap_prev = (start <= prev_end)
+        is_curr_shorter = (width <= prev_width)
+        is_trend = (dir in ('Up', 'Down'))
+        is_prev_noise = (prev_dir == 'Noise')
+
+        if is_overlap_prev and (is_trend and is_prev_noise and is_curr_shorter):
+            return True # overlap when curr is trend and next is noise of larger window
         return False
 
     # Pass 1: Cleans inverse length segments. Artifacts from expansion/contraction
@@ -409,11 +432,12 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
             continue # Excludes segment.
         segments_refined.append(segment)
 
-    # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detec
+    # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detection
     segments = deepcopy(segments_refined)
     segments_refined = [] 
     for i, segment in enumerate(segments):
-        if (i < len(segments)-1 and has_overlap(segment, segments[i+1])): 
+        if (i < len(segments)-1 and has_overlap_next(segment, segments[i+1])) or \
+            (i > 0 and has_overlap_prev(segment, segments[i-1])): 
             continue 
         segments_refined.append(segment)
 
