@@ -173,15 +173,23 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict):
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list= []):
     """
     Handles case of abrupt trends since changepoint detection is missed by rolling statistics
     We analyse the segment for diff outliers, and take the earliest and latest points from here.
     """
     segments_refined = deepcopy(segments)
+
     for i, segment in enumerate(segments_refined):
         if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
             continue
+
+        if second_pass:
+            init_segment = init_segments[i]
+            is_not_prev_trend = 'trend_class' in init_segment # edge case, in case not trend before
+            is_not_reclassified = (is_not_prev_trend) or segment['trend_class'] == init_segment['trend_class']
+            if is_not_reclassified:
+                continue # exit if not re-classified for sake of second pass
 
         # Get start end padded for some leniency
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
@@ -551,11 +559,12 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
 
     segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
     segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
-    
-    segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
-    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # abrupt shave 2nd pass: newly converted abrupts 
 
-    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt
-    segments_refined = group_segments(segments_refined) # grouping 3rd pass: after abrupt shave 2nd pass
+    init_segments = deepcopy(segments_refined)
+    segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params
+                                           , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
+    segments_refined = group_segments(segments_refined) # grouping 3rd pass: after abrupt shave 2nd pass (precaution even though second_pass=True handles this)
 
     return segments_refined

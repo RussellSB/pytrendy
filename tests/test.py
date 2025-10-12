@@ -124,7 +124,19 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
 ### TEMP NOISE CRASH CASES
 
 # %%
-# ----- Latest
+# ------------ Latest
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
+noise_df['date'] = pd.to_datetime(noise_df['date'])
+noise_df = noise_df.set_index('date')
+noise_df['value_noisy'].plot(figsize=(20,3))
+
+# %%
+df.to_csv('../temp_noisy_crash_5.csv')   
+
+# %%
 noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
 noise_df['date'] = pd.to_datetime(noise_df['date'])
 noise_df = noise_df.set_index('date')
