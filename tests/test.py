@@ -50,7 +50,7 @@ df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
 
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
-df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500  # affects downtrend abrupt on right
+df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500  # TODO: fix that it neglects downtrend abrupt on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
@@ -66,9 +66,9 @@ df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
 
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
-df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500  # affects uptrend abrupt on left
-# df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500  # affects downtrend abrupt on right
-df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 # affects downtrend gradual on right
+# df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODO: flat fill ins
+df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODO: fix that it neglects downtrend abrupt on right
+df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 # TODONE: fix that it affects downtrend gradual on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
@@ -80,7 +80,7 @@ results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, 
 #%%
 # original test case 2: abrupt
 df = pt.load_data('series_synthetic')
-results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODONE: Fix overfitted down from noise
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODO: Fix downtrend from 2nd pass shave
 
 # %%
 # noise test 1 - increasing noise 
@@ -107,6 +107,7 @@ df.set_index('date', inplace=True)
 df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
 # TODONE: detect the noise appropriately
 # TODONE: shave noise more precisely
+# TODO: Flat fill in
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 # results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True))

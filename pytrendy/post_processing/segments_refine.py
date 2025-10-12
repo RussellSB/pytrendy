@@ -114,12 +114,14 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
             continue
 
         # Refine start
-        if new_start != pd.to_datetime(segment['start']):
+        start_changed = new_start != pd.to_datetime(segment['start'])
+        if start_changed:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # Refine end
-        if new_end != pd.to_datetime(segment['end']):
+        end_changed = new_end != pd.to_datetime(segment['end'])
+        if end_changed:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
@@ -183,7 +185,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
         # Get start end padded for some leniency
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end'])
+        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
         df_segment = df.loc[start:end].copy()
 
         # Use z-score on diff, to know when a change is an anomoly in the trend
@@ -402,7 +404,6 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 
         return False
     
-    
     def has_overlap_prev(segment, segment_prev):
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
@@ -422,7 +423,52 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         is_prev_noise = (prev_dir == 'Noise')
 
         if is_overlap_prev and (is_trend and is_prev_noise and is_curr_shorter):
+            return True # overlap when curr is trend and prev is noise of larger/equal window
+        return False
+    
+    def has_partial_overlap_next(segment, segment_next):
+        """Checks whether overlap exists between curr & next, and current is more insignificant"""
+        dir = segment['direction']
+        start =  pd.to_datetime(segment['start'])
+        end =  pd.to_datetime(segment['end'])
+        width = (end - start).days
+
+        next_dir = segment_next['direction']
+        next_start = pd.to_datetime(segment_next['start'])
+        next_end = pd.to_datetime(segment_next['end'])
+        next_width = (next_end - next_start).days
+
+        # Define conditions
+        is_overlap_next = (end >= next_start)
+        is_curr_shorter = (width <= next_width)
+        is_trend_or_flat = (dir in ('Up', 'Down', 'Flat'))
+        is_next_noise = (next_dir == 'Noise')
+
+        if is_overlap_next and (is_trend_or_flat and is_next_noise and not is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
+
+        return False
+    
+    def has_partial_overlap_prev(segment, segment_prev):
+        """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
+        dir = segment['direction']
+        start =  pd.to_datetime(segment['start'])
+        end =  pd.to_datetime(segment['end'])
+        width = (end - start).days
+
+        prev_dir = segment_prev['direction']
+        prev_start = pd.to_datetime(segment_prev['start'])
+        prev_end = pd.to_datetime(segment_prev['end'])
+        prev_width = (prev_end - prev_start).days
+
+        # Define conditions
+        is_overlap_prev = (start <= prev_end)
+        is_curr_shorter = (width <= prev_width)
+        is_trend_or_flat = (dir in ('Up', 'Down', 'Flat'))
+        is_prev_noise = (prev_dir == 'Noise')
+
+        if is_overlap_prev and (is_trend_or_flat and is_prev_noise and not is_curr_shorter):
+            return True # overlap when curr is trend and prev is noise of larger/equal window
         return False
 
     # Pass 1: Cleans inverse length segments. Artifacts from expansion/contraction
@@ -441,6 +487,46 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
             continue 
         segments_refined.append(segment)
 
+    # Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise
+    segments = deepcopy(segments_refined)
+    segments_refined = [] 
+    for i, segment in enumerate(segments):
+        if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):
+
+            shifted_end = (pd.to_datetime(segments[i+1]['start']) - pd.Timedelta(days=1))
+            end_df = df.loc[segment['start']:shifted_end]
+
+            # when gradual, follows similar logic to expand/contract seleciton.
+            if segments[i]['direction'] == 'Up':
+                new_end = end_df[value_col].idxmax()
+                segments[i]['end'] = new_end.strftime('%Y-%m-%d')
+            
+            if segments[i]['direction'] == 'Down':
+                new_end = end_df[value_col].idxmin()
+                segments[i]['end'] = new_end.strftime('%Y-%m-%d')
+
+            elif segments[i]['direction'] == 'Flat':
+                segments[i]['end'] = shifted_end.strftime('%Y-%m-%d')
+
+        if (i > 0 and has_partial_overlap_prev(segment, segments[i-1])): 
+
+            shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
+            start_df = df.loc[shifted_start:segment['end']]
+            
+            # when gradual, follows similar logic to expand/contract seleciton.
+            if segments[i]['direction'] == 'Up':
+                new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1)
+                segments[i]['start'] = new_start.strftime('%Y-%m-%d')
+
+            if segments[i]['direction'] == 'Down':
+                new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1)
+                segments[i]['start'] = new_start.strftime('%Y-%m-%d') 
+
+            elif segments[i]['direction'] == 'Flat':
+                segments[i]['start'] = shifted_start.strftime('%Y-%m-%d')
+
+        segments_refined.append(segment)
+
     return segments_refined
 
 
@@ -453,7 +539,11 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
-    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
     segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
+    
+    segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # abrupt shave 2nd pass: newly converted abrupts 
+    segments_refined = group_segments(segments_refined) # grouping 3rd pass: after abrupt shave 2nd pass
 
     return segments_refined
