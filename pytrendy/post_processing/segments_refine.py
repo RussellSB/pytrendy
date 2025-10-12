@@ -330,6 +330,14 @@ def group_segments(segments: list):
         ):
             # same direction and within allowed distance -> extend history
             segment_history.append(segment)
+        elif (
+            direction == direction_prev
+            and segment_history
+            and (('trend_class' in segment and segment['trend_class'] == 'abrupt')) 
+            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= 1
+        ):
+            # same direction and within tight allowed distance for abrupt -> extend history
+            segment_history.append(segment)
         else:
             # flush current history before starting a new group
             flush_history(segment_history, segments_refined)
@@ -441,10 +449,11 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         # Define conditions
         is_overlap_next = (end >= next_start)
         is_curr_shorter = (width <= next_width)
+        is_next_noise = (next_dir == 'Noise') 
         is_trend_or_flat = (dir in ('Up', 'Down', 'Flat'))
-        is_next_noise = (next_dir == 'Noise')
+        is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
 
-        if is_overlap_next and (is_trend_or_flat and is_next_noise and not is_curr_shorter):
+        if is_overlap_next and (is_trend_or_flat and (is_next_noise or is_next_abrupt) and not is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
 
         return False
@@ -464,10 +473,11 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         # Define conditions
         is_overlap_prev = (start <= prev_end)
         is_curr_shorter = (width <= prev_width)
-        is_trend_or_flat = (dir in ('Up', 'Down', 'Flat'))
         is_prev_noise = (prev_dir == 'Noise')
+        is_trend_or_flat = (dir in ('Up', 'Down', 'Flat'))
+        is_prev_abrupt = ('trend_class' in segment_prev and segment_prev['trend_class'] == 'abrupt')
 
-        if is_overlap_prev and (is_trend_or_flat and is_prev_noise and not is_curr_shorter):
+        if is_overlap_prev and (is_trend_or_flat and (is_prev_noise or is_prev_abrupt) and not is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
         return False
 
@@ -544,6 +554,8 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     
     segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # abrupt shave 2nd pass: newly converted abrupts 
+
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt
     segments_refined = group_segments(segments_refined) # grouping 3rd pass: after abrupt shave 2nd pass
 
     return segments_refined

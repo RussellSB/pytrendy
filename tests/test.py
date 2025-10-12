@@ -35,7 +35,7 @@ df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250 # added more recently
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
-# TODO: make flat stretch out better, and fill in the gaps
+# TODO: flat fill in
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
 #%%
@@ -80,7 +80,7 @@ results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, 
 #%%
 # original test case 2: abrupt
 df = pt.load_data('series_synthetic')
-results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODO: Fix downtrend from 2nd pass shave
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODONE: Fix downtrend from 2nd pass shave
 
 # %%
 # noise test 1 - increasing noise 
