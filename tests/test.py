@@ -77,9 +77,15 @@ df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
 #%%
-# original test case 2: abrupt
+# original test case 2.1: abrupt
 df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODONE: Fix downtrend from 2nd pass shave
+
+#%%
+# original test case 2.2: abrupt padded
+df = pt.load_data('series_synthetic')
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True)) 
+
 
 # %%
 # noise test 1 - increasing noise 
@@ -133,7 +139,7 @@ noise_df = noise_df.set_index('date')
 noise_df['value_noisy'].plot(figsize=(20,3))
 
 # %%
-df.to_csv('../temp_noisy_crash_5.csv')   
+# df.to_csv('../temp_noisy_crash_5.csv')   
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_crash_4.csv')

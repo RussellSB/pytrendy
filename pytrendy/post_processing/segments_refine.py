@@ -260,7 +260,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 new_seg = segment.copy()
                 segments_refined.insert(new_index, new_seg)
                 segments.insert(new_index, new_seg)
-                # segments.insert(new_index, new_seg)
 
                 # Update new segment
                 segments_refined[new_index]['start'] = new_start.strftime('%Y-%m-%d')
@@ -548,6 +547,30 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     return segments_refined
 
 
+def fill_in_flats(segments:list):
+    """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
+    segments_refined = segments.copy()
+    j = 0
+    for i, curr_seg in enumerate(segments):
+        if i >= (len(segments) - 1): continue # skip if cant see next
+        next_seg = segments[i+1]
+
+        start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
+        end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
+        days = (end - start).days
+
+        # Trigger fill in when not exactly neighbouring
+        if days >= 0:
+            new_flat = dict(
+                start = start.strftime('%Y-%m-%d'),
+                end = end.strftime('%Y-%m-%d'),
+                direction='Flat'
+            )
+            j += 1 # iterate segments vs segments_refined displacement
+            segments_refined.insert(i+j, new_flat)
+    return segments_refined
+
+
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
     segments_refined = deepcopy(segments)
     
@@ -567,5 +590,6 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
                                             , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
         segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
 
+    segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
     segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
     return segments_refined
