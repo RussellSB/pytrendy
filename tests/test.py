@@ -116,16 +116,43 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
 
 
 # %%
-# spike test 1 - add a spike 
+# spike test 0.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
-# TODONE: detect the noise appropriately
-# TODONE: shave noise more precisely
-# TODONE: Flat fill in
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-# results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.1 - add a spike 
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # TODO: fix displaced noise
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.2 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200  # TODO: fix displaced downtrend on right
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.3 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200  
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
 ### TEMP NOISE CRASH CASES
 
