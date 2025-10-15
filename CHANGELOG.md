@@ -1,3 +1,10 @@
+## [1.1.1](https://github.com/RussellSB/pytrendy/compare/v1.1.0...v1.1.1) (2025-10-15)
+
+
+### Bug Fixes
+
+* **deployment:** checking out again to try handle edge case of deployment failure and rerun on version bump. ([d137ccb](https://github.com/RussellSB/pytrendy/commit/d137ccbf9372a963fc95201d3f1d9fc4a87918bf))
+
 # [1.1.0](https://github.com/RussellSB/pytrendy/compare/v1.0.8...v1.1.0) (2025-10-15)
 
 
