@@ -20,6 +20,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Pull latest main
+        run: git pull origin main # as precaution for when this step is rerun. Need semantic release = true
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
