@@ -1,0 +1,84 @@
+site_name: PyTrendy
+
+nav:
+  - Home: index.md
+  - Installation: installation.md
+  - Features: features.md
+  - Usage: usage.md
+  - API Reference: reference
+
+theme: 
+  name: material # flatly, material, minty
+  logo: icon.png
+  favicon: icon.png
+  features:
+    - navigation.indexes
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/lightbulb
+        name: Switch to dark mode
+
+    - scheme: slate
+      primary: cyan
+      accent: cyan
+      toggle:
+        icon: material/lightbulb-outline
+        name: Switch to light mode
+
+markdown_extensions:
+  - codehilite:
+      guess_lang: false
+      linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.superfences
+  - admonition
+  - markdown.extensions.admonition
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          import:
+            - https://docs.python.org/3/objects.inv
+          options:
+            docstring_section_style: list # or "table"
+            docstring_style: "google"
+            filters: ["!^_"]
+            heading_level: 1
+            merge_init_into_class: true
+            parameter_headings: true
+            separate_signature: true
+            show_root_heading: true
+            show_root_full_path: false 
+            show_signature_annotations: false
+            summary: false
+            reload: true
+            paths: ['../pytrendy']   # <-- tell it where to load from
+  - api-autonav:
+      modules: ['../pytrendy']
+      module_options:
+        ".*":
+          show_symbol_type_heading: true
+          show_symbol_type_toc: true
+          heading_level: 1
+          show_docstring: false
+      nav_section_title: "API Reference"
+      api_root_uri: "reference"
+      nav_item_prefix: "<code class='doc-symbol doc-symbol-nav'></code>" #"<code class='doc-symbol doc-symbol-nav doc-symbol-module'></code>"
+      exclude_private: false
+      show_full_namespace: false
+      on_implicit_namespace_package: "warn"
+
+
+
+
+
+

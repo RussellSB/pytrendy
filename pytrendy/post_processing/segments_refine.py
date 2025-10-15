@@ -1,3 +1,5 @@
+"""**Adjust Boundaries and Classify Trends**"""
+
 import pandas as pd
 from copy import deepcopy
 from ..simpledtw import dtw
@@ -8,7 +10,19 @@ NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust afte
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
 def update_prev_segment(i, new_start, segments, segments_refined, df, value_col):
-    """Shift previous segment end if overlapping with updated start (or original start)."""
+    """
+    Adjusts the end of the previous segment if it overlaps with the updated start.
+
+    Skips adjustment if the previous segment is classified as 'abrupt' or 'noise', preserving its precision.
+    
+    Args:
+        i (int): Index of the current segment.
+        new_start (str): Updated start date of the current segment.
+        segments (list): Original segment list.
+        segments_refined (list): Refined segment list being modified.
+        df (pd.DataFrame): Main input df with value_col and time index.
+        value_col (str): str column of value column in df.
+    """
 
     if (i == 0): return
     old_start = pd.to_datetime(segments[i]['start'])
@@ -46,7 +60,19 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
         
 
 def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
-    """Shift next segment start if overlapping with updated end (or original end)."""
+    """
+    Adjusts the start of the next segment if it overlaps with the updated end.
+
+    Skips adjustment if the next segment is classified as 'abrupt', preserving its precision.
+
+    Args:
+        i (int): Index of the current segment.
+        new_end (str): Updated end date of the current segment.
+        segments (list): Original segment list.
+        segments_refined (list): Refined segment list being modified.
+        df (pd.DataFrame): Main input df with value_col and time index.
+        value_col (str): str column of value column in df.
+    """
     if (i == len(segments) - 1): return
     old_end = pd.to_datetime(segments[i]['end'])
     next_segments = segments_refined[i+1:]
@@ -83,11 +109,20 @@ def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
 
 def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
     """
-    Post-process detected segments by assessing their start and end points.
-    Adjusts boundaries by looking ±7 days around each boundary for more precision.
-    Is there an appropriately higher or lower point worth taking? Take it.
-    If it increases the segment - "expand". If it decreases the segment - "contract".
+    Refines segment boundaries by expanding or contracting based on local extrema.
+
+    Examines ±7 days around each segment's start and end to find stronger turning points.
+    Skips segments classified as 'abrupt' to preserve their precision.
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        value_col (str): Name of the signal column.
+        segments (list): List of segment dictionaries.
+
+    Returns:
+        list: Refined segment list with updated boundaries.
     """
+
     segments_refined = deepcopy(segments)
 
     def _get_window_df(center, days=7):
@@ -130,9 +165,19 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
 
 def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
-    Classifies appropriate segments as pre-defined typed of trends; 
-    Gradual or Abrupt. Utilises DTW to compare to synthesized signals.
+    Classifies segments as 'gradual' or 'abrupt' using DTW against reference signals.
+
+    Adds a `'trend_class'` key to each segment based on similarity to synthetic patterns.
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        value_col (str): Name of the signal column.
+        segments (list): List of segment dictionaries.
+
+    Returns:
+        list: Segment list with added `'trend_class'` labels.
     """
+
     segments_classified = deepcopy(segments)
 
     df_class = load_data('classes_signals')
@@ -175,9 +220,24 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
 
 def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list= []):
     """
-    Handles case of abrupt trends since changepoint detection is missed by rolling statistics
-    We analyse the segment for diff outliers, and take the earliest and latest points from here.
+    Refines abrupt segments by detecting changepoints using z-score outliers.
+
+    This function identifies sharp transitions missed by rolling statistics and
+    adjusts segment boundaries based on statistical anomalies in the signal's first differences.
+    It also supports multi-abrupt detection within a segment and optional padding to extend abrupt ends.
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        value_col (str): Name of the signal column.
+        segments (list): List of segment dictionaries with `'trend_class': 'abrupt'`.
+        method_params (dict): Optional parameters for padding and control:
+            - `'is_abrupt_padded'` (bool): Whether to pad abrupt segments.
+            - `'abrupt_padding'` (int): Number of days to pad.
+
+    Returns:
+        list: Refined segment list with adjusted abrupt boundaries.
     """
+
     segments_refined = deepcopy(segments)
 
     for i, segment in enumerate(segments_refined):
@@ -303,9 +363,23 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
 def group_segments(segments: list):
     """
-    Groups segments if they have the same direction AND their gap is <= GROUPING_DISTANCE.
-    This reduces noisy selections from sporadic short segments.
+    Groups consecutive segments with the same direction if their gap is small.
+
+    Segments are grouped if:
+
+        - They share the same `'direction'`
+        - Their gap is ≤ `GROUPING_DISTANCE`
+        - They are not classified as `'abrupt'`
+
+    This reduces fragmentation caused by short, noisy segments.
+
+    Args:
+        segments (list): List of segment dictionaries.
+
+    Returns:
+        list: Grouped segment list.
     """
+
     def flush_history(segment_history, output):
         """Append either a single or grouped segment to output."""
         if not segment_history:
@@ -360,8 +434,15 @@ def group_segments(segments: list):
 
 def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     """
-    Sometimes the neighbour repositioning can create tiny artifacts (eg. for Flats)
-    Cleaning to make sure it does not make its way to final indication
+    Removes segments that are too short to be meaningful.
+    
+    This is typically used to clean up artifacts introduced by boundary adjustments.
+
+    Args:
+        segments (list): List of segment dictionaries.
+
+    Returns:
+        list: Cleaned segment list with only valid-length segments.
     """
 
     def has_inverse(df, value_col, segment):
@@ -572,6 +653,26 @@ def fill_in_flats(segments:list):
 
 
 def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
+    """
+    Full post-processing pipeline to refine detected trend segments.
+
+    This function applies:
+    - Trend classification (`gradual` vs `abrupt`)
+    - Abrupt changepoint shaving
+    - Gradual boundary expansion/contraction
+    - Segment grouping
+    - Artifact cleanup
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        value_col (str): Name of the signal column.
+        segments (list): Initial segment list from detection.
+        method_params (dict): Optional parameters for abrupt padding and control.
+
+    Returns:
+        list: Final refined segment list.
+    """
+
     segments_refined = deepcopy(segments)
     
     segments_refined = classify_trends(df, value_col, segments_refined)

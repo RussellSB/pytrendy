@@ -1,30 +1,10 @@
-"""**Visualize Detected Trends Over Time Series**"""
-
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
 def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
-    """
-    Visualizes detected trend segments over the original time series signal.
-    
-    This function overlays shaded regions on the signal to indicate trends such as Up, Down, Flat, and Noise
-    It also annotates ranked segments and handles visual adjustments for abrupt transitions.
-
-    Args:
-        df (pd.DataFrame):
-            Time series data with datetime index and signal column.
-        value_col (str):
-            Name of the column containing the signal to plot.
-        segments_enhanced (list):
-            List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
-
-    Returns:
-        None:
-            Displays a matplotlib plot inline. Does not return any object.
-    """
-    
+    """Plot visuals of trend detected segments over signal of interest."""
     # Define colors
     color_map = {
         'Up': 'lightgreen',
@@ -45,16 +25,14 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        if ('trend_class' in seg and seg['trend_class'] == 'abrupt') or seg['direction'] == 'Noise': 
+        if 'trend_class' in seg and seg['trend_class'] == 'abrupt': 
             start = start # Conditional logic for making abrupt visually tighter
         else: start = start - pd.Timedelta(days=1) # Everything else displaced left start
 
-        # Get context on next seg if possible
+        # Adjust neighbouring segment before abrupt (visually). Avoid white lines
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
-        neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
-
-        # Adjust neighbouring segment before abrupt or noise (visually). Avoid white lines
-        next_seg_abrupt = next_seg and ((('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')) or next_seg['direction'] == 'Noise')
+        next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
+        neighbouring = next_seg_abrupt and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
         if next_seg_abrupt and neighbouring:
             end = end + pd.Timedelta(days=1)
         else: end = end
@@ -63,17 +41,12 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
-        if 'change_rank' in seg:
+        if seg['direction'] in ['Up', 'Down']:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
-            
-        # Add vertical line if next seg is same & touching
-        if next_seg and neighbouring and next_seg['direction'] == seg['direction']:
-            line_date = pd.to_datetime(seg['end'])
-            ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits
     first_date = df.index.min()
@@ -103,7 +76,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
         mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
         mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
+        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), # TODO: Show optionally later, based on up_only, down_only, robustness=False ... etc
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
