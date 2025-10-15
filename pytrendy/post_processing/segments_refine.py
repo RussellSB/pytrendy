@@ -39,10 +39,7 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
         if (prevseg['direction'] == 'Noise'):
-            diff = abs(df.loc[prev_end, value_col] - df.loc[prev_start, value_col])
-            small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
-            if diff <= small_value:  # only skip if a noise that spikes
-                continue
+            continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
@@ -88,10 +85,7 @@ def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
 
         # Edge case 1.2: do not disturb noise spikes (leave precise)
         if (nextseg['direction'] == 'Noise'):
-            diff = abs(df.loc[next_end, value_col] - df.loc[next_start, value_col])
-            small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
-            if diff <= small_value: # only skip if a noise that spikes
-                continue
+            continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
