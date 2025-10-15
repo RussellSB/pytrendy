@@ -25,14 +25,16 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         end = pd.to_datetime(seg['end'])
         color = color_map.get(seg['direction'], 'gray')
 
-        if 'trend_class' in seg and seg['trend_class'] == 'abrupt': 
+        if ('trend_class' in seg and seg['trend_class'] == 'abrupt') or seg['direction'] == 'Noise': 
             start = start # Conditional logic for making abrupt visually tighter
         else: start = start - pd.Timedelta(days=1) # Everything else displaced left start
 
-        # Adjust neighbouring segment before abrupt (visually). Avoid white lines
+        # Get context on next seg if possible
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
-        next_seg_abrupt = next_seg and ('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')
-        neighbouring = next_seg_abrupt and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+
+        # Adjust neighbouring segment before abrupt or noise (visually). Avoid white lines
+        next_seg_abrupt = next_seg and ((('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt')) or next_seg['direction'] == 'Noise')
         if next_seg_abrupt and neighbouring:
             end = end + pd.Timedelta(days=1)
         else: end = end
@@ -41,12 +43,17 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
-        if seg['direction'] in ['Up', 'Down']:
+        if 'change_rank' in seg:
             mid_date = start + (end - start) / 2
             y_pos = ymax - (ymax - ymin) * 0.05
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
                     color=color[5:])
+            
+        # Add vertical line if next seg is same & touching
+        if next_seg and neighbouring and next_seg['direction'] == seg['direction']:
+            line_date = pd.to_datetime(seg['end'])
+            ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits
     first_date = df.index.min()
@@ -76,7 +83,7 @@ def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
         mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
         mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
         mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), # TODO: Show optionally later, based on up_only, down_only, robustness=False ... etc
+        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
