@@ -1,3 +1,10 @@
+## [1.1.2](https://github.com/RussellSB/pytrendy/compare/v1.1.1...v1.1.2) (2025-10-15)
+
+
+### Bug Fixes
+
+* resolving merge conflicts & ensuring relative imports work correctly with __init__ for subpackages ([c1c2491](https://github.com/RussellSB/pytrendy/commit/c1c24913e13ca607ea0036344e56e6af7139e92b))
+
 ## [1.1.1](https://github.com/RussellSB/pytrendy/compare/v1.1.0...v1.1.1) (2025-10-15)
 
 
