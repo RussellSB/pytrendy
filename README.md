@@ -68,7 +68,7 @@ results.print_summary()
 
 You can directly call the object as a pandas dataframe. Note change_rank which prioritises long duration and high magnitude of change.
 ```py
-results.segments_df
+results.df
 ```
 
 <small>
@@ -89,8 +89,8 @@ results.segments_df
 
 ## Upcoming
 
-- More robust edge case testing & generalising.
+- More DEMO examples [WIP].
+- Full documentation with all features [WIP].
 - Automated testing in CI/CD pipeline.
-- Full documentation with all features.
 - Customising more options for windows.
-- More DEMO examples.
+- Even more robust edge case testing & generalising.
