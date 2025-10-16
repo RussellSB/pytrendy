@@ -144,13 +144,21 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
 
         # Refine start
         start_changed = new_start != pd.to_datetime(segment['start'])
-        if start_changed:
+
+        fully_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
+                                and (new_start < pd.to_datetime(segments_refined[i-1]['start'])) # Edge case, dont pass noise wall
+        
+        if start_changed and not fully_overlaps_noise:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # Refine end
         end_changed = new_end != pd.to_datetime(segment['end'])
-        if end_changed:
+        
+        fully_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
+                                and (new_end > pd.to_datetime(segments_refined[i+1]['end'])) # Edge case, dont pass noise wall
+
+        if end_changed and not fully_overlaps_noise:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
