@@ -586,7 +586,10 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):
 
             shifted_end = (pd.to_datetime(segments[i+1]['start']) - pd.Timedelta(days=1))
-            end_df = df.loc[segment['start']:shifted_end]
+            start = pd.to_datetime(segment['start'])
+            if shifted_end < start: 
+                continue # In case noise segment is <= 1 day in length
+            end_df = df.loc[start:shifted_end]
 
             # when gradual, follows similar logic to expand/contract seleciton.
             if segments[i]['direction'] == 'Up':
@@ -603,7 +606,10 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         if (i > 0 and has_partial_overlap_prev(segment, segments[i-1])): 
 
             shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
-            start_df = df.loc[shifted_start:segment['end']]
+            end = pd.to_datetime(segment['end'])
+            if end < shifted_start: 
+                continue # In case noise segment is <= 1 day in length
+            start_df = df.loc[shifted_start:end]
             
             # when gradual, follows similar logic to expand/contract seleciton.
             if segments[i]['direction'] == 'Up':

@@ -192,7 +192,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 
 # %%
 # ------------ Latest
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
