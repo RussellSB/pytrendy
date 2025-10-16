@@ -4,6 +4,16 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:
+    inputs:
+      force_publish:
+        description: 'Force PyPI publish even if semantic-release did not release'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   semantic-release:
@@ -58,7 +68,9 @@ jobs:
   build-and-publish:
     name: Build & Publish to PyPI
     needs: semantic-release
-    if: needs.semantic-release.outputs.released == 'true'
+    if: |
+      needs.semantic-release.outputs.released == 'true' ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.force_publish == 'true')
     runs-on: ubuntu-latest
     environment: release 
     permissions:
