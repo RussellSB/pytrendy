@@ -13,6 +13,8 @@ os.getcwd()
 import pytrendy as pt
 import pandas as pd
 
+# ---------- Abrupts and Spikes
+
 #%%
 # synth 1
 df = pt.load_data('series_synthetic')
@@ -34,7 +36,7 @@ df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
-# TODO: flat fill in
+# TODONE: flat fill in
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
 #%%
@@ -65,11 +67,13 @@ df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
 
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
-df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODO: flat fill ins
+df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODONE: flat fill ins
 # df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODO: fix that it neglects downtrend abrupt on right
 df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 # TODONE: fix that it affects downtrend gradual on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
+
+# ---------- Original Test Cases
 
 #%%
 # original test case 1: gradual
@@ -86,6 +90,7 @@ results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, m
 df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True)) 
 
+# ---------- Random Noise
 
 # %%
 # noise test 1 - increasing noise 
@@ -106,19 +111,7 @@ for noise_std in [50]*5:
     results = pt.detect_trends(df, date_col='date', value_col='value_noisy')
 
 # %%
-# noise test 3 - add a spike
-df = pt.load_data('series_synthetic')
-df.set_index('date', inplace=True)
-df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
-# TODONE: detect the noise appropriately
-# TODONE: shave noise more precisely
-# TODO: Flat fill in
-df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-# results_abrupt = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True))
-
-# %%
-# noise test 4 - run till crashes
+# noise test 3 - run till crashes
 import numpy as np
 for noise_std in [10]*10: #[0, 10, 15, 20,50]
     print(f'Noise value: {noise_std}')
@@ -126,10 +119,90 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
     results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
-### TEMP NOISE CRASH CASES
+# ---------- Graduals and Spikes
+
+# %%
+# spike test 0.1 - add a spike 
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.1 - add a spike 
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # TODO: fix displaced noise
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.2 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200  # TODO: fix displaced downtrend on right
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+
+
+# %%
+# spike test 1.3 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 300 # TODO: figure out why this takes so long and hangs up (also messes up for 250)
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+# %%
+# spike test 1.4 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
+df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 # TODONE: fix that it kills uptrend on left
+# df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+# %%
+# spike test 1.5 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350  # TODONE: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+# %%
+# spike test 1.6 - add 3 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # TODONE: make sure it detects noise at range of magnitudes (100-1000), only does select few (eg not 500, 320)
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+# ---------- Previous Crash Instances
 
 # %%
 # ------------ Latest
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
+noise_df['date'] = pd.to_datetime(noise_df['date'])
+noise_df = noise_df.set_index('date')
+noise_df['value_noisy'].plot(figsize=(20,3))
+
+# %%
+# df.to_csv('../temp_noisy_crash_6.csv')   
+
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
 # %%

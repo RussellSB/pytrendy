@@ -39,10 +39,7 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
         if (prevseg['direction'] == 'Noise'):
-            diff = abs(df.loc[prev_end, value_col] - df.loc[prev_start, value_col])
-            small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
-            if diff <= small_value:  # only skip if a noise that spikes
-                continue
+            continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
@@ -88,10 +85,7 @@ def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
 
         # Edge case 1.2: do not disturb noise spikes (leave precise)
         if (nextseg['direction'] == 'Noise'):
-            diff = abs(df.loc[next_end, value_col] - df.loc[next_start, value_col])
-            small_value = df.loc[df[value_col] > 0, value_col].quantile(0.05)
-            if diff <= small_value: # only skip if a noise that spikes
-                continue
+            continue
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
@@ -150,13 +144,21 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
 
         # Refine start
         start_changed = new_start != pd.to_datetime(segment['start'])
-        if start_changed:
+
+        fully_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
+                                and (new_start < pd.to_datetime(segments_refined[i-1]['start'])) # Edge case, dont pass noise wall
+        
+        if start_changed and not fully_overlaps_noise:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
         # Refine end
         end_changed = new_end != pd.to_datetime(segment['end'])
-        if end_changed:
+        
+        fully_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
+                                and (new_end > pd.to_datetime(segments_refined[i+1]['end'])) # Edge case, dont pass noise wall
+
+        if end_changed and not fully_overlaps_noise:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
@@ -592,7 +594,10 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):
 
             shifted_end = (pd.to_datetime(segments[i+1]['start']) - pd.Timedelta(days=1))
-            end_df = df.loc[segment['start']:shifted_end]
+            start = pd.to_datetime(segment['start'])
+            if shifted_end < start: 
+                continue # In case noise segment is <= 1 day in length
+            end_df = df.loc[start:shifted_end]
 
             # when gradual, follows similar logic to expand/contract seleciton.
             if segments[i]['direction'] == 'Up':
@@ -609,7 +614,10 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         if (i > 0 and has_partial_overlap_prev(segment, segments[i-1])): 
 
             shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
-            start_df = df.loc[shifted_start:segment['end']]
+            end = pd.to_datetime(segment['end'])
+            if end < shifted_start: 
+                continue # In case noise segment is <= 1 day in length
+            start_df = df.loc[shifted_start:end]
             
             # when gradual, follows similar logic to expand/contract seleciton.
             if segments[i]['direction'] == 'Up':
