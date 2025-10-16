@@ -174,7 +174,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350  # TODO: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350  # TODONE: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
@@ -192,6 +192,17 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 
 # %%
 # ------------ Latest
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
+noise_df['date'] = pd.to_datetime(noise_df['date'])
+noise_df = noise_df.set_index('date')
+noise_df['value_noisy'].plot(figsize=(20,3))
+
+# %%
+# df.to_csv('../temp_noisy_crash_6.csv')   
+
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
 # %%
