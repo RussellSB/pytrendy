@@ -1,3 +1,10 @@
+## [1.1.3](https://github.com/RussellSB/pytrendy/compare/v1.1.2...v1.1.3) (2025-10-16)
+
+
+### Bug Fixes
+
+* **noise detection:** Handle spike segments on gradual trends much better. ([#12](https://github.com/RussellSB/pytrendy/issues/12)) ([9b8e204](https://github.com/RussellSB/pytrendy/commit/9b8e204148903a707f1183b175f20dce8232174f))
+
 ## [1.1.2](https://github.com/RussellSB/pytrendy/compare/v1.1.1...v1.1.2) (2025-10-15)
 
 
