@@ -13,6 +13,8 @@ os.getcwd()
 import pytrendy as pt
 import pandas as pd
 
+# ---------- Abrupts and Spikes
+
 #%%
 # synth 1
 df = pt.load_data('series_synthetic')
@@ -71,6 +73,8 @@ df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 # TODONE: fix that it affects 
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
+# ---------- Original Test Cases
+
 #%%
 # original test case 1: gradual
 df = pt.load_data('series_synthetic')
@@ -86,6 +90,7 @@ results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, m
 df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True)) 
 
+# ---------- Random Noise
 
 # %%
 # noise test 1 - increasing noise 
@@ -114,6 +119,7 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
     results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
+# ---------- Graduals and Spikes
 
 # %%
 # spike test 0.1 - add a spike 
@@ -168,7 +174,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 250  # TODO: make sure it detects this noise, right now it overcasts with a red (also with 250)
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350  # TODO: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
@@ -178,12 +184,11 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 500  # TODONE: make sure it detects noise at range of magnitudes (100-1000), only does select few (eg not 500)
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # TODONE: make sure it detects noise at range of magnitudes (100-1000), only does select few (eg not 500, 320)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
-# %%
-### TEMP NOISE CRASH CASES
+# ---------- Previous Crash Instances
 
 # %%
 # ------------ Latest
