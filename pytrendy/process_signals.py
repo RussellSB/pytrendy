@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
+from .post_processing.segments_refine import GROUPING_DISTANCE
 
 def process_signals(df:pd.DataFrame, value_col: str):
     """
@@ -80,8 +81,25 @@ def process_signals(df:pd.DataFrame, value_col: str):
         if len(early_starts) == 0:
             noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+
+    # Group noise segments if within a close enough distance of each other
+    if len(noise_segments) <= 1: 
+        noise_segments_grouped = noise_segments
+    else: # only try group logic if > 1 segments to group
+        noise_segments_grouped = []
+        prev_seg = noise_segments[0].copy()
+        for seg in noise_segments[1:]:
+            width = (seg['start'] - prev_seg['end']).days
+            if width <= GROUPING_DISTANCE:
+                new_seg = {'start': prev_seg['start'], 'end': seg['end']}
+                noise_segments_grouped.append(new_seg)
+            else:
+                noise_segments_grouped.append(prev_seg)
+            prev_seg = seg.copy()
         
-    for segment in noise_segments:
+    # Refine the noise segments early
+    for segment in noise_segments_grouped:
+        print(segment)
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
         
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
@@ -101,7 +119,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
         if (width <= 4) and abrupt_ends:
             df.loc[start:end, 'noise_flag'] = 0 # filter it out when abrupt trend
         # # if too narrow a noise window, stretch it out for visibility.
-        elif (width == 1):
+        elif (width <= 2):
             df.loc[start:end, 'noise_flag'] = 1 # stretch it out
 
         # Conversely, if a spike-type noise, shave to be precise around peak
