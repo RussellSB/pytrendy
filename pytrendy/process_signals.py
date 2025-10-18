@@ -98,11 +98,17 @@ def process_signals(df:pd.DataFrame, value_col: str):
                 if (i == len(noise_segments) - 2): # append curr if on last with no grouping
                     noise_segments_grouped.append(seg)
             prev_seg = seg.copy()
+
+    # Update noise flag to larger groupings, so segments continuous to then refine
+    if noise_segments_grouped != noise_segments:
+        df.loc[:, 'noise_flag'] = 0
+        for seg in noise_segments_grouped:
+            df.loc[seg['start']:seg['end'], 'noise_flag'] = 1
         
     # Refine the noise segments early
     for segment in noise_segments_grouped:
+
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
-        
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
 
@@ -182,6 +188,10 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # plt.show()
 
     # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    # plt.show()
+    
+    # ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
     

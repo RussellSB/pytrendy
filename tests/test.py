@@ -125,10 +125,9 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
 # spike test 0.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200  # TODO: improve that it doesnt cover full one noise spike.
+df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200  # TODONE: improve that it doesnt cover full one noise spike. #TODO: improve that bad red stretches good green change rank 2
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-
 
 # %%
 # spike test 1.1 - add a spike 
@@ -137,7 +136,6 @@ df.set_index('date', inplace=True)
 df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # DONE: fix displaced noise on left
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-
 
 # %%
 # spike test 1.2 - add 3 spikes
