@@ -46,26 +46,21 @@ def process_signals(df:pd.DataFrame, value_col: str):
     THRESHOLD_SMOOTH = 0.25 # Sensetivity to detecting trends (recommended 0-0.5)
 
     # 1. Noise detection via SNR. 
-    # 1.1 Compute zero flat edge cases
-    df['zeros_pct_trailing'] = (df[value_col] == 0).rolling(WINDOW_NOISE, min_periods=1).sum() / WINDOW_NOISE
-    df['zeros_pct_leading'] = ((df[value_col] == 0).iloc[::-1].rolling(window=WINDOW_NOISE, min_periods=1).sum() / WINDOW_NOISE).iloc[::-1]
-    df['zeros_pct'] = df[['zeros_pct_trailing', 'zeros_pct_leading']].max(axis=1)
-
-    # 1.2 Compute the SNR
+    # 1.1 Compute the SNR
     df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()
     df['noise'] = df[value_col] - df['signal']
     df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
 
-    # 1.3 Define noise flag when SNR & not all zero
+    # 1.2 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
-    df.loc[(df['snr'] <= THRESHOLD_NOISE), 'noise_flag'] = 1 #   & (df['zeros_pct'] <= THRESHOLD_ZEROS)
+    df.loc[(df['snr'] <= THRESHOLD_NOISE), 'noise_flag'] = 1
     
-    # 1.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
+    # 1.3 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
     noise_starts = df.loc[df['noise_flag_diff'] == 1].index
     noise_ends = df.loc[df['noise_flag_diff'] == -1].index
     
-    # Construct noise segments list based on flag_diff
+    # 1.3.1 Construct noise segments list based on flag_diff
     noise_segments = []
     for noise_start in noise_starts: # Loops from first start onwards
         after_ends = [end for end in noise_ends if end > noise_start]
@@ -82,7 +77,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
             noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
 
-    # Group noise segments if within a close enough distance of each other
+    # 1.3.2 Group noise segments if within a close enough distance of each other
     if len(noise_segments) <= 1: 
         noise_segments_grouped = noise_segments
     else: # only try group logic if > 1 segments to group
@@ -99,13 +94,13 @@ def process_signals(df:pd.DataFrame, value_col: str):
                     noise_segments_grouped.append(seg)
             prev_seg = seg.copy()
 
-    # Update noise flag to larger groupings, so segments continuous to then refine
+    # 1.3.3 Update noise flag to larger groupings, so segments continuous to then refine
     if noise_segments_grouped != noise_segments:
         df.loc[:, 'noise_flag'] = 0
         for seg in noise_segments_grouped:
             df.loc[seg['start']:seg['end'], 'noise_flag'] = 1
         
-    # Refine the noise segments early
+    # 1.3.4 Refine the noise segments early
     for segment in noise_segments_grouped:
 
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
@@ -153,7 +148,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
                 noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
 
-    # 2. Flat detection using rolling std of savgol filter.
+    # 3. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
     df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
 
@@ -167,7 +162,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     min_nonzero_std = rolling_std[rolling_std > 0].min()
     df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0), 'flat_flag'] = 1 
 
-    # 3. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
+    # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
     # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
     # Results in signal that's uptrend > 0, else down. As long as its not on a flat or noise.
     df['trend_flag'] = 0
