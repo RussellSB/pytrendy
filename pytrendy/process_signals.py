@@ -148,17 +148,22 @@ def process_signals(df:pd.DataFrame, value_col: str):
                 noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
 
+    # 2. Create a temporary signal with no noise
+    # Following flat & trend detection logic assumes no noise in the signals it depends on
+    df['value_cleaned'] = df[value_col]
+    df.loc[df['noise_flag'] == 1, 'value_cleaned'] = None
+    df['value_cleaned'] = df['value_cleaned'].ffill().bfill()
+
     # 3. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centered windows doesnt cover
-    df['smoothed'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1)
-
+    df['smoothed'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1)
     df['smoothed_std'] = df['smoothed'].rolling(WINDOW_FLAT, center=True).std()
     df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=WINDOW_FLAT).std().iloc[::-1]
     df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
 
     df['flat_flag'] = 0
-    rolling_std = df[value_col].rolling(WINDOW_FLAT, center=True).std()
+    rolling_std = df['value_cleaned'].rolling(WINDOW_FLAT, center=True).std()
     min_nonzero_std = rolling_std[rolling_std > 0].min()
     df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0), 'flat_flag'] = 1 
 
@@ -168,11 +173,11 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
-    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
+    df['smoothed_deriv'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
 
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
 
     # ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
