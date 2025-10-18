@@ -88,17 +88,21 @@ def process_signals(df:pd.DataFrame, value_col: str):
     else: # only try group logic if > 1 segments to group
         noise_segments_grouped = []
         prev_seg = noise_segments[0].copy()
-        for seg in noise_segments[1:]:
+        for i, seg in enumerate(noise_segments[1:]):
             width = (seg['start'] - prev_seg['end']).days
             if width <= GROUPING_DISTANCE:
                 new_seg = {'start': prev_seg['start'], 'end': seg['end']}
                 noise_segments_grouped.append(new_seg)
             else:
-                noise_segments_grouped.append(prev_seg)
+                noise_segments_grouped.append(prev_seg) # append prev if no grouping
+                if (i == len(noise_segments) - 2): # append curr if on last with no grouping
+                    noise_segments_grouped.append(seg)
             prev_seg = seg.copy()
         
     # Refine the noise segments early
+    print('REFINE')
     for segment in noise_segments_grouped:
+        print(segment)
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
         
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
@@ -169,7 +173,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
 
-    # import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt
 
     # ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
@@ -183,9 +187,9 @@ def process_signals(df:pd.DataFrame, value_col: str):
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
     # plt.show()
     
-    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+    ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+    ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+    plt.show()
 
     # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
@@ -193,6 +197,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
 
     # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
     # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+    plt.show()
 
     return df
