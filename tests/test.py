@@ -126,6 +126,7 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200  # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
+# TODO: fix that neglects downtrend start, on left of noise
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
