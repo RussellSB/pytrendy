@@ -152,7 +152,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # spike test 1.3 - add 3 spikes
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-04-08':'2025-04-08', 'gradual'] = 300 # TODO: figure out why this takes so long and hangs up (also messes up for 250)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 300 # TODO: fix hang up on abrupt shave (also messes up for 250)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
