@@ -135,14 +135,14 @@ def process_signals(df:pd.DataFrame, value_col: str):
             df_left['diff'] = df_left[value_col].diff(periods=-1)
             lowers = df_left.loc[df_left['diff'] >= 0]
             if len(lowers) > 0: 
-                noise_start = lowers.index[-1] #- pd.Timedelta(days=width)
+                noise_start = lowers.index[-1]
                 df.loc[start:noise_start, 'noise_flag'] = 0
 
             df_right = df.loc[ts_max:].copy()
             df_right['diff'] = df_right[value_col].diff()
             highers = df_right.loc[df_right['diff'] >= 0]
             if len(highers) > 0:
-                noise_end = highers.index[0] #+ pd.Timedelta(days=width)
+                noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
 
     # 2. Flat detection using rolling std of savgol filter.
