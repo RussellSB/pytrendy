@@ -99,7 +99,6 @@ def process_signals(df:pd.DataFrame, value_col: str):
         
     # Refine the noise segments early
     for segment in noise_segments_grouped:
-        print(segment)
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
         
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
