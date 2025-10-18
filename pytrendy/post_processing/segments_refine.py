@@ -687,18 +687,18 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = group_segments(segments_refined) # grouping 1st pass: sporadic flats & noises
 
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
-    # segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+    segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
-    # segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
-    # segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
+    segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
 
-    # init_segments = deepcopy(segments_refined)
-    # segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
-    # if segments_refined != init_segments: # only trigger if any re-classifications
-    #     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params
-    #                                         , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
-    #     segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
+    init_segments = deepcopy(segments_refined)
+    segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
+    if segments_refined != init_segments: # only trigger if any re-classifications
+        segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params
+                                            , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
+        segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
 
-    # segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
-    # segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
+    segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
+    segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
     return segments_refined
