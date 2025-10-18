@@ -33,8 +33,8 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
-        # Edge case 1.1: do not disturb abrupt trends (leave precise)
-        if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
+        # Edge case 1.1: do not disturb other trends (let them refine themselves)
+        if (prevseg['direction'] in ['Up', 'Down']):
             continue
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
@@ -79,8 +79,8 @@ def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
-        # Edge case 1: do not disturb abrupt trends (leave precise)
-        if ('trend_class' in nextseg and nextseg['trend_class'] == 'abrupt'):
+        # Edge case 1: do not disturb other trends (let them refine themselves)
+        if (nextseg['direction'] in ['Up', 'Down']):
             continue
 
         # Edge case 1.2: do not disturb noise spikes (leave precise)
@@ -330,7 +330,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 segments_refined[new_index]['end'] = new_end.strftime('%Y-%m-%d')
                 update_next_segment(new_index, new_end, segments, segments_refined, df, value_col)
 
-
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
     if method_params.get('is_abrupt_padded', False) == True:
@@ -361,7 +360,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             update_next_segment(i, new_end, segments_refined, segments_padded, df, value_col) # will always be a flat it adjusts/overwrites
 
     return segments_padded
-
 
 def group_segments(segments: list):
     """
