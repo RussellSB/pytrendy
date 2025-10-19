@@ -1,3 +1,10 @@
+## [1.1.4](https://github.com/RussellSB/pytrendy/compare/v1.1.3...v1.1.4) (2025-10-19)
+
+
+### Bug Fixes
+
+* **noise detection:** Major revamp. Trend detection now much less sensitive to noise spikes. ([#13](https://github.com/RussellSB/pytrendy/issues/13)) ([f66a636](https://github.com/RussellSB/pytrendy/commit/f66a636ad109d968936914429ae66bb3dea07076))
+
 ## [1.1.3](https://github.com/RussellSB/pytrendy/compare/v1.1.2...v1.1.3) (2025-10-16)
 
 
