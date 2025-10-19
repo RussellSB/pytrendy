@@ -20,7 +20,7 @@ import pandas as pd
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # TODONE: cater for clean artifacts update, dont clean if too flat
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODO: cater for this detected as noise again # TODONE: cater for clean artifacts update, dont clean if too flat
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200 
