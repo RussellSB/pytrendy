@@ -20,7 +20,7 @@ import pandas as pd
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODO: cater for this detected as noise again # TODONE: cater for clean artifacts update, dont clean if too flat
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200 
@@ -125,19 +125,18 @@ for noise_std in [10]*10: #[0, 10, 15, 20,50]
 # spike test 0.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 
+df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200  # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
+# TODONE: fix that neglects downtrend start, on left of noise
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-
 
 # %%
 # spike test 1.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # TODO: fix displaced noise
+df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # DONE: fix displaced noise on left
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
-
 
 # %%
 # spike test 1.2 - add 3 spikes
@@ -145,7 +144,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
 df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
-df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200  # TODO: fix displaced downtrend on right
+df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200  # TODO: fix hang up on abrupt shave # TODO: fix displaced downtrend on right
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
@@ -154,7 +153,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # spike test 1.3 - add 3 spikes
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-04-08':'2025-04-08', 'gradual'] = 300 # TODO: figure out why this takes so long and hangs up (also messes up for 250)
+df.loc['2025-04-08':'2025-04-08', 'gradual'] = 300 # TODO: fix hang up on abrupt shave (also messes up for 250)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
@@ -163,7 +162,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
-df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 # TODONE: fix that it kills uptrend on left
+df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
 # df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
@@ -184,7 +183,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # TODONE: make sure it detects noise at range of magnitudes (100-1000), only does select few (eg not 500, 320)
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # DONE: fix far right wont be exact, group then shave
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 

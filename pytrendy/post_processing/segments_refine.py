@@ -33,8 +33,8 @@ def update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
-        # Edge case 1.1: do not disturb abrupt trends (leave precise)
-        if ('trend_class' in prevseg and prevseg['trend_class'] == 'abrupt'):
+        # Edge case 1.1: do not disturb other trends (let them refine themselves)
+        if (prevseg['direction'] in ['Up', 'Down']):
             continue
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
@@ -79,8 +79,8 @@ def update_next_segment(i, new_end, segments, segments_refined, df, value_col):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
-        # Edge case 1: do not disturb abrupt trends (leave precise)
-        if ('trend_class' in nextseg and nextseg['trend_class'] == 'abrupt'):
+        # Edge case 1: do not disturb other trends (let them refine themselves)
+        if (nextseg['direction'] in ['Up', 'Down']):
             continue
 
         # Edge case 1.2: do not disturb noise spikes (leave precise)
@@ -142,23 +142,31 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         else:
             continue
 
-        # Refine start
-        start_changed = new_start != pd.to_datetime(segment['start'])
+        # Check if start overlaps noise, adjust to after if it does
+        start_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
+                        and (new_start <= pd.to_datetime(segments_refined[i-1]['end']))
+        if start_overlaps_noise: 
+            new_start = pd.to_datetime(segments_refined[i-1]['end']) + pd.Timedelta(days=1)
 
-        fully_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
-                                and (new_start < pd.to_datetime(segments_refined[i-1]['start'])) # Edge case, dont pass noise wall
-        
-        if start_changed and not fully_overlaps_noise:
+        # Check if end overlaps noise, adjust to before if it does
+        end_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
+                        and (new_end >= pd.to_datetime(segments_refined[i+1]['start'])) 
+        if end_overlaps_noise: 
+            new_end = pd.to_datetime(segments_refined[i+1]['start']) - pd.Timedelta(days=1)
+
+        # Check for any inversions
+        start_inverted = (new_start >= pd.to_datetime(segment['end']))
+        end_inverted = (new_end <= pd.to_datetime(segment['start']))
+
+        # Refine start provided valid to update
+        start_changed = new_start != pd.to_datetime(segment['start'])
+        if start_changed and not start_inverted:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
-        # Refine end
+        # Refine end provided valid to update
         end_changed = new_end != pd.to_datetime(segment['end'])
-        
-        fully_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
-                                and (new_end > pd.to_datetime(segments_refined[i+1]['end'])) # Edge case, dont pass noise wall
-
-        if end_changed and not fully_overlaps_noise:
+        if end_changed and not end_inverted:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
@@ -198,9 +206,9 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
 
-        if segment['direction'] == 'Up': 
-            _, cost_gradual_up, _, _, _ = dtw(df_segment[value_col], df_class['gradual_up'])
-            _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
+        if segment['direction'] == 'Up': # using value cleaned to not misclassify as abrupt when padded around noise
+            _, cost_gradual_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_up'])
+            _, cost_abrupt_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_up'])
 
             if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
@@ -209,8 +217,8 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         
         if segment['direction'] == 'Down': 
 
-            _, cost_gradual_down, _, _, _ = dtw(df_segment[value_col], df_class['gradual_down'])
-            _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
+            _, cost_gradual_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_down'])
+            _, cost_abrupt_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_down'])
 
             if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
@@ -330,7 +338,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
                 segments_refined[new_index]['end'] = new_end.strftime('%Y-%m-%d')
                 update_next_segment(new_index, new_end, segments, segments_refined, df, value_col)
 
-
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
     if method_params.get('is_abrupt_padded', False) == True:
@@ -362,7 +369,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
     return segments_padded
 
-
 def group_segments(segments: list):
     """
     Groups consecutive segments with the same direction if their gap is small.
@@ -381,7 +387,7 @@ def group_segments(segments: list):
     Returns:
         list: Grouped segment list.
     """
-
+    # TODO: simplify with new grouping method written in process_signals for noise segments
     def flush_history(segment_history, output):
         """Append either a single or grouped segment to output."""
         if not segment_history:
@@ -457,13 +463,11 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         if (end - start).days < 1: # inverse if start before end
             return True
 
-        total_change = df.loc[start:end, value_col].diff().sum()
-        
         # inverse if tagged direction does not match total change
+        total_change = df.loc[start:end, value_col].diff().sum()
         if \
-            (segment['direction'] == 'Up' and total_change < 0) or \
-            (segment['direction'] == 'Down' and total_change >= 0) or \
-            (segment['direction'] in ('Up', 'Down') and abs(total_change) <= df.loc[df[value_col] > 0, value_col].quantile(0.05)): # or too flat
+            (segment['direction'] == 'Up' and total_change <= 0) or \
+            (segment['direction'] == 'Down' and total_change >= 0):
             return True
         return False
 
