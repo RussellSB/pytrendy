@@ -142,23 +142,31 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         else:
             continue
 
-        # Refine start
-        start_changed = new_start != pd.to_datetime(segment['start'])
+        # Check if start overlaps noise, adjust to after if it does
+        start_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
+                        and (new_start <= pd.to_datetime(segments_refined[i-1]['end']))
+        if start_overlaps_noise: 
+            new_start = pd.to_datetime(segments_refined[i-1]['end']) + pd.Timedelta(days=1)
 
-        fully_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
-                                and (new_start < pd.to_datetime(segments_refined[i-1]['start'])) # Edge case, dont pass noise wall
-        
-        if start_changed and not fully_overlaps_noise:
+        # Check if end overlaps noise, adjust to before if it does
+        end_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
+                        and (new_end >= pd.to_datetime(segments_refined[i+1]['start'])) 
+        if end_overlaps_noise: 
+            new_end = pd.to_datetime(segments_refined[i+1]['start']) - pd.Timedelta(days=1)
+
+        # Check for any inversions
+        start_inverted = (new_start >= pd.to_datetime(segment['end']))
+        end_inverted = (new_end <= pd.to_datetime(segment['start']))
+
+        # Refine start provided valid to update
+        start_changed = new_start != pd.to_datetime(segment['start'])
+        if start_changed and not start_inverted:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined, df, value_col)
 
-        # Refine end
+        # Refine end provided valid to update
         end_changed = new_end != pd.to_datetime(segment['end'])
-        
-        fully_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
-                                and (new_end > pd.to_datetime(segments_refined[i+1]['end'])) # Edge case, dont pass noise wall
-
-        if end_changed and not fully_overlaps_noise:
+        if end_changed and not end_inverted:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined, df, value_col)
 
