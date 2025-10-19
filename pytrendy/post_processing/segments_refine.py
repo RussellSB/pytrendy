@@ -206,9 +206,9 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
 
-        if segment['direction'] == 'Up': 
-            _, cost_gradual_up, _, _, _ = dtw(df_segment[value_col], df_class['gradual_up'])
-            _, cost_abrupt_up, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_up'])
+        if segment['direction'] == 'Up': # using value cleaned to not misclassify as abrupt when padded around noise
+            _, cost_gradual_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_up'])
+            _, cost_abrupt_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_up'])
 
             if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
@@ -217,8 +217,8 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         
         if segment['direction'] == 'Down': 
 
-            _, cost_gradual_down, _, _, _ = dtw(df_segment[value_col], df_class['gradual_down'])
-            _, cost_abrupt_down, _, _, _ = dtw(df_segment[value_col], df_class['abrupt_down'])
+            _, cost_gradual_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_down'])
+            _, cost_abrupt_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_down'])
 
             if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
