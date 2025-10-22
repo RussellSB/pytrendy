@@ -8,7 +8,7 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 
-def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict={}) -> PyTrendyResults:
+def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict=None) -> PyTrendyResults:
     """
     This is the main function that runs trend detection end-to-end.
     
@@ -53,9 +53,12 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     df = df[[value_col]]
 
     # Configures trend detection heuristics
+    # Avoid mutable default argument by accepting None and constructing a new dict here
+    if method_params is None:
+        method_params = {}
     method_params = {
-        'is_abrupt_padded': method_params.get('is_abrupt_padded', False)
-        , 'abrupt_padding': method_params.get('abrupt_padding', 28)
+        'is_abrupt_padded': method_params.get('is_abrupt_padded', False),
+        'abrupt_padding': method_params.get('abrupt_padding', 28),
     }
 
     # Core 5-step pipeline
