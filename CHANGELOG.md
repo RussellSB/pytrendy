@@ -1,3 +1,10 @@
+## [1.1.5](https://github.com/RussellSB/pytrendy/compare/v1.1.4...v1.1.5) (2025-10-22)
+
+
+### Bug Fixes
+
+* **abrupt shaving:** Fix issue of infinite loop as it breaks down abrupt segment into abrupt subsegments.  ([#14](https://github.com/RussellSB/pytrendy/issues/14)) ([f3da256](https://github.com/RussellSB/pytrendy/commit/f3da256a9ea4fca626be41921dcad7623f26671d))
+
 ## [1.1.4](https://github.com/RussellSB/pytrendy/compare/v1.1.3...v1.1.4) (2025-10-19)
 
 
