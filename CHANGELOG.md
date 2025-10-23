@@ -1,3 +1,10 @@
+## [1.1.6](https://github.com/RussellSB/pytrendy/compare/v1.1.5...v1.1.6) (2025-10-23)
+
+
+### Bug Fixes
+
+* noise zero edge case by making noise threshold slightly more less sensitive ([#16](https://github.com/RussellSB/pytrendy/issues/16)) ([1e6c420](https://github.com/RussellSB/pytrendy/commit/1e6c420fa2ee0fdf0c3779bb3fc7336b9ffee945))
+
 ## [1.1.5](https://github.com/RussellSB/pytrendy/compare/v1.1.4...v1.1.5) (2025-10-22)
 
 
