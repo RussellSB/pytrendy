@@ -43,7 +43,7 @@ results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt'
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # TODONE: detect noise well while also not detecting abrupt on right as noise
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODO: detect noise from flat more precisely # TODONE: detect noise well while also not detecting abrupt on right as noise
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
