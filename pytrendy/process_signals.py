@@ -42,8 +42,8 @@ def process_signals(df:pd.DataFrame, value_col: str):
     WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
     WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
 
-    THRESHOLD_NOISE = 5 # Sensitivity to detecting noise (recommended 0-10)
-    THRESHOLD_SMOOTH = 0.25 # Sensetivity to detecting trends (recommended 0-0.5)
+    THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
+    THRESHOLD_SMOOTH = 0.25 # Sensitivity to detecting trends (recommended 0-0.5)
 
     # 1. Noise detection via SNR. 
     # 1.1 Compute the SNR
