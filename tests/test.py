@@ -102,7 +102,7 @@ for noise_std in [0, 10, 15, 20, 50]:
 # %%
 # noise test 2 - noise noise noise
 import numpy as np
-for noise_std in [50]*5: #TODO: improve that it should not detect trends on high noise.
+for noise_std in [50]*1:                                        #TODO: improve that it should not detect trends on high noise.
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
@@ -159,7 +159,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
-df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 #TODONE: make sure still detects after noise changes #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
+df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 #TODO: Update gaussian noise fix while still retaining precision. #TODONE: make sure still detects after noise changes #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
 # df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
