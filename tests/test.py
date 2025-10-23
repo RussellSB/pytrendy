@@ -20,7 +20,7 @@ import pandas as pd
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODO: cater for this detected as noise again # TODONE: cater for clean artifacts update, dont clean if too flat
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODONE: cater for this abrupt detected as noise again # TODONE: cater for clean artifacts update, dont clean if too flat
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200 
@@ -36,7 +36,6 @@ df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
-# TODONE: flat fill in
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
 #%%
@@ -44,14 +43,13 @@ results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt'
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
-df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125
+df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 # TODONE: detect noise well while also not detecting abrupt on right as noise
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
-
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
-df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500  # TODO: fix that it neglects downtrend abrupt on right
+df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500  # TODONE: fix that it neglects downtrend abrupt on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
@@ -67,8 +65,8 @@ df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
 df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more precisely
 
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
-df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODONE: flat fill ins
-# df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODO: fix that it neglects downtrend abrupt on right
+# df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODONE: flat fill ins
+df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODONE: fix that it neglects downtrend abrupt on right
 df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 # TODONE: fix that it affects downtrend gradual on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
@@ -104,7 +102,7 @@ for noise_std in [0, 10, 15, 20, 50]:
 # %%
 # noise test 2 - noise noise noise
 import numpy as np
-for noise_std in [50]*5:
+for noise_std in [50]*5: #TODO: improve that it should not detect trends on high noise.
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
@@ -161,7 +159,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
-df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
+df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 #TODONE: make sure still detects after noise changes #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
 # df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
