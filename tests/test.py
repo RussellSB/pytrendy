@@ -192,7 +192,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # ---------- Previous Edge Case Instances from Noise (dont crash, but break logic)
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_1.csv') # TODO: fix when green overlaps red
+noise_df = pd.read_csv('../temp_noisy_edgecase_1.csv') # TODONE: fix when green overlaps red
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
