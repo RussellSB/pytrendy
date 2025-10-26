@@ -648,7 +648,15 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
 
         segments_refined.append(segment)
 
-    # Pass 4: Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough
+    # Pass 4: Cleans inverse AGAIN: in case any artifacts from overlap adjustments
+    segments = deepcopy(segments_refined)
+    segments_refined = []
+    for i, segment in enumerate(segments):
+        if has_inverse(df, value_col, segment): 
+            continue # Excludes segment.
+        segments_refined.append(segment)
+
+    # Pass 5: Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough
     segments = deepcopy(segments_refined)
     segments_refined = [] 
     for i, segment in enumerate(segments):
@@ -681,7 +689,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
 
         # Edge case 2: Check if abrupt segment near noise
         is_abrupt_near_noise = is_abrupt and (left_is_noise or right_is_noise)
-
+        
         # Edge case 3: Check if gradual segment encapsulated by noise
         is_gradual_in_noise = is_gradual and (left_is_noise and right_is_noise)
 
@@ -697,14 +705,6 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
         
-        segments_refined.append(segment)
-
-    # Pass 5: Cleans inverse AGAIN: in case any artifacts from overlap adjustments
-    segments = deepcopy(segments_refined)
-    segments_refined = []
-    for i, segment in enumerate(segments):
-        if has_inverse(df, value_col, segment): 
-            continue # Excludes segment.
         segments_refined.append(segment)
 
     return segments_refined
@@ -765,6 +765,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
 
     segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
     segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
+    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps again after grouping
 
     init_segments = deepcopy(segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
