@@ -138,17 +138,31 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         else:
             continue
 
-        # Check if start overlaps noise, adjust to after if it does
-        start_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
-                        and (new_start <= pd.to_datetime(segments_refined[i-1]['end']))
-        if start_overlaps_noise: 
-            new_start = pd.to_datetime(segments_refined[i-1]['end']) + pd.Timedelta(days=1)
+        # Check if new start overlaps with conflicting neighbour (Noise or opposite trend)
+        if i > 0:
+            prev_dir = segments_refined[i-1]['direction']
+            prev_end = pd.to_datetime(segments_refined[i-1]['end'])
 
-        # Check if end overlaps noise, adjust to before if it does
-        end_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
-                        and (new_end >= pd.to_datetime(segments_refined[i+1]['start'])) 
-        if end_overlaps_noise: 
-            new_end = pd.to_datetime(segments_refined[i+1]['start']) - pd.Timedelta(days=1)
+            is_prev_trend = (prev_dir in ['Up', 'Down'])
+            is_prev_opposite_trend = is_prev_trend and (prev_dir != segment['direction'])
+            is_prev_noise = (prev_dir == 'Noise')
+
+            start_overlaps_conflict = (is_prev_noise or is_prev_opposite_trend) and (new_start <= prev_end)
+            if start_overlaps_conflict:
+                new_start = prev_end + pd.Timedelta(days=1)
+
+        # Check if new end overlaps with conflicting neighbour (Noise or opposite trend)
+        if i < len(segments_refined) - 1:
+            next_dir = segments_refined[i+1]['direction']
+            next_start = pd.to_datetime(segments_refined[i+1]['start'])
+
+            is_next_trend = (next_dir in ['Up', 'Down'])
+            is_next_opposite_trend = is_next_trend and (next_dir != segment['direction'])
+            is_next_noise = (next_dir == 'Noise')
+
+            end_overlaps_conflict = (is_next_noise or is_next_opposite_trend) and (new_end >= next_start)
+            if end_overlaps_conflict:
+                new_end = next_start - pd.Timedelta(days=1)
 
         # Check for any inversions
         start_inverted = (new_start >= pd.to_datetime(segment['end']))
