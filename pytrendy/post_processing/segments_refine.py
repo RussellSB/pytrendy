@@ -494,10 +494,12 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         is_overlap_next = (end >= next_start)
         is_same_dir = (dir == next_dir)
         is_curr_shorter = (width <= next_width)
+        is_curr_similar = (next_width <= 1.5 * width) and (next_width >= 0.5 * width)
 
         is_trend = (dir in ('Up', 'Down'))
         is_next_noise = (next_dir == 'Noise')
         is_next_opposite_trend = (next_dir in ('Up', 'Down') and next_dir != dir)
+        is_next_flat = (next_dir == 'Flat')
 
         is_next_gradual = ('trend_class' in segment_next and segment_next['trend_class'] == 'gradual')
         is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
@@ -507,6 +509,8 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
             return True # overlap when same direction, not trend, and curr is shorter
         if is_overlap_next and (is_trend and (is_next_noise or is_next_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
+        if is_overlap_next and (is_trend and is_next_flat) and is_curr_similar:
+            return True # overlap when curr is trend and next is flat (with similar enough size)
         if is_overlap_next and is_same_dir and (is_next_gradual and is_curr_shorter):
             return True # overlap when next is also gradual but larger
         if is_overlap_next and is_same_dir and (is_next_abrupt and not is_curr_shorter):
@@ -529,12 +533,17 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         # Define conditions
         is_overlap_prev = (start <= prev_end)
         is_curr_shorter = (width <= prev_width)
+        is_curr_similar = (prev_width <= 1.5 * width) and (prev_width >= 0.5 * width)
+
         is_trend = (dir in ('Up', 'Down'))
         is_prev_noise = (prev_dir == 'Noise')
         is_prev_opposite_trend = (prev_dir in ('Up', 'Down') and prev_dir != dir)
+        is_prev_flat = (prev_dir == 'Flat')
 
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
+        if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
+            return True # overlap when curr is trend and prev is flat (with similar enough size)
         return False
     
     def has_partial_overlap_next(segment, segment_next):
