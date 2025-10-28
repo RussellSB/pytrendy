@@ -201,33 +201,38 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
+noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODO: 03-09 too small a green when padded is False
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
+# df.to_csv('../temp_noisy_edgecase_7.csv')
+
+# %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_6.csv') # TODONE: 03-09 too small a green
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_6.csv')
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_5.csv') #TODONE: 05-01 green overlaps blue
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_5.csv')
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_4.csv') #TODONE: 02-25 should be noise not up # TODONE: Red overlaps green 04-01
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_4.csv')   
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODO: 03-02 could be noise
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_3.csv')   
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_2.csv') # TODONE: fix green at 03-01 start that is should be too tiny for significance
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_2.csv')   
 
 # %%
 noise_df = pd.read_csv('../temp_noisy_edgecase_1.csv') # TODONE: fix when green overlaps red
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_1.csv')   
 
 # ---------- Previous Crash Instances
