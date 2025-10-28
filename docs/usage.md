@@ -50,7 +50,7 @@ results = detect_trends(
     plot=True,                      # Enable visualization
     method_params={                 # Optional method-specific parameters
         "is_abrupt_padded": True,   # Optional, defaulted to False. Pads abrupt for Quasi-experimental use-cases.
-        "abrupt_padding": 5         # Default 28. Only used when is abrupt padded True. Controls padding after abrupt.
+        "abrupt_padding": 28         # Default 28. Only used when is abrupt padded True. Controls padding after abrupt.
     }
 )
 
@@ -134,10 +134,13 @@ Retrieve the most prominent trends based on steepness and duration using `result
 
 ```python
 # Get top 3 segments ranked by slope
-top_segments = results.best(n=3, metric="slope")
+top_segments = results.filter_segments(sort_by='change_rank')[:3]
 
-# Get top 5 segments ranked by duration
-longest_segments = results.best(n=5, metric="duration")
+# Get top 3 upwards trends ranked by slope
+top_segments = results.filter_segments(direction='Up', sort_by='change_rank')[:3]
+
+# Get first 5 segments in order of time
+top_segments = results.filter_segments(sort_by='time_index')[:5]
 
 ```
 **Use case:** Highlighting dominant patterns for reporting, dashboards, or strategic insights.
@@ -147,14 +150,14 @@ longest_segments = results.best(n=5, metric="duration")
 ### *3.3 Filter by Direction*
 
 
-Filter segments by trend direction (`"up"` or `"down"`) and choose the output format (`"df"` for DataFrame or `"list"` for raw segment objects).
+Filter segments by trend direction (`"Up"` or `"Down"`) and choose the output format (`"df"` for DataFrame or `"list"` for raw segment objects).
 
 ```python
 # Filter upward trends as a DataFrame
-upward_df = results.filter_segments(direction="up", format="df")
+upward_df = results.filter_segments(direction="Up", format="df")
 
 # Filter downward trends as a list of segment objects
-downward_segments = results.filter_segments(direction="down", format="list")
+downward_segments = results.filter_segments(direction="Down", format="list")
 
 ```
 **Use case:** Isolating bullish/bearish runs, rising/falling sensor values, or engagement spikes/drops.
@@ -168,10 +171,10 @@ The `summary` attribute provides a dictionary of precomputed summaries. The `"df
 
 ```python
 # Access full segment summary as a DataFrame
-summary_df = results.summary["df"]
+df = results.df
 
 # Preview the first five rows
-print(summary_df.head())
+print(df.head())
 
 ```
 **Use case:** Exporting to CSV, integrating with BI tools, or feeding into alerting systems.
@@ -181,12 +184,12 @@ print(summary_df.head())
 ### *3.5 Advanced Filtering (Optional)*
 
 
-You can also apply custom filters using pandas directly on `summary_df`:
+You can also apply custom filters using pandas directly on `df`:
 
 ```python
 # Filter segments with total_change > 50 and days > 10
-strong_trends = summary_df[
-    (summary_df["total_change"] > 50) & (summary_df["days"] > 10)
+strong_trends = df[
+    (df["total_change"] > 50) & (df["days"] > 10)
 ]
 
 ```
@@ -382,10 +385,7 @@ segments = refine_segments(
     df,
     value_col="close",
     segments=segments,
-    method_params={
-        "min_length": 5,
-        "slope_threshold": 0.02
-    }
+    method_params={}
 )
 
 # Analyze segments for slope, volatility, etc.
@@ -395,8 +395,8 @@ segments = analyse_segments(df, value_col="close", segments=segments)
 results = PyTrendyResults(segments)
 
 # Filter bullish and bearish runs
-bullish_runs = results.filter_segments(direction="up")
-bearish_runs = results.filter_segments(direction="down")
+bullish_runs = results.filter_segments(direction="Up")
+bearish_runs = results.filter_segments(direction="Down")
 
 ```
 
@@ -450,8 +450,8 @@ segments = analyse_segments(df, value_col="temperature", segments=segments)
 # Package results for downstream systems
 results = PyTrendyResults(segments)
 
-# Export structured summaries for alerting systems
-summary_df = results.segments_df
+# Display structured summaries for alerting systems
+results.df_summary
 
 
 ```
@@ -491,10 +491,7 @@ segments = refine_segments(
     df,
     value_col="active_users",
     segments=segments,
-    method_params={
-        "min_length": 7,
-        "derivative_window": 3
-    }
+    method_params={}
 )
 
 # Analyze segments for engagement quality
@@ -504,7 +501,7 @@ segments = analyse_segments(df, value_col="active_users", segments=segments)
 results = PyTrendyResults(segments)
 
 # Identify peak engagement periods
-top_segments = results.best(n=3, metric="slope")
+top_segments = results.best
 
 
 ```

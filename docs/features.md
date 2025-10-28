@@ -124,9 +124,11 @@ This single function executes the full 5-stage pipeline and returns a `PyTrendyR
 
 - **summary**: Aggregate counts of Up, Down, Flat, and Noise segments
 
+- **print_summary()**: Utility for printing summary as a body of text
+
 - **segments**: List of segment dictionaries with metadata
 
-- **segments_df**: Pandas DataFrame for tabular analysis
+- **df**: Pandas DataFrame for tabular analysis
 
 - **filter_segments()**: Utility for querying segments based on custom criteria
 
