@@ -497,6 +497,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
 
         is_trend = (dir in ('Up', 'Down'))
         is_next_noise = (next_dir == 'Noise')
+        is_next_opposite_trend = (next_dir in ('Up', 'Down') and next_dir != dir)
 
         is_next_gradual = ('trend_class' in segment_next and segment_next['trend_class'] == 'gradual')
         is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
@@ -504,7 +505,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         # Trigger edge cases of overlap if satisfied
         if is_overlap_next and is_same_dir: # and not is_trend and is_curr_shorter:
             return True # overlap when same direction, not trend, and curr is shorter
-        if is_overlap_next and (is_trend and is_next_noise and is_curr_shorter):
+        if is_overlap_next and (is_trend and (is_next_noise or is_next_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
         if is_overlap_next and is_same_dir and (is_next_gradual and is_curr_shorter):
             return True # overlap when next is also gradual but larger
@@ -530,8 +531,9 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         is_curr_shorter = (width <= prev_width)
         is_trend = (dir in ('Up', 'Down'))
         is_prev_noise = (prev_dir == 'Noise')
+        is_prev_opposite_trend = (prev_dir in ('Up', 'Down') and prev_dir != dir)
 
-        if is_overlap_prev and (is_trend and is_prev_noise and is_curr_shorter):
+        if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
         return False
     
@@ -687,21 +689,26 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         if is_flat: threshold_noise = 0
         too_noisy = (snr <= threshold_noise)
 
-        # Edge case 2: Check if abrupt segment near noise
+        # Edge case 2.1: Check if abrupt segment near noise
         is_abrupt_near_noise = is_abrupt and (left_is_noise or right_is_noise)
         
-        # Edge case 3: Check if gradual segment encapsulated by noise
+        # Edge case 2.2: Check if gradual segment encapsulated by noise
         is_gradual_in_noise = is_gradual and (left_is_noise and right_is_noise)
 
-        # Edge case 4: Check if value of end is too close to value of start
+        # Edge case 3.1: Check if value of end is too close to value of start
         value_start = df.loc[start, value_col]
         value_end = df.loc[end, value_col]
         diff = abs(value_end - value_start)
-        threshold_diff = float(df[value_col].abs().quantile(0.05))
+        threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
+        # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
+        total_change = abs(df_segment[value_col].diff().sum())
+        threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
+        trend_too_small = (is_gradual or is_abrupt) and (total_change <= threshold_diff)
+
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close: 
+        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close or trend_too_small: 
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
         

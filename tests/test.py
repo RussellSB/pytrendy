@@ -111,7 +111,7 @@ for noise_std in [50]*10:                                        #TODO: improve 
 # %%
 # noise test 3 - run till crashes
 import numpy as np
-for noise_std in [10]*10: #[0, 10, 15, 20,50]
+for noise_std in [10]*1: #[0, 10, 15, 20,50]
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
@@ -189,10 +189,15 @@ df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
 
-# ---------- Previous Edge Case Instances from Noise (dont crash, but break logic)
+# ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODO: 03-02 should be noise
+noise_df = pd.read_csv('../temp_noisy_edgecase_4.csv') #TODONE: 02-25 should be noise not up # TODONE: Red overlaps green 04-01
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+# df.to_csv('../temp_noisy_edgecase_4.csv')   
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODO: 03-02 could be noise
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 # df.to_csv('../temp_noisy_edgecase_3.csv')   
 
