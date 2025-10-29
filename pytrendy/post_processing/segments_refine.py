@@ -2,7 +2,7 @@
 
 import pandas as pd
 from copy import deepcopy
-from ..simpledtw import dtw
+from ..simpledtw import dtw, dtw_cost_only
 from ..io.data_loader import load_data
 import numpy as np
 
@@ -263,15 +263,15 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
         segment_signal = df_segment['value_cleaned'].values
 
         if segment['direction'] == 'Up': # using value cleaned to not misclassify as abrupt when padded around noise
-            # Only compute DTW cost, not full alignment data (use only second return value)
-            _, cost_gradual_up, _, _, _ = dtw(segment_signal, gradual_up)
-            _, cost_abrupt_up, _, _, _ = dtw(segment_signal, abrupt_up)
+            # Use optimized cost-only DTW for classification (faster, no alignment path needed)
+            cost_gradual_up = dtw_cost_only(segment_signal, gradual_up)
+            cost_abrupt_up = dtw_cost_only(segment_signal, abrupt_up)
 
             segments_classified[i]['trend_class'] = 'gradual' if cost_gradual_up < cost_abrupt_up else 'abrupt'
         
         elif segment['direction'] == 'Down': 
-            _, cost_gradual_down, _, _, _ = dtw(segment_signal, gradual_down)
-            _, cost_abrupt_down, _, _, _ = dtw(segment_signal, abrupt_down)
+            cost_gradual_down = dtw_cost_only(segment_signal, gradual_down)
+            cost_abrupt_down = dtw_cost_only(segment_signal, abrupt_down)
 
             segments_classified[i]['trend_class'] = 'gradual' if cost_gradual_down < cost_abrupt_down else 'abrupt'
 

@@ -2,6 +2,40 @@
 
 import numpy as np
 
+def dtw_cost_only(series_1, series_2, norm_func = np.linalg.norm):
+	"""
+	Computes only the DTW distance (cost) between two sequences without alignment path.
+	
+	This is a performance-optimized version that skips the backtracking step, making it
+	significantly faster when only the distance metric is needed (e.g., for classification).
+	
+	Args:
+		series_1 (array):
+			First time series to compare. Should be a 1D or 2D array of numeric values.
+		series_2 (array):
+			Second time series to compare. Must be of compatible shape with `series_1`.
+		norm_func (callable, optional):
+			Function to compute distance between elements. Defaults to `np.linalg.norm`.
+	
+	Returns:
+		float: The DTW distance between the two series.
+	"""
+	n, m = len(series_1), len(series_2)
+	
+	# Use only two rows to save memory (current and previous)
+	prev_row = np.full(m + 1, np.inf)
+	prev_row[0] = 0
+	curr_row = np.full(m + 1, np.inf)
+	
+	for i in range(n):
+		curr_row[0] = np.inf
+		for j in range(m):
+			cost = norm_func(series_1[i] - series_2[j])
+			curr_row[j + 1] = cost + min(prev_row[j + 1], curr_row[j], prev_row[j])
+		prev_row, curr_row = curr_row, prev_row
+	
+	return prev_row[m]
+
 def dtw(series_1, series_2, norm_func = np.linalg.norm):
 	"""
 	Computes Dynamic Time Warping (DTW) distance and alignment between two sequences.
