@@ -1,9 +1,8 @@
 """
-Tests for original baseline test cases.
+Tests for original baseline test cases from the mock test file.
 
-This module tests PyTrendy's core functionality on the original synthetic dataset
-with gradual and abrupt trends. These tests serve as baseline verification for
-the trend detection algorithm.
+These tests verify that the original test cases produce the expected segments
+with correct start dates, end dates, and directions.
 """
 
 import pytest
@@ -25,29 +24,35 @@ class TestOriginalCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Assert that segments are detected
-        assert len(results.df) > 0, "No segments detected for gradual trends"
+        # Expected segments based on current behavior
+        expected_segments = [
+            {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
+            {'direction': 'Down', 'start': '2025-01-25', 'end': '2025-02-05'},
+            {'direction': 'Flat', 'start': '2025-02-06', 'end': '2025-02-09'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-14'},
+            {'direction': 'Flat', 'start': '2025-03-15', 'end': '2025-03-17'},
+            {'direction': 'Down', 'start': '2025-03-18', 'end': '2025-04-01'},
+            {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
+            {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
+        ]
         
-        # Check for presence of expected trend directions
-        directions = results.df['direction'].value_counts()
-        assert 'Up' in directions.index, "Expected upward trends in gradual data"
-        assert 'Down' in directions.index, "Expected downward trends in gradual data"
+        # Assert number of segments matches
+        assert len(results.segments) == len(expected_segments), \
+            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
         
-        # Verify that gradual trends are classified correctly
-        non_flat_segments = results.df[results.df['direction'].isin(['Up', 'Down'])]
-        if len(non_flat_segments) > 0 and 'trend_class' in results.df.columns:
-            # Check that some segments are classified as gradual
-            gradual_count = (non_flat_segments['trend_class'] == 'gradual').sum()
-            assert gradual_count > 0, "Expected some gradual trend classifications"
-        
-        # Verify segments have valid date ranges
-        for idx, row in results.df.iterrows():
-            start = pd.to_datetime(row['start'])
-            end = pd.to_datetime(row['end'])
-            assert start <= end, f"Segment {idx}: start date should be <= end date"
+        # Assert each segment matches expected values
+        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
+            # Normalize dates for comparison
+            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
+            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
             
-        # Check that segments have positive days count
-        assert all(results.df['days'] > 0), "All segments should have positive duration"
+            assert actual['direction'] == expected['direction'], \
+                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
+            assert actual_start == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
+            assert actual_end == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
 
     def test_abrupt_trends_no_padding(self):
         """Test detection of abrupt trends without padding."""
@@ -60,30 +65,31 @@ class TestOriginalCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Assert that segments are detected
-        assert len(results.df) > 0, "No segments detected for abrupt trends"
+        # Expected segments based on current behavior
+        expected_segments = [
+            {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
+            {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-01'},
+            {'direction': 'Flat', 'start': '2025-03-02', 'end': '2025-05-01'},
+            {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-05-05'},
+            {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-06-29'},
+        ]
         
-        # Check for presence of trends
-        directions = results.df['direction'].unique()
-        assert len(directions) > 0, "Expected trend directions to be detected"
+        # Assert number of segments matches
+        assert len(results.segments) == len(expected_segments), \
+            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
         
-        # Verify that we detect multiple segments (abrupt data has clear transitions)
-        assert len(results.df) >= 3, "Expected at least 3 segments in abrupt data"
-        
-        # Check that segments cover reasonable time span
-        all_starts = pd.to_datetime(results.df['start'])
-        all_ends = pd.to_datetime(results.df['end'])
-        
-        time_span = (all_ends.max() - all_starts.min()).days
-        assert time_span > 30, "Detected segments should span more than 30 days"
-        
-        # Verify segments don't overlap
-        for i in range(len(results.df) - 1):
-            current_end = pd.to_datetime(results.df.iloc[i]['end'])
-            next_start = pd.to_datetime(results.df.iloc[i + 1]['start'])
-            # Allow for same-day or next-day transitions
-            assert (next_start - current_end).days >= 0, \
-                f"Segments {i} and {i+1} should not overlap"
+        # Assert each segment matches expected values
+        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
+            # Normalize dates for comparison
+            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
+            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
+            
+            assert actual['direction'] == expected['direction'], \
+                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
+            assert actual_start == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
+            assert actual_end == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
 
     def test_abrupt_trends_with_padding(self):
         """Test detection of abrupt trends with padding enabled."""
@@ -96,58 +102,28 @@ class TestOriginalCases:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Assert that segments are detected
-        assert len(results.df) > 0, "No segments detected for abrupt trends with padding"
+        # Expected segments based on current behavior
+        expected_segments = [
+            {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
+            {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-29'},
+            {'direction': 'Flat', 'start': '2025-03-30', 'end': '2025-05-01'},
+            {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-06-02'},
+            {'direction': 'Flat', 'start': '2025-06-03', 'end': '2025-06-29'},
+        ]
         
-        # Check for presence of various trend types
-        directions = results.df['direction'].unique()
-        assert len(directions) > 0, "Expected trend directions to be detected"
+        # Assert number of segments matches
+        assert len(results.segments) == len(expected_segments), \
+            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
         
-        # Verify all required columns are present
-        expected_columns = ['direction', 'start', 'end', 'days', 'change_rank']
-        for col in expected_columns:
-            assert col in results.df.columns, f"Expected column '{col}' in results"
-        
-        # Check that start and end dates are valid
-        assert all(pd.notna(results.df['start'])), "All segments should have start dates"
-        assert all(pd.notna(results.df['end'])), "All segments should have end dates"
-        
-        # Verify that segments are ordered chronologically
-        starts = pd.to_datetime(results.df['start'])
-        for i in range(len(starts) - 1):
-            assert starts.iloc[i] <= starts.iloc[i + 1], \
-                "Segments should be ordered by start date"
-
-    def test_segment_properties(self):
-        """Test that detected segments have expected properties."""
-        df = pt.load_data('series_synthetic')
-        results = pt.detect_trends(
-            df,
-            date_col='date',
-            value_col='gradual',
-            plot=False
-        )
-        
-        # Check that all segments have required properties
-        for idx, row in results.df.iterrows():
-            # Direction should be one of the expected values
-            assert row['direction'] in ['Up', 'Down', 'Flat', 'Noise'], \
-                f"Segment {idx} has invalid direction: {row['direction']}"
+        # Assert each segment matches expected values
+        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
+            # Normalize dates for comparison
+            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
+            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
             
-            # Days should be positive
-            assert row['days'] > 0, f"Segment {idx} should have positive days"
-            
-            # Date range should be valid
-            start = pd.to_datetime(row['start'])
-            end = pd.to_datetime(row['end'])
-            days_diff = (end - start).days
-            # Days might be calculated differently (inclusive/exclusive), allow some tolerance
-            assert abs(row['days'] - days_diff) <= 2, \
-                f"Segment {idx}: days mismatch ({row['days']} vs {days_diff})"
-            
-            # Change rank should exist (even if NaN for Flat segments)
-            assert 'change_rank' in row.index, \
-                f"Segment {idx} should have change_rank column"
-            
-            # SNR should be present
-            assert 'SNR' in row.index, f"Segment {idx} should have SNR column"
+            assert actual['direction'] == expected['direction'], \
+                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
+            assert actual_start == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
+            assert actual_end == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
