@@ -1,8 +1,9 @@
 """
-Tests for original baseline test cases from the mock test file.
+Tests for baseline trend detection on synthetic data.
 
-These tests verify that the original test cases produce the expected segments
-with correct start dates, end dates, and directions.
+These tests verify that the trend detection algorithm produces consistent
+results for gradual and abrupt trends, validating segment boundaries and
+directions against expected behavior.
 """
 
 import pytest
@@ -43,16 +44,12 @@ class TestOriginalCases:
         
         # Assert each segment matches expected values
         for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            # Normalize dates for comparison
-            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
-            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
-            
             assert actual['direction'] == expected['direction'], \
                 f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert actual_start == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
-            assert actual_end == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
+            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
+            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
 
     def test_abrupt_trends_no_padding(self):
         """Test detection of abrupt trends without padding."""
@@ -80,16 +77,12 @@ class TestOriginalCases:
         
         # Assert each segment matches expected values
         for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            # Normalize dates for comparison
-            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
-            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
-            
             assert actual['direction'] == expected['direction'], \
                 f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert actual_start == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
-            assert actual_end == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
+            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
+            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
 
     def test_abrupt_trends_with_padding(self):
         """Test detection of abrupt trends with padding enabled."""
@@ -117,13 +110,9 @@ class TestOriginalCases:
         
         # Assert each segment matches expected values
         for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            # Normalize dates for comparison
-            actual_start = pd.to_datetime(actual['start']).strftime('%Y-%m-%d')
-            actual_end = pd.to_datetime(actual['end']).strftime('%Y-%m-%d')
-            
             assert actual['direction'] == expected['direction'], \
                 f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert actual_start == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual_start}'"
-            assert actual_end == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual_end}'"
+            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
+            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
