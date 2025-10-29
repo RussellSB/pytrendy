@@ -62,18 +62,28 @@ def process_signals(df:pd.DataFrame, value_col: str):
     
     # 1.3.1 Construct noise segments list based on flag_diff
     noise_segments = []
-    for noise_start in noise_starts: # Loops from first start onwards
-        after_ends = [end for end in noise_ends if end > noise_start]
-        if len(after_ends) > 0:
-            noise_end = after_ends[0]
+    # Convert to lists once for efficient iteration
+    noise_starts_list = noise_starts.tolist() if hasattr(noise_starts, 'tolist') else list(noise_starts)
+    noise_ends_list = noise_ends.tolist() if hasattr(noise_ends, 'tolist') else list(noise_ends)
+    
+    # Use pointer to avoid repeated list comprehensions
+    end_idx = 0
+    for noise_start in noise_starts_list: # Loops from first start onwards
+        # Find first end after current start using pointer
+        while end_idx < len(noise_ends_list) and noise_ends_list[end_idx] <= noise_start:
+            end_idx += 1
+        
+        if end_idx < len(noise_ends_list):
+            noise_end = noise_ends_list[end_idx]
         else:
             noise_end = min(noise_start + pd.Timedelta(days=1), df.index[-1])
         noise_segments.append(dict(start=noise_start, end=noise_end))
 
-    if len(noise_ends) > 0: # Adds noise end with no start if at beginning
-        noise_end = noise_ends[0]
-        early_starts = [start for start in noise_starts if start < noise_end]
-        if len(early_starts) == 0:
+    if len(noise_ends_list) > 0: # Adds noise end with no start if at beginning
+        noise_end = noise_ends_list[0]
+        # Check if there's any start before first end
+        has_early_starts = any(start < noise_end for start in noise_starts_list)
+        if not has_early_starts:
             noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
 

@@ -9,6 +9,25 @@ import numpy as np
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust after expand_contract or shave logic
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
+def _ensure_datetime_cache(segments):
+    """
+    Adds cached datetime objects to segments to avoid repeated pd.to_datetime() conversions.
+    Modifies segments in-place by adding '_start_dt' and '_end_dt' keys.
+    """
+    for seg in segments:
+        if '_start_dt' not in seg:
+            seg['_start_dt'] = pd.to_datetime(seg['start'])
+        if '_end_dt' not in seg:
+            seg['_end_dt'] = pd.to_datetime(seg['end'])
+
+def _cleanup_datetime_cache(segments):
+    """
+    Removes cached datetime objects from segments before final return.
+    """
+    for seg in segments:
+        seg.pop('_start_dt', None)
+        seg.pop('_end_dt', None)
+
 def update_prev_segment(i, new_start, segments, segments_refined):
     """
     Adjusts the end of the previous segment if it overlaps with the updated start.
@@ -17,18 +36,26 @@ def update_prev_segment(i, new_start, segments, segments_refined):
     
     Args:
         i (int): Index of the current segment.
-        new_start (str): Updated start date of the current segment.
+        new_start (str or Timestamp): Updated start date of the current segment.
         segments (list): Original segment list.
         segments_refined (list): Refined segment list being modified.
     """
 
     if (i == 0): return
+    # Accept datetime objects directly to avoid repeated conversions
+    if isinstance(new_start, str):
+        new_start = pd.to_datetime(new_start)
     old_start = pd.to_datetime(segments[i]['start'])
     prev_segments = reversed(segments_refined[:i])
 
     for j, prevseg in enumerate(prev_segments):
-        prev_start = pd.to_datetime(prevseg['start'])
-        prev_end = pd.to_datetime(prevseg['end'])
+        # Use cached datetime objects if available
+        prev_start = prevseg.get('_start_dt')
+        if prev_start is None:
+            prev_start = pd.to_datetime(prevseg['start'])
+        prev_end = prevseg.get('_end_dt')
+        if prev_end is None:
+            prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
         # Edge case 1.1: do not disturb other trends (let them refine themselves)
@@ -41,7 +68,9 @@ def update_prev_segment(i, new_start, segments, segments_refined):
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if prev_start >= new_start and prev_start <= old_start:
-            segments_refined[i_neighbour]['end'] = new_start - pd.Timedelta(days=1)
+            neighbour_end = new_start - pd.Timedelta(days=1)
+            segments_refined[i_neighbour]['end'] = neighbour_end.strftime('%Y-%m-%d')
+            segments_refined[i_neighbour]['_end_dt'] = neighbour_end
             continue
 
         # Update when a valid neighbour of close enough distance.
@@ -51,6 +80,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         if is_neighbour:
             neighbour_end = (new_start - pd.Timedelta(days=1))
             segments_refined[i_neighbour]['end'] = neighbour_end.strftime('%Y-%m-%d')
+            segments_refined[i_neighbour]['_end_dt'] = neighbour_end
             return
         
 
@@ -62,17 +92,25 @@ def update_next_segment(i, new_end, segments, segments_refined):
 
     Args:
         i (int): Index of the current segment.
-        new_end (str): Updated end date of the current segment.
+        new_end (str or Timestamp): Updated end date of the current segment.
         segments (list): Original segment list.
         segments_refined (list): Refined segment list being modified.
     """
     if (i == len(segments) - 1): return
+    # Accept datetime objects directly to avoid repeated conversions
+    if isinstance(new_end, str):
+        new_end = pd.to_datetime(new_end)
     old_end = pd.to_datetime(segments[i]['end'])
     next_segments = segments_refined[i+1:]
 
     for j, nextseg in enumerate(next_segments):
-        next_start = pd.to_datetime(nextseg['start'])
-        next_end = pd.to_datetime(nextseg['end'])
+        # Use cached datetime objects if available
+        next_start = nextseg.get('_start_dt')
+        if next_start is None:
+            next_start = pd.to_datetime(nextseg['start'])
+        next_end = nextseg.get('_end_dt')
+        if next_end is None:
+            next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
         # Edge case 1: do not disturb other trends (let them refine themselves)
@@ -85,7 +123,9 @@ def update_next_segment(i, new_end, segments, segments_refined):
 
         # Edge case 2: swallow neighbours that get fully overlapped.
         if next_end >= old_end and next_end <= new_end:
-            segments_refined[i_neighbour]['start'] = new_end + pd.Timedelta(days=1)
+            neighbour_start = new_end + pd.Timedelta(days=1)
+            segments_refined[i_neighbour]['start'] = neighbour_start.strftime('%Y-%m-%d')
+            segments_refined[i_neighbour]['_start_dt'] = neighbour_start
             continue
 
         # Update when a valid neighbour of close enough distance.
@@ -93,7 +133,9 @@ def update_next_segment(i, new_end, segments, segments_refined):
         old_dist = (next_start - old_end).days
         is_neighbour = (new_dist <= NEIGHBOUR_DISTANCE) or (old_dist <= NEIGHBOUR_DISTANCE)
         if is_neighbour:
-            segments_refined[i_neighbour]['start'] = (new_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+            neighbour_start = new_end + pd.Timedelta(days=1)
+            segments_refined[i_neighbour]['start'] = neighbour_start.strftime('%Y-%m-%d')
+            segments_refined[i_neighbour]['_start_dt'] = neighbour_start
             return
 
 
@@ -114,17 +156,21 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
     """
 
     segments_refined = deepcopy(segments)
+    _ensure_datetime_cache(segments_refined)
 
-    def _get_window_df(center, days=7):
+    def _get_window_df(center_dt, days=7):
         """Return a slice of df around a center date ±days."""
-        pre = (pd.to_datetime(center) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
-        post = (pd.to_datetime(center) + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        pre = (center_dt - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        post = (center_dt + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
         return df.loc[pre:post].copy()
 
     for i, segment in enumerate(segments_refined):
+        # Use cached datetime objects
+        seg_start_dt = segment['_start_dt']
+        seg_end_dt = segment['_end_dt']
 
-        start_df = _get_window_df(segment['start'])
-        end_df = _get_window_df(segment['end'])
+        start_df = _get_window_df(seg_start_dt)
+        end_df = _get_window_df(seg_end_dt)
 
         if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
             continue # don't expand/contract abrupt trends. Leave precise to shave.
@@ -139,31 +185,35 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
             continue
 
         # Check if start overlaps noise, adjust to after if it does
-        start_overlaps_noise = (i>0) and (segments_refined[i-1]['direction'] == 'Noise') \
-                        and (new_start <= pd.to_datetime(segments_refined[i-1]['end']))
-        if start_overlaps_noise: 
-            new_start = pd.to_datetime(segments_refined[i-1]['end']) + pd.Timedelta(days=1)
+        if i > 0:
+            prev_end_dt = segments_refined[i-1].get('_end_dt', pd.to_datetime(segments_refined[i-1]['end']))
+            start_overlaps_noise = (segments_refined[i-1]['direction'] == 'Noise') and (new_start <= prev_end_dt)
+            if start_overlaps_noise: 
+                new_start = prev_end_dt + pd.Timedelta(days=1)
 
         # Check if end overlaps noise, adjust to before if it does
-        end_overlaps_noise = (i<len(segments_refined)-1) and (segments_refined[i+1]['direction'] == 'Noise') \
-                        and (new_end >= pd.to_datetime(segments_refined[i+1]['start'])) 
-        if end_overlaps_noise: 
-            new_end = pd.to_datetime(segments_refined[i+1]['start']) - pd.Timedelta(days=1)
+        if i < len(segments_refined) - 1:
+            next_start_dt = segments_refined[i+1].get('_start_dt', pd.to_datetime(segments_refined[i+1]['start']))
+            end_overlaps_noise = (segments_refined[i+1]['direction'] == 'Noise') and (new_end >= next_start_dt)
+            if end_overlaps_noise: 
+                new_end = next_start_dt - pd.Timedelta(days=1)
 
         # Check for any inversions
-        start_inverted = (new_start >= pd.to_datetime(segment['end']))
-        end_inverted = (new_end <= pd.to_datetime(segment['start']))
+        start_inverted = (new_start >= seg_end_dt)
+        end_inverted = (new_end <= seg_start_dt)
 
         # Refine start provided valid to update
-        start_changed = new_start != pd.to_datetime(segment['start'])
+        start_changed = new_start != seg_start_dt
         if start_changed and not start_inverted:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+            segments_refined[i]['_start_dt'] = new_start
             update_prev_segment(i, new_start, segments, segments_refined)
 
         # Refine end provided valid to update
-        end_changed = new_end != pd.to_datetime(segment['end'])
+        end_changed = new_end != seg_end_dt
         if end_changed and not end_inverted:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+            segments_refined[i]['_end_dt'] = new_end
             update_next_segment(i, new_end, segments, segments_refined)
 
     return segments_refined
@@ -185,41 +235,45 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     """
 
     segments_classified = deepcopy(segments)
+    _ensure_datetime_cache(segments_classified)
 
     df_class = load_data('classes_signals')
     df_class.set_index('date', inplace=True)
     df_class = (df_class - df_class.min()) / (df_class.max() - df_class.min())
+    
+    # Pre-extract normalized reference signals to avoid repeated normalization
+    gradual_up = df_class['gradual_up'].values
+    abrupt_up = df_class['abrupt_up'].values
+    gradual_down = df_class['gradual_down'].values
+    abrupt_down = df_class['abrupt_down'].values
 
     for i, segment in enumerate(segments):
 
         if segment['direction'] not in ['Up', 'Down']: 
             continue
 
-        # Assume some padding for abrupt cases
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+        # Use cached datetime objects and assume some padding for abrupt cases
+        seg_start_dt = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        seg_end_dt = segment.get('_end_dt', pd.to_datetime(segment['end']))
+        start = seg_start_dt - pd.Timedelta(days=2)
+        end = seg_end_dt + pd.Timedelta(days=2)
 
         df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
+        segment_signal = df_segment['value_cleaned'].values
 
         if segment['direction'] == 'Up': # using value cleaned to not misclassify as abrupt when padded around noise
-            _, cost_gradual_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_up'])
-            _, cost_abrupt_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_up'])
+            # Only compute DTW cost, not full alignment data (use only second return value)
+            _, cost_gradual_up, _, _, _ = dtw(segment_signal, gradual_up)
+            _, cost_abrupt_up, _, _, _ = dtw(segment_signal, abrupt_up)
 
-            if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
-                segments_classified[i]['trend_class'] = 'gradual'
-            else:
-                segments_classified[i]['trend_class'] = 'abrupt'
+            segments_classified[i]['trend_class'] = 'gradual' if cost_gradual_up < cost_abrupt_up else 'abrupt'
         
-        if segment['direction'] == 'Down': 
+        elif segment['direction'] == 'Down': 
+            _, cost_gradual_down, _, _, _ = dtw(segment_signal, gradual_down)
+            _, cost_abrupt_down, _, _, _ = dtw(segment_signal, abrupt_down)
 
-            _, cost_gradual_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_down'])
-            _, cost_abrupt_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_down'])
-
-            if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
-                segments_classified[i]['trend_class'] = 'gradual'
-            else:
-                segments_classified[i]['trend_class'] = 'abrupt'
+            segments_classified[i]['trend_class'] = 'gradual' if cost_gradual_down < cost_abrupt_down else 'abrupt'
 
     return segments_classified
 
@@ -245,6 +299,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
     """
 
     segments_refined = deepcopy(segments)
+    _ensure_datetime_cache(segments_refined)
     new_segments = []
     for i, segment in enumerate(segments_refined):
         if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
@@ -257,9 +312,11 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             if is_not_reclassified:
                 continue # exit if not re-classified for sake of second pass
 
-        # Get start end padded for some leniency
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+        # Get start end padded for some leniency - use cached datetime objects
+        seg_start_dt = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        seg_end_dt = segment.get('_end_dt', pd.to_datetime(segment['end']))
+        start = seg_start_dt - pd.Timedelta(days=2)
+        end = seg_end_dt + pd.Timedelta(days=2)
         df_segment = df.loc[start:end].copy()
 
         # Use z-score on diff, to know when a change is an anomoly in the trend
@@ -337,18 +394,24 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
     if method_params.get('is_abrupt_padded', False) == True:
+        _ensure_datetime_cache(segments_padded)
 
-        meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by datetime easily
-        meta_df['start'] = pd.to_datetime(meta_df['start'])
-        meta_df['end'] = pd.to_datetime(meta_df['end'])
+        # Build metadata dataframe with datetime objects already created
+        meta_data = []
+        for seg in segments_refined:
+            seg_data = seg.copy()
+            seg_data['start'] = seg.get('_start_dt', pd.to_datetime(seg['start']))
+            seg_data['end'] = seg.get('_end_dt', pd.to_datetime(seg['end']))
+            meta_data.append(seg_data)
+        meta_df = pd.DataFrame(meta_data)
 
         for i, segment in enumerate(segments_refined):
 
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
                 continue
 
-            abrupt_start = pd.to_datetime(segment['start'])
-            abrupt_end = pd.to_datetime(segment['end'])
+            abrupt_start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+            abrupt_end = segment.get('_end_dt', pd.to_datetime(segment['end']))
 
             # Simulate new end with padding and cater for any overlaps it might cause
             new_end = abrupt_end + pd.Timedelta(days=method_params['abrupt_padding'])
@@ -358,9 +421,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             # Adjust padding to be before first nonflat segment that it would overlap
             if not overlaps_nonflats.empty:
                 first_notflat_overlap = overlaps_nonflats.iloc[0]
-                new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
+                new_end = first_notflat_overlap['start'] - pd.Timedelta(days=1)
 
             segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
+            segments_padded[i]['_end_dt'] = new_end
             update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
 
     return segments_padded
@@ -383,6 +447,9 @@ def group_segments(segments: list):
     Returns:
         list: Grouped segment list.
     """
+    # Ensure datetime cache for efficient comparisons
+    _ensure_datetime_cache(segments)
+    
     # TODO: simplify with new grouping method written in process_signals for noise segments
     def flush_history(segment_history, output):
         """Append either a single or grouped segment to output."""
@@ -395,9 +462,12 @@ def group_segments(segments: list):
             grouped = last.copy()
             grouped['start'] = first['start']
             grouped['end'] = last['end']
-            grouped['segment_length'] = (
-                pd.to_datetime(last['end']) - pd.to_datetime(first['start'])
-            ).days
+            # Use cached datetime objects
+            first_start_dt = first.get('_start_dt', pd.to_datetime(first['start']))
+            last_end_dt = last.get('_end_dt', pd.to_datetime(last['end']))
+            grouped['segment_length'] = (last_end_dt - first_start_dt).days
+            grouped['_start_dt'] = first_start_dt
+            grouped['_end_dt'] = last_end_dt
             output.append(grouped)
 
     segments_refined = []
@@ -406,11 +476,18 @@ def group_segments(segments: list):
 
     for segment in segments:
         direction = segment['direction']
+        seg_start_dt = segment.get('_start_dt', pd.to_datetime(segment['start']))
+
+        if segment_history:
+            prev_end_dt = segment_history[-1].get('_end_dt', pd.to_datetime(segment_history[-1]['end']))
+            gap_days = (seg_start_dt - prev_end_dt).days
+        else:
+            gap_days = float('inf')
 
         if (
             direction == direction_prev
             and segment_history
-            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+            and gap_days <= GROUPING_DISTANCE
             and ((not 'trend_class' in segment) or ('trend_class' in segment and segment['trend_class'] != 'abrupt')) # dont group up abrupt trends
         ):
             # same direction and within allowed distance -> extend history
@@ -419,7 +496,7 @@ def group_segments(segments: list):
             direction == direction_prev
             and segment_history
             and (('trend_class' in segment and segment['trend_class'] == 'abrupt')) 
-            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= 1
+            and gap_days <= 1
         ):
             # same direction and within tight allowed distance for abrupt -> extend history
             segment_history.append(segment)
@@ -448,14 +525,15 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     Returns:
         list: Cleaned segment list with only valid-length segments.
     """
+    _ensure_datetime_cache(segments)
 
     def has_inverse(df, value_col, segment):
         """
         Checks that if end moved before start from neighbour adjustment, removes artifact.
         Also if trend, but total_change is actually in opposing direction, also remove
         """
-        start = pd.to_datetime(segment['start'])
-        end =  pd.to_datetime(segment['end'])
+        start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        end = segment.get('_end_dt', pd.to_datetime(segment['end']))
         if (end - start).days < 1: # inverse if start before end
             return True
 
@@ -470,13 +548,13 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     def has_overlap_next(segment, segment_next):
         """Checks whether overlap exists between curr & next, and current is more insignificant"""
         dir = segment['direction']
-        start =  pd.to_datetime(segment['start'])
-        end =  pd.to_datetime(segment['end'])
+        start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        end = segment.get('_end_dt', pd.to_datetime(segment['end']))
         width = (end - start).days
 
         next_dir = segment_next['direction']
-        next_start = pd.to_datetime(segment_next['start'])
-        next_end = pd.to_datetime(segment_next['end'])
+        next_start = segment_next.get('_start_dt', pd.to_datetime(segment_next['start']))
+        next_end = segment_next.get('_end_dt', pd.to_datetime(segment_next['end']))
         next_width = (next_end - next_start).days
 
         # Define conditions
@@ -505,13 +583,13 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     def has_overlap_prev(segment, segment_prev):
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
-        start =  pd.to_datetime(segment['start'])
-        end =  pd.to_datetime(segment['end'])
+        start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        end = segment.get('_end_dt', pd.to_datetime(segment['end']))
         width = (end - start).days
 
         prev_dir = segment_prev['direction']
-        prev_start = pd.to_datetime(segment_prev['start'])
-        prev_end = pd.to_datetime(segment_prev['end'])
+        prev_start = segment_prev.get('_start_dt', pd.to_datetime(segment_prev['start']))
+        prev_end = segment_prev.get('_end_dt', pd.to_datetime(segment_prev['end']))
         prev_width = (prev_end - prev_start).days
 
         # Define conditions
@@ -527,13 +605,13 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     def has_partial_overlap_next(segment, segment_next):
         """Checks whether overlap exists between curr & next, and current is more insignificant"""
         dir = segment['direction']
-        start =  pd.to_datetime(segment['start'])
-        end =  pd.to_datetime(segment['end'])
+        start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        end = segment.get('_end_dt', pd.to_datetime(segment['end']))
         width = (end - start).days
 
         next_dir = segment_next['direction']
-        next_start = pd.to_datetime(segment_next['start'])
-        next_end = pd.to_datetime(segment_next['end'])
+        next_start = segment_next.get('_start_dt', pd.to_datetime(segment_next['start']))
+        next_end = segment_next.get('_end_dt', pd.to_datetime(segment_next['end']))
         next_width = (next_end - next_start).days
 
         # Define conditions
@@ -551,13 +629,13 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
     def has_partial_overlap_prev(segment, segment_prev):
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
-        start =  pd.to_datetime(segment['start'])
-        end =  pd.to_datetime(segment['end'])
+        start = segment.get('_start_dt', pd.to_datetime(segment['start']))
+        end = segment.get('_end_dt', pd.to_datetime(segment['end']))
         width = (end - start).days
 
         prev_dir = segment_prev['direction']
-        prev_start = pd.to_datetime(segment_prev['start'])
-        prev_end = pd.to_datetime(segment_prev['end'])
+        prev_start = segment_prev.get('_start_dt', pd.to_datetime(segment_prev['start']))
+        prev_end = segment_prev.get('_end_dt', pd.to_datetime(segment_prev['end']))
         prev_width = (prev_end - prev_start).days
 
         # Define conditions
@@ -638,14 +716,17 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
 
 def fill_in_flats(segments:list):
     """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
+    _ensure_datetime_cache(segments)
     segments_refined = segments.copy()
     j = 0
     for i, curr_seg in enumerate(segments):
         if i >= (len(segments) - 1): continue # skip if cant see next
         next_seg = segments[i+1]
 
-        start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
-        end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
+        curr_end_dt = curr_seg.get('_end_dt', pd.to_datetime(curr_seg['end']))
+        next_start_dt = next_seg.get('_start_dt', pd.to_datetime(next_seg['start']))
+        start = curr_end_dt + pd.Timedelta(days=1)
+        end = next_start_dt - pd.Timedelta(days=1)
         days = (end - start).days
 
         # Trigger fill in when not exactly neighbouring
@@ -653,7 +734,9 @@ def fill_in_flats(segments:list):
             new_flat = dict(
                 start = start.strftime('%Y-%m-%d'),
                 end = end.strftime('%Y-%m-%d'),
-                direction='Flat'
+                direction='Flat',
+                _start_dt = start,
+                _end_dt = end
             )
             j += 1 # iterate segments vs segments_refined displacement
             segments_refined.insert(i+j, new_flat)
@@ -701,4 +784,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
 
     segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
     segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
+    
+    # Clean up datetime cache before returning
+    _cleanup_datetime_cache(segments_refined)
     return segments_refined
