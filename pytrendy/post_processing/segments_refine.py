@@ -162,7 +162,8 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         """Return a slice of df around a center date ±days."""
         pre = (center_dt - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
         post = (center_dt + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
-        return df.loc[pre:post].copy()
+        # No need to copy since we're only reading from it
+        return df.loc[pre:post]
 
     for i, segment in enumerate(segments_refined):
         # Use cached datetime objects
@@ -657,7 +658,8 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         segments_refined.append(segment)
 
     # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detection
-    segments = deepcopy(segments_refined)
+    # No need for deepcopy since we're just filtering and not modifying the dictionaries
+    segments = segments_refined
     segments_refined = [] 
     for i, segment in enumerate(segments):
         if (i < len(segments)-1 and has_overlap_next(segment, segments[i+1])) or \
@@ -666,7 +668,8 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments:list):
         segments_refined.append(segment)
 
     # Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise
-    segments = deepcopy(segments_refined)
+    # segments list is being modified, so copy the list but dictionaries can be shared
+    segments = segments_refined[:]  # Shallow copy of list
     segments_refined = [] 
     for i, segment in enumerate(segments):
         if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):

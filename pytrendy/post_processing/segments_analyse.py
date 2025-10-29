@@ -62,7 +62,12 @@ def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
             )
 
         # Calculate days & cumulative total change
-        segment_enhanced['days'] = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        # Use cached datetime if available to avoid repeated conversions
+        if '_start_dt' in segment and '_end_dt' in segment:
+            segment_enhanced['days'] = (segment['_end_dt'] - segment['_start_dt']).days
+        else:
+            segment_enhanced['days'] = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        
         if segment['direction'] in ['Up', 'Down']:
             segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())
 
