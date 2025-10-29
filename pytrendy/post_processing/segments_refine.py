@@ -31,8 +31,8 @@ def update_prev_segment(i, new_start, segments, segments_refined):
         prev_end = pd.to_datetime(prevseg['end'])
         i_neighbour = i - (j+1)
 
-        # Edge case 1.1: do not disturb other trends (let them refine themselves)
-        if (prevseg['direction'] in ['Up', 'Down']):
+        # Edge case 1.1: do not disturb previous trends if abrupt. Update them if gradual however.
+        if (prevseg['direction'] in ['Up', 'Down'] and prevseg['trend_class'] == 'abrupt'):
             continue
 
         # # Edge case 1.2: do not disturb noise spikes (leave precise)
@@ -75,7 +75,7 @@ def update_next_segment(i, new_end, segments, segments_refined):
         next_end = pd.to_datetime(nextseg['end'])
         i_neighbour = i + (j+1)
 
-        # Edge case 1: do not disturb other trends (let them refine themselves)
+        # Edge case 1: do not disturb next trends if abrupt or gradual. They will refine themselves in next iteration.
         if (nextseg['direction'] in ['Up', 'Down']):
             continue
 
@@ -169,13 +169,13 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
         end_inverted = (new_end <= pd.to_datetime(segment['start']))
 
         # Refine start provided valid to update
-        start_changed = new_start != pd.to_datetime(segment['start'])
+        start_changed = (new_start != pd.to_datetime(segment['start']))
         if start_changed and not start_inverted:
             segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
             update_prev_segment(i, new_start, segments, segments_refined)
 
         # Refine end provided valid to update
-        end_changed = new_end != pd.to_datetime(segment['end'])
+        end_changed = (new_end != pd.to_datetime(segment['end']))
         if end_changed and not end_inverted:
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined)
