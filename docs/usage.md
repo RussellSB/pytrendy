@@ -478,7 +478,7 @@ from pytrendy import (
 )
 
 # Load user engagement metrics
-df = pd.read_csv("website_wata.csv")
+df = pd.read_csv("website_data.csv")
 
 # Preprocess the engagement signal
 df = process_signals(df, value_col="active_users")

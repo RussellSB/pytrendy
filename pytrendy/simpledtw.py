@@ -1,4 +1,4 @@
-"""**Dynamic Time Warping for Trend Classification, Signal Alignment and Trend Classification**"""
+"""**Dynamic Time Warping for Signal Alignment and Trend Classification**"""
 
 import numpy as np
 

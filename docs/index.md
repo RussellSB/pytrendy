@@ -80,7 +80,7 @@ results.segments_df
 
 <small>
 
-| time_index | direction | segmenth_length | start       | end         | trend_class | change      | pct_change | days | total_change | SNR       | change_rank |
+| time_index | direction | segment_length | start       | end         | trend_class | change      | pct_change | days | total_change | SNR       | change_rank |
 |------------|-----------|-----------------|-------------|-------------|-------------|-------------|------------|------|--------------|-----------|-------------|
 | 1          | Up        | 17              | 2025-01-02  | 2025-01-24  | gradual     | 14.013348   | 1.044080   | 22   | 14.013348    | 22.207980 | 5           |
 | 3          | Down      | 10              | 2025-01-25  | 2025-02-05  | gradual     | -13.564214  | -0.554982  | 11   | -13.564214   | 17.360657 | 6           |

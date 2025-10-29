@@ -34,7 +34,7 @@ def get_segments(df: pd.DataFrame):
             - `'direction'`: Segment type (e.g., `'Up'`, `'Down'`)
             - `'start'`: Start date of the segment
             - `'end'`: End date of the segment
-            - `'segmenth_length'`: Duration in days
+            - `'segment_length'`: Duration in days
             - `'time_index'`: Sequential index of the segment
     """
     map_direction = {
