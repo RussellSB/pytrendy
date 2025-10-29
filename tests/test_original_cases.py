@@ -1,5 +1,5 @@
 """
-Tests for baseline trend detection on synthetic data.
+Tests for core logic of trend detection on synthetic data.
 
 These tests verify that the trend detection algorithm produces consistent
 results for gradual and abrupt trends, validating segment boundaries and
@@ -12,7 +12,7 @@ import pandas as pd
 
 
 class TestOriginalCases:
-    """Test cases for original baseline synthetic data."""
+    """Test cases for core logic on synthetic data."""
 
     def test_gradual_trends(self):
         """Test detection of gradual trends in synthetic data."""
