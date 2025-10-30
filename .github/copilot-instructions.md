@@ -91,6 +91,52 @@ Commit types trigger the following version bumps:
 6. **Use the body to explain what and why, not how**
 7. **Reference issues and pull requests when applicable**
 
+## PR Title Standards
+
+Pull request titles MUST also follow the Conventional Commits format, just like commit messages. This ensures consistency across the repository and helps with automated changelog generation.
+
+### PR Title Format
+
+PR titles should follow the same format as commit messages:
+
+```
+<type>(<scope>): <subject>
+```
+
+Where:
+- **type** is REQUIRED (same types as commit messages: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`)
+- **scope** is OPTIONAL (represents the area of the codebase affected)
+- **subject** is REQUIRED (short description in imperative mood, lowercase, no period at the end)
+
+### PR Title Examples
+
+Good PR titles:
+```
+feat: add trend detection for seasonal data
+fix: correct calculation in SNR algorithm
+docs: update quickstart guide with new examples
+refactor: simplify window size calculation logic
+test: add unit tests for detect_trends function
+feat(api)!: remove deprecated endpoint
+```
+
+Bad PR titles:
+```
+✗ Fixed a bug
+✗ Update
+✗ WIP changes
+✗ Merge pull request #123
+```
+
+### PR Title Guidelines
+
+1. **Use imperative mood**: "add feature" not "added feature" or "adds feature"
+2. **Keep title under 72 characters**
+3. **Start with lowercase**: "add feature" not "Add feature"
+4. **No period at the end**
+5. **Match the primary change**: If the PR contains multiple commits, the title should reflect the most significant change
+6. **Include breaking change indicator**: Append `!` after type/scope for breaking changes
+
 ### Tools
 
-When making commits, ensure your commit messages follow these standards. The CI/CD pipeline uses these messages to automate releases and generate changelogs.
+When creating pull requests, ensure your PR titles follow these standards. When making commits, ensure your commit messages follow these standards. The CI/CD pipeline uses these messages to automate releases and generate changelogs.
