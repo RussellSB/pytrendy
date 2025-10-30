@@ -35,11 +35,11 @@ class TestCoreCases:
         # Assert each segment matches expected values
         for i, (actual, expected) in enumerate(zip(actual_segments, expected_segments)):
             assert actual['direction'] == expected['direction'], \
-                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
+                f"Segment {i}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
             assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
+                f"Segment {i}: Expected start '{expected['start']}', got '{actual['start']}'"
             assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
+                f"Segment {i}: Expected end '{expected['end']}', got '{actual['end']}'"
 
     @pytest.mark.core
     def test_gradual_trends(self):
