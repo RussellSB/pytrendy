@@ -34,6 +34,6 @@ jobs:
         run: |
           pytest tests/ -v -m core
       
-      - name: Run all tests
+      - name: Run non-core tests
         run: |
-          pytest tests/ -v
+          pytest tests/ -v -m "not core"

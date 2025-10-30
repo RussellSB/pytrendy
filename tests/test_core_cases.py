@@ -19,8 +19,14 @@ class TestCoreCases:
         Helper method to validate that actual segments match expected segments.
         
         Args:
-            actual_segments: List of actual segment dictionaries from results.segments
-            expected_segments: List of expected segment dictionaries with direction, start, end
+            actual_segments: List of dictionaries, each representing a detected segment.
+                Each dictionary must have the following keys:
+                    - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
+                    - 'start': str or Timestamp, the start date of the segment
+                    - 'end': str or Timestamp, the end date of the segment
+            expected_segments: List of dictionaries with the same structure as actual_segments,
+                specifying the expected direction and date boundaries for each segment.
+                Dates should be in 'YYYY-MM-DD' format for comparison.
         """
         # Assert number of segments matches
         assert len(actual_segments) == len(expected_segments), \
