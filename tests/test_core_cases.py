@@ -14,6 +14,27 @@ import pandas as pd
 class TestOriginalCases:
     """Test cases for core logic on synthetic data."""
 
+    def _assert_segments_match(self, actual_segments, expected_segments):
+        """
+        Helper method to validate that actual segments match expected segments.
+        
+        Args:
+            actual_segments: List of actual segment dictionaries from results.segments
+            expected_segments: List of expected segment dictionaries with direction, start, end
+        """
+        # Assert number of segments matches
+        assert len(actual_segments) == len(expected_segments), \
+            f"Expected {len(expected_segments)} segments, got {len(actual_segments)}"
+        
+        # Assert each segment matches expected values
+        for i, (actual, expected) in enumerate(zip(actual_segments, expected_segments)):
+            assert actual['direction'] == expected['direction'], \
+                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
+            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
+                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
+            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
+                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
+
     @pytest.mark.core
     def test_gradual_trends(self):
         """Test detection of gradual trends in synthetic data."""
@@ -39,18 +60,7 @@ class TestOriginalCases:
             {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
         ]
         
-        # Assert number of segments matches
-        assert len(results.segments) == len(expected_segments), \
-            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
-        
-        # Assert each segment matches expected values
-        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            assert actual['direction'] == expected['direction'], \
-                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
-            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
+        self._assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_abrupt_trends_no_padding(self):
@@ -73,18 +83,7 @@ class TestOriginalCases:
             {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-06-29'},
         ]
         
-        # Assert number of segments matches
-        assert len(results.segments) == len(expected_segments), \
-            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
-        
-        # Assert each segment matches expected values
-        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            assert actual['direction'] == expected['direction'], \
-                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
-            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
+        self._assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_abrupt_trends_with_padding(self):
@@ -107,15 +106,4 @@ class TestOriginalCases:
             {'direction': 'Flat', 'start': '2025-06-03', 'end': '2025-06-29'},
         ]
         
-        # Assert number of segments matches
-        assert len(results.segments) == len(expected_segments), \
-            f"Expected {len(expected_segments)} segments, got {len(results.segments)}"
-        
-        # Assert each segment matches expected values
-        for i, (actual, expected) in enumerate(zip(results.segments, expected_segments)):
-            assert actual['direction'] == expected['direction'], \
-                f"Segment {i+1}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
-                f"Segment {i+1}: Expected start '{expected['start']}', got '{actual['start']}'"
-            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
-                f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
+        self._assert_segments_match(results.segments, expected_segments)
