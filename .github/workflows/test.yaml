@@ -36,4 +36,10 @@ jobs:
       
       - name: Run non-core tests
         run: |
-          pytest tests/ -v -m "not core"
+          # Check if there are any non-core tests to run (exit code 5 means no tests collected)
+          pytest tests/ --collect-only -q -m "not core" > /dev/null 2>&1
+          if [ $? -eq 5 ]; then
+            echo "No non-core tests found, skipping..."
+          else
+            pytest tests/ -v -m "not core"
+          fi
