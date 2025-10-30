@@ -36,4 +36,9 @@ jobs:
       
       - name: Run non-core tests
         run: |
-          pytest tests/ -v -m "not core"
+          # Check if there are any non-core tests to run
+          if pytest tests/ --collect-only -q -m "not core" 2>&1 | grep -q "no tests collected"; then
+            echo "No non-core tests found, skipping..."
+          else
+            pytest tests/ -v -m "not core"
+          fi
