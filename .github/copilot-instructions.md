@@ -85,7 +85,7 @@ Commit types trigger the following version bumps:
 
 1. **Use imperative mood**: "add feature" not "added feature" or "adds feature"
 2. **Keep subject line under 72 characters**
-3. **Capitalize the first letter of the subject**
+3. **Start with lowercase**: "add feature" not "Add feature"
 4. **No period at the end of the subject line**
 5. **Separate subject from body with a blank line**
 6. **Use the body to explain what and why, not how**
