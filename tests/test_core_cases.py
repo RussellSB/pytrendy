@@ -11,7 +11,7 @@ import pytrendy as pt
 import pandas as pd
 
 
-class TestOriginalCases:
+class TestCoreCases:
     """Test cases for core logic on synthetic data."""
 
     def _assert_segments_match(self, actual_segments, expected_segments):
