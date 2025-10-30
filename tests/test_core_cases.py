@@ -14,6 +14,7 @@ import pandas as pd
 class TestOriginalCases:
     """Test cases for core logic on synthetic data."""
 
+    @pytest.mark.core
     def test_gradual_trends(self):
         """Test detection of gradual trends in synthetic data."""
         df = pt.load_data('series_synthetic')
@@ -51,6 +52,7 @@ class TestOriginalCases:
             assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
                 f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
 
+    @pytest.mark.core
     def test_abrupt_trends_no_padding(self):
         """Test detection of abrupt trends without padding."""
         df = pt.load_data('series_synthetic')
@@ -84,6 +86,7 @@ class TestOriginalCases:
             assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
                 f"Segment {i+1}: Expected end '{expected['end']}', got '{actual['end']}'"
 
+    @pytest.mark.core
     def test_abrupt_trends_with_padding(self):
         """Test detection of abrupt trends with padding enabled."""
         df = pt.load_data('series_synthetic')

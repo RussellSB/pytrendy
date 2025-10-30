@@ -26,3 +26,8 @@ repository = "https://github.com/RussellSB/pytrendy"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pytrendy*"]
+
+[tool.pytest.ini_options]
+markers = [
+    "core: essential tests that must pass for core functionality"
+]
