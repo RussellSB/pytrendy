@@ -201,7 +201,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
+noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 #  df.to_csv('../temp_noisy_edgecase_10.csv')
 
@@ -216,7 +216,7 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 # df.to_csv('../temp_noisy_edgecase_8.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODO: 05-16 too small a red when padded is False
+noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODONE: 05-16 too small a red when padded is False
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 # df.to_csv('../temp_noisy_edgecase_7.csv')
 
@@ -236,7 +236,7 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 # df.to_csv('../temp_noisy_edgecase_4.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODO: 03-02 could be noise
+noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODONE: 03-02 could be noise
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_3.csv')   
 
