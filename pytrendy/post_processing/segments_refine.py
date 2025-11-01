@@ -251,7 +251,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list:
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list = []) -> list:
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list | None = None) -> list:
     """
     Refines abrupt segments by detecting changepoints using z-score outliers.
 
@@ -271,6 +271,9 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
         list: Refined segment list with adjusted abrupt boundaries.
     """
 
+    if init_segments is None:
+        init_segments = []
+    
     segments_refined = deepcopy(segments)
     new_segments = []
     for i, segment in enumerate(segments_refined):
