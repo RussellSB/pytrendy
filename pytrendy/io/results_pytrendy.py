@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 import math
+from typing import Union
 
 class PyTrendyResults: 
     """
@@ -14,7 +15,7 @@ class PyTrendyResults:
     enhanced metrics such as rankings and signal-to-noise ratios.
     """
 
-    def __init__(self, segments):
+    def __init__(self, segments: list) -> None:
         """
         Initializes the results object with a list of segments.
 
@@ -27,7 +28,7 @@ class PyTrendyResults:
         self.set_df()
         self.set_summary()
 
-    def set_best(self):
+    def set_best(self) -> None:
         """
         Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.
         
@@ -40,7 +41,7 @@ class PyTrendyResults:
             return
         self.best = min(self.segments, key=lambda x: x.get('change_rank', math.inf))
 
-    def set_summary(self):
+    def set_summary(self) -> None:
         """
         Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.
 
@@ -75,7 +76,7 @@ class PyTrendyResults:
         # Set summary
         self.summary = summary
 
-    def print_summary(self):
+    def print_summary(self) -> None:
         """
         Prints a readable summary of detected trends.
 
@@ -99,7 +100,7 @@ class PyTrendyResults:
               self.df_summary,
             '\n-------------------------------------------------------------------------------')
 
-    def set_df(self):
+    def set_df(self) -> None:
         """
         Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.
 
@@ -115,7 +116,7 @@ class PyTrendyResults:
         df = df.set_index('time_index')
         self.df = df
 
-    def filter_segments(self, direction:str='Any', sort_by:str='time_index', format='df'):
+    def filter_segments(self, direction: str = 'Any', sort_by: str = 'time_index', format: str = 'df') -> Union[list, pd.DataFrame]:
         """
         Filters and sorts segments based on direction and ranking.
 

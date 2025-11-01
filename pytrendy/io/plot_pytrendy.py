@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df:pd.DataFrame, value_col: str, segments_enhanced:list):
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list) -> None:
     """
     Visualizes detected trend segments over the original time series signal.
     

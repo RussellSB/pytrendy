@@ -9,7 +9,7 @@ import numpy as np
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust after expand_contract or shave logic
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
-def update_prev_segment(i, new_start, segments, segments_refined):
+def update_prev_segment(i: int, new_start: pd.Timestamp, segments: list, segments_refined: list) -> None:
     """
     Adjusts the end of the previous segment if it overlaps with the updated start.
 
@@ -54,7 +54,7 @@ def update_prev_segment(i, new_start, segments, segments_refined):
             return
         
 
-def update_next_segment(i, new_end, segments, segments_refined):
+def update_next_segment(i: int, new_end: pd.Timestamp, segments: list, segments_refined: list) -> None:
     """
     Adjusts the start of the next segment if it overlaps with the updated end.
 
@@ -97,7 +97,7 @@ def update_next_segment(i, new_end, segments, segments_refined):
             return
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -> list:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
@@ -115,7 +115,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
 
     segments_refined = deepcopy(segments)
 
-    def _get_window_df(center, days=7):
+    def _get_window_df(center: str, days: int = 7) -> pd.DataFrame:
         """Return a slice of df around a center date ±days."""
         pre = (pd.to_datetime(center) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
         post = (pd.to_datetime(center) + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
@@ -183,7 +183,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list):
     return segments_refined
 
 
-def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
+def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list:
     """
     Classifies segments as 'gradual' or 'abrupt' using DTW against reference signals.
 
@@ -251,7 +251,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list= []):
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list = []) -> list:
     """
     Refines abrupt segments by detecting changepoints using z-score outliers.
 
@@ -396,7 +396,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
     return segments_padded
 
-def group_segments(segments: list):
+def group_segments(segments: list) -> list:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
@@ -415,7 +415,7 @@ def group_segments(segments: list):
         list: Grouped segment list.
     """
     # TODO: simplify with new grouping method written in process_signals for noise segments
-    def flush_history(segment_history, output):
+    def flush_history(segment_history: list, output: list) -> None:
         """Append either a single or grouped segment to output."""
         if not segment_history:
             return
@@ -464,7 +464,7 @@ def group_segments(segments: list):
     return segments_refined
 
 
-def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, method_params: dict):
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, method_params: dict) -> list:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -477,7 +477,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
         list: Cleaned segment list with only valid-length segments.
     """
 
-    def has_inverse(df, value_col, segment):
+    def has_inverse(df: pd.DataFrame, value_col: str, segment: dict) -> bool:
         """
         Checks that if end moved before start from neighbour adjustment, removes artifact.
         Also if trend, but total_change is actually in opposing direction, also remove
@@ -495,7 +495,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
             return True
         return False
 
-    def has_overlap_next(segment, segment_next):
+    def has_overlap_next(segment: dict, segment_next: dict) -> bool:
         """Checks whether overlap exists between curr & next, and current is more insignificant"""
         dir = segment['direction']
         start =  pd.to_datetime(segment['start'])
@@ -535,7 +535,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
 
         return False
     
-    def has_overlap_prev(segment, segment_prev):
+    def has_overlap_prev(segment: dict, segment_prev: dict) -> bool:
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
         start =  pd.to_datetime(segment['start'])
@@ -563,7 +563,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
             return True # overlap when curr is trend and prev is flat (with similar enough size)
         return False
     
-    def has_partial_overlap_next(segment, segment_next):
+    def has_partial_overlap_next(segment: dict, segment_next: dict) -> bool:
         """Checks whether overlap exists between curr & next, and current is more insignificant"""
         dir = segment['direction']
         start =  pd.to_datetime(segment['start'])
@@ -587,7 +587,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
 
         return False
     
-    def has_partial_overlap_prev(segment, segment_prev):
+    def has_partial_overlap_prev(segment: dict, segment_prev: dict) -> bool:
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
         start =  pd.to_datetime(segment['start'])
@@ -763,7 +763,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, meth
     return segments_refined
 
 
-def fill_in_flats(segments:list):
+def fill_in_flats(segments: list) -> list:
     """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
     segments_refined = segments.copy()
     j = 0
@@ -787,7 +787,7 @@ def fill_in_flats(segments:list):
     return segments_refined
 
 
-def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params:dict):
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params: dict) -> list:
     """
     Full post-processing pipeline to refine detected trend segments.
 

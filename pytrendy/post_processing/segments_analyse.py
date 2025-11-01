@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 
-def analyse_segments(df:pd.DataFrame, value_col: str, segments: list):
+def analyse_segments(df: pd.DataFrame, value_col: str, segments: list) -> list:
     """
     Enhances trend segments with quantitative metrics and rankings.
 
