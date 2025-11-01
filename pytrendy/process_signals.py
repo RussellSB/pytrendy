@@ -112,10 +112,10 @@ def process_signals(df:pd.DataFrame, value_col: str):
         end = min(end, df.index.max())
         width_padded = end - start
 
-        # Cater for edge coise of noise, but its actually an abrupt trend.
+        # Cater for edge case of actually an abrupt trend not noise.
         diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
         small_value = df.loc[df[value_col] > 0, value_col].quantile(0.40)
-        abrupt_ends = diff > small_value
+        abrupt_ends = diff >= small_value
 
         # check if possibly abrupt, provided that window is narrow enough
         if (width <= 4) and abrupt_ends:

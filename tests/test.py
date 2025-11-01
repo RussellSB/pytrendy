@@ -201,12 +201,22 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_8.csv') # TODO: 03-18 upwards should be flat/noise # TODONE 05-08 Upwards end should be one day longer
+noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
+#  df.to_csv('../temp_noisy_edgecase_10.csv')
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_edgecase_9.csv') # TODONE: make sensitive to flats, but be sensitive to up from 03-01 and 04-16
+results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
+#  df.to_csv('../temp_noisy_edgecase_9.csv')
+
+# %%
+noise_df = pd.read_csv('../temp_noisy_edgecase_8.csv') # TODONE: 03-18 upwards should be flat/noise # TODONE 05-08 Upwards end should be one day longer
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 # df.to_csv('../temp_noisy_edgecase_8.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODO: 03-09 too small a green when padded is False
+noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODO: 05-16 too small a red when padded is False
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 # df.to_csv('../temp_noisy_edgecase_7.csv')
 
