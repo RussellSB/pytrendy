@@ -1,3 +1,19 @@
+## [1.1.7](https://github.com/RussellSB/pytrendy/compare/v1.1.6...v1.1.7) (2025-11-01)
+
+
+### Bug Fixes
+
+* **expand-contract:** allow previous gradual trends to be updated in case that it gets outdated with reference to current gradual ([a99c30f](https://github.com/RussellSB/pytrendy/commit/a99c30f8f46c995c41f704886d0aa0e1091265ef))
+* **noise detection:** checking for edge case of abrupt refined overlapping flat. Delete trend when a weak borderline case of similar length to overlapping flat ([34fe460](https://github.com/RussellSB/pytrendy/commit/34fe460f3b5b6428162efd4d6131541c117a45b6))
+* **noise detection:** detecting when abrupt too close to noise after grouping again, as grouping logic can change the validity of the check. ([cc449b4](https://github.com/RussellSB/pytrendy/commit/cc449b4e34b15838ef603c32b7a7270a403ee9d1))
+* **noise detection:** edge case of up overlapping down. Including opposite trend into the logic of noise overlap adjustment. ([25dc31f](https://github.com/RussellSB/pytrendy/commit/25dc31ffffe4809b13e4c64d1ba97c09aa961ec5))
+* **noise detection:** improves generalisation to random noise throughout signals. Checks noisiness in best inferred trends through a list of checks and converts them if risky enough. ([7794b6a](https://github.com/RussellSB/pytrendy/commit/7794b6a84cd91e110e4ff9e1495f6c5478ac3dc1))
+* **noise detection:** improving artifacts of small abrupts in noise cases. Makes sure that recently re-classified graduals -> abrupts, build a strong enough case re noise ([98835c2](https://github.com/RussellSB/pytrendy/commit/98835c2810aa88c60604dd8c0197bd633fdde405))
+* **noise detection:** solved noisy trends that are a bit too flat with new edge case for cleaning ([8775f1a](https://github.com/RussellSB/pytrendy/commit/8775f1a7fcb3344b75c27e909efeae99d4c8e031))
+* **noise detection:** switch logic of abrupt neighbouring noise cleaning when specific segment is actually padded. Also improve classification, when borderline gradual or abrupt, default to abrupt. ([9b41189](https://github.com/RussellSB/pytrendy/commit/9b41189d07110e1a66e71f34a139b2953f8f6520))
+* **noise detection:** updated clean logic to cater for opposite direction whole overlap, and improved noise cleaning to also consider total change as well as start/end change ([06aa45c](https://github.com/RussellSB/pytrendy/commit/06aa45cc4529771e1cd19ad94c6afb4e2a046b6a))
+* **plot:** improving plotting for edge cases found from noise plotting. Make it visually displace appropriately only when it doesn't break up/down logic ([7ae27ad](https://github.com/RussellSB/pytrendy/commit/7ae27ad0582c36b903f4129d7927f9d6a04c1a74))
+
 ## [1.1.6](https://github.com/RussellSB/pytrendy/compare/v1.1.5...v1.1.6) (2025-10-23)
 
 
