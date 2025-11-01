@@ -716,8 +716,26 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
         trend_too_small = (is_gradual or is_abrupt) and (total_change <= threshold_diff)
 
+        # Edge case 3.3: If max is not at end, or min is not at end for Up/Down trends - make it flat
+        trend_too_flat = False
+        if is_gradual and len(df_segment) >= 3:
+            # Allow max/min to be in the last 30% of the segment instead of only at end
+            segment_length = len(df_segment)
+            last_30pct_start = int(segment_length * 0.7)
+            last_section = df_segment.iloc[last_30pct_start:]
+            
+            if segment['direction'] == 'Up':
+                max_date = df_segment[value_col].idxmax()
+                max_in_last_section = (max_date in last_section.index)
+                trend_too_flat = not max_in_last_section
+                
+            elif segment['direction'] == 'Down':
+                min_date = df_segment[value_col].idxmin()
+                min_in_last_section = (min_date in last_section.index)
+                trend_too_flat = not min_in_last_section
+
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close or trend_too_small: 
+        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close or trend_too_small or trend_too_flat: 
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
         
