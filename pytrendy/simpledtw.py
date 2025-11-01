@@ -5,8 +5,8 @@ from typing import Callable
 from collections.abc import Sequence
 
 def dtw(
-	series_1: Sequence[float] | np.ndarray,
-	series_2: Sequence[float] | np.ndarray,
+	series_1: Sequence[int | float] | np.ndarray,
+	series_2: Sequence[int | float] | np.ndarray,
 	norm_func: Callable[[np.ndarray], float] = np.linalg.norm
 ) -> tuple[list[tuple[int, int]], float, list[list[int]], list[list[int]], np.ndarray]:
 	"""

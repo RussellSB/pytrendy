@@ -4,7 +4,6 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 import math
-from typing import Union
 
 class PyTrendyResults: 
     """
@@ -116,7 +115,7 @@ class PyTrendyResults:
         df = df.set_index('time_index')
         self.df = df
 
-    def filter_segments(self, direction: str = 'Any', sort_by: str = 'time_index', format: str = 'df') -> Union[list, pd.DataFrame]:
+    def filter_segments(self, direction: str = 'Any', sort_by: str = 'time_index', format: str = 'df') -> list | pd.DataFrame:
         """
         Filters and sorts segments based on direction and ranking.
 
