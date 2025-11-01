@@ -220,6 +220,10 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
             _, cost_gradual_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_up'])
             _, cost_abrupt_up, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_up'])
 
+            # round up, so default to gradual if too close
+            cost_gradual_up = round(cost_gradual_up, 1)
+            cost_abrupt_up = round(cost_abrupt_up, 1)
+
             if np.argmin([cost_gradual_up, cost_abrupt_up]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
             else:
@@ -230,10 +234,19 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list):
             _, cost_gradual_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_down'])
             _, cost_abrupt_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_down'])
 
+            # round up, so default to gradual if too close
+            cost_gradual_down = round(cost_gradual_down, 1)
+            cost_abrupt_down = round(cost_abrupt_down, 1)
+
             if np.argmin([cost_gradual_down, cost_abrupt_down]) == 0:
                 segments_classified[i]['trend_class'] = 'gradual'
             else:
                 segments_classified[i]['trend_class'] = 'abrupt'
+
+        # Final condition, hard-classify graduals as abrupt if too short
+        segment_length = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        if segment_length < 3:
+            segments_classified[i]['trend_class'] = 'abrupt'
 
     return segments_classified
 
@@ -378,6 +391,9 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
             segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
 
+            # Store meta data that got padded & stretched out
+            segments_padded[i]['padded'] = True if new_end != abrupt_end else False
+
     return segments_padded
 
 def group_segments(segments: list):
@@ -448,13 +464,14 @@ def group_segments(segments: list):
     return segments_refined
 
 
-def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
+def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list, method_params: dict):
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
 
     Args:
         segments_refined (list): List of segment dictionaries potentially with artifacts from post-processing.
+        method_params (dict): Referenced to check is_abrupt_padded. If it is, dont check for neighbouring noise to abrupt.
 
     Returns:
         list: Cleaned segment list with only valid-length segments.
@@ -677,17 +694,18 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
 
         # Conditions for edge cases
         left_is_noise = any(( # Consider segments within neighbour distance on left
-                0 <= (start - pd.to_datetime(prev_seg['end'])).days < NEIGHBOUR_DISTANCE
+                0 <= (start - pd.to_datetime(prev_seg['end'])).days <= GROUPING_DISTANCE
                 and prev_seg.get('direction') == 'Noise'
             ) for k, prev_seg in enumerate(segments) if k != i)
         right_is_noise = any(( # Consider segments within neighbour distance on right
-                0 <= (pd.to_datetime(next_seg['start']) - end).days < NEIGHBOUR_DISTANCE
+                0 <= (pd.to_datetime(next_seg['start']) - end).days <= GROUPING_DISTANCE
                 and next_seg.get('direction') == 'Noise'
             ) for k, next_seg in enumerate(segments) if k != i)
         
-        is_abrupt = ('trend_class' in segment and segment['trend_class'] == 'abrupt')
-        is_gradual = ('trend_class' in segment and segment['trend_class'] == 'gradual')
         is_flat = segment['direction'] == 'Flat'
+        is_gradual = ('trend_class' in segment and segment['trend_class'] == 'gradual')
+        is_abrupt = ('trend_class' in segment and segment['trend_class'] == 'abrupt')
+        is_padded = is_abrupt and ('padded' in segment) and (segment['padded'] == True)
 
         # Edge case 1: Check SNR for trend but noise
         signal_power = np.mean(df_segment['signal']**2)
@@ -700,6 +718,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
 
         # Edge case 2.1: Check if abrupt segment near noise
         is_abrupt_near_noise = is_abrupt and (left_is_noise or right_is_noise)
+        if is_padded: is_abrupt_near_noise = False # overwrite to False if segment got abrupt padded
         
         # Edge case 2.2: Check if gradual segment encapsulated by noise
         is_gradual_in_noise = is_gradual and (left_is_noise and right_is_noise)
@@ -716,7 +735,7 @@ def clean_artifacts(df: pd.DataFrame, value_col:str, segments_refined:list):
         threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
         trend_too_small = (is_gradual or is_abrupt) and (total_change <= threshold_diff)
 
-        # Edge case 3.3: If max is not at end, or min is not at end for Up/Down trends - make it flat
+        # Edge case 3.3: If max is not at end, or min is not at end for Up/Down trends - too flat for trend, consider as noise
         trend_too_flat = False
         if is_gradual and len(df_segment) >= 3:
             # Allow max/min to be in the last 30% of the segment instead of only at end
@@ -797,9 +816,9 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
-    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from expand/contract
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract
     segments_refined = group_segments(segments_refined) # grouping 2nd pass: after trend refine and cleanup
-    segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps again after grouping
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps again after grouping
 
     init_segments = deepcopy(segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
@@ -807,7 +826,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_par
         segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params
                                             , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
         segments_refined = group_segments(segments_refined) # make sure re-classifications are grouped to build strong enough cases for gradual -> abrupts
-        segments_refined = clean_artifacts(df, value_col, segments_refined) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
+        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
 
     segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
     segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
