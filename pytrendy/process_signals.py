@@ -5,7 +5,7 @@ import numpy as np
 from scipy.signal import savgol_filter
 from .post_processing.segments_refine import GROUPING_DISTANCE
 
-def process_signals(df:pd.DataFrame, value_col: str):
+def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 

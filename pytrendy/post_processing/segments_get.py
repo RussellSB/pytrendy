@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-def get_segments(df: pd.DataFrame):
+def get_segments(df: pd.DataFrame) -> list[dict]:
     """
     Extracts contiguous segments from a flagged time series.
 
