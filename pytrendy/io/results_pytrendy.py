@@ -14,7 +14,7 @@ class PyTrendyResults:
     enhanced metrics such as rankings and signal-to-noise ratios.
     """
 
-    def __init__(self, segments: list) -> None:
+    def __init__(self, segments: list[dict]) -> None:
         """
         Initializes the results object with a list of segments.
 

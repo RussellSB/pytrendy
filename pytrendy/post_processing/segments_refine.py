@@ -9,7 +9,7 @@ import numpy as np
 NEIGHBOUR_DISTANCE = 3  # Distance for considering a neighbour to re-adjust after expand_contract or shave logic
 GROUPING_DISTANCE = 7 # Distance for grouping segments of same type in group_segments
 
-def update_prev_segment(i: int, new_start: pd.Timestamp, segments: list, segments_refined: list) -> None:
+def update_prev_segment(i: int, new_start: pd.Timestamp, segments: list[dict], segments_refined: list[dict]) -> None:
     """
     Adjusts the end of the previous segment if it overlaps with the updated start.
 
@@ -54,7 +54,7 @@ def update_prev_segment(i: int, new_start: pd.Timestamp, segments: list, segment
             return
         
 
-def update_next_segment(i: int, new_end: pd.Timestamp, segments: list, segments_refined: list) -> None:
+def update_next_segment(i: int, new_end: pd.Timestamp, segments: list[dict], segments_refined: list[dict]) -> None:
     """
     Adjusts the start of the next segment if it overlaps with the updated end.
 
@@ -97,7 +97,7 @@ def update_next_segment(i: int, new_end: pd.Timestamp, segments: list, segments_
             return
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -> list[dict]:
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
@@ -183,7 +183,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -
     return segments_refined
 
 
-def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list[dict]:
+def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:
     """
     Classifies segments as 'gradual' or 'abrupt' using DTW against reference signals.
 
@@ -251,7 +251,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list[di
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list | None = None) -> list[dict]:
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict, second_pass: bool = False, init_segments: list[dict] | None = None) -> list[dict]:
     """
     Refines abrupt segments by detecting changepoints using z-score outliers.
 
@@ -399,7 +399,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
     return segments_padded
 
-def group_segments(segments: list) -> list[dict]:
+def group_segments(segments: list[dict]) -> list[dict]:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
@@ -418,7 +418,7 @@ def group_segments(segments: list) -> list[dict]:
         list: Grouped segment list.
     """
     # TODO: simplify with new grouping method written in process_signals for noise segments
-    def flush_history(segment_history: list, output: list) -> None:
+    def flush_history(segment_history: list[dict], output: list[dict]) -> None:
         """Append either a single or grouped segment to output."""
         if not segment_history:
             return
@@ -467,7 +467,7 @@ def group_segments(segments: list) -> list[dict]:
     return segments_refined
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, method_params: dict) -> list[dict]:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -766,7 +766,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, me
     return segments_refined
 
 
-def fill_in_flats(segments: list) -> list[dict]:
+def fill_in_flats(segments: list[dict]) -> list[dict]:
     """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
     segments_refined = segments.copy()
     j = 0
@@ -790,7 +790,7 @@ def fill_in_flats(segments: list) -> list[dict]:
     return segments_refined
 
 
-def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params: dict) -> list[dict]:
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
     """
     Full post-processing pipeline to refine detected trend segments.
 
