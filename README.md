@@ -3,8 +3,8 @@
   <br>
   <h1>PyTrendy</h1>
 
-  [![PyPI version](https://badge.fury.io/py/pytrendy.svg)](https://badge.fury.io/py/pytrendy)
-  [![Python](https://img.shields.io/pypi/pyversions/pytrendy.svg)](https://pypi.org/project/pytrendy/)
+  [![PyPI version](https://img.shields.io/pypi/v/pytrendy.svg)](https://pypi.org/project/pytrendy/)
+  [![Python](https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg)](https://pypi.org/project/pytrendy/)
   [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
   [![Tests](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml)
   [![Release](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml)
