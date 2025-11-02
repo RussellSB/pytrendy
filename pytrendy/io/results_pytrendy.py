@@ -99,7 +99,7 @@ class PyTrendyResults:
               self.df_summary,
             '\n-------------------------------------------------------------------------------')
 
-    def set_df(self) -> None:
+    def set_df(self) -> pd.DataFrame | None:
         """
         Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.
 

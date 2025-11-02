@@ -97,7 +97,7 @@ def update_next_segment(i: int, new_end: pd.Timestamp, segments: list, segments_
             return
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -> list:
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -> list[dict]:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
@@ -183,7 +183,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list) -
     return segments_refined
 
 
-def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list:
+def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list[dict]:
     """
     Classifies segments as 'gradual' or 'abrupt' using DTW against reference signals.
 
@@ -251,7 +251,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list) -> list:
     return segments_classified
 
 
-def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list | None = None) -> list:
+def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method_params: dict, second_pass: bool = False, init_segments: list | None = None) -> list[dict]:
     """
     Refines abrupt segments by detecting changepoints using z-score outliers.
 
@@ -399,7 +399,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list, method
 
     return segments_padded
 
-def group_segments(segments: list) -> list:
+def group_segments(segments: list) -> list[dict]:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
@@ -467,7 +467,7 @@ def group_segments(segments: list) -> list:
     return segments_refined
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, method_params: dict) -> list:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, method_params: dict) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -766,7 +766,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list, me
     return segments_refined
 
 
-def fill_in_flats(segments: list) -> list:
+def fill_in_flats(segments: list) -> list[dict]:
     """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
     segments_refined = segments.copy()
     j = 0
@@ -790,7 +790,7 @@ def fill_in_flats(segments: list) -> list:
     return segments_refined
 
 
-def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params: dict) -> list:
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list, method_params: dict) -> list[dict]:
     """
     Full post-processing pipeline to refine detected trend segments.
 

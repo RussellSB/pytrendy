@@ -8,7 +8,7 @@ def dtw(
 	series_1: Sequence[int | float] | np.ndarray,
 	series_2: Sequence[int | float] | np.ndarray,
 	norm_func: Callable[[np.ndarray], float] = np.linalg.norm
-) -> tuple[list[tuple[int, int]], float, list[list[int]], list[list[int]], np.ndarray]:
+) -> tuple[list[tuple[int, int]], float | np.floating, list[list[int]], list[list[int]], np.ndarray]:
 	"""
 	Computes Dynamic Time Warping (DTW) distance and alignment between two sequences.
 
