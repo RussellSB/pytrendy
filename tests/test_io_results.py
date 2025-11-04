@@ -435,11 +435,10 @@ class TestPyTrendyResults:
             for segment in trend_segments:
                 assert segment['direction'] in ['Up', 'Down']
             
-            # Verify count of each direction
-            up_count = sum(1 for s in trend_segments if s['direction'] == 'Up')
-            down_count = sum(1 for s in trend_segments if s['direction'] == 'Down')
-            assert up_count == 3
-            assert down_count == 3
+            # Verify count of each direction using summary
+            direction_counts = gradual_results.summary['direction_counts']
+            assert direction_counts['Up'] == 3
+            assert direction_counts['Down'] == 3
 
         @pytest.mark.core
         def test_filter_segments_any_direction(self, gradual_results):
