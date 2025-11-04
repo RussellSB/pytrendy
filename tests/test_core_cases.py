@@ -8,38 +8,11 @@ directions against expected behavior.
 
 import pytest
 import pytrendy as pt
-import pandas as pd
+from conftest import assert_segments_match
 
 
 class TestCoreCases:
     """Test cases for core logic on synthetic data."""
-
-    def _assert_segments_match(self, actual_segments, expected_segments):
-        """
-        Helper method to validate that actual segments match expected segments.
-        
-        Args:
-            actual_segments: List of dictionaries, each representing a detected segment.
-                Each dictionary must have the following keys:
-                    - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                    - 'start': str or Timestamp, the start date of the segment
-                    - 'end': str or Timestamp, the end date of the segment
-            expected_segments: List of dictionaries with the same structure as actual_segments,
-                specifying the expected direction and date boundaries for each segment.
-                Dates should be in 'YYYY-MM-DD' format for comparison.
-        """
-        # Assert number of segments matches
-        assert len(actual_segments) == len(expected_segments), \
-            f"Expected {len(expected_segments)} segments, got {len(actual_segments)}"
-        
-        # Assert each segment matches expected values
-        for i, (actual, expected) in enumerate(zip(actual_segments, expected_segments)):
-            assert actual['direction'] == expected['direction'], \
-                f"Segment {i}: Expected direction '{expected['direction']}', got '{actual['direction']}'"
-            assert pd.to_datetime(actual['start']).strftime('%Y-%m-%d') == expected['start'], \
-                f"Segment {i}: Expected start '{expected['start']}', got '{actual['start']}'"
-            assert pd.to_datetime(actual['end']).strftime('%Y-%m-%d') == expected['end'], \
-                f"Segment {i}: Expected end '{expected['end']}', got '{actual['end']}'"
 
     @pytest.mark.core
     def test_gradual_trends(self):
@@ -66,7 +39,7 @@ class TestCoreCases:
             {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
         ]
         
-        self._assert_segments_match(results.segments, expected_segments)
+        assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_abrupt_trends_no_padding(self):
@@ -89,7 +62,7 @@ class TestCoreCases:
             {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-06-29'},
         ]
         
-        self._assert_segments_match(results.segments, expected_segments)
+        assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_abrupt_trends_with_padding(self):
@@ -112,4 +85,4 @@ class TestCoreCases:
             {'direction': 'Flat', 'start': '2025-06-03', 'end': '2025-06-29'},
         ]
         
-        self._assert_segments_match(results.segments, expected_segments)
+        assert_segments_match(results.segments, expected_segments)
