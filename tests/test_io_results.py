@@ -222,8 +222,9 @@ class TestPytrendyResults:
         from pytrendy.io.results_pytrendy import PyTrendyResults
         results = PyTrendyResults([])
         
-        # When segments are empty, set_df returns early without setting self.df
-        # This is the current behavior - df attribute may not exist
+        # Current behavior: When segments are empty, set_df returns early
+        # without setting self.df attribute. This test verifies this behavior.
+        # If the attribute exists, it should be an empty DataFrame.
         if hasattr(results, 'df'):
             assert isinstance(results.df, pd.DataFrame)
             assert len(results.df) == 0
@@ -407,8 +408,9 @@ class TestPytrendyResults:
             plot=False
         )
         
-        # Note: Current implementation may not set summary attribute when segments are empty
-        # Only test print_summary if results have segments
+        # Current behavior: When segments are empty, set_summary() returns early
+        # without setting the summary attribute. This test handles that case.
+        # Only attempt print_summary if results have segments and summary exists.
         if len(results.segments) > 0 and hasattr(results, 'summary'):
             try:
                 results.print_summary()
