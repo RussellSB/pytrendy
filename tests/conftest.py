@@ -21,9 +21,11 @@ def assert_segments_match(actual_segments, expected_segments):
                 - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
                 - 'start': str or Timestamp, the start date of the segment
                 - 'end': str or Timestamp, the end date of the segment
-        expected_segments: List of dictionaries with the same structure as actual_segments,
-            specifying the expected direction and date boundaries for each segment.
-            Dates should be in 'YYYY-MM-DD' format for comparison.
+        expected_segments: List of dictionaries with the same structure as actual_segments.
+            Each dictionary must have the following keys:
+                - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
+                - 'start': str, the start date of the segment in 'YYYY-MM-DD' format
+                - 'end': str, the end date of the segment in 'YYYY-MM-DD' format
     
     Raises:
         AssertionError: If the segments don't match in count, direction, or date boundaries.
