@@ -315,7 +315,7 @@ class TestPyTrendyResults:
             assert gradual_results.df_summary.index.name == 'time_index'
 
         @pytest.mark.core
-        def test_df_have_required_cols(self, gradual_results):
+        def test_df_has_required_cols(self, gradual_results):
             """Test that DataFrame has required columns."""
             required_cols = ['direction', 'start', 'end', 'days']
             
