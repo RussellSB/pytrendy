@@ -24,6 +24,7 @@ These tests are marked as 'core' to ensure they're always run during CI/CD.
 import pytest
 import pytrendy as pt
 import pandas as pd
+from conftest import assert_segments_match
 
 
 class TestPyTrendyResults:
@@ -354,10 +355,7 @@ class TestPyTrendyResults:
                 {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
             ]
             
-            for i, segment in enumerate(up_segments):
-                assert segment['direction'] == 'Up'
-                assert pd.to_datetime(segment['start']).strftime('%Y-%m-%d') == expected_up[i]['start']
-                assert pd.to_datetime(segment['end']).strftime('%Y-%m-%d') == expected_up[i]['end']
+            assert_segments_match(up_segments, expected_up)
 
         @pytest.mark.core
         def test_filter_segments_by_direction_down(self, gradual_results):
@@ -375,10 +373,7 @@ class TestPyTrendyResults:
                 {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
             ]
             
-            for i, segment in enumerate(down_segments):
-                assert segment['direction'] == 'Down'
-                assert pd.to_datetime(segment['start']).strftime('%Y-%m-%d') == expected_down[i]['start']
-                assert pd.to_datetime(segment['end']).strftime('%Y-%m-%d') == expected_down[i]['end']
+            assert_segments_match(down_segments, expected_down)
 
         @pytest.mark.core
         def test_filter_segments_by_direction_flat(self, gradual_results):
@@ -396,10 +391,7 @@ class TestPyTrendyResults:
                 {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
             ]
             
-            for i, segment in enumerate(flat_segments):
-                assert segment['direction'] == 'Flat'
-                assert pd.to_datetime(segment['start']).strftime('%Y-%m-%d') == expected_flat[i]['start']
-                assert pd.to_datetime(segment['end']).strftime('%Y-%m-%d') == expected_flat[i]['end']
+            assert_segments_match(flat_segments, expected_flat)
 
         @pytest.mark.core
         def test_filter_segments_by_direction_noise(self, outlier_signal):
@@ -417,10 +409,12 @@ class TestPyTrendyResults:
             assert isinstance(noise_segments, list)
             assert len(noise_segments) == 1
             
-            # Check explicit segment details
-            assert noise_segments[0]['direction'] == 'Noise'
-            assert pd.to_datetime(noise_segments[0]['start']).strftime('%Y-%m-%d') == '2025-01-01'
-            assert pd.to_datetime(noise_segments[0]['end']).strftime('%Y-%m-%d') == '2025-02-21'
+            # Expected Noise segment from outlier signal
+            expected_noise = [
+                {'direction': 'Noise', 'start': '2025-01-01', 'end': '2025-02-21'},
+            ]
+            
+            assert_segments_match(noise_segments, expected_noise)
 
         @pytest.mark.core
         def test_filter_segments_up_down_combined(self, gradual_results):
