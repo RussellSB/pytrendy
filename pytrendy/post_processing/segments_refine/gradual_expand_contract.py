@@ -5,7 +5,7 @@ Functions for refining segment boundaries by expanding or contracting based on l
 
 import pandas as pd
 from copy import deepcopy
-from .boundary_adjustment import update_prev_segment, update_next_segment
+from .update_neighbours import update_prev_segment, update_next_segment
 
 
 def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:

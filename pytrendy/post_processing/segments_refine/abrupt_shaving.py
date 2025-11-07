@@ -5,7 +5,7 @@ Functions for refining abrupt segments by detecting changepoints using z-score o
 
 import pandas as pd
 from copy import deepcopy
-from .boundary_adjustment import update_prev_segment, update_next_segment
+from .update_neighbours import update_prev_segment, update_next_segment
 
 
 def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict, second_pass: bool = False, init_segments: list[dict] | None = None) -> list[dict]:

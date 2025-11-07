@@ -27,18 +27,18 @@ Main orchestration module with `refine_segments()` function that coordinates the
 
 The `segments_refine` package contains focused sub-modules:
 
-### [segments_refine.boundary_adjustment](segments_refine/boundary_adjustment)
+### [segments_refine.update_neighbours](segments_refine/update_neighbours)
 Helper functions for adjusting segment boundaries when neighboring segments are updated:
 - `update_prev_segment`: Adjusts the end of the previous segment
 - `update_next_segment`: Adjusts the start of the next segment
 
-### [segments_refine.expansion_contraction](segments_refine/expansion_contraction)
+### [segments_refine.gradual_expand_contract](segments_refine/gradual_expand_contract)
 - `expand_contract_segments`: Adjusts boundaries based on local extrema (±7 days window)
 
-### [segments_refine.trend_classification](segments_refine/trend_classification)
+### [segments_refine.trend_classify](segments_refine/trend_classify)
 - `classify_trends`: Uses Dynamic Time Warping (DTW) to label segments as 'gradual' or 'abrupt'
 
-### [segments_refine.abrupt_handling](segments_refine/abrupt_handling)
+### [segments_refine.abrupt_shaving](segments_refine/abrupt_shaving)
 - `shave_abrupt_trends`: Detects changepoints in abrupt segments using z-score outliers
 
 ### [segments_refine.segment_grouping](segments_refine/segment_grouping)

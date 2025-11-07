@@ -5,9 +5,9 @@ Main orchestration function for the full post-processing pipeline to refine dete
 
 import pandas as pd
 from copy import deepcopy
-from .trend_classification import classify_trends
-from .expansion_contraction import expand_contract_segments
-from .abrupt_handling import shave_abrupt_trends
+from .trend_classify import classify_trends
+from .gradual_expand_contract import expand_contract_segments
+from .abrupt_shaving import shave_abrupt_trends
 from .segment_grouping import group_segments
 from .artifact_cleanup import clean_artifacts, fill_in_flats
 
