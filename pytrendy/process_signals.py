@@ -3,7 +3,7 @@
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
-from .post_processing.segment_grouping import GROUPING_DISTANCE
+from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
 def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """

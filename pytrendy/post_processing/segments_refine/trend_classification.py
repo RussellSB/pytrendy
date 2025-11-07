@@ -6,8 +6,8 @@ Functions for classifying segments as 'gradual' or 'abrupt' using DTW.
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-from ..simpledtw import dtw
-from ..io.data_loader import load_data
+from ...simpledtw import dtw
+from ...io.data_loader import load_data
 
 
 def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:

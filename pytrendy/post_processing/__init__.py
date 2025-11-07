@@ -18,31 +18,33 @@ Applies minimum length constraints to ensure meaningful segments are retained:
 - Flat/Noise regions: ≥ 3 days
 
 
-## 2. Segment Refinement Modules
+## 2. Segment Refinement Package
 
-The segment refinement functionality has been split into focused modules:
+The segment refinement functionality is organized under the `segments_refine` package:
 
 ### [segments_refine](segments_refine)
-Main orchestration function (`refine_segments`) that coordinates the full post-processing pipeline.
+Main orchestration module with `refine_segments()` function that coordinates the full post-processing pipeline.
 
-### [boundary_adjustment](boundary_adjustment)
+The `segments_refine` package contains focused sub-modules:
+
+### [segments_refine.boundary_adjustment](segments_refine/boundary_adjustment)
 Helper functions for adjusting segment boundaries when neighboring segments are updated:
 - `update_prev_segment`: Adjusts the end of the previous segment
 - `update_next_segment`: Adjusts the start of the next segment
 
-### [expansion_contraction](expansion_contraction)
+### [segments_refine.expansion_contraction](segments_refine/expansion_contraction)
 - `expand_contract_segments`: Adjusts boundaries based on local extrema (±7 days window)
 
-### [trend_classification](trend_classification)
+### [segments_refine.trend_classification](segments_refine/trend_classification)
 - `classify_trends`: Uses Dynamic Time Warping (DTW) to label segments as 'gradual' or 'abrupt'
 
-### [abrupt_handling](abrupt_handling)
+### [segments_refine.abrupt_handling](segments_refine/abrupt_handling)
 - `shave_abrupt_trends`: Detects changepoints in abrupt segments using z-score outliers
 
-### [segment_grouping](segment_grouping)
+### [segments_refine.segment_grouping](segments_refine/segment_grouping)
 - `group_segments`: Merges short, consecutive segments with the same direction
 
-### [artifact_cleanup](artifact_cleanup)
+### [segments_refine.artifact_cleanup](segments_refine/artifact_cleanup)
 - `clean_artifacts`: Removes invalid segments (inversions, overlaps)
 - `fill_in_flats`: Fills gaps between segments with flat regions
 
