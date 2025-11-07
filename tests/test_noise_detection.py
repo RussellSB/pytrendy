@@ -91,12 +91,14 @@ class TestNoiseDetection:
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, date_col='date', value_col='gradual-noisy-20', plot=False)
         
-        # Count noise segments
+        # Count different segment types
         noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        noise_count = len(noise_segments)
+        up_segments = [seg for seg in results.segments if seg['direction'] == 'Up']
+        down_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
+        flat_segments = [seg for seg in results.segments if seg['direction'] == 'Flat']
         
         # The gradual-noisy-20 column should have some noise segments
-        assert noise_count > 0, "gradual-noisy-20 column should detect some noise segments"
+        assert len(noise_segments) > 0, "gradual-noisy-20 column should detect some noise segments"
         
         # Verify that we have a mix of segment types (not all noise)
         segment_types = set(seg['direction'] for seg in results.segments)
@@ -104,3 +106,24 @@ class TestNoiseDetection:
             "gradual-noisy-20 should detect multiple segment types, not just noise"
         assert 'Noise' in segment_types, \
             "gradual-noisy-20 should detect noise segments"
+        
+        # Verify that actual trend segments (Up/Down) are detected despite noise
+        trend_segments = up_segments + down_segments
+        assert len(trend_segments) > 0, \
+            "gradual-noisy-20 should detect at least some Up or Down trend segments"
+        
+        # Calculate noise percentage
+        total_noise_length = sum((pd.to_datetime(seg['end']) - pd.to_datetime(seg['start'])).days + 1 
+                                  for seg in noise_segments)
+        first_date = pd.to_datetime(results.segments[0]['start'])
+        last_date = pd.to_datetime(results.segments[-1]['end'])
+        total_data_length = (last_date - first_date).days + 1
+        noise_percentage = (total_noise_length / total_data_length) * 100
+        
+        # Noise should be significant but not overwhelming (between 30% and 70%)
+        assert 30 <= noise_percentage <= 70, \
+            f"gradual-noisy-20 noise percentage should be between 30% and 70%. Got {noise_percentage:.1f}%"
+        
+        # Verify we have a reasonable mix of flat segments too
+        assert len(flat_segments) > 0, \
+            "gradual-noisy-20 should detect some flat segments"
