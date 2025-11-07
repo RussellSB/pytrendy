@@ -65,7 +65,6 @@ class TestNoiseDetection:
         
         # Count noise segments and calculate total noise length
         noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        total_segments = len(results.segments)
         
         # Calculate total length of noise segments vs total data length
         total_noise_length = 0
@@ -95,7 +94,6 @@ class TestNoiseDetection:
         noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
         up_segments = [seg for seg in results.segments if seg['direction'] == 'Up']
         down_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
-        flat_segments = [seg for seg in results.segments if seg['direction'] == 'Flat']
         
         # The gradual-noisy-20 column should have some noise segments
         assert len(noise_segments) > 0, "gradual-noisy-20 column should detect some noise segments"
