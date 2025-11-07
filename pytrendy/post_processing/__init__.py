@@ -18,14 +18,33 @@ Applies minimum length constraints to ensure meaningful segments are retained:
 - Flat/Noise regions: ≥ 3 days
 
 
-## 2. [segments_refine](segments_refine)
-Refines segment boundaries and improves classification accuracy through multiple steps:
+## 2. Segment Refinement Modules
 
-- `expand_contract_segments`: Adjusts boundaries based on local extrema.
-- `classify_trends`: Uses Dynamic Time Warping (DTW) to label segments as 'gradual' or 'abrupt'.
-- `shave_abrupt_trends`: Detects changepoints in abrupt segments using z-score outliers.
-- `group_segments`: Merges short, consecutive segments with the same direction.
-- `clean_artifacts`: Removes segments that are too short to be meaningful.
+The segment refinement functionality has been split into focused modules:
+
+### [segments_refine](segments_refine)
+Main orchestration function (`refine_segments`) that coordinates the full post-processing pipeline.
+
+### [boundary_adjustment](boundary_adjustment)
+Helper functions for adjusting segment boundaries when neighboring segments are updated:
+- `update_prev_segment`: Adjusts the end of the previous segment
+- `update_next_segment`: Adjusts the start of the next segment
+
+### [expansion_contraction](expansion_contraction)
+- `expand_contract_segments`: Adjusts boundaries based on local extrema (±7 days window)
+
+### [trend_classification](trend_classification)
+- `classify_trends`: Uses Dynamic Time Warping (DTW) to label segments as 'gradual' or 'abrupt'
+
+### [abrupt_handling](abrupt_handling)
+- `shave_abrupt_trends`: Detects changepoints in abrupt segments using z-score outliers
+
+### [segment_grouping](segment_grouping)
+- `group_segments`: Merges short, consecutive segments with the same direction
+
+### [artifact_cleanup](artifact_cleanup)
+- `clean_artifacts`: Removes invalid segments (inversions, overlaps)
+- `fill_in_flats`: Fills gaps between segments with flat regions
 
 
 ## 3. [segments_analyse](segments_analyse)
