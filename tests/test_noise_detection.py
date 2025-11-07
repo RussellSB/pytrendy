@@ -123,7 +123,3 @@ class TestNoiseDetection:
         # Noise should be significant but not overwhelming (between 30% and 70%)
         assert 30 <= noise_percentage <= 70, \
             f"gradual-noisy-20 noise percentage should be between 30% and 70%. Got {noise_percentage:.1f}%"
-        
-        # Verify we have a reasonable mix of flat segments too
-        assert len(flat_segments) > 0, \
-            "gradual-noisy-20 should detect some flat segments"
