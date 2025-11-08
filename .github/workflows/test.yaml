@@ -28,11 +28,21 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest
+          pip install pytest pytest-cov
       
-      - name: Run core tests
+      - name: Run core tests with coverage
         run: |
-          pytest tests/ -v -m core
+          pytest tests/ -v -m core --cov=pytrendy --cov-report=xml --cov-report=term
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-pytrendy
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       
       - name: Run non-core tests
         run: |
