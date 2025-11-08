@@ -30,19 +30,15 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Prepare the dataframe as detect_trends does
+        # Prepare the dataframe with datetime index and value column
         df_copy = df.copy()
         df_copy['date'] = pd.to_datetime(df_copy['date'])
         df_copy.set_index('date', inplace=True)
         df_copy = df_copy[['gradual']]
         
-        # Process signals to match what detect_trends does
-        from pytrendy.process_signals import process_signals
-        df_processed = process_signals(df_copy, 'gradual')
-        
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'gradual', results.segments)
+        fig = plot_pytrendy(df_copy, 'gradual', results.segments)
         
         return fig
 
@@ -60,19 +56,15 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Prepare the dataframe as detect_trends does
+        # Prepare the dataframe with datetime index and value column
         df_copy = df.copy()
         df_copy['date'] = pd.to_datetime(df_copy['date'])
         df_copy.set_index('date', inplace=True)
         df_copy = df_copy[['abrupt']]
         
-        # Process signals to match what detect_trends does
-        from pytrendy.process_signals import process_signals
-        df_processed = process_signals(df_copy, 'abrupt')
-        
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'abrupt', results.segments)
+        fig = plot_pytrendy(df_copy, 'abrupt', results.segments)
         
         return fig
 
@@ -90,18 +82,14 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Prepare the dataframe as detect_trends does
+        # Prepare the dataframe with datetime index and value column
         df_copy = df.copy()
         df_copy['date'] = pd.to_datetime(df_copy['date'])
         df_copy.set_index('date', inplace=True)
         df_copy = df_copy[['abrupt']]
         
-        # Process signals to match what detect_trends does
-        from pytrendy.process_signals import process_signals
-        df_processed = process_signals(df_copy, 'abrupt')
-        
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'abrupt', results.segments)
+        fig = plot_pytrendy(df_copy, 'abrupt', results.segments)
         
         return fig
