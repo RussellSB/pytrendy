@@ -1,9 +1,9 @@
 """
-Tests for noise detection in trend detection algorithm.
+Tests for random noise detection in trend detection algorithm.
 
 These tests verify that the trend detection algorithm correctly identifies
-noise segments based on the noise level in the data. When noise increases,
-more and/or longer noise segments should be detected.
+noise segments based on randomly generated noise at different levels. When noise 
+increases, more and/or longer noise segments should be detected.
 """
 
 import pytest
@@ -12,8 +12,8 @@ import pandas as pd
 import pytrendy as pt
 
 
-class TestNoiseDetection:
-    """Test cases for noise detection with different noise levels."""
+class TestNoiseRandom:
+    """Test cases for noise detection with randomly generated noise at different levels."""
 
     @pytest.mark.core
     def test_increasing_noise_levels(self):
