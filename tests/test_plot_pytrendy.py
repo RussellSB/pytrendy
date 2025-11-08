@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 class TestPlotPytrendy:
     """Test cases for plot visualization on synthetic data."""
 
+    @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_gradual_trends(self):
         """Test visualization of gradual trends in synthetic data."""
@@ -44,6 +45,7 @@ class TestPlotPytrendy:
         
         return fig
 
+    @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_abrupt_trends_no_padding(self):
         """Test visualization of abrupt trends without padding."""
@@ -72,6 +74,7 @@ class TestPlotPytrendy:
         
         return fig
 
+    @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_abrupt_trends_with_padding(self):
         """Test visualization of abrupt trends with padding enabled."""
