@@ -4,7 +4,3 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-.coverage
-coverage.xml
-htmlcov/
-.pytest_cache/
