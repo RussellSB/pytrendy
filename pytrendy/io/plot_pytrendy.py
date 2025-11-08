@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], return_fig: bool = False):
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict]) -> None:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -19,12 +19,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             Name of the column containing the signal to plot.
         segments_enhanced (list):
             List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
-        return_fig (bool, optional):
-            If True, returns the figure object instead of showing it. Defaults to False.
 
     Returns:
-        matplotlib.figure.Figure or None:
-            If return_fig is True, returns the figure object. Otherwise, displays the plot and returns None.
+        None:
+            Displays a matplotlib plot inline. Does not return any object.
     """
     
     # Define colors
@@ -157,8 +155,4 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
 
     plt.tight_layout()
-    
-    if return_fig:
-        return fig
-    else:
-        plt.show()
+    plt.show()

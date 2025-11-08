@@ -28,7 +28,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e .
-          pip install pytest pytest-cov pytest-mpl
+          pip install pytest pytest-cov
       
       - name: Run core tests with coverage
         run: |

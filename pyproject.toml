@@ -29,6 +29,5 @@ include = ["pytrendy*"]
 
 [tool.pytest.ini_options]
 markers = [
-    "core: essential tests that must pass for core functionality",
-    "plot: tests for visualization/plotting functionality"
+    "core: essential tests that must pass for core functionality"
 ]
