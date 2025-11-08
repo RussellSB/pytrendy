@@ -30,9 +30,9 @@ jobs:
           pip install -e .
           pip install pytest pytest-cov
       
-      - name: Run core tests with coverage
+      - name: Run all tests with coverage
         run: |
-          pytest tests/ -v -m core --cov=pytrendy --cov-report=xml --cov-report=term
+          pytest tests/ -v --cov=pytrendy --cov-report=xml --cov-report=term
       
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
@@ -43,16 +43,3 @@ jobs:
           fail_ci_if_error: false
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-      
-      - name: Run non-core tests
-        run: |
-          # Check if there are any non-core tests to run (exit code 5 means no tests collected)
-          set +e
-          pytest tests/ --collect-only -q -m "not core" > /dev/null 2>&1
-          exit_code=$?
-          set -e
-          if [ $exit_code -eq 5 ]; then
-            echo "No non-core tests found, skipping..."
-          else
-            pytest tests/ -v -m "not core"
-          fi
