@@ -507,6 +507,57 @@ class TestPyTrendyResults:
             
             assert filtered == []
 
+        @pytest.mark.core
+        def test_filter_segments_invalid_sort_by(self, gradual_results, capsys):
+            """Test filter_segments with invalid sort_by parameter prints error message."""
+            # Call with invalid sort_by parameter
+            filtered = gradual_results.filter_segments(sort_by='invalid_sort', format='dict')
+            
+            # Capture printed output
+            captured = capsys.readouterr()
+            
+            # Should print error message (line 144)
+            assert 'invalid_sort is not a valid sort_by' in captured.out
+            assert "['time_index', 'change_rank']" in captured.out
+            
+            # Should still return segments (unsorted)
+            assert isinstance(filtered, list)
+            assert len(filtered) == 9
+
+        @pytest.mark.core
+        def test_filter_segments_invalid_direction(self, gradual_results, capsys):
+            """Test filter_segments with invalid direction parameter prints error message."""
+            # Call with invalid direction parameter
+            filtered = gradual_results.filter_segments(direction='InvalidDirection', format='dict')
+            
+            # Capture printed output
+            captured = capsys.readouterr()
+            
+            # Should print error message (line 152)
+            assert 'InvalidDirection is not a valid direction' in captured.out
+            assert "['Any', 'Up/Down', 'Up', 'Down', 'Flat', 'Noise']" in captured.out
+            
+            # Should still return all segments
+            assert isinstance(filtered, list)
+            assert len(filtered) == 9
+
+        @pytest.mark.core
+        def test_filter_segments_invalid_format(self, gradual_results, capsys):
+            """Test filter_segments with invalid format parameter prints error message and returns segments."""
+            # Call with invalid format parameter
+            result = gradual_results.filter_segments(direction='Any', format='invalid_format')
+            
+            # Capture printed output
+            captured = capsys.readouterr()
+            
+            # Should print error message (line 156)
+            assert 'invalid_format is not a valid format' in captured.out
+            assert "['dict', 'df']" in captured.out
+            
+            # Should return segments as fallback (line 164)
+            assert isinstance(result, list)
+            assert len(result) == 9
+
     class TestPrintSummary:
         """Tests for print_summary() method - output generation."""
 
@@ -545,6 +596,46 @@ class TestPyTrendyResults:
                     print(f"print_summary raised exception: {e}")
                 
                 assert success
+
+        @pytest.mark.core
+        def test_print_summary_only_flat_and_noise(self):
+            """Test that print_summary handles case with only Flat/Noise segments (no Up/Down trends)."""
+            import numpy as np
+            
+            # Create a signal with only noise (random walk with high variance)
+            # This should produce segments but no clear Up/Down trends
+            np.random.seed(42)
+            dates = pd.date_range('2025-01-01', periods=30, freq='D')
+            values = np.random.normal(10, 5, 30)  # High variance noise
+            df = pd.DataFrame({
+                'date': dates,
+                'value': values
+            })
+            
+            results = pt.detect_trends(
+                df,
+                date_col='date',
+                value_col='value',
+                plot=False
+            )
+            
+            # Should have segments (Flat/Noise), but no Up/Down trends
+            assert len(results.segments) > 0
+            
+            # Verify there are no Up or Down trends
+            up_down_segments = results.filter_segments(direction='Up/Down', format='dict')
+            assert len(up_down_segments) == 0
+            
+            # print_summary should handle this gracefully and print "Detected no trends..."
+            # This will exercise lines 92-93
+            try:
+                results.print_summary()
+                success = True
+            except Exception as e:
+                success = False
+                print(f"print_summary raised exception: {e}")
+            
+            assert success
 
     class TestIntegration:
         """Integration tests for full workflows and edge cases."""
