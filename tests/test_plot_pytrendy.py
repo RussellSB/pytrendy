@@ -8,13 +8,19 @@ visualizations for different types of trends using pytest-mpl for image comparis
 import pytest
 import pandas as pd
 import pytrendy as pt
+from pytrendy.io.plot_pytrendy import plot_pytrendy
 import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
-import matplotlib.pyplot as plt
 
 
 class TestPlotPytrendy:
     """Test cases for plot visualization on synthetic data."""
+
+    def _prepare_and_plot(self, df, value_col, segments):
+        """Helper to prepare dataframe and create plot."""
+        df['date'] = pd.to_datetime(df['date'])
+        df = df.set_index('date')[[value_col]]
+        return plot_pytrendy(df, value_col, segments, suppress_show=True)
 
     @pytest.mark.core
     @pytest.mark.plot
@@ -30,14 +36,7 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Prepare dataframe for plotting
-        df['date'] = pd.to_datetime(df['date'])
-        df = df.set_index('date')[['gradual']]
-        
-        # Create the plot and return the figure
-        from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df, 'gradual', results.segments, suppress_show=True)
-        
+        fig = self._prepare_and_plot(df, 'gradual', results.segments)
         return fig
 
     @pytest.mark.core
@@ -54,14 +53,7 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Prepare dataframe for plotting
-        df['date'] = pd.to_datetime(df['date'])
-        df = df.set_index('date')[['abrupt']]
-        
-        # Create the plot and return the figure
-        from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df, 'abrupt', results.segments, suppress_show=True)
-        
+        fig = self._prepare_and_plot(df, 'abrupt', results.segments)
         return fig
 
     @pytest.mark.core
@@ -78,12 +70,5 @@ class TestPlotPytrendy:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Prepare dataframe for plotting
-        df['date'] = pd.to_datetime(df['date'])
-        df = df.set_index('date')[['abrupt']]
-        
-        # Create the plot and return the figure
-        from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df, 'abrupt', results.segments, suppress_show=True)
-        
+        fig = self._prepare_and_plot(df, 'abrupt', results.segments)
         return fig

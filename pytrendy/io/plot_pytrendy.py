@@ -157,5 +157,6 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
 
     plt.tight_layout()
-    if not suppress_show: plt.show()
+    if not suppress_show:
+        plt.show()
     return fig
