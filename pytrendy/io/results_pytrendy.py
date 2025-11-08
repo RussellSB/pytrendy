@@ -157,10 +157,9 @@ class PyTrendyResults:
         if format=='dict':
             return segments
         elif format == 'df':
-            if len(segments) == 0:
-                return pd.DataFrame()
             df = pd.DataFrame(segments)
-            df = df.set_index('time_index')
+            if len(segments) > 0:
+                df = df.set_index('time_index')
             return df
         
         return segments
