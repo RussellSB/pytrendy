@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 class TestPlotPytrendy:
     """Test cases for plot visualization on synthetic data."""
 
+    @pytest.mark.core
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_gradual_trends(self):
@@ -41,10 +42,11 @@ class TestPlotPytrendy:
         
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'gradual', results.segments, return_fig=True)
+        fig = plot_pytrendy(df_processed, 'gradual', results.segments)
         
         return fig
 
+    @pytest.mark.core
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_abrupt_trends_no_padding(self):
@@ -70,10 +72,11 @@ class TestPlotPytrendy:
         
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'abrupt', results.segments, return_fig=True)
+        fig = plot_pytrendy(df_processed, 'abrupt', results.segments)
         
         return fig
 
+    @pytest.mark.core
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='baseline')
     def test_plot_abrupt_trends_with_padding(self):
@@ -99,6 +102,6 @@ class TestPlotPytrendy:
         
         # Create the plot and return the figure
         from pytrendy.io.plot_pytrendy import plot_pytrendy
-        fig = plot_pytrendy(df_processed, 'abrupt', results.segments, return_fig=True)
+        fig = plot_pytrendy(df_processed, 'abrupt', results.segments)
         
         return fig
