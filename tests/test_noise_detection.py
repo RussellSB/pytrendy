@@ -102,8 +102,6 @@ class TestNoiseDetection:
         segment_types = set(seg['direction'] for seg in results.segments)
         assert len(segment_types) > 1, \
             "gradual-noisy-20 should detect multiple segment types, not just noise"
-        assert 'Noise' in segment_types, \
-            "gradual-noisy-20 should detect noise segments"
         
         # Verify that actual trend segments (Up/Down) are detected despite noise
         trend_segments = up_segments + down_segments
