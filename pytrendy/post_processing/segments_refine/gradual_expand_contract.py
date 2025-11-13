@@ -37,9 +37,31 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         start_df = _get_window_df(segment['start'])
         end_df = _get_window_df(segment['end'])
 
+        # Pre-crop local windows to avoid overlapping neighbouring NOISE segments
+        # This ensures the extrema search doesn't pull from a noise neighbour region
+        # and reduces the need for later conflict corrections.
+        if i > 0:
+            prev_seg = segments_refined[i - 1]
+            if prev_seg.get('direction') == 'Noise':
+                prev_end = pd.to_datetime(prev_seg['end'])
+                # Exclude days that belong to the previous noise segment
+                crop_from = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                cropped = start_df.loc[crop_from:]
+                if not cropped.empty:
+                    start_df = cropped
+
+        if i < len(segments_refined) - 1:
+            next_seg = segments_refined[i + 1]
+            if next_seg.get('direction') == 'Noise':
+                next_start = pd.to_datetime(next_seg['start'])
+                # Exclude days that belong to the next noise segment
+                crop_to = (next_start - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                cropped = end_df.loc[:crop_to]
+                if not cropped.empty:
+                    end_df = cropped
+
         if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
             continue # don't expand/contract abrupt trends. Leave precise to shave.
-
         if segment['direction'] == 'Up':
             new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1) # get min, latest if all same
             new_end = end_df[value_col].idxmax()
@@ -48,32 +70,6 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
             new_end = end_df[value_col].idxmin()
         else:
             continue
-
-        # Check if new start overlaps with conflicting neighbour (Noise or opposite trend)
-        if i > 0:
-            prev_dir = segments_refined[i-1]['direction']
-            prev_end = pd.to_datetime(segments_refined[i-1]['end'])
-
-            is_prev_trend = (prev_dir in ['Up', 'Down'])
-            is_prev_opposite_trend = is_prev_trend and (prev_dir != segment['direction'])
-            is_prev_noise = (prev_dir == 'Noise')
-
-            start_overlaps_conflict = (is_prev_noise or is_prev_opposite_trend) and (new_start <= prev_end)
-            if start_overlaps_conflict:
-                new_start = prev_end + pd.Timedelta(days=1)
-
-        # Check if new end overlaps with conflicting neighbour (Noise or opposite trend)
-        if i < len(segments_refined) - 1:
-            next_dir = segments_refined[i+1]['direction']
-            next_start = pd.to_datetime(segments_refined[i+1]['start'])
-
-            is_next_trend = (next_dir in ['Up', 'Down'])
-            is_next_opposite_trend = is_next_trend and (next_dir != segment['direction'])
-            is_next_noise = (next_dir == 'Noise')
-
-            end_overlaps_conflict = (is_next_noise or is_next_opposite_trend) and (new_end >= next_start)
-            if end_overlaps_conflict:
-                new_end = next_start - pd.Timedelta(days=1)
 
         # Check for any inversions
         start_inverted = (new_start >= pd.to_datetime(segment['end']))
