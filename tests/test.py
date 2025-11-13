@@ -67,7 +67,7 @@ df.loc['2025-06-01':'2025-06-01', 'abrupt'] = 300 # TODONE: shave noise more pre
 df.loc['2025-02-01':'2025-02-01', 'abrupt'] = 500  # TODONE: detect the noise appropriately
 # df.loc['2025-02-25':'2025-02-25', 'abrupt'] = 500 # TODONE: fix that it affects uptrend abrupt on left #TODONE: fix flat overlap from right # TODONE: flat fill ins
 df.loc['2025-03-01':'2025-03-01', 'abrupt'] = 500 # TODONE: fix that it neglects downtrend abrupt on right
-df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 #TODO: improve downtrends on right, so it doesnt displace start left # TODONE: fix that it affects downtrend gradual on right
+df.loc['2025-04-14':'2025-04-14', 'abrupt'] = 500 #TODONE: improve downtrends on right, so it doesnt displace start left # TODONE: fix that it affects downtrend gradual on right
 # df[['abrupt']].plot(figsize=(20,5))
 results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
