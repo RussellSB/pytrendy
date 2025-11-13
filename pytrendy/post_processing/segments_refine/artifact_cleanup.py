@@ -259,7 +259,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         threshold_noise = 2.5 
         if is_gradual: threshold_noise = 5
         if is_flat: threshold_noise = 0
-        too_noisy = (snr <= threshold_noise)
+        too_noisy = (snr < threshold_noise)
 
         # Edge case 2.1: Check if abrupt segment near noise
         is_abrupt_near_noise = is_abrupt and (left_is_noise or right_is_noise)
