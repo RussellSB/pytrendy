@@ -229,7 +229,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             continue # Excludes segment.
         segments_refined.append(segment)
 
-    # Pass 5: Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough
+    # Pass 5: 
+    # - Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough
+    # - Sets trends to flat when too flat.
     segments = deepcopy(segments_refined)
     segments_refined = [] 
     for i, segment in enumerate(segments):
@@ -272,12 +274,12 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         value_start = df.loc[start, value_col]
         value_end = df.loc[end, value_col]
         diff = abs(value_end - value_start)
-        threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
+        threshold_diff = float(df['value_cleaned'].abs().max()) * 0.03
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
         # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
         total_change = abs(df_segment[value_col].diff().sum())
-        threshold_diff = float(df['value_cleaned'].abs().quantile(0.05))
+        threshold_diff = float(df['value_cleaned'].abs().max()) * 0.03
         trend_too_small = (is_gradual or is_abrupt) and (total_change <= threshold_diff)
 
         # Edge case 3.3: If max is not at end, or min is not at end for Up/Down trends - too flat for trend, consider as noise
@@ -299,8 +301,12 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close or trend_too_small or trend_too_flat: 
+        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise or trend_ends_too_close or trend_too_small:
             segment['direction'] = 'Noise' 
+            if 'trend_class' in segment: del segment['trend_class']
+
+        if trend_too_flat:
+            segment['direction'] = 'Flat' 
             if 'trend_class' in segment: del segment['trend_class']
         
         segments_refined.append(segment)

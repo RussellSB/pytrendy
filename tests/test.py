@@ -183,7 +183,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350 # TODO: still detect precisely after generelisation # TODONE: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350 # TODONE: still detect precisely after generelisation # TODONE: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
@@ -193,7 +193,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
-df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 # TODO: still detect precisely after generelisation # DONE: fix far right wont be exact, group then shave
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 # TODONE: still detect precisely after generelisation # DONE: fix far right wont be exact, group then shave
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
