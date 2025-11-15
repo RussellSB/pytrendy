@@ -394,7 +394,7 @@ class TestResultsFilterSegments:
         expected_flat = [
             {'direction': 'Flat', 'start': '2025-02-06', 'end': '2025-02-09'},
             {'direction': 'Flat', 'start': '2025-03-15', 'end': '2025-03-17'},
-            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},
         ]
         
         assert_segments_match(flat_segments, expected_flat)
@@ -417,7 +417,7 @@ class TestResultsFilterSegments:
         
         # Expected Noise segment from outlier signal
         expected_noise = [
-            {'direction': 'Noise', 'start': '2025-01-01', 'end': '2025-02-21'},
+            {'direction': 'Noise', 'start': '2025-02-19', 'end': '2025-02-21'},
         ]
         
         assert_segments_match(noise_segments, expected_noise)

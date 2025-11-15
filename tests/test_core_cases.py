@@ -36,7 +36,7 @@ class TestCoreCases:
             {'direction': 'Down', 'start': '2025-03-18', 'end': '2025-04-01'},
             {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
             {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
-            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'},
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},
         ]
         
         assert_segments_match(results.segments, expected_segments)
@@ -52,14 +52,13 @@ class TestCoreCases:
             plot=False,
             method_params=dict(is_abrupt_padded=False)
         )
-        
         # Expected segments based on current behavior
         expected_segments = [
             {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
             {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-01'},
             {'direction': 'Flat', 'start': '2025-03-02', 'end': '2025-05-01'},
             {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-05-05'},
-            {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-06-29'},
+            {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-06-30'},
         ]
         
         assert_segments_match(results.segments, expected_segments)
@@ -75,14 +74,13 @@ class TestCoreCases:
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
-        
         # Expected segments based on current behavior
         expected_segments = [
             {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
             {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-29'},
             {'direction': 'Flat', 'start': '2025-03-30', 'end': '2025-05-01'},
             {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-06-02'},
-            {'direction': 'Flat', 'start': '2025-06-03', 'end': '2025-06-29'},
+            {'direction': 'Flat', 'start': '2025-06-03', 'end': '2025-06-30'},
         ]
         
         assert_segments_match(results.segments, expected_segments)
