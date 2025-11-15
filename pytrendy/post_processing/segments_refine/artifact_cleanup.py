@@ -315,25 +315,66 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
     return segments_refined
 
 
-def fill_in_flats(segments: list[dict]) -> list[dict]:
-    """Assumes remaining gaps between segments are flats (after post-processing). Fills them in."""
+def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
+    """Fill uncovered time gaps with Flat segments using df's DateTimeIndex.
+
+    Adds Flat segments for:
+    - Internal gaps between consecutive segments.
+    - Leading gap before the first segment if df index starts earlier.
+    - Trailing gap after the last segment if df index ends later.
+    """
+    if not segments:
+        if not df.empty:
+            start, end = df.index.min(), df.index.max()
+            return [dict(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), direction='Flat')]
+        return []
+
+    # Ensure df has a DateTimeIndex
+    if not isinstance(df.index, pd.DatetimeIndex):
+        raise ValueError("DataFrame index must be a DatetimeIndex for fill_in_flats.")
+
     segments_refined = segments.copy()
-    j = 0
-    for i, curr_seg in enumerate(segments):
-        if i >= (len(segments) - 1): continue # skip if cant see next
-        next_seg = segments[i+1]
 
-        start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
-        end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
-        days = (end - start).days
-
-        # Trigger fill in when not exactly neighbouring
-        if days >= 0:
-            new_flat = dict(
-                start = start.strftime('%Y-%m-%d'),
-                end = end.strftime('%Y-%m-%d'),
+    # Leading gap
+    data_start = df.index.min()
+    first_start = pd.to_datetime(segments_refined[0]['start'])
+    if data_start < first_start:
+        lead_end = first_start - pd.Timedelta(days=1)
+        if lead_end >= data_start:
+            segments_refined.insert(0, dict(
+                start=data_start.strftime('%Y-%m-%d'),
+                end=lead_end.strftime('%Y-%m-%d'),
                 direction='Flat'
-            )
-            j += 1 # iterate segments vs segments_refined displacement
-            segments_refined.insert(i+j, new_flat)
+            ))
+
+    # Internal gaps (work on snapshot to avoid index shift confusion)
+    j = 0
+    original = segments_refined.copy()
+    for i, curr_seg in enumerate(original):
+        mapped = i + j
+        if mapped >= len(segments_refined) - 1:
+            continue
+        next_seg = segments_refined[mapped + 1]
+        gap_start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
+        gap_end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
+        if gap_end >= gap_start:
+            segments_refined.insert(mapped + 1, dict(
+                start=gap_start.strftime('%Y-%m-%d'),
+                end=gap_end.strftime('%Y-%m-%d'),
+                direction='Flat'
+            ))
+            j += 1
+
+    # Trailing gap
+    data_end = df.index.max()
+    last_end = pd.to_datetime(segments_refined[-1]['end'])
+    if data_end > last_end:
+        trail_start = last_end + pd.Timedelta(days=1)
+        if data_end >= trail_start:
+            segments_refined.append(dict(
+                start=trail_start.strftime('%Y-%m-%d'),
+                end=data_end.strftime('%Y-%m-%d'),
+                direction='Flat'
+            ))
+
     return segments_refined

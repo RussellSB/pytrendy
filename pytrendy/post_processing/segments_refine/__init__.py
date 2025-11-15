@@ -53,6 +53,6 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
         segments_refined = group_segments(segments_refined) # make sure re-classifications are grouped to build strong enough cases for gradual -> abrupts
         segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
 
-    segments_refined = fill_in_flats(segments_refined) # fill in flats in case there are gaps (assume remaining gaps are appropriately flats)
+    segments_refined = fill_in_flats(df, segments_refined) # fill uncovered gaps (leading, internal, trailing) with flats
     segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
     return segments_refined
