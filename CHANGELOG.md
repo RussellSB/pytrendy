@@ -1,3 +1,17 @@
+## [1.1.8](https://github.com/RussellSB/pytrendy/compare/v1.1.7...v1.1.8) (2025-11-15)
+
+
+### Bug Fixes
+
+* **flat fill in:** improve flat fill in to cover outside segment range when exists ([e815adb](https://github.com/RussellSB/pytrendy/commit/e815adb88bfcbab11d2e6cbb1ca8e902e270cc9d))
+* **flat fill in:** make it neglect 0 day leading/trailing and also be robust to grouping ([c4fd9b4](https://github.com/RussellSB/pytrendy/commit/c4fd9b467a9d6a32216b2c6e7f0a81bd0262d62a))
+* **noise detection:** improve precision in case of spike on flat zero signal ([409f359](https://github.com/RussellSB/pytrendy/commit/409f359a0ebc5a0b6cc1749a40e2fb25652e2b2c))
+* **noise detection:** improve sensitivity to flat conversion from trends in light of noise ([96f2e4f](https://github.com/RussellSB/pytrendy/commit/96f2e4f9c06f459ad0bf97f4e15ca3a24d947a84))
+* **noise detection:** improve spikes on gradual when gradual trends are semi-flat. Improved threshold  for edge case 3.1-3.2.  Make trend_too_flat a flat conversion case rather than noise. ([9476b17](https://github.com/RussellSB/pytrendy/commit/9476b17d3ffdbf5758b4ae9c7d3616aa28e4ce1d))
+* **noise detection:** improving trend sensitivity by relying on actual signal for up/down signal processing. This should be better for needing less artifact cleaning. ([7f1c31a](https://github.com/RussellSB/pytrendy/commit/7f1c31a309eeb10dff6d0df0b0e5dd75153693a1))
+* **noise detection:** making encapsulated gradual in noise more lenient. Only converts if small enough (by reichenbach's principle) ([c4c686c](https://github.com/RussellSB/pytrendy/commit/c4c686c0888fb57a32f5b13bc8a50eabe0ce2e86))
+* **noise detection:** move noise adjustment for contract before start_df and end_df logic, to crop it. Further avoids unintended sensitivity to spikes. ([a8b7cbc](https://github.com/RussellSB/pytrendy/commit/a8b7cbcf0acf34f7f2ee72c33ace7688a2bd2553))
+
 ## [1.1.7](https://github.com/RussellSB/pytrendy/compare/v1.1.6...v1.1.7) (2025-11-01)
 
 
