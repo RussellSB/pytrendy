@@ -173,7 +173,7 @@ def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
-    df['smoothed_deriv'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
 
