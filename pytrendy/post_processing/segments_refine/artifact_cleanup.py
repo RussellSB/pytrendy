@@ -253,6 +253,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_gradual = ('trend_class' in segment and segment['trend_class'] == 'gradual')
         is_abrupt = ('trend_class' in segment and segment['trend_class'] == 'abrupt')
         is_padded = is_abrupt and ('padded' in segment) and (segment['padded'] == True)
+        is_small = len(df_segment) <= 5
 
         # Edge case 1: Check SNR for trend but noise
         signal_power = np.mean(df_segment['signal']**2)
@@ -268,7 +269,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         if is_padded: is_abrupt_near_noise = False # overwrite to False if segment got abrupt padded
         
         # Edge case 2.2: Check if gradual segment encapsulated by noise
-        is_gradual_in_noise = is_gradual and (left_is_noise and right_is_noise)
+        is_small_gradual_in_noise = is_gradual and (left_is_noise and right_is_noise) and is_small
 
         # Edge case 3.1: Check if value of end is too close to value of start
         value_start = df.loc[start, value_col]
@@ -301,7 +302,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_gradual_in_noise:
+        if too_noisy or is_abrupt_near_noise or is_small_gradual_in_noise:
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
 
