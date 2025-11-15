@@ -155,7 +155,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
 df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
-df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200 # TODONE: still detect precisely after generelisation # TODONE: fix hang up on abrupt shave # TODONE: fix displaced downtrend on right
+df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200 # TODONE: improved fill in flats to also cover the end # TODONE: still detect precisely after generelisation # TODONE: fix hang up on abrupt shave # TODONE: fix displaced downtrend on right
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
