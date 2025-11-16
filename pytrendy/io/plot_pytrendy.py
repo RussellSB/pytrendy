@@ -35,7 +35,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         'Noise': 'lightgray',
     }
 
-    fig, ax = plt.subplots(figsize=(20, 5))
+    fig, ax = plt.subplots(figsize=(20, 6))
 
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
@@ -142,7 +142,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     # Optional: show grid lines for both
     ax.grid(True, which='major', color='gray', alpha=0.3)
 
-    ax.set_title("PyTrendy Detection", fontsize=20)
+    ax.set_title("Detect Gradual Trends", fontsize=20)
     ax.set_xlabel("Date")
     ax.set_ylabel("Value")
 
@@ -154,7 +154,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
     ]
     ax.legend(handles=legend_handles, loc='upper right', 
-            bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
+            bbox_to_anchor=(1, 1.1), ncol=4, frameon=True)
 
     plt.tight_layout()
     if not suppress_show:
