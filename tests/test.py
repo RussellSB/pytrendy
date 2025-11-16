@@ -145,7 +145,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # spike test 1.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # DONE: fix displaced noise on left
+df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200 # TODO: fix noise artifact on right # DONE: fix displaced noise on left
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
