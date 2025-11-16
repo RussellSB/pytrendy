@@ -198,6 +198,18 @@ df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
 
+# %%
+# spike test 1.7 - add 4 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-02-28':'2025-02-28', 'gradual'] = 125 # TODO: fix noise detected on right-side
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
