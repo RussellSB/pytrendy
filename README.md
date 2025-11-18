@@ -108,8 +108,7 @@ results.df
 
 ## Upcoming
 
-- More DEMO examples [WIP].
 - Full documentation with all features [WIP].
-- Automated testing in CI/CD pipeline.
-- Customising more options for windows.
+- Automated testing in CI/CD pipeline with full code coverage.
 - Even more robust edge case testing & generalising.
+- Customising more options for windows.
