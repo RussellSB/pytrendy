@@ -136,7 +136,7 @@ results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_
 # spike test 0.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 # TODONE: still detect precisely after generelisation # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
+df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 # TODO: fix white gap after noise from final clean artifact # TODONE: still detect precisely after generelisation # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
 # TODONE: fix that neglects downtrend start, on left of noise
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
@@ -145,7 +145,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # spike test 1.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200  # DONE: fix displaced noise on left
+df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200 # TODO: fix noise artifact on right # DONE: fix displaced noise on left
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
 
@@ -154,7 +154,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200 
-df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 200 # TODO: understand why uncovering this, changes noise at 04-08 to be tighter, and removes flats at beginning
 df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200 # TODONE: improved fill in flats to also cover the end # TODONE: still detect precisely after generelisation # TODONE: fix hang up on abrupt shave # TODONE: fix displaced downtrend on right
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
@@ -194,6 +194,18 @@ df.set_index('date', inplace=True)
 df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
 df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 # TODONE: still detect precisely after generelisation # DONE: fix far right wont be exact, group then shave
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+
+
+# %%
+# spike test 1.7 - add 4 spikes
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-02-28':'2025-02-28', 'gradual'] = 125 # TODO: fix noise detected on right-side
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
 
