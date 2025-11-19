@@ -136,7 +136,7 @@ results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_
 # spike test 0.1 - add a spike 
 df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
-df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 # TODO: fix white gap after noise from final clean artifact # TODONE: still detect precisely after generelisation # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
+df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 # TODONE: fix white gap after noise from final clean artifact # TODONE: still detect precisely after generelisation # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
 # TODONE: fix that neglects downtrend start, on left of noise
 df = df.reset_index()
 results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
