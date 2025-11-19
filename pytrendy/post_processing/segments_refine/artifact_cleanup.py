@@ -9,7 +9,7 @@ from copy import deepcopy
 from .segment_grouping import GROUPING_DISTANCE
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict) -> list[dict]:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, inverse_only: bool = False) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -17,6 +17,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
     Args:
         segments_refined (list): List of segment dictionaries potentially with artifacts from post-processing.
         method_params (dict): Referenced to check is_abrupt_padded. If it is, dont check for neighbouring noise to abrupt.
+        inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
         list: Cleaned segment list with only valid-length segments.
@@ -162,6 +163,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         if has_inverse(df, value_col, segment): 
             continue # Excludes segment.
         segments_refined.append(segment)
+
+    if inverse_only:
+        return segments_refined # stops early if only want Pass 1.
 
     # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detection
     segments = deepcopy(segments_refined)

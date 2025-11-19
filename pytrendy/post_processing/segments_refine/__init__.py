@@ -55,6 +55,6 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
 
     segments_refined = fill_in_flats(df, segments_refined) # fill uncovered gaps (leading, internal, trailing) with flats
     segments_refined = group_segments(segments_refined) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
-    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans 1-day flats if any leading/trailing
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, inverse_only=True) # cleans 1-day flats of any leading/trailing only
     
     return segments_refined
