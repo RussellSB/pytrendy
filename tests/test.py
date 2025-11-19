@@ -102,7 +102,7 @@ for noise_std in [0, 10, 20, 50]:
 # %%
 # noise test 2 - noise noise noise
 import numpy as np
-for noise_std in [50]*1:                                        #TODO: improve that it should not detect trends on high noise.
+for noise_std in [50]*1:                                        #TODONE: improve that it should not detect trends on high noise.
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
