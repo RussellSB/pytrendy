@@ -280,6 +280,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         value_end = df.loc[end, value_col]
         diff = abs(value_end - value_start)
         threshold_diff = float(df['value_cleaned'].abs().max()) * 0.01
+        if is_abrupt: # make a bit more lenient for abrupt
+            threshold_diff = float(df['value_cleaned'].abs().max()) * 0.05
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
         # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
@@ -306,7 +308,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_small_gradual_in_noise:
+        if too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise:
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
 
