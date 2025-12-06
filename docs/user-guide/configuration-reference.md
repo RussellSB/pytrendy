@@ -139,6 +139,4 @@ results = detect_trends(
 
 ## Next Steps
 
-- **[Quick Start](quick-start.md)** - Start using PyTrendy
-- **[Advanced Usage](advanced-usage.md)** - Custom pipeline configuration
 - **[API Reference](../reference/pytrendy/index.md)** - Complete function documentation

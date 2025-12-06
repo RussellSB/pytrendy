@@ -14,17 +14,8 @@ PyTrendy transforms raw, noisy time series signals into meaningful segments (Up,
 
 This user guide is organized into the following sections:
 
-### [Pipeline Architecture](pipeline-architecture.md)
-Understand the 5-stage modular pipeline that powers PyTrendy's trend detection.
-
-### [Quick Start](quick-start.md)
-Get up and running with basic trend detection in just a few lines of code.
-
 ### [Working with Results](working-with-results.md)
 Learn how to access, filter, and manipulate trend detection results.
-
-### [Advanced Usage](advanced-usage.md)
-Build custom pipelines using lower-level functions for maximum control.
 
 ### [Visualization](visualization.md)
 Generate publication-ready plots with automatic color-coded segment highlighting.

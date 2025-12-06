@@ -95,5 +95,4 @@ strong_trends = results.df[
 ## Next Steps
 
 - **[Visualization](visualization.md)** - Generate publication-ready plots
-- **[Advanced Usage](advanced-usage.md)** - Build custom pipelines
 - **[Configuration Reference](configuration-reference.md)** - Full parameter documentation
