@@ -93,6 +93,13 @@ plugins:
 extra_css:
   - stylesheets/extra.css
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/RussellSB/pytrendy
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pytrendy
+
 validation:
   links:
     unrecognized_links: ignore
