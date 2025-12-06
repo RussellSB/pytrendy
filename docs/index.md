@@ -29,5 +29,6 @@ Whether you're analyzing financial indicators, sensor outputs, or behavioral met
 ## Next Steps
 
 1. For a quick start with PyTrendy, refer to the [Quickstart](quickstart.md).</br>
-2. For step-by-step tutorials, refer to the [Tutorials](tutorials/index.md).</br>
+2. For learning how to use PyTrendy through practical tutorials, refer to the [Tutorials](tutorials/index.md).</br>
+2. For a higher-level reference on configuration and utilities, refer to the [User Guide](user-guide/index.md).</br>
 3. For detailed function documentation, see the [API Reference](reference/pytrendy/index.md).
