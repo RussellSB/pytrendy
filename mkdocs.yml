@@ -3,8 +3,21 @@ site_name: PyTrendy
 nav:
   - Home: index.md
   - Installation: installation.md
-  - Features: features.md
-  - Usage: usage.md
+  - User Guide:
+    - Overview: user-guide/index.md
+    - Pipeline Architecture: user-guide/pipeline-architecture.md
+    - Quick Start: user-guide/quick-start.md
+    - Working with Results: user-guide/working-with-results.md
+    - Advanced Usage: user-guide/advanced-usage.md
+    - Visualization: user-guide/visualization.md
+    - Configuration Reference: user-guide/configuration-reference.md
+  - Tutorials:
+    - Overview: tutorials/index.md
+    - Core Tutorials:
+      - Getting Started: tutorials/getting-started.md
+      - Custom Pipeline: tutorials/custom-pipeline.md
+      - Abrupt vs Gradual: tutorials/abrupt-vs-gradual.md
+    - Real-World Examples: tutorials/real-world-examples.md
   - API Reference: reference
 
 theme: 
@@ -40,6 +53,8 @@ markdown_extensions:
   - pymdownx.superfences
   - admonition
   - markdown.extensions.admonition
+  - attr_list
+  - md_in_html
 
 plugins:
   - search
@@ -61,9 +76,9 @@ plugins:
             show_signature_annotations: false
             summary: false
             reload: true
-            paths: ['../pytrendy']   # <-- tell it where to load from
+            paths: ['.']   # <-- tell it where to load from
   - api-autonav:
-      modules: ['../pytrendy']
+      modules: ['pytrendy']
       module_options:
         ".*":
           show_symbol_type_heading: true
@@ -76,6 +91,13 @@ plugins:
       exclude_private: false
       show_full_namespace: false
       on_implicit_namespace_package: "warn"
+
+extra_css:
+  - stylesheets/extra.css
+
+validation:
+  links:
+    unrecognized_links: ignore
 
 
 

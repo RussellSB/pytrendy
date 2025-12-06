@@ -1,0 +1,2067 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../abrupt-vs-gradual/">
+      
+      
+        <link rel="next" href="../../reference/pytrendy/">
+      
+      
+      <link rel="icon" href="../../icon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.22">
+    
+    
+      
+        <title>Real-World Examples - PyTrendy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.84d31ad4.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="cyan">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#real-world-examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="PyTrendy" class="md-header__button md-logo" aria-label="PyTrendy" data-md-component="logo">
+      
+  <img src="../../icon.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            PyTrendy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Real-World Examples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="cyan" data-md-color-accent="cyan"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="PyTrendy" class="md-nav__button md-logo" aria-label="PyTrendy" data-md-component="logo">
+      
+  <img src="../../icon.png" alt="logo">
+
+    </a>
+    PyTrendy
+  </label>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Home
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Installation
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../features/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../usage/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Usage
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_2" id="__nav_5_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    Core Tutorials
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_2">
+            <span class="md-nav__icon md-icon"></span>
+            Core Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Getting Started
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../custom-pipeline/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Custom Pipeline
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../abrupt-vs-gradual/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Abrupt vs Gradual
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Real-World Examples
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Real-World Examples
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-bitcoin-crash-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Bitcoin Crash Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="A. Bitcoin Crash Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-bitcoin-price-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Bitcoin Price Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-identify-major-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Identify Major Events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-compare-to-known-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Compare to Known Events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-github-stars-growth-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. GitHub Stars Growth Tracking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="B. GitHub Stars Growth Tracking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-star-history-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Star History Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-growth-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Growth Phases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-identify-viral-moments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Identify Viral Moments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-compare-multiple-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Compare Multiple Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-climate-change-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Climate Change Signals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="C. Climate Change Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-temperature-anomaly-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Temperature Anomaly Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-long-term-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Long-Term Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-separate-gradual-vs-abrupt-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Separate Gradual vs Abrupt Changes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-calculate-warming-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Calculate Warming Rate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-identify-accelerating-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Identify Accelerating Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Additional Resources
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            API Reference
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/pytrendy/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>pytrendy
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_1" id="__nav_6_1_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_6_1_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1">
+            <span class="md-nav__icon md-icon"></span>
+            <code class='doc-symbol doc-symbol-nav'></code>pytrendy
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/detect_trends/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>detect_trends
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/pytrendy/io/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>io
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_1_3" id="__nav_6_1_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_3">
+            <span class="md-nav__icon md-icon"></span>
+            <code class='doc-symbol doc-symbol-nav'></code>io
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/io/data_loader/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>data_loader
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/io/plot_pytrendy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>plot_pytrendy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/io/results_pytrendy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>results_pytrendy
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6_1_4" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../reference/pytrendy/post_processing/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>post_processing
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_6_1_4" id="__nav_6_1_4_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_6_1_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6_1_4">
+            <span class="md-nav__icon md-icon"></span>
+            <code class='doc-symbol doc-symbol-nav'></code>post_processing
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/post_processing/segments_analyse/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>segments_analyse
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/post_processing/segments_get/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>segments_get
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/post_processing/segments_refine/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>segments_refine
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/process_signals/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>process_signals
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/pytrendy/simpledtw/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    <code class='doc-symbol doc-symbol-nav'></code>simpledtw
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-bitcoin-crash-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      A. Bitcoin Crash Detection
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="A. Bitcoin Crash Detection">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-bitcoin-price-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Bitcoin Price Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-identify-major-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Identify Major Events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-compare-to-known-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Compare to Known Events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#b-github-stars-growth-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      B. GitHub Stars Growth Tracking
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="B. GitHub Stars Growth Tracking">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-star-history-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Star History Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-growth-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Growth Phases
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-identify-viral-moments" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Identify Viral Moments
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-compare-multiple-projects" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Compare Multiple Projects
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c-climate-change-signals" class="md-nav__link">
+    <span class="md-ellipsis">
+      C. Climate Change Signals
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="C. Climate Change Signals">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dataset_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Dataset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-1-load-temperature-anomaly-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 1: Load Temperature Anomaly Data
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-detect-long-term-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 2: Detect Long-Term Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-separate-gradual-vs-abrupt-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 3: Separate Gradual vs Abrupt Changes
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-calculate-warming-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 4: Calculate Warming Rate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-identify-accelerating-trends" class="md-nav__link">
+    <span class="md-ellipsis">
+      Step 5: Identify Accelerating Trends
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#key-insights_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      Key Insights
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#next-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      Next Steps
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#additional-resources" class="md-nav__link">
+    <span class="md-ellipsis">
+      Additional Resources
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+
+<h1 id="real-world-examples">Real-World Examples</h1>
+<p><span class="badge-realworld">REAL-WORLD</span> <span class="badge-time">30 minutes total</span></p>
+<p>The following tutorials demonstrate PyTrendy on unique, real-world datasets from finance, open-source, and climate science.</p>
+<hr />
+<h2 id="a-bitcoin-crash-detection">A. Bitcoin Crash Detection</h2>
+<p><span class="badge-time-small">10 minutes</span></p>
+<p>Cryptocurrency markets are highly volatile, with dramatic bull runs and crashes. This tutorial uses PyTrendy to detect and rank these volatility events in Bitcoin price history.</p>
+<h3 id="dataset">Dataset</h3>
+<p>Bitcoin USD prices from 2020-2025, available from CoinGecko or Kaggle.</p>
+<p><strong>Source:</strong> <a href="https://www.coingecko.com/en/coins/bitcoin/historical_data">CoinGecko Bitcoin Historical Data</a></p>
+<hr />
+<h3 id="step-1-load-bitcoin-price-data">Step 1: Load Bitcoin Price Data</h3>
+<details>
+<summary><b>Show data loading code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="c1"># Load Bitcoin price data (replace with your data source)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;bitcoin_prices.csv&#39;</span><span class="p">)</span>  <span class="c1"># Columns: date, price</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Shape: </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Expected format:</strong>
+<div class="highlight"><pre><span></span><code>         date     price
+0  2020-01-01  7200.00
+1  2020-01-02  7345.00
+2  2020-01-03  7400.00
+...
+
+Shape: (1826, 2)  # ~5 years of daily data
+</code></pre></div></p>
+<hr />
+<h3 id="step-2-detect-trends">Step 2: Detect Trends</h3>
+<details>
+<summary><b>Show detection code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Run trend detection</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> 
+    <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> 
+    <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> 
+    <span class="n">plot</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Detected: 
+- 8 Uptrends. 
+- 7 Downtrends.
+- 4 Flats.
+- 2 Noise.
+
+The best detected trend is Up between dates 2020-10-08 - 2021-04-14
+(Bitcoin bull run to $64K)
+</code></pre></div></p>
+<hr />
+<h3 id="step-3-identify-major-events">Step 3: Identify Major Events</h3>
+<details>
+<summary><b>Show event extraction code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Get top 5 crashes (downtrends by magnitude)</span>
+<span class="n">crashes</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Down&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Top 5 Bitcoin Crashes:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">crashes</span><span class="p">[[</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;total_change&#39;</span><span class="p">,</span> <span class="s1">&#39;pct_change&#39;</span><span class="p">]])</span>
+
+<span class="c1"># Get top 5 bull runs (uptrends by magnitude)</span>
+<span class="n">bull_runs</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">)[:</span><span class="mi">5</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Top 5 Bull Runs:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">bull_runs</span><span class="p">[[</span><span class="s1">&#39;start&#39;</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="s1">&#39;days&#39;</span><span class="p">,</span> <span class="s1">&#39;total_change&#39;</span><span class="p">,</span> <span class="s1">&#39;pct_change&#39;</span><span class="p">]])</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Top 5 Bitcoin Crashes:
+            start         end  days  total_change  pct_change
+time_index                                                    
+14     2022-11-05  2022-12-30    55   -12450.50      -0.68
+8      2021-05-12  2021-07-20    69   -30200.00      -0.52
+...
+
+Top 5 Bull Runs:
+            start         end  days  total_change  pct_change
+time_index                                                    
+7      2020-10-08  2021-04-14   188    56800.00       5.25
+15     2023-01-01  2024-03-14   438    52000.00       2.89
+...
+</code></pre></div></p>
+<hr />
+<h3 id="step-4-compare-to-known-events">Step 4: Compare to Known Events</h3>
+<details>
+<summary><b>Show crash filter code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Match trends to known crypto events</span>
+<span class="n">known_events</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;2021-05-19&#39;</span><span class="p">:</span> <span class="s1">&#39;China mining ban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;2022-11-09&#39;</span><span class="p">:</span> <span class="s1">&#39;FTX collapse&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;2021-04-14&#39;</span><span class="p">:</span> <span class="s1">&#39;Coinbase IPO rally&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;2024-04-20&#39;</span><span class="p">:</span> <span class="s1">&#39;Bitcoin halving&#39;</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">segments</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">&#39;total_change&#39;</span> <span class="ow">in</span> <span class="n">seg</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">seg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">known_events</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">known_events</span><span class="p">[</span><span class="n">start</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Direction: </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Duration: </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;days&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> days&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Change: </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;total_change&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> USD&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>2021-05-19: China mining ban
+  Direction: Down
+  Duration: 69 days
+  Change: -30200.00 USD
+
+2022-11-09: FTX collapse
+  Direction: Down
+  Duration: 55 days
+  Change: -12450.50 USD
+</code></pre></div></p>
+<h3 id="key-insights">Key Insights</h3>
+<div class="admonition abstract">
+<p class="admonition-title">Bitcoin Trend Analysis</p>
+<ul>
+<li>PyTrendy identifies crash events that align with major market disruptions</li>
+<li>Bull runs often precede halvings or institutional adoption announcements</li>
+<li>Use <code>change_rank</code> to prioritize monitoring high-impact volatility periods</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Try It Yourself</p>
+<p><strong>Challenge</strong>: Fetch Ethereum (ETH) or another cryptocurrency price history and compare its crash/bull patterns with Bitcoin. Do they correlate with the same events?</p>
+</div>
+<hr />
+<h2 id="b-github-stars-growth-tracking">B. GitHub Stars Growth Tracking</h2>
+<p><span class="badge-time-small">10 minutes</span></p>
+<p>Open-source projects experience viral growth spurts, plateaus, and declining interest. This tutorial tracks GitHub star history for popular repositories.</p>
+<h3 id="dataset_1">Dataset</h3>
+<p>GitHub star history for trending repositories.</p>
+<p><strong>Source:</strong> <a href="https://star-history.com/">Star History API</a> or GitHub API</p>
+<hr />
+<h3 id="step-1-load-star-history-data">Step 1: Load Star History Data</h3>
+<details>
+<summary><b>Show data loading code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="c1"># Example: Load star history for a popular repo</span>
+<span class="c1"># Data format: date, stars_count</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;repo_star_history.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>         date  stars_count
+0  2020-01-01          100
+1  2020-01-02          105
+2  2020-01-03          108
+3  2020-01-04          115
+4  2020-01-05          112
+</code></pre></div></p>
+<hr />
+<h3 id="step-2-detect-growth-phases">Step 2: Detect Growth Phases</h3>
+<details>
+<summary><b>Show detection code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Run trend detection</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> 
+    <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> 
+    <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;stars_count&#39;</span><span class="p">,</span> 
+    <span class="n">plot</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Trend Detection Summary
+=======================
+Total segments: 8
+Up trends: 5
+Down trends: 2
+Flat trends: 1
+</code></pre></div></p>
+<hr />
+<h3 id="step-3-identify-viral-moments">Step 3: Identify Viral Moments</h3>
+<details>
+<summary><b>Show ranking code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Get top 3 growth spurts</span>
+<span class="n">viral_moments</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Top 3 Viral Growth Periods:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">viral_moments</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Stars gained: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;total_change&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Growth rate: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;pct_change&#39;</span><span class="p">]</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Duration: </span><span class="si">{</span><span class="n">row</span><span class="p">[</span><span class="s1">&#39;days&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> days&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Top 3 Viral Growth Periods:
+
+2021-05-15 to 2021-06-20
+  Stars gained: 2847
+  Growth rate: 125.3%
+  Duration: 36 days
+
+2020-09-01 to 2020-10-15
+  Stars gained: 1523
+  Growth rate: 89.7%
+  Duration: 44 days
+
+2022-03-10 to 2022-04-05
+  Stars gained: 1102
+  Growth rate: 67.4%
+  Duration: 26 days
+</code></pre></div></p>
+<hr />
+<h3 id="step-4-compare-multiple-projects">Step 4: Compare Multiple Projects</h3>
+<details>
+<summary><b>Show bull run filter code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Load data for multiple repos</span>
+<span class="n">repos</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;pytorch&#39;</span><span class="p">,</span> <span class="s1">&#39;tensorflow&#39;</span><span class="p">,</span> <span class="s1">&#39;keras&#39;</span><span class="p">]</span>
+<span class="n">results_all</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">repo</span> <span class="ow">in</span> <span class="n">repos</span><span class="p">:</span>
+    <span class="n">df_repo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">repo</span><span class="si">}</span><span class="s1">_stars.csv&#39;</span><span class="p">)</span>
+    <span class="n">df_repo</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df_repo</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+
+    <span class="n">results_all</span><span class="p">[</span><span class="n">repo</span><span class="p">]</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+        <span class="n">df_repo</span><span class="p">,</span> 
+        <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> 
+        <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;stars_count&#39;</span><span class="p">,</span> 
+        <span class="n">plot</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+
+<span class="c1"># Compare best trends</span>
+<span class="k">for</span> <span class="n">repo</span><span class="p">,</span> <span class="n">results</span> <span class="ow">in</span> <span class="n">results_all</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">best</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">repo</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Best growth: </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="s1">&#39;total_change&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> stars in </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="s1">&#39;days&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> days&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Period: </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">best</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>PYTORCH:
+  Best growth: 3542 stars in 48 days
+  Period: 2021-08-12 to 2021-09-29
+
+TENSORFLOW:
+  Best growth: 4128 stars in 62 days
+  Period: 2020-11-05 to 2021-01-06
+
+KERAS:
+  Best growth: 1876 stars in 31 days
+  Period: 2021-03-18 to 2021-04-18
+</code></pre></div></p>
+<h3 id="key-insights_1">Key Insights</h3>
+<div class="admonition abstract">
+<p class="admonition-title">GitHub Growth Patterns</p>
+<ul>
+<li>Viral moments often correlate with major releases, conference talks, or social media mentions</li>
+<li>Plateau periods indicate maturity or market saturation</li>
+<li>Compare <code>change_rank</code> across repos to benchmark growth velocity</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Try It Yourself</p>
+<p><strong>Challenge</strong>: Track star history for multiple repos in the same domain (e.g., React, Vue, Angular). Which framework has the most sustained growth? Use <code>filter_segments(direction='Up')</code> to compare.</p>
+</div>
+<hr />
+<h2 id="c-climate-change-signals">C. Climate Change Signals</h2>
+<p><span class="badge-time-small">12 minutes</span></p>
+<p>Long-term climate data reveals both gradual warming trends and abrupt shifts due to El Niño events or volcanic eruptions. This tutorial analyzes global temperature anomalies.</p>
+<h3 id="dataset_2">Dataset</h3>
+<p>Global temperature anomalies from NOAA (National Oceanic and Atmospheric Administration).</p>
+<p><strong>Source:</strong> <a href="https://www.ncdc.noaa.gov/cag/global/time-series">NOAA Climate Data</a></p>
+<hr />
+<h3 id="step-1-load-temperature-anomaly-data">Step 1: Load Temperature Anomaly Data</h3>
+<details>
+<summary><b>Show data loading code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="c1"># Load NOAA temperature anomaly data</span>
+<span class="c1"># Format: date, temperature_anomaly (degrees Celsius)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;global_temp_anomalies.csv&#39;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>         date  temperature_anomaly
+0  1980-01-01                 0.15
+1  1980-02-01                 0.22
+2  1980-03-01                 0.18
+3  1980-04-01                 0.25
+4  1980-05-01                 0.21
+</code></pre></div></p>
+<hr />
+<h3 id="step-2-detect-long-term-trends">Step 2: Detect Long-Term Trends</h3>
+<details>
+<summary><b>Show detection code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Run trend detection</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> 
+    <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> 
+    <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;temperature_anomaly&#39;</span><span class="p">,</span> 
+    <span class="n">plot</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+
+<span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Trend Detection Summary
+=======================
+Total segments: 12
+Up trends: 9
+Down trends: 2
+Flat trends: 1
+</code></pre></div></p>
+<hr />
+<h3 id="step-3-separate-gradual-vs-abrupt-changes">Step 3: Separate Gradual vs Abrupt Changes</h3>
+<details>
+<summary><b>Show trend classification code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Filter by trend class</span>
+<span class="n">gradual_warming</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">segments</span> 
+                   <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trend_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;gradual&#39;</span> <span class="ow">and</span> <span class="n">seg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Up&#39;</span><span class="p">]</span>
+
+<span class="n">abrupt_events</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">segments</span> 
+                 <span class="k">if</span> <span class="n">seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;trend_class&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;abrupt&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Gradual warming periods: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gradual_warming</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Abrupt temperature shifts: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">abrupt_events</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Inspect abrupt events</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Abrupt Events:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">abrupt_events</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> shift: </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Change: </span><span class="si">{</span><span class="n">seg</span><span class="p">[</span><span class="s1">&#39;total_change&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">°C&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Gradual warming periods: 7
+Abrupt temperature shifts: 4
+
+Abrupt Events:
+  Up shift: 1997-03-01 to 1998-05-01
+    Change: 0.456°C
+  Down shift: 1998-06-01 to 1999-02-01
+    Change: -0.382°C
+  Up shift: 2015-01-01 to 2016-03-01
+    Change: 0.398°C
+  Down shift: 2016-04-01 to 2017-01-01
+    Change: -0.301°C
+</code></pre></div></p>
+<hr />
+<h3 id="step-4-calculate-warming-rate">Step 4: Calculate Warming Rate</h3>
+<details>
+<summary><b>Show rate calculation code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Get all upward trends (warming periods)</span>
+<span class="n">warming_trends</span> <span class="o">=</span> <span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;df&#39;</span><span class="p">)</span>
+
+<span class="c1"># Calculate average warming rate</span>
+<span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;total_change&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;days&#39;</span><span class="p">]</span>
+<span class="n">avg_rate</span> <span class="o">=</span> <span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Average warming rate: </span><span class="si">{</span><span class="n">avg_rate</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°C per day&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Annual equivalent: </span><span class="si">{</span><span class="n">avg_rate</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">365</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">°C per year&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Average warming rate: 0.000082°C per day
+Annual equivalent: 0.030°C per year
+</code></pre></div></p>
+<hr />
+<h3 id="step-5-identify-accelerating-trends">Step 5: Identify Accelerating Trends</h3>
+<details>
+<summary><b>Show comparison code</b></summary>
+
+<div class="highlight"><pre><span></span><code><span class="c1"># Compare early vs recent warming trends</span>
+<span class="n">early_trends</span> <span class="o">=</span> <span class="n">warming_trends</span><span class="p">[</span><span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="s1">&#39;2000-01-01&#39;</span><span class="p">]</span>
+<span class="n">recent_trends</span> <span class="o">=</span> <span class="n">warming_trends</span><span class="p">[</span><span class="n">warming_trends</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="s1">&#39;2000-01-01&#39;</span><span class="p">]</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Pre-2000 average rate: </span><span class="si">{</span><span class="n">early_trends</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°C/day&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Post-2000 average rate: </span><span class="si">{</span><span class="n">recent_trends</span><span class="p">[</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°C/day&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+</details>
+
+<p><strong>Sample output:</strong>
+<div class="highlight"><pre><span></span><code>Pre-2000 average rate: 0.000068°C/day
+Post-2000 average rate: 0.000095°C/day
+</code></pre></div></p>
+<h3 id="key-insights_2">Key Insights</h3>
+<div class="admonition abstract">
+<p class="admonition-title">Climate Trend Analysis</p>
+<ul>
+<li>Gradual trends capture long-term anthropogenic warming</li>
+<li>Abrupt shifts often correspond to El Niño/La Niña cycles or volcanic activity</li>
+<li>Accelerating warming rates become evident when comparing historical periods</li>
+<li>Use <code>is_abrupt_padded=True</code> to study sustained effects of climate events</li>
+</ul>
+</div>
+<div class="admonition tip">
+<p class="admonition-title">Try It Yourself</p>
+<p><strong>Challenge</strong>: Load regional temperature data (e.g., Arctic vs. Tropical) and compare warming rates. Which region shows the steepest upward trends? Use <code>filter_segments(direction='Up', sort_by='change_rank')</code>.</p>
+</div>
+<hr />
+<h2 id="next-steps">Next Steps</h2>
+<p>Now that you've seen PyTrendy in action with real-world data:</p>
+<ol>
+<li><strong>Customize parameters</strong>: Experiment with <code>method_params</code> for your domain</li>
+<li><strong>Integrate into workflows</strong>: Use the custom pipeline for production systems</li>
+<li><strong>Explore the API</strong>: Check the <a href="../../reference/pytrendy/">API Reference</a> for advanced options</li>
+<li><strong>Share your work</strong>: Visualizations are publication-ready for reports and dashboards</li>
+</ol>
+<hr />
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><strong><a href="../getting-started/">Getting Started</a></strong> - Review the basics</li>
+<li><strong><a href="../custom-pipeline/">Custom Pipeline</a></strong> - Build detection pipelines from scratch</li>
+<li><strong><a href="../../usage/">Usage Guide</a></strong> - Detailed API configuration</li>
+<li><strong><a href="../../features/">Features</a></strong> - Complete feature overview</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.indexes", "content.tabs.link"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.f55a23d4.min.js"></script>
+      
+    
+  </body>
+</html>
