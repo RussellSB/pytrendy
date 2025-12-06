@@ -2,7 +2,7 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
-  - Installation: installation.md
+  - Quick Start: quickstart.md
   - User Guide:
     - Overview: user-guide/index.md
     - Working with Results: user-guide/working-with-results.md
@@ -10,6 +10,7 @@ nav:
     - Configuration Reference: user-guide/configuration-reference.md
   - Tutorials:
     - Overview: tutorials/index.md
+    - Installation: tutorials/installation.md
     - Core Tutorials:
       - Getting Started: tutorials/getting-started.md
       - Custom Pipeline: tutorials/custom-pipeline.md
