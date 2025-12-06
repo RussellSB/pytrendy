@@ -3,9 +3,9 @@
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
-from .post_processing.segments_refine import GROUPING_DISTANCE
+from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
-def process_signals(df:pd.DataFrame, value_col: str):
+def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 
@@ -112,10 +112,10 @@ def process_signals(df:pd.DataFrame, value_col: str):
         end = min(end, df.index.max())
         width_padded = end - start
 
-        # Cater for edge coise of noise, but its actually an abrupt trend.
+        # Cater for edge case of actually an abrupt trend not noise.
         diff = abs(df.loc[end, value_col] - df.loc[start, value_col])
         small_value = df.loc[df[value_col] > 0, value_col].quantile(0.40)
-        abrupt_ends = diff > small_value
+        abrupt_ends = diff >= small_value
 
         # check if possibly abrupt, provided that window is narrow enough
         if (width <= 4) and abrupt_ends:
@@ -127,23 +127,23 @@ def process_signals(df:pd.DataFrame, value_col: str):
         # Conversely, if a spike-type noise, shave to be precise around peak
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
-        # Define center as 40% - 60% of window.
-        center_start = (start + 0.4 * width_padded).floor('D') 
-        center_end   = (start + 0.6 * width_padded).floor('D')
+        # Define center as 30% - 70% of window.
+        center_start = (start + (0.3 * width_padded)).floor('D') 
+        center_end   = (start + (0.7 * width_padded)).floor('D')
         is_central = ts_max >= center_start and ts_max <= center_end
 
         # Identify spike-type noise by peak in center, then shave for precision
         if is_central or not abrupt_ends:
-            df_left = df.loc[:ts_max].copy()
-            df_left['diff'] = df_left[value_col].diff(periods=-1)
-            lowers = df_left.loc[df_left['diff'] >= 0]
+            df_left = df.loc[:ts_max+pd.Timedelta(days=1)].copy()
+            df_left['diff'] = df_left[value_col].diff(periods=-1).shift(-2)
+            lowers = df_left.loc[df_left['diff'] > 0]
             if len(lowers) > 0: 
                 noise_start = lowers.index[-1]
                 df.loc[start:noise_start, 'noise_flag'] = 0
 
-            df_right = df.loc[ts_max:].copy()
-            df_right['diff'] = df_right[value_col].diff()
-            highers = df_right.loc[df_right['diff'] >= 0]
+            df_right = df.loc[ts_max-pd.Timedelta(days=1):].copy()
+            df_right['diff'] = df_right[value_col].diff().shift(2)
+            highers = df_right.loc[df_right['diff'] > 0]
             if len(highers) > 0:
                 noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
@@ -173,7 +173,7 @@ def process_signals(df:pd.DataFrame, value_col: str):
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
-    df['smoothed_deriv'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
 

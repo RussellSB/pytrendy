@@ -1,14 +1,27 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/3bea91f34bfa8d5452332e5f59f3e2bdf1e3806c/plots/logo.svg" alt="PyTrendy Logo" width="300" />
+  <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/3bea91f34bfa8d5452332e5f59f3e2bdf1e3806c/plots/logo.svg" alt="PyTrendy Logo" width="250" />
   <br>
   <h1>PyTrendy</h1>
+
+  [![PyPI version](https://img.shields.io/pypi/v/pytrendy.svg)](https://pypi.org/project/pytrendy/)
+  [![Python](https://img.shields.io/badge/python-%3E%3D%203.10-blue.svg)](https://pypi.org/project/pytrendy/)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+  <br>
+  [![Tests](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml)
+  [![Release](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml)
+  <br>
+  [![codecov](https://codecov.io/gh/RussellSB/pytrendy/branch/main/graph/badge.svg)](https://codecov.io/gh/RussellSB/pytrendy)
+  [![Downloads](https://static.pepy.tech/badge/pytrendy)](https://pepy.tech/project/pytrendy)
 </div>
 
 PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other trend detection packages, it is robust to noisy & flat segments, and handles for gradual & abrupt trend cases with a high precision. It aims to be the best package for trend detection in python.
 
 ## Features
 
-![](http://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual-demo.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif)
 
 ## Quickstart
 Install the package from PyPi.
@@ -68,7 +81,7 @@ results.print_summary()
 #  6               Down  2025-03-18  2025-04-01    14    -22.721861            4
 #  7                 Up  2025-04-02  2025-05-08    36     72.611833            2
 #  8               Down  2025-05-09  2025-06-17    39    -73.253968            1
-#  9               Flat  2025-06-18  2025-06-29    11           NaN            9 
+#  9               Flat  2025-06-18  2025-06-30    12           NaN            9 
 #  -------------------------------------------------------------------------------
 ```
 
@@ -89,14 +102,13 @@ results.df
 | 6          | Down      | 2025-03-18  | 2025-04-01  | gradual     | -22.721861  | -0.591909  | 14   | -22.721861   | 16.762790  | 4           |
 | 7          | Up        | 2025-04-02  | 2025-05-08  | gradual     | 73.687771   | 3.944243   | 36   | 72.611833    | 21.701162  | 2           |
 | 8          | Down      | 2025-05-09  | 2025-06-17  | gradual     | -73.253968  | -0.805442  | 39   | -73.253968   | 21.122099  | 1           |
-| 9          | Flat      | 2025-06-18  | 2025-06-29  | NaN         | NaN         | NaN        | 11   | NaN          | 19.039273  | 9           |
+| 9          | Flat      | 2025-06-18  | 2025-06-30  | NaN         | NaN         | NaN        | 12   | NaN          | 19.418124  | 9           |
 
 </small>
 
 ## Upcoming
 
-- More DEMO examples [WIP].
 - Full documentation with all features [WIP].
-- Automated testing in CI/CD pipeline.
-- Customising more options for windows.
+- Automated testing in CI/CD pipeline with full code coverage.
 - Even more robust edge case testing & generalising.
+- Customising more options for windows.

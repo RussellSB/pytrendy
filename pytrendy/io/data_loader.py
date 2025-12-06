@@ -3,7 +3,7 @@
 from pathlib import Path
 import pandas as pd
 
-def load_data(dataset:str='series_synthetic') -> pd.DataFrame:
+def load_data(dataset: str = 'series_synthetic') -> pd.DataFrame:
     """
     Loads sample datasets bundled with PyTrendy.
 
