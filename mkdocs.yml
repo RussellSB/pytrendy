@@ -20,11 +20,14 @@ nav:
 
 theme: 
   name: material # flatly, material, minty
+  font:
+    text: Roboto
   logo: icon.png
   favicon: icon.png
   features:
     - navigation.indexes
     - content.tabs.link
+    - header.autohide
   palette:
     - scheme: default
       primary: cyan
@@ -55,6 +58,7 @@ markdown_extensions:
   - md_in_html
 
 plugins:
+  - offline
   - search
   - mkdocstrings:
       handlers:
@@ -104,8 +108,6 @@ validation:
   links:
     unrecognized_links: ignore
 
-
-
-
-
-
+repo_url: https://github.com/RussellSB/pytrendy
+repo_name: russellsb/pytrendy
+edit_uri: edit/main/docs/
