@@ -3,11 +3,6 @@ site_name: PyTrendy
 nav:
   - Home: index.md
   - Quick Start: quickstart.md
-  - User Guide:
-    - Overview: user-guide/index.md
-    - Working with Results: user-guide/working-with-results.md
-    - Visualization: user-guide/visualization.md
-    - Configuration Reference: user-guide/configuration-reference.md
   - Tutorials:
     - Overview: tutorials/index.md
     - Installation: tutorials/installation.md
@@ -16,6 +11,11 @@ nav:
       - Custom Pipeline: tutorials/custom-pipeline.md
       - Abrupt vs Gradual: tutorials/abrupt-vs-gradual.md
     - Real-World Examples: tutorials/real-world-examples.md
+  - User Guide:
+    - Overview: user-guide/index.md
+    - Working with Results: user-guide/working-with-results.md
+    - Visualization: user-guide/visualization.md
+    - Configuration Reference: user-guide/configuration-reference.md
   - API Reference: reference
 
 theme: 
