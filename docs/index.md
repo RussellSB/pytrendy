@@ -113,18 +113,6 @@ results.df
 
 ---
 
-## Key Features
-
-PyTrendy is built on a modular architecture that exposes each stage of the trend detection pipeline as a standalone, extensible function. See the [User Guide](user-guide/index.md) for complete details.
-
-* **Signal Segmentation**: Automatically detects directional segments (Up, Down, Flat, Noise) using statistical flags from preprocessed signals.
-* **Boundary Refinement**: Refines segment boundaries using local extrema and change-point heuristics to ensure accuracy.
-* **DTW-based Classification**: Classifies trends as gradual or abrupt by comparing detected segments against synthetic reference signals using Dynamic Time Warping.
-* **Trend Ranking**: Prioritizes and ranks segments based on key metrics like steepness and total cumulative change to help identify the most significant patterns.
-* **Structured Output**: Provides a clean and structured `PyTrendyResults` object, providing filtering, tabular views, and a dedicated method for selecting the best-ranked trends.
-
----
-
 ## Next Steps
 
 For a complete guide on using PyTrendy, refer to the [User Guide](user-guide/index.md).
