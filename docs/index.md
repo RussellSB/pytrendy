@@ -11,9 +11,11 @@
 
 ---
 
-**PyTrendy** is a modular Python toolkit for detecting, refining, and analyzing trend segments in time series data. Designed for developers and analysts working with noisy signals, PyTrendy offers a robust pipeline that combines statistical preprocessing, dynamic segmentation, and DTW-based classification to extract meaningful patterns from complex datasets.
+## Welcome
 
-Whether you're analyzing financial indicators, sensor outputs, or behavioral metrics, PyTrendy helps you surface directional trends, classify their nature (gradual vs abrupt), and quantify their steepness and duration - all with developer-friendly access and extensibility.
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it  detects uptrends and downtrends in a way that they are not falsely detected over flat and noise segments. 
+
+It is a thoughtful algorithm with a focus on signal processing and a considerable amount of post-processing for high precision at a daily level. It aims to be the best package for trend detection in Python. 
 
 ---
 
@@ -23,6 +25,15 @@ Whether you're analyzing financial indicators, sensor outputs, or behavioral met
 ![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif)
 ![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif)
 ![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif)
+
+---
+
+## Why PyTrendy?
+
+Though trend detection can be used for several use cases, this package's intended purpose is for identifying different phases of digital marketing at scale.
+ 
+- By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) & placebo (flat) periods for observational causal inference. 
+- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) that could greatly mislead indications.
 
 ---
 
