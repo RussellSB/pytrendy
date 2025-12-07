@@ -4,12 +4,6 @@ PyTrendy is a Python library for automated trend detection and analysis in time 
 
 ---
 
-## What is PyTrendy?
-
-PyTrendy transforms raw, noisy time series signals into meaningful segments (Up, Down, Flat, Noise), enriched with statistics, classifications, and visualizations. Whether you're analyzing financial indicators, sensor outputs, or behavioral metrics, PyTrendy helps you surface directional trends, classify their nature (gradual vs abrupt), and quantify their steepness and duration.
-
----
-
 ## Guide Structure
 
 This user guide is organized into the following sections:
