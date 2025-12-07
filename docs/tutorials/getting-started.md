@@ -20,8 +20,7 @@ print(f"\nShape: {df.shape}")
 print(f"Columns: {df.columns.tolist()}")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 === Dataset Preview ===
          date     abrupt    gradual  gradual-noisy-20
@@ -39,6 +38,7 @@ print(f"Columns: {df.columns.tolist()}")
 Shape: (181, 4)
 Columns: ['date', 'abrupt', 'gradual', 'gradual-noisy-20']
 ```
+</div>
 
 !!! example "Dataset Overview"
     The dataset contains **181 days** of synthetic time series with three signal types:
@@ -66,8 +66,8 @@ results = pt.detect_trends(
 results.print_summary()
 ```
 
-**Output:**
 
+<div class='transparent'>
 ```
 Detected: 
 - 3 Uptrends. 
@@ -92,6 +92,7 @@ time_index
 9               Flat  2025-06-18  2025-06-29    11           NaN          NaN
 -------------------------------------------------------------------------------
 ```
+</div>
 
 !!! success "Detection Complete!"
     PyTrendy identified **9 segments** including 3 uptrends, 3 downtrends, and 3 flat regions. The strongest trend (Rank 1) is a **39-day downtrend** with a change of **-73.25 units**.
@@ -114,8 +115,8 @@ print(f"Period: {best_trend['start']} to {best_trend['end']}")
 print(f"Classification: {best_trend['trend_class']}")
 ```
 
-**Output:**
 
+<div class='transparent'>
 ```
 === Best Trend Details ===
 Direction: Down
@@ -124,6 +125,7 @@ Change: -73.25
 Period: 2025-05-09 to 2025-06-17
 Classification: gradual
 ```
+</div>
 
 ---
 
@@ -149,8 +151,7 @@ for dt in downtrends:
     print(f"  {dt['start']} to {dt['end']}: {dt['total_change']:.2f} (Rank {dt['change_rank']})")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 === Top 3 Strongest Trends ===
            direction       start         end  days  total_change  change_rank
@@ -171,6 +172,7 @@ time_index
   2025-03-18 to 2025-04-01: -22.72 (Rank 4)
   2025-05-09 to 2025-06-17: -73.25 (Rank 1)
 ```
+</div>
 
 !!! tip "Filtering Tips"
     - Use `sort_by='change_rank'` to prioritize by magnitude
@@ -200,8 +202,7 @@ print(f"\nFound {len(strong_trends)} strong trends (>20 days, >30 units change)"
 print(strong_trends[['direction', 'start', 'end', 'days', 'total_change']])
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 Exported to trend_results.csv
 
@@ -211,6 +212,7 @@ time_index
 7                 Up  2025-04-02  2025-05-08    36     72.611833
 8               Down  2025-05-09  2025-06-17    39    -73.253968
 ```
+</div>
 
 ---
 

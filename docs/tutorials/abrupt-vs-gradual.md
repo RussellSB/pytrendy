@@ -38,14 +38,14 @@ for seg in results_default.segments:
               f"{seg['days']} days")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 uptrend (gradual): 2025-01-01 to 2025-01-30, 30 days
 uptrend (abrupt): 2025-01-31 to 2025-02-05, 6 days
 downtrend (abrupt): 2025-02-06 to 2025-02-12, 7 days
 flat (gradual): 2025-02-13 to 2025-03-10, 26 days
 ```
+</div>
 
 ---
 
@@ -87,8 +87,7 @@ for seg in results_padded.segments:
         print(f"  {seg['direction']}: {seg['days']} days")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 Without padding:
   uptrend: 6 days
@@ -98,6 +97,7 @@ With 28-day padding:
   uptrend: 34 days
   downtrend: 35 days
 ```
+</div>
 
 ---
 

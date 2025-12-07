@@ -66,8 +66,8 @@ print(f"Prepared data shape: {df.shape}")
 print(df.head())
 ```
 
-**Output:**
 
+<div class='transparent'>
 ```
 Prepared data shape: (181, 1)
             gradual
@@ -78,6 +78,7 @@ date
 2025-01-04  13.474026
 2025-01-05  14.505772
 ```
+</div>
 
 ---
 
@@ -93,8 +94,7 @@ df = process_signals(df, value_col='gradual')
 print(df[['gradual', 'smoothed', 'trend_flag', 'flat_flag', 'noise_flag']].head(20))
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
             gradual  smoothed  trend_flag  flat_flag  noise_flag
 date                                                             
@@ -104,6 +104,7 @@ date
 2025-01-04  13.474026  13.607809           1          0           0
 2025-01-05  14.505772  14.429474           1          0           0
 ```
+</div>
 
 **New columns added:**
 
@@ -135,14 +136,15 @@ for seg in segments_raw[:3]:
     print(f"{seg['direction']}: {seg['start']} to {seg['end']}")
 ```
 
-**Output:**
 
+<div class='transparent'>
 ```
 Detected 12 raw segments
 uptrend: 2025-01-02 to 2025-01-15
 flat: 2025-01-16 to 2025-01-25
 downtrend: 2025-01-26 to 2025-02-05
 ```
+</div>
 
 ---
 
@@ -170,14 +172,14 @@ for seg in segments_refined:
         print(f"{seg['direction']} ({seg['trend_class']}): {seg['start']} to {seg['end']}")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 uptrend (gradual): 2025-01-02 to 2025-01-18
 flat (gradual): 2025-01-19 to 2025-01-28
 downtrend (gradual): 2025-01-29 to 2025-02-10
 uptrend (abrupt): 2025-02-11 to 2025-02-15
 ```
+</div>
 
 **What happened:**
 
@@ -205,14 +207,14 @@ for seg in segments_final:
               f"SNR: {seg['SNR']:.2f}")
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 Rank 1: uptrend, Change: 15.42, Duration: 17 days, SNR: 12.34
 Rank 2: downtrend, Change: -8.73, Duration: 13 days, SNR: 10.56
 Rank 3: uptrend, Change: 6.21, Duration: 5 days, SNR: 8.92
 Rank 4: flat, Change: 0.52, Duration: 10 days, SNR: 5.43
 ```
+</div>
 
 ---
 
@@ -229,8 +231,7 @@ results = PyTrendyResults(segments_final)
 results.print_summary()
 ```
 
-**Output:**
-
+<div class='transparent'>
 ```
 === PyTrendy Results Summary ===
 Total segments: 8
@@ -243,6 +244,7 @@ Top 3 significant trends by total change:
   Rank 2: downtrend from 2025-01-29 to 2025-02-10 (change: -8.73, duration: 13 days)
   Rank 3: uptrend from 2025-02-11 to 2025-02-15 (change: +6.21, duration: 5 days)
 ```
+</div>
 
 ---
 
