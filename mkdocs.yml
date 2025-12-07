@@ -27,6 +27,7 @@ theme:
   features:
     - navigation.indexes
     - content.tabs.link
+    - content.code.copy
     - header.autohide
   palette:
     - scheme: default
@@ -42,19 +43,26 @@ theme:
       toggle:
         icon: material/lightbulb-outline
         name: Switch to light mode
+        
+
 
 markdown_extensions:
+  - tables
   - codehilite:
       guess_lang: false
       linenums: true
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - admonition
   - markdown.extensions.admonition
   - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - md_in_html
 
 plugins:
@@ -111,3 +119,4 @@ validation:
 repo_url: https://github.com/RussellSB/pytrendy
 repo_name: russellsb/pytrendy
 edit_uri: edit/main/docs/
+
