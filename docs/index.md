@@ -30,10 +30,12 @@ It is a thoughtful algorithm with a focus on signal processing and a considerabl
 
 ## Why PyTrendy?
 
-Though trend detection can be used for several use cases, this package's intended purpose is for identifying different phases of digital marketing at scale.
+Trend detection has several use cases, such as analysing stock prices for investing, fraud detection through abrupt changes in transactions data, identifying demand trends in seasonality patterns to optimise inventory management, and more. 
+
+However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
  
 - By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) & placebo (flat) periods for observational causal inference. 
-- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) that could greatly mislead indications.
+- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) to mitigate the risks of misleading indications.
 
 ---
 
