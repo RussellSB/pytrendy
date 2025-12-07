@@ -28,7 +28,39 @@ Whether you're analyzing financial indicators, sensor outputs, or behavioral met
 
 ## Next Steps
 
-1. For a quick start with PyTrendy, refer to the [Quickstart](quickstart.md).</br>
-2. For learning how to use PyTrendy through practical tutorials, refer to the [Tutorials](tutorials/index.md).</br>
-2. For a higher-level reference on configuration and utilities, refer to the [User Guide](user-guide/index.md).</br>
-3. For detailed function documentation, see the [API Reference](reference/pytrendy/index.md).
+<div class="grid cards" markdown>
+
+-   :material-clock-fast:{ .lg .middle } __Set up in 5 minutes__
+
+    ---
+
+    Install [`pytrendy`](#) with [`pip`](#) and get up
+    and running in minutes.
+
+    [:octicons-arrow-right-24: Quick Start](quickstart.md)
+
+-   :material-cog-outline:{ .lg .middle } __Further notes on usage__
+
+    ---
+
+    Refer to a high-level reference on configuration and utilities.
+
+    [:octicons-arrow-right-24: User Guide](user-guide/index.md)
+
+-   :material-notebook:{ .lg .middle } __Learn practically__
+
+    ---
+
+    Learn how to make the most out of PyTrendy through practical tutorials.
+
+    [:octicons-arrow-right-24: Tutorials](tutorials/index.md)
+
+-   :material-api:{ .lg .middle } __API Reference__
+
+    ---
+
+    Refer to the API, covering information on all functions and parameters.
+
+    [:octicons-arrow-right-24: API Reference](reference/pytrendy/index.md)
+
+</div>
