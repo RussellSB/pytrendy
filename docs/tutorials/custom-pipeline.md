@@ -96,13 +96,31 @@ print(df[['gradual', 'smoothed', 'trend_flag', 'flat_flag', 'noise_flag']].head(
 
 <div class='transparent'>
 ```
-            gradual  smoothed  trend_flag  flat_flag  noise_flag
-date                                                             
-2025-01-01  12.500000  12.685571           0          0           1
-2025-01-02  13.421717  13.236652           1          0           0
-2025-01-03  13.474026  13.474026           0          1           0
-2025-01-04  13.474026  13.607809           1          0           0
-2025-01-05  14.505772  14.429474           1          0           0
+-------------------------------------------------------------------------------
+            date        gradual     smoothed    trend_flag   flat_flag   noise_flag
+index                                                                               
+1       2025-01-01    12.500000    11.890242        1            0            0
+2       2025-01-02    13.421717    12.509611        1            0            0
+3       2025-01-03    13.474026    13.128981        1            0            0
+4       2025-01-04    13.474026    13.748351        1            0            0
+5       2025-01-05    14.505772    14.367721        1            0            0
+6       2025-01-06    14.709596    14.987090        1            0            0
+7       2025-01-07    14.783550    15.606460        1            0            0
+8       2025-01-08    16.354618    16.225830        1            0            0
+9       2025-01-09    17.370130    16.819264        1            0            0
+10      2025-01-10    16.493506    17.403800        1            0            0
+11      2025-01-11    15.620491    18.120911        1            0            0
+12      2025-01-12    16.868687    18.878487        1            0            0
+13      2025-01-13    19.686147    19.440055        1            0            0
+14      2025-01-14    21.560245    19.903620        1            0            0
+15      2025-01-15    22.564935    20.543951        1            0            0
+16      2025-01-16    21.401515    21.238717        1            0            0
+17      2025-01-17    22.189755    21.909712        1            0            0
+18      2025-01-18    24.230700    22.439534        1            0            0
+19      2025-01-19    24.837662    22.817420       -2            1            0
+20      2025-01-20    22.929293    22.915785       -2            1            0
+-------------------------------------------------------------------------------
+
 ```
 </div>
 
@@ -140,9 +158,9 @@ for seg in segments_raw[:3]:
 <div class='transparent'>
 ```
 Detected 12 raw segments
-uptrend: 2025-01-02 to 2025-01-15
-flat: 2025-01-16 to 2025-01-25
-downtrend: 2025-01-26 to 2025-02-05
+Up: 2025-01-01 to 2025-01-18
+Flat: 2025-01-19 to 2025-01-24
+Down: 2025-01-25 to 2025-02-04
 ```
 </div>
 
@@ -174,10 +192,12 @@ for seg in segments_refined:
 
 <div class='transparent'>
 ```
-uptrend (gradual): 2025-01-02 to 2025-01-18
-flat (gradual): 2025-01-19 to 2025-01-28
-downtrend (gradual): 2025-01-29 to 2025-02-10
-uptrend (abrupt): 2025-02-11 to 2025-02-15
+Up (gradual): 2025-01-02 to 2025-01-24
+Down (gradual): 2025-01-25 to 2025-02-05
+Up (gradual): 2025-02-10 to 2025-03-14
+Down (gradual): 2025-03-18 to 2025-04-01
+Up (gradual): 2025-04-02 to 2025-05-08
+Down (gradual): 2025-05-09 to 2025-06-17
 ```
 </div>
 
@@ -209,10 +229,12 @@ for seg in segments_final:
 
 <div class='transparent'>
 ```
-Rank 1: uptrend, Change: 15.42, Duration: 17 days, SNR: 12.34
-Rank 2: downtrend, Change: -8.73, Duration: 13 days, SNR: 10.56
-Rank 3: uptrend, Change: 6.21, Duration: 5 days, SNR: 8.92
-Rank 4: flat, Change: 0.52, Duration: 10 days, SNR: 5.43
+Rank 5: Up, Change: 14.01, Duration: 22 days, SNR: 22.21
+Rank 6: Down, Change: -13.56, Duration: 11 days, SNR: 17.36
+Rank 3: Up, Change: 24.63, Duration: 32 days, SNR: 18.87
+Rank 4: Down, Change: -22.72, Duration: 14 days, SNR: 16.76
+Rank 2: Up, Change: 72.61, Duration: 36 days, SNR: 21.70
+Rank 1: Down, Change: -73.25, Duration: 39 days, SNR: 21.12
 ```
 </div>
 
@@ -231,18 +253,32 @@ results = PyTrendyResults(segments_final)
 results.print_summary()
 ```
 
-<div class='transparent'>
-```
-=== PyTrendy Results Summary ===
-Total segments: 8
-Uptrends: 4
-Downtrends: 2
-Flat periods: 2
 
-Top 3 significant trends by total change:
-  Rank 1: uptrend from 2025-01-02 to 2025-01-18 (change: +15.42, duration: 17 days)
-  Rank 2: downtrend from 2025-01-29 to 2025-02-10 (change: -8.73, duration: 13 days)
-  Rank 3: uptrend from 2025-02-11 to 2025-02-15 (change: +6.21, duration: 5 days)
+<div class='transparent'> 
+    <img src="../assets/images/custom-pipeline-plot.png" alt="Plot">
+```
+Detected: 
+- 3 Uptrends. 
+- 3 Downtrends.
+- 3 Flats.
+- 0 Noise.
+
+The best detected trend is Down between dates 2025-05-09 - 2025-06-17
+
+Full Results:
+-------------------------------------------------------------------------------
+            direction       start         end  days  total_change  change_rank trend_class
+time_index                                                                               
+1                 Up  2025-01-02  2025-01-24    22     14.013348          5.0     gradual
+2               Down  2025-01-25  2025-02-05    11    -13.564214          6.0     gradual
+3               Flat  2025-02-06  2025-02-09     3           NaN          NaN         NaN
+4                 Up  2025-02-10  2025-03-14    32     24.632035          3.0     gradual
+5               Flat  2025-03-15  2025-03-17     2           NaN          NaN         NaN
+6               Down  2025-03-18  2025-04-01    14    -22.721861          4.0     gradual
+7                 Up  2025-04-02  2025-05-08    36     72.611833          2.0     gradual
+8               Down  2025-05-09  2025-06-17    39    -73.253968          1.0     gradual
+9               Flat  2025-06-18  2025-06-30    12           NaN          NaN         NaN 
+-------------------------------------------------------------------------------
 ```
 </div>
 
