@@ -40,10 +40,8 @@ for seg in results_default.segments:
 
 <div class='transparent'>
 ```
-uptrend (gradual): 2025-01-01 to 2025-01-30, 30 days
-uptrend (abrupt): 2025-01-31 to 2025-02-05, 6 days
-downtrend (abrupt): 2025-02-06 to 2025-02-12, 7 days
-flat (gradual): 2025-02-13 to 2025-03-10, 26 days
+Up (abrupt): 2025-02-28 to 2025-03-01, 1 days
+Down (abrupt): 2025-05-02 to 2025-05-05, 3 days
 ```
 </div>
 
@@ -90,12 +88,12 @@ for seg in results_padded.segments:
 <div class='transparent'>
 ```
 Without padding:
-  uptrend: 6 days
-  downtrend: 7 days
+  Up: 1 days
+  Down: 3 days
 
 With 28-day padding:
-  uptrend: 34 days
-  downtrend: 35 days
+  Up: 29 days
+  Down: 31 days
 ```
 </div>
 
