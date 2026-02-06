@@ -361,8 +361,10 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
         if mapped >= len(segments_refined) - 1:
             continue
         next_seg = segments_refined[mapped + 1]
+
         gap_start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
         gap_end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
+
         if gap_end >= gap_start:
             segments_refined.insert(mapped + 1, dict(
                 start=gap_start.strftime('%Y-%m-%d'),
