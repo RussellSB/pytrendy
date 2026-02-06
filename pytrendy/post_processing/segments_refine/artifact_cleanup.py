@@ -30,7 +30,16 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         """
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days < 1: # inverse if start before end
+        is_flat = segment['direction'] == 'Flat'
+        is_border = (start == df.index[0]) or (end == df.index[-1])
+        flat_edge_case = is_flat and not is_border
+        
+        # inverse if start before end, immediately clean
+        if (end - start).days < 0:
+            return True
+        
+        # if length 0, but not from flat fill in middle, then clean
+        if (end - start).days == 0 and not flat_edge_case: 
             return True
 
         # inverse if tagged direction does not match total change
@@ -39,6 +48,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             (segment['direction'] == 'Up' and total_change <= 0) or \
             (segment['direction'] == 'Down' and total_change >= 0):
             return True
+        
         return False
 
     def has_overlap_next(segment: dict, segment_next: dict) -> bool:
