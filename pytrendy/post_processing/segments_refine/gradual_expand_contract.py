@@ -40,7 +40,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         # Pre-crop local windows to avoid overlapping neighbouring NOISE segments
         # This ensures the extrema search doesn't pull from a noise neighbour region
         # and reduces the need for later conflict corrections.
-        if i > 0:
+        if i > 0: # handles right of noise
             prev_seg = segments_refined[i - 1]
             if prev_seg.get('direction') == 'Noise':
                 prev_end = pd.to_datetime(prev_seg['end'])
@@ -50,7 +50,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
                 if not cropped.empty:
                     start_df = cropped
 
-        if i < len(segments_refined) - 1:
+        if i < len(segments_refined) - 1: # handles left of noise
             next_seg = segments_refined[i + 1]
             if next_seg.get('direction') == 'Noise':
                 next_start = pd.to_datetime(next_seg['start'])
