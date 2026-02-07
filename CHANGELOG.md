@@ -1,3 +1,10 @@
+## [1.1.9](https://github.com/RussellSB/pytrendy/compare/v1.1.8...v1.1.9) (2026-02-07)
+
+
+### Bug Fixes
+
+* further improve spike precision in noise detection yet again ([#42](https://github.com/RussellSB/pytrendy/issues/42)) ([3a45c19](https://github.com/RussellSB/pytrendy/commit/3a45c1943b74adfa944a3588accfe623b8376c1c))
+
 ## [1.1.8](https://github.com/RussellSB/pytrendy/compare/v1.1.7...v1.1.8) (2025-11-15)
 
 
