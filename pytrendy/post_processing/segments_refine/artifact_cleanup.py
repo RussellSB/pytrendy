@@ -9,7 +9,7 @@ from copy import deepcopy
 from .segment_grouping import GROUPING_DISTANCE
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict) -> list[dict]:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, inverse_only: bool = False) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -17,6 +17,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
     Args:
         segments_refined (list): List of segment dictionaries potentially with artifacts from post-processing.
         method_params (dict): Referenced to check is_abrupt_padded. If it is, dont check for neighbouring noise to abrupt.
+        inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
         list: Cleaned segment list with only valid-length segments.
@@ -29,7 +30,16 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         """
         start = pd.to_datetime(segment['start'])
         end =  pd.to_datetime(segment['end'])
-        if (end - start).days < 1: # inverse if start before end
+        is_flat = segment['direction'] == 'Flat'
+        is_border = (start == df.index[0]) or (end == df.index[-1])
+        flat_edge_case = is_flat and not is_border
+        
+        # inverse if start before end, immediately clean
+        if (end - start).days < 0:
+            return True
+        
+        # if length 0, but not from flat fill in middle, then clean
+        if (end - start).days == 0 and not flat_edge_case: 
             return True
 
         # inverse if tagged direction does not match total change
@@ -38,6 +48,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             (segment['direction'] == 'Up' and total_change <= 0) or \
             (segment['direction'] == 'Down' and total_change >= 0):
             return True
+        
         return False
 
     def has_overlap_next(segment: dict, segment_next: dict) -> bool:
@@ -163,6 +174,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             continue # Excludes segment.
         segments_refined.append(segment)
 
+    if inverse_only:
+        return segments_refined # stops early if only want Pass 1.
+
     # Pass 2: Cleans overlaps of same direction. Also artifacts from expansion/contraction & noise detection
     segments = deepcopy(segments_refined)
     segments_refined = [] 
@@ -276,6 +290,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         value_end = df.loc[end, value_col]
         diff = abs(value_end - value_start)
         threshold_diff = float(df['value_cleaned'].abs().max()) * 0.01
+        if is_abrupt: # make a bit more lenient for abrupt
+            threshold_diff = float(df['value_cleaned'].abs().max()) * 0.1
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
         # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
@@ -302,7 +318,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if too_noisy or is_abrupt_near_noise or is_small_gradual_in_noise:
+        if too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise:
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
 
@@ -355,8 +371,10 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
         if mapped >= len(segments_refined) - 1:
             continue
         next_seg = segments_refined[mapped + 1]
+
         gap_start = pd.to_datetime(curr_seg['end']) + pd.Timedelta(days=1)
         gap_end = pd.to_datetime(next_seg['start']) - pd.Timedelta(days=1)
+
         if gap_end >= gap_start:
             segments_refined.insert(mapped + 1, dict(
                 start=gap_start.strftime('%Y-%m-%d'),
