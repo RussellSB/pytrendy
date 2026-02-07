@@ -291,7 +291,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         diff = abs(value_end - value_start)
         threshold_diff = float(df['value_cleaned'].abs().max()) * 0.01
         if is_abrupt: # make a bit more lenient for abrupt
-            threshold_diff = float(df['value_cleaned'].abs().max()) * 0.05
+            threshold_diff = float(df['value_cleaned'].abs().max()) * 0.1
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
         # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
