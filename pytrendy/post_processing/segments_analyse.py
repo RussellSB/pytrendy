@@ -62,7 +62,12 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
             )
 
         # Calculate days & cumulative total change
-        segment_enhanced['days'] = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        days = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        if days == 0: 
+            days = 1 # edge case for 1 day flat between noise spike & trend
+        segment_enhanced['days'] = days # set days
+
+        # Calculate cumulative total change
         if segment['direction'] in ['Up', 'Down']:
             segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())
 
