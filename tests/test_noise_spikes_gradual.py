@@ -7,6 +7,9 @@ with gradual trend changes. Each test focuses on the location and impact
 of spikes on trend detection.
 
 Reference: tests/test.py lines 133-210 (Graduals and Spikes section)
+
+Note: This test file was extracted from exploratory tests in test.py to
+provide formal test coverage for noise spike detection in gradual trends.
 """
 
 import pytest
