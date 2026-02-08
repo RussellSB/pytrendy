@@ -14,6 +14,7 @@ provide formal test coverage for noise spike detection in gradual trends.
 
 import pytest
 import pytrendy as pt
+from conftest import assert_segments_match
 
 
 class TestNoiseSpikesGradual:
@@ -45,15 +46,14 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the spike
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-03-24', 'end': '2025-03-26'},
+        ]
         
-        # Check if at least one noise segment is detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 1, \
-            "Should detect at least one noise segment for the spike"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_spike_single_later_series(self):
@@ -81,15 +81,14 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the spike
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-04-04', 'end': '2025-04-07'},
+        ]
         
-        # Check if at least one noise segment is detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 1, \
-            "Should detect at least one noise segment for the spike"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_three_spikes_distributed(self):
@@ -123,15 +122,16 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the three spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-04-07', 'end': '2025-04-09'},
+            {'direction': 'Noise', 'start': '2025-05-07', 'end': '2025-05-09'},
+            {'direction': 'Noise', 'start': '2025-06-07', 'end': '2025-06-09'},
+        ]
         
-        # Check if multiple noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 2, \
-            "Should detect at least two noise segments for three spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_single_spike_higher_value(self):
@@ -158,15 +158,14 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the spike
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-04-05', 'end': '2025-04-09'},
+        ]
         
-        # Check if at least one noise segment is detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 1, \
-            "Should detect at least one noise segment for the high-value spike"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_two_spikes_different_values(self):
@@ -196,15 +195,15 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the two spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-04-08', 'end': '2025-04-10'},
+            {'direction': 'Noise', 'start': '2025-05-05', 'end': '2025-05-07'},
+        ]
         
-        # Check if multiple noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 1, \
-            "Should detect at least one noise segment for the spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_three_spikes_variant_a(self):
@@ -238,15 +237,16 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the three spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-02-16', 'end': '2025-02-18'},
+            {'direction': 'Noise', 'start': '2025-04-08', 'end': '2025-04-10'},
+            {'direction': 'Noise', 'start': '2025-06-02', 'end': '2025-06-04'},
+        ]
         
-        # Check if multiple noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 2, \
-            "Should detect at least two noise segments for three spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_three_spikes_variant_b(self):
@@ -279,15 +279,16 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the three spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-02-16', 'end': '2025-02-18'},
+            {'direction': 'Noise', 'start': '2025-04-08', 'end': '2025-04-10'},
+            {'direction': 'Noise', 'start': '2025-06-02', 'end': '2025-06-04'},
+        ]
         
-        # Check if multiple noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 2, \
-            "Should detect at least two noise segments for three spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_gradual_four_spikes_distributed(self):
@@ -322,17 +323,14 @@ class TestNoiseSpikesGradual:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the four spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-02-27', 'end': '2025-03-01'},
+            {'direction': 'Noise', 'start': '2025-04-08', 'end': '2025-04-10'},
+            {'direction': 'Noise', 'start': '2025-05-07', 'end': '2025-05-09'},
+            {'direction': 'Noise', 'start': '2025-06-02', 'end': '2025-06-04'},
+        ]
         
-        # Check if multiple noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        assert len(noise_segments) >= 3, \
-            "Should detect at least three noise segments for four spikes"
-        
-        # Verify that non-noise segments still exist
-        non_noise_segments = [seg for seg in results.segments if seg['direction'] != 'Noise']
-        assert len(non_noise_segments) >= 3, \
-            "Should still detect non-noise trend segments despite multiple spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)

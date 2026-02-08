@@ -14,6 +14,7 @@ provide formal test coverage for noise spike detection in abrupt trends.
 
 import pytest
 import pytrendy as pt
+from conftest import assert_segments_match
 
 
 class TestNoiseSpikesAbrupt:
@@ -47,17 +48,24 @@ class TestNoiseSpikesAbrupt:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected segments based on current behavior
+        expected_segments = [
+            {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-14'},
+            {'direction': 'Up', 'start': '2025-02-15', 'end': '2025-02-16'},
+            {'direction': 'Flat', 'start': '2025-02-17', 'end': '2025-03-09'},
+            {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'},
+            {'direction': 'Flat', 'start': '2025-03-12', 'end': '2025-03-16'},
+            {'direction': 'Up', 'start': '2025-03-17', 'end': '2025-03-20'},
+            {'direction': 'Flat', 'start': '2025-03-21', 'end': '2025-03-23'},
+            {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
+            {'direction': 'Flat', 'start': '2025-03-26', 'end': '2025-03-31'},
+            {'direction': 'Up', 'start': '2025-04-01', 'end': '2025-04-02'},
+            {'direction': 'Flat', 'start': '2025-04-03', 'end': '2025-04-21'},
+            {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
+            {'direction': 'Flat', 'start': '2025-05-09', 'end': '2025-06-30'},
+        ]
         
-        # Count different segment types
-        segment_types = [seg['direction'] for seg in results.segments]
-        
-        # Verify we have multiple segments (indicating trend detection)
-        assert len(segment_types) >= 3, \
-            "Should detect multiple segments for abrupt trends"
+        assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_abrupt_single_spike(self):
@@ -88,17 +96,14 @@ class TestNoiseSpikesAbrupt:
             plot=False
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the spike
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-05-31', 'end': '2025-06-02'},
+        ]
         
-        # Check if noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        
-        # Verify that at least one noise segment is detected
-        assert len(noise_segments) >= 1, \
-            "Should detect at least one noise segment for the spike"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_abrupt_three_spikes(self):
@@ -134,17 +139,16 @@ class TestNoiseSpikesAbrupt:
             plot=False
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the three spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-01-31', 'end': '2025-02-02'},
+            {'direction': 'Noise', 'start': '2025-02-28', 'end': '2025-03-02'},
+            {'direction': 'Noise', 'start': '2025-05-31', 'end': '2025-06-02'},
+        ]
         
-        # Check if noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        
-        # Verify that multiple noise segments are detected
-        assert len(noise_segments) >= 2, \
-            "Should detect at least two noise segments for multiple spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
 
     @pytest.mark.core
     def test_abrupt_four_spikes(self):
@@ -182,19 +186,14 @@ class TestNoiseSpikesAbrupt:
             plot=False
         )
         
-        # Verify results were generated
-        assert results is not None
-        assert hasattr(results, 'segments')
-        assert len(results.segments) > 0
+        # Expected noise segments representing the four spikes
+        expected_noise_segments = [
+            {'direction': 'Noise', 'start': '2025-01-31', 'end': '2025-02-02'},
+            {'direction': 'Noise', 'start': '2025-02-28', 'end': '2025-03-02'},
+            {'direction': 'Noise', 'start': '2025-04-13', 'end': '2025-04-15'},
+            {'direction': 'Noise', 'start': '2025-05-31', 'end': '2025-06-02'},
+        ]
         
-        # Check if noise segments are detected
-        noise_segments = [seg for seg in results.segments if seg['direction'] == 'Noise']
-        
-        # Verify that multiple noise segments are detected
-        assert len(noise_segments) >= 3, \
-            "Should detect at least three noise segments for four spikes"
-        
-        # Verify that non-noise segments still exist
-        non_noise_segments = [seg for seg in results.segments if seg['direction'] != 'Noise']
-        assert len(non_noise_segments) >= 2, \
-            "Should still detect non-noise trend segments despite multiple spikes"
+        # Filter for noise segments and validate
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert_segments_match(noise_segments, expected_noise_segments)
