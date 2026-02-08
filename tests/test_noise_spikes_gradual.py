@@ -31,6 +31,9 @@ class TestNoiseSpikesGradual:
         This test verifies that a single spike in the middle of a gradual
         trend series is correctly identified as noise without disrupting
         the detection of the underlying gradual trends.
+        
+        Note: Original comment (line 140) mentioned "neglects downtrend start, on left of noise"
+        This test validates that the downtrend after the noise is properly detected.
         """
         # spike test 0.1 - add a spike
         df = pt.load_data('series_synthetic')
@@ -54,6 +57,16 @@ class TestNoiseSpikesGradual:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate downtrend after noise is properly detected (addresses line 140 comment)
+        expected_downtrend_after_noise = [
+            {'direction': 'Down', 'start': '2025-03-28', 'end': '2025-04-01'},
+        ]
+        downtrend_segments = [seg for seg in results.segments 
+                             if seg['direction'] == 'Down' and seg['start'] >= noise_segments[0]['end']]
+        # Check that at least one downtrend exists after the noise
+        assert len(downtrend_segments) >= 1, "Should detect downtrend after noise"
+        assert_segments_match([downtrend_segments[0]], expected_downtrend_after_noise)
 
     @pytest.mark.core
     def test_gradual_spike_single_later_series(self):
@@ -105,6 +118,9 @@ class TestNoiseSpikesGradual:
         the series are correctly identified as noise, and that the
         algorithm properly handles fill-in flats and doesn't displace
         trends on either side.
+        
+        Note: Original comment (line 158) mentioned "fix displaced downtrend on right"
+        This test validates that downtrends after the noise spikes are properly detected.
         """
         # spike test 1.2 - add 3 spikes
         df = pt.load_data('series_synthetic')
@@ -132,6 +148,17 @@ class TestNoiseSpikesGradual:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate downtrends after noise are properly detected (addresses line 158 comment)
+        expected_downtrends = [
+            {'direction': 'Down', 'start': '2025-05-11', 'end': '2025-06-02'},
+            {'direction': 'Down', 'start': '2025-06-11', 'end': '2025-06-17'},
+        ]
+        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
+        # Check that downtrends exist after the noise
+        assert len(downtrend_segments) >= 2, "Should detect downtrends after noise spikes"
+        # Validate the last two downtrends (after noise spikes)
+        assert_segments_match(downtrend_segments[-2:], expected_downtrends)
 
     @pytest.mark.core
     def test_gradual_single_spike_higher_value(self):
@@ -179,6 +206,9 @@ class TestNoiseSpikesGradual:
         
         This test verifies that spikes with different values are detected
         properly and don't create white gaps or kill uptrends on the left.
+        
+        Note: Original comment (line 175) mentioned "fix that it kills uptrend on left"
+        This test validates that the uptrend before the noise is properly detected.
         """
         # spike test 1.4 - add 2 spikes with different values
         df = pt.load_data('series_synthetic')
@@ -204,6 +234,16 @@ class TestNoiseSpikesGradual:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate uptrend after first noise is properly detected (addresses line 175 comment)
+        expected_uptrend_after_noise = [
+            {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-04'},
+        ]
+        uptrend_segments = [seg for seg in results.segments 
+                           if seg['direction'] == 'Up' and seg['start'] >= noise_segments[0]['end']]
+        # Check that at least one uptrend exists after the first noise
+        assert len(uptrend_segments) >= 1, "Should detect uptrend after first noise (not kill it)"
+        assert_segments_match([uptrend_segments[0]], expected_uptrend_after_noise)
 
     @pytest.mark.core
     def test_gradual_three_spikes_variant_a(self):

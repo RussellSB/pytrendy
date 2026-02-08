@@ -119,6 +119,9 @@ class TestNoiseSpikesAbrupt:
         This test verifies that multiple spikes at different locations
         are correctly identified as noise and don't interfere with
         detection of abrupt trends.
+        
+        Note: Original comment (line 52) mentioned "fix that it neglects downtrend abrupt on right"
+        This test validates that downtrends after noise are properly detected.
         """
         # synth 3 - 3 spikes
         df = pt.load_data('series_synthetic')
@@ -149,6 +152,16 @@ class TestNoiseSpikesAbrupt:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate downtrends are properly detected (addresses line 52 comment)
+        expected_downtrends = [
+            {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
+            {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
+        ]
+        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
+        # Check that downtrends exist
+        assert len(downtrend_segments) >= 2, "Should detect downtrends (not neglect them)"
+        assert_segments_match(downtrend_segments, expected_downtrends)
 
     @pytest.mark.core
     def test_abrupt_four_spikes(self):
@@ -165,6 +178,9 @@ class TestNoiseSpikesAbrupt:
         This test verifies that the algorithm can handle multiple spikes
         distributed throughout the series, including spikes that occur
         near trend boundaries.
+        
+        Note: Original comment (line 70) mentioned "improve downtrends on right"
+        This test validates that downtrends after noise are properly detected.
         """
         # synth 4 - 4 spikes
         df = pt.load_data('series_synthetic')
@@ -197,3 +213,13 @@ class TestNoiseSpikesAbrupt:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate downtrends are properly detected (addresses line 70 comment)
+        expected_downtrends = [
+            {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
+            {'direction': 'Down', 'start': '2025-04-23', 'end': '2025-05-08'},
+        ]
+        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
+        # Check that downtrends exist and are properly detected
+        assert len(downtrend_segments) >= 2, "Should detect downtrends properly (not displace them)"
+        assert_segments_match(downtrend_segments, expected_downtrends)
