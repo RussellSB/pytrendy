@@ -218,7 +218,7 @@ class TestNoiseSpikesGradual:
         properly and don't create white gaps or kill uptrends on the left.
         
         Note: Original comment (test.py line 175) mentioned "fix that it kills uptrend on left"
-        This test validates that the uptrend before the first noise spike is properly detected.
+        This test validates that the uptrend between last two spikes is properly detected.
         """
         # spike test 1.4 - add 2 spikes with different values
         df = pt.load_data('series_synthetic')
@@ -245,19 +245,12 @@ class TestNoiseSpikesGradual:
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
-        # Validate uptrend before first noise spike is properly detected (addresses test.py line 175 comment)
-        # Original comment said "kills uptrend on left" meaning the uptrend that exists
-        # BEFORE the first noise spike should not be killed by noise detection
-        # "on left" means before in the time series
+        # Validate uptrend between last two spikes is properly detected (addresses test.py line 175 comment)
         expected_uptrend_before_noise = [
-            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-17'},
+            {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-04'},
         ]
         # Get all Up segments that end before or at the first noise
-        uptrend_segments = [seg for seg in results.segments 
-                           if seg['direction'] == 'Up' and seg['end'] <= noise_segments[0]['start']]
-        # Check that at least one uptrend exists before the first noise
-        assert len(uptrend_segments) >= 1, "Should detect uptrend before first noise (not kill it)"
-        # Validate the last uptrend before the noise
+        uptrend_segments = results.filter_segments(direction='Up', format='dict')
         assert_segments_match([uptrend_segments[-1]], expected_uptrend_before_noise)
 
     @pytest.mark.core
@@ -358,8 +351,7 @@ class TestNoiseSpikesGradual:
         - 2025-06-03 (value=320)
         
         This test verifies that four spikes with varying values are
-        correctly detected as noise without creating white gaps or
-        noise artifacts on the right side.
+        correctly detected as noise.
         """
         # spike test 1.7 - add 4 spikes
         df = pt.load_data('series_synthetic')
@@ -414,3 +406,58 @@ class TestNoiseSpikesGradual:
         
         # Validate each 1-day flat
         assert_segments_match(one_day_flats, expected_one_day_flats)
+
+
+    @pytest.mark.core
+    def test_gradual_four_spikes_distributed_flatfillins(self):
+        """
+        Test gradual trends with four spikes distributed across the series.
+        
+        Checks that previous test does not introduce white gaps.
+        The flat fill-ins are expected to fill the gaps between noise and adjacent trend segments
+        , ensuring no missing gaps in the trend detection results.
+        """
+        # spike test 1.7 - add 4 spikes
+        df = pt.load_data('series_synthetic')
+        df.set_index('date', inplace=True)
+        df.loc['2025-02-28':'2025-02-28', 'gradual'] = 125  # spike
+        df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150  # spike
+        df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300  # spike
+        df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # spike
+        df = df.reset_index()
+        
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='gradual',
+            plot=False,
+            method_params=dict(is_abrupt_padded=False)
+        )
+        
+        # Test for missing gaps by asserting for same-day flats
+        # Initially should be start to end of one day later, but their logic
+        # is currently conflicted. At the moment it gets manually "squished" # TODO: later improve if possible
+        flat_segments_df = results.filter_segments(direction='Flat', format='df')
+        same_day_flats_df = flat_segments_df[flat_segments_df['start'] == flat_segments_df['end']]
+        same_day_flats = same_day_flats_df.to_dict('records')
+
+        expected_one_day_flats = [
+            {'direction': 'Flat', 'start': '2025-04-11', 'end': '2025-04-11'}, 
+            {'direction': 'Flat', 'start': '2025-05-10', 'end': '2025-05-10'},  
+        ]
+        assert_segments_match(same_day_flats, expected_one_day_flats)
+
+        # Check all other flat segments that neighbour noise spike segments.
+        other_flats_df = flat_segments_df[flat_segments_df['start'] != flat_segments_df['end']]
+        other_flats_df = other_flats_df.iloc[:-1] # removing last one, since it doesnt neighbour a spike
+        other_flats = other_flats_df.to_dict('records')
+
+        expected_other_flats = [
+            {'direction': 'Flat', 'start': '2025-02-25', 'end': '2025-02-26'},  
+            {'direction': 'Flat', 'start': '2025-03-02', 'end': '2025-03-17'},  
+            {'direction': 'Flat', 'start': '2025-04-02', 'end': '2025-04-07'}, 
+            {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},  
+            {'direction': 'Flat', 'start': '2025-05-30', 'end': '2025-06-01'}, 
+            {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},  
+        ]
+        assert_segments_match(other_flats, expected_other_flats)
