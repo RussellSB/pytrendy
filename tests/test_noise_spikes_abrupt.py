@@ -104,6 +104,21 @@ class TestNoiseSpikesAbrupt:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+        
+        # Validate abrupt trends preceding the noise are properly detected
+        # Check for Up and Down segments before the noise
+        expected_segments_before_noise = [
+            {'direction': 'Up', 'start': '2025-04-01', 'end': '2025-04-02'},
+            {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
+        ]
+        # Get segments that end before the noise starts
+        segments_before_noise = [seg for seg in results.segments 
+                                if seg['end'] < noise_segments[0]['start'] and 
+                                seg['direction'] in ['Up', 'Down']]
+        # Check that we have abrupt trends before the noise
+        assert len(segments_before_noise) >= 2, "Should detect abrupt trends before the noise"
+        # Validate the last two abrupt segments before noise
+        assert_segments_match(segments_before_noise[-2:], expected_segments_before_noise)
 
     @pytest.mark.core
     def test_abrupt_three_spikes(self):
@@ -120,7 +135,7 @@ class TestNoiseSpikesAbrupt:
         are correctly identified as noise and don't interfere with
         detection of abrupt trends.
         
-        Note: Original comment (line 52) mentioned "fix that it neglects downtrend abrupt on right"
+        Note: Original comment (test.py line 52) mentioned "fix that it neglects downtrend abrupt on right"
         This test validates that downtrends after noise are properly detected.
         """
         # synth 3 - 3 spikes
@@ -153,7 +168,7 @@ class TestNoiseSpikesAbrupt:
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
-        # Validate downtrends are properly detected (addresses line 52 comment)
+        # Validate downtrends are properly detected (addresses test.py line 52 comment)
         expected_downtrends = [
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
@@ -179,7 +194,7 @@ class TestNoiseSpikesAbrupt:
         distributed throughout the series, including spikes that occur
         near trend boundaries.
         
-        Note: Original comment (line 70) mentioned "improve downtrends on right"
+        Note: Original comment (test.py line 70) mentioned "improve downtrends on right"
         This test validates that downtrends after noise are properly detected.
         """
         # synth 4 - 4 spikes
@@ -214,7 +229,7 @@ class TestNoiseSpikesAbrupt:
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
-        # Validate downtrends are properly detected (addresses line 70 comment)
+        # Validate downtrends are properly detected (addresses test.py line 70 comment)
         expected_downtrends = [
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-23', 'end': '2025-05-08'},
