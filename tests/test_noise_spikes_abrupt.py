@@ -159,7 +159,7 @@ class TestNoiseSpikesAbrupt:
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
         ]
-        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
+        downtrend_segments = results.filter_segments(direction='Down', format='dict')
         assert_segments_match(downtrend_segments, expected_downtrends)
 
     @pytest.mark.core
@@ -178,8 +178,8 @@ class TestNoiseSpikesAbrupt:
         distributed throughout the series, including spikes that occur
         near trend boundaries.
         
-        Note: Original comment (test.py line 70) mentioned "improve downtrends on right"
-        This test validates that downtrends after noise are properly detected.
+        Note: This test also validates that downtrends and uptrends are still properly detected 
+        around noise spikes. At a point in time they would get displaced.
         """
         # synth 4 - 4 spikes
         df = pt.load_data('series_synthetic')
@@ -215,10 +215,18 @@ class TestNoiseSpikesAbrupt:
         
         # Validate downtrends are properly detected (addresses test.py line 70 comment)
         expected_downtrends = [
+            # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edhe case, currently gets deleted with spike on 2025-03-01.
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-23', 'end': '2025-05-08'},
         ]
-        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
-        # Check that downtrends exist and are properly detected
-        assert len(downtrend_segments) >= 2, "Should detect downtrends properly (not displace them)"
+        downtrend_segments = results.filter_segments(direction='Down', format='dict')
         assert_segments_match(downtrend_segments, expected_downtrends)
+
+        # Validate uptrends are properly detected (addresses test.py line 70 comment)
+        expected_uptrends = [
+            {'direction': 'Up', 'start': '2025-02-15', 'end': '2025-02-16'},
+            {'direction': 'Up', 'start': '2025-03-17', 'end': '2025-03-20'},
+            {'direction': 'Up', 'start': '2025-04-01', 'end': '2025-04-02'},
+        ]
+        uptrend_segments = results.filter_segments(direction='Up', format='dict')
+        assert_segments_match(uptrend_segments, expected_uptrends)
