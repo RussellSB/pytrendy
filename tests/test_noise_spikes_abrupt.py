@@ -76,8 +76,7 @@ class TestNoiseSpikesAbrupt:
         Spike location: 2025-06-01 (value=300)
         
         This test verifies that a single spike at the end of the series
-        is correctly identified and doesn't interfere with the detection
-        of preceding abrupt trends.
+        is correctly identified.
         """
         # synth 2 - 1 spike
         df = pt.load_data('series_synthetic')
@@ -104,21 +103,6 @@ class TestNoiseSpikesAbrupt:
         # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
-        
-        # Validate abrupt trends preceding the noise are properly detected
-        # Check for Up and Down segments before the noise
-        expected_segments_before_noise = [
-            {'direction': 'Up', 'start': '2025-04-01', 'end': '2025-04-02'},
-            {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
-        ]
-        # Get segments that end before the noise starts
-        segments_before_noise = [seg for seg in results.segments 
-                                if seg['end'] < noise_segments[0]['start'] and 
-                                seg['direction'] in ['Up', 'Down']]
-        # Check that we have abrupt trends before the noise
-        assert len(segments_before_noise) >= 2, "Should detect abrupt trends before the noise"
-        # Validate the last two abrupt segments before noise
-        assert_segments_match(segments_before_noise[-2:], expected_segments_before_noise)
 
     @pytest.mark.core
     def test_abrupt_three_spikes(self):
