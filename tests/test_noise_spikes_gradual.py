@@ -13,7 +13,6 @@ provide formal test coverage for noise spike detection in gradual trends.
 """
 
 import pytest
-import pandas as pd
 import pytrendy as pt
 from conftest import assert_segments_match
 
@@ -448,8 +447,8 @@ class TestNoiseSpikesGradual:
         assert_segments_match(same_day_flats, expected_one_day_flats)
 
         # Check all other flat segments that neighbour noise spike segments.
+        # Instead of using iloc[:-1] which is brittle, we explicitly validate the expected flats
         other_flats_df = flat_segments_df[flat_segments_df['start'] != flat_segments_df['end']]
-        other_flats_df = other_flats_df.iloc[:-1] # removing last one, since it doesnt neighbour a spike
         other_flats = other_flats_df.to_dict('records')
 
         expected_other_flats = [
@@ -458,6 +457,7 @@ class TestNoiseSpikesGradual:
             {'direction': 'Flat', 'start': '2025-04-02', 'end': '2025-04-07'}, 
             {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},  
             {'direction': 'Flat', 'start': '2025-05-30', 'end': '2025-06-01'}, 
-            {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},  
+            {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},  # Last flat (not neighboring spike)
         ]
         assert_segments_match(other_flats, expected_other_flats)

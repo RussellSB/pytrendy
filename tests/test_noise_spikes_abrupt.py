@@ -155,7 +155,7 @@ class TestNoiseSpikesAbrupt:
         
         # Validate downtrends are properly detected (addresses test.py line 52 comment)
         expected_downtrends = [
-            # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edhe case, currently gets deleted with spike on 2025-03-01.
+            # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edge case, currently gets deleted with spike on 2025-03-01.
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
         ]
@@ -215,7 +215,7 @@ class TestNoiseSpikesAbrupt:
         
         # Validate downtrends are properly detected (addresses test.py line 70 comment)
         expected_downtrends = [
-            # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edhe case, currently gets deleted with spike on 2025-03-01.
+            # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edge case, currently gets deleted with spike on 2025-03-01.
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
             {'direction': 'Down', 'start': '2025-04-23', 'end': '2025-05-08'},
         ]
