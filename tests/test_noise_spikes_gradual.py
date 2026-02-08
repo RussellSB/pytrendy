@@ -51,8 +51,6 @@ class TestNoiseSpikesGradual:
         expected_noise_segments = [
             {'direction': 'Noise', 'start': '2025-03-24', 'end': '2025-03-26'},
         ]
-        
-        # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
@@ -96,10 +94,26 @@ class TestNoiseSpikesGradual:
         expected_noise_segments = [
             {'direction': 'Noise', 'start': '2025-04-04', 'end': '2025-04-07'},
         ]
-        
-        # Filter for noise segments and validate
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
+
+        # Validate downtrends are properly detected
+        expected_downtrends = [
+            {'direction': 'Down', 'start': '2025-01-25', 'end': '2025-02-05'}, 
+            {'direction': 'Down', 'start': '2025-03-18', 'end': '2025-04-01'},
+            {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
+        ]
+        downtrend_segments = results.filter_segments(direction='Down', format='dict')
+        assert_segments_match(downtrend_segments, expected_downtrends)
+
+        # Validate uptrends are properly detected
+        expected_uptrends = [
+            {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-14'},
+            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-08'},
+        ]
+        uptrend_segments = results.filter_segments(direction='Up', format='dict')
+        assert_segments_match(uptrend_segments, expected_uptrends)
 
     @pytest.mark.core
     def test_gradual_three_spikes_distributed(self):
@@ -147,16 +161,14 @@ class TestNoiseSpikesGradual:
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
-        # Validate downtrends after noise are properly detected (addresses line 158 comment)
+        # Validate downtrends around noise are properly detected (addresses line 158 comment)
         expected_downtrends = [
+            {'direction': 'Down', 'start': '2025-03-18', 'end': '2025-03-31'},
             {'direction': 'Down', 'start': '2025-05-11', 'end': '2025-06-02'},
             {'direction': 'Down', 'start': '2025-06-11', 'end': '2025-06-17'},
         ]
-        downtrend_segments = [seg for seg in results.segments if seg['direction'] == 'Down']
-        # Check that downtrends exist after the noise
-        assert len(downtrend_segments) >= 2, "Should detect downtrends after noise spikes"
-        # Validate the last two downtrends (after noise spikes)
-        assert_segments_match(downtrend_segments[-2:], expected_downtrends)
+        downtrend_segments = results.filter_segments(direction='Down', format='dict')
+        assert_segments_match(downtrend_segments[-3:], expected_downtrends) # getting last 3 only, since those neighbouring spikes.
 
     @pytest.mark.core
     def test_gradual_single_spike_higher_value(self):
