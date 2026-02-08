@@ -208,7 +208,7 @@ class TestNoiseSpikesGradual:
         properly and don't create white gaps or kill uptrends on the left.
         
         Note: Original comment (line 175) mentioned "fix that it kills uptrend on left"
-        This test validates that the uptrend before the noise is properly detected.
+        This test validates that the uptrend between the two noise spikes is properly detected.
         """
         # spike test 1.4 - add 2 spikes with different values
         df = pt.load_data('series_synthetic')
@@ -235,7 +235,9 @@ class TestNoiseSpikesGradual:
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
         
-        # Validate uptrend after first noise is properly detected (addresses line 175 comment)
+        # Validate uptrend between noise spikes is properly detected (addresses line 175 comment)
+        # Original comment said "kills uptrend on left" meaning the uptrend that should exist
+        # after the first noise spike was being killed/prevented by noise detection
         expected_uptrend_after_noise = [
             {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-04'},
         ]
