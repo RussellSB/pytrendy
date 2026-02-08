@@ -197,7 +197,7 @@ class TestNoiseSpikesGradual:
         
         # Expected noise segments representing the spike
         expected_noise_segments = [
-            {'direction': 'Noise', 'start': '2025-04-05', 'end': '2025-04-09'},
+            {'direction': 'Noise', 'start': '2025-04-05', 'end': '2025-04-09'}, # TODO: later improve precision to be 04-07 start instead.
         ]
         
         # Filter for noise segments and validate
