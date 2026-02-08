@@ -70,7 +70,7 @@ class TestNoiseSpikesGradual:
         # Find downtrend that comes before the noise
         downtrend_before = None
         for i, seg in enumerate(all_segments):
-            if seg['direction'] == 'Noise' and pd.to_datetime(seg['start']).strftime('%Y-%m-%d') == '2025-03-24':
+            if seg['direction'] == 'Noise' and seg['start'] == '2025-03-24':
                 # Look for Down segment before this noise
                 for j in range(i-1, -1, -1):
                     if all_segments[j]['direction'] == 'Down':
@@ -80,7 +80,7 @@ class TestNoiseSpikesGradual:
         
         assert downtrend_before is not None, "Should detect downtrend before (on left of) noise"
         # Note: The exact boundaries may vary, so we validate that a downtrend exists before the noise
-        assert pd.to_datetime(downtrend_before['end']) <= pd.to_datetime(noise_segments[0]['start']), \
+        assert downtrend_before['end'] <= noise_segments[0]['start'], \
             "Downtrend should end before noise starts"
 
     @pytest.mark.core
@@ -403,12 +403,14 @@ class TestNoiseSpikesGradual:
         one_day_flats = one_day_flats_df.to_dict('records')
         
         # Expected 1-day flats that fill gaps around noise
+        # Note: For single-day segments, start and end dates are identical (e.g., '2025-04-11' to '2025-04-11')
+        # This represents a flat period that lasts exactly one day
         expected_one_day_flats = [
-            {'direction': 'Flat', 'start': '2025-02-25', 'end': '2025-02-26'},
-            {'direction': 'Flat', 'start': '2025-04-11', 'end': '2025-04-11'},
-            {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},
-            {'direction': 'Flat', 'start': '2025-05-10', 'end': '2025-05-10'},
-            {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},
+            {'direction': 'Flat', 'start': '2025-02-25', 'end': '2025-02-26'},  # 2-day flat
+            {'direction': 'Flat', 'start': '2025-04-11', 'end': '2025-04-11'},  # 1-day flat
+            {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},  # 2-day flat  
+            {'direction': 'Flat', 'start': '2025-05-10', 'end': '2025-05-10'},  # 1-day flat
+            {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},  # 2-day flat
         ]
         
         # Validate that we have the expected number of 1-day flats
