@@ -8,7 +8,6 @@ and handles error cases appropriately.
 import pytest
 import pandas as pd
 import pytrendy as pt
-from pathlib import Path
 
 
 class TestDataLoader:
