@@ -12,7 +12,7 @@ larger workflows.
 Loads built-in datasets packaged with PyTrendy. These include:
 
 - `'series_synthetic'`: A synthetic time series with embedded uptrends, downtrends, and flat regions.
-- `'classes_trends'`: Reference signals used internally for classifying segments as gradual or abrupt.
+- `'classes_signals'`: Reference signals used internally for classifying segments as gradual or abrupt.
 
 Useful for testing, demos, and validating detection logic.
 
