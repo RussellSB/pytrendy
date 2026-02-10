@@ -15,7 +15,7 @@ def load_data(dataset: str = 'series_synthetic') -> pd.DataFrame:
             Name of the dataset to load. Options include:
 
             - `'series_synthetic'`: A synthetic time series with embedded trends.
-            - `'classes_trends'`: Reference signals for classifying trends as gradual or abrupt.
+            - `'classes_signals'`: Reference signals for classifying trends as gradual or abrupt.
 
     Returns:
         pd.DataFrame:
