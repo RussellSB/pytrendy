@@ -64,7 +64,7 @@ class TestNoiseEdgeCases:
         Test noisy_edgecase_2 scenario for proper significance filtering.
         
         Reference: test.py line 256 (temp_noisy_edgecase_2.csv)
-        Issue noted: "TODONE: fix green at 03-01 start that is should be too tiny for significance"
+        Issue noted: "TODONE: fix green at 03-01 start that should be too tiny for significance"
         
         This edge case had very short segments that should be filtered out.
         Verifies that insignificant short segments are handled appropriately.
