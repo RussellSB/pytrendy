@@ -213,52 +213,74 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
+# Load from test data instead of temporary files
+edgecases_df = pd.read_csv('data/noisy_edgecases.csv')
+noise_df = edgecases_df[['date', 'noisy_edgecase_10']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 #  df.to_csv('../temp_noisy_edgecase_10.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_9.csv') # TODONE: make sensitive to flats, but be sensitive to up from 03-01 and 04-16
+noise_df = edgecases_df[['date', 'noisy_edgecase_9']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_9.csv') # TODONE: make sensitive to flats, but be sensitive to up from 03-01 and 04-16
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 #  df.to_csv('../temp_noisy_edgecase_9.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_8.csv') # TODONE: 03-18 upwards should be flat/noise # TODONE 05-08 Upwards end should be one day longer
+noise_df = edgecases_df[['date', 'noisy_edgecase_8']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_8.csv') # TODONE: 03-18 upwards should be flat/noise # TODONE 05-08 Upwards end should be one day longer
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 # df.to_csv('../temp_noisy_edgecase_8.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODONE: 05-16 too small a red when padded is False
+noise_df = edgecases_df[['date', 'noisy_edgecase_7']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_7.csv') # TODONE: 05-16 too small a red when padded is False
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=False)) 
 # df.to_csv('../temp_noisy_edgecase_7.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_6.csv') # TODONE: 03-09 too small a green
+noise_df = edgecases_df[['date', 'noisy_edgecase_6']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_6.csv') # TODONE: 03-09 too small a green
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_6.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_5.csv') #TODONE: 05-01 green overlaps blue
+noise_df = edgecases_df[['date', 'noisy_edgecase_5']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_5.csv') #TODONE: 05-01 green overlaps blue
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_5.csv')
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_4.csv') #TODONE: 02-25 should be noise not up # TODONE: Red overlaps green 04-01
+noise_df = edgecases_df[['date', 'noisy_edgecase_4']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_4.csv') #TODONE: 02-25 should be noise not up # TODONE: Red overlaps green 04-01
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_4.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODONE: 03-02 could be noise
+noise_df = edgecases_df[['date', 'noisy_edgecase_3']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_3.csv') # TODONE: 03-02 could be noise
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_3.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_2.csv') # TODONE: fix green at 03-01 start that is should be too tiny for significance
+noise_df = edgecases_df[['date', 'noisy_edgecase_2']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_2.csv') # TODONE: fix green at 03-01 start that is should be too tiny for significance
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_2.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_edgecase_1.csv') # TODONE: fix when green overlaps red
+noise_df = edgecases_df[['date', 'noisy_edgecase_1']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_edgecase_1.csv') # TODONE: fix when green overlaps red
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) 
 # df.to_csv('../temp_noisy_edgecase_1.csv')   
 
@@ -266,24 +288,32 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 
 # ------------ Latest
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_7.csv') # TODONE: fix when padded out of bound # TODONE: crash fix
+# Load from test data instead of temporary files
+crashes_df = pd.read_csv('data/noisy_crashes.csv')
+noise_df = crashes_df[['date', 'noisy_crash_7']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_7.csv') # TODONE: fix when padded out of bound # TODONE: crash fix
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 # df.to_csv('../temp_noisy_crash_7.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
+noise_df = crashes_df[['date', 'noisy_crash_6']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 # df.to_csv('../temp_noisy_crash_6.csv') 
 
-
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
+noise_df = crashes_df[['date', 'noisy_crash_5']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 # df.to_csv('../temp_noisy_crash_5.csv') 
 
-
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
+noise_df = crashes_df[['date', 'noisy_crash_4']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 # df.to_csv('../temp_noisy_crash_4.csv') 
 
@@ -291,7 +321,9 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
+noise_df = crashes_df[['date', 'noisy_crash_5']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
 noise_df['date'] = pd.to_datetime(noise_df['date'])
 noise_df = noise_df.set_index('date')
 noise_df['value_noisy'].plot(figsize=(20,3))
@@ -300,7 +332,9 @@ noise_df['value_noisy'].plot(figsize=(20,3))
 # df.to_csv('../temp_noisy_crash_5.csv')   
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
+noise_df = crashes_df[['date', 'noisy_crash_4']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
 noise_df['date'] = pd.to_datetime(noise_df['date'])
 noise_df = noise_df.set_index('date')
 noise_df['value_noisy'].plot(figsize=(20,3))
@@ -312,7 +346,9 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 # df.to_csv('../temp_noisy_crash_4.csv')        
 
 # %%
-noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
+noise_df = crashes_df[['date', 'noisy_crash_2']].copy()
+noise_df.columns = ['date', 'value_noisy']
+# noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
 noise_df['date'] = pd.to_datetime(noise_df['date'])
 noise_df = noise_df.set_index('date')
 noise_df['value_noisy'].plot(figsize=(20,3))
@@ -324,7 +360,9 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 import matplotlib.pyplot as plt
 import pandas as pd
 
-temp_df = pd.read_csv('../temp_2.csv')
+temp_df = crashes_df[['date', 'temp_2']].copy()
+temp_df.columns = ['date', 'value_noisy']
+# temp_df = pd.read_csv('../temp_2.csv')
 temp_df['date'] = pd.to_datetime(temp_df['date'])
 temp_df = temp_df.set_index('date')
 temp_df['value_noisy'].plot(figsize=(20,3))
