@@ -214,7 +214,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 
 # %%
 # Load from test data instead of temporary files
-edgecases_df = pd.read_csv('data/noisy_edgecases.csv')
+edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
 noise_df = edgecases_df[['date', 'noisy_edgecase_10']].copy()
 noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
@@ -289,7 +289,7 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 # ------------ Latest
 # %%
 # Load from test data instead of temporary files
-crashes_df = pd.read_csv('data/noisy_crashes.csv')
+crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
 noise_df = crashes_df[['date', 'noisy_crash_7']].copy()
 noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_crash_7.csv') # TODONE: fix when padded out of bound # TODONE: crash fix
@@ -365,9 +365,5 @@ temp_df.columns = ['date', 'value_noisy']
 # temp_df = pd.read_csv('../temp_2.csv')
 temp_df['date'] = pd.to_datetime(temp_df['date'])
 temp_df = temp_df.set_index('date')
-temp_df['value_noisy'].plot(figsize=(20,3))
-plt.show()
-
-# %%
 results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
 # %%
