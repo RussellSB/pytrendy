@@ -315,35 +315,7 @@ noise_df = crashes_df[['date', 'noisy_crash_4']].copy()
 noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
-# df.to_csv('../temp_noisy_crash_4.csv') 
 
-# %%
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
-
-# %%
-noise_df = crashes_df[['date', 'noisy_crash_5']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
-noise_df['date'] = pd.to_datetime(noise_df['date'])
-noise_df = noise_df.set_index('date')
-noise_df['value_noisy'].plot(figsize=(20,3))
-
-# %%
-# df.to_csv('../temp_noisy_crash_5.csv')   
-
-# %%
-noise_df = crashes_df[['date', 'noisy_crash_4']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
-noise_df['date'] = pd.to_datetime(noise_df['date'])
-noise_df = noise_df.set_index('date')
-noise_df['value_noisy'].plot(figsize=(20,3))
-
-# %%
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: fixed new edge case crash
-
-# %%
-# df.to_csv('../temp_noisy_crash_4.csv')        
 
 # %%
 noise_df = crashes_df[['date', 'noisy_crash_2']].copy()
@@ -351,9 +323,8 @@ noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
 noise_df['date'] = pd.to_datetime(noise_df['date'])
 noise_df = noise_df.set_index('date')
-noise_df['value_noisy'].plot(figsize=(20,3))
+# noise_df['value_noisy'].plot(figsize=(20,3))
 
-# %%
 results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
 
 # %% 
