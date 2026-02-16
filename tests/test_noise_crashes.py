@@ -16,6 +16,7 @@ the algorithm to crash or hang.
 """
 
 import pytest
+import time
 import pandas as pd
 import pytrendy as pt
 
@@ -191,10 +192,13 @@ class TestNoiseCrashes:
         
         This scenario was noted with "TODONE: fix hangup".
         This test ensures the algorithm completes in reasonable time without hanging.
+        Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
         """
         crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp_2']].copy()
         test_df.columns = ['date', 'value']
+
+        start_time = time.perf_counter()
         
         results = pt.detect_trends(
             test_df,
@@ -203,10 +207,13 @@ class TestNoiseCrashes:
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
+
+        elapsed_seconds = time.perf_counter() - start_time
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
+        assert elapsed_seconds < 4.0, (
+            f"temp_2 scenario timed out: {elapsed_seconds:.3f}s (threshold: 4.0s)"
+        )
 
     @pytest.mark.core
     def test_temp_scenario(self):
