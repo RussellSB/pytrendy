@@ -24,7 +24,7 @@ import pytrendy as pt
 class TestNoiseCrashes:
     """Test cases for noise scenarios that previously caused crashes or hangs."""
 
-    @pytest.mark.core
+
     def test_noisy_crash_scenario(self):
         """
         Test that algorithm handles noisy_crash scenario without crashing.
@@ -53,7 +53,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_noisy_crash_2_scenario(self):
         """
         Test that algorithm handles noisy_crash_2 scenario without crashing.
@@ -79,7 +79,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_noisy_crash_4_scenario(self):
         """
         Test that algorithm handles noisy_crash_4 scenario without crashing.
@@ -105,7 +105,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_noisy_crash_5_scenario(self):
         """
         Test that algorithm handles noisy_crash_5 scenario without crashing.
@@ -131,7 +131,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_noisy_crash_6_scenario(self):
         """
         Test that algorithm handles noisy_crash_6 scenario without crashing.
@@ -157,7 +157,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_noisy_crash_7_scenario(self):
         """
         Test that algorithm handles noisy_crash_7 scenario without crashing.
@@ -183,6 +183,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
+
     @pytest.mark.core
     def test_temp_2_scenario(self):
         """
@@ -193,6 +194,7 @@ class TestNoiseCrashes:
         This scenario was noted with "TODONE: fix hangup".
         This test ensures the algorithm completes in reasonable time without hanging.
         Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
+        Marking core as this test was pretty severe for this edge case.
         """
         crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp_2']].copy()
@@ -215,7 +217,7 @@ class TestNoiseCrashes:
             f"temp_2 scenario timed out: {elapsed_seconds:.3f}s (threshold: 4.0s)"
         )
 
-    @pytest.mark.core
+
     def test_temp_scenario(self):
         """
         Test that algorithm handles temp scenario without crashing.
@@ -239,7 +241,7 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
         assert hasattr(results, 'segments')
 
-    @pytest.mark.core
+
     def test_all_crash_scenarios_batch(self):
         """
         Test that all crash scenarios can be processed in sequence without issues.

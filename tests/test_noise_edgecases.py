@@ -23,7 +23,7 @@ import pytrendy as pt
 class TestNoiseEdgeCases:
     """Test cases for noise scenarios that cause edge case behavior in trend detection."""
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_1_scenario(self):
         """
         Test noisy_edgecase_1 scenario for consistent trend detection.
@@ -58,7 +58,7 @@ class TestNoiseEdgeCases:
             assert next_start_date >= end_date, \
                 f"Segments {i} and {i+1} overlap: {segments[i]['end']} vs {segments[i+1]['start']}"
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_2_scenario(self):
         """
         Test noisy_edgecase_2 scenario for proper significance filtering.
@@ -90,7 +90,7 @@ class TestNoiseEdgeCases:
         segments = results.segments
         assert all(seg['direction'] in ['Up', 'Down', 'Flat', 'Noise'] for seg in segments)
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_3_scenario(self):
         """
         Test noisy_edgecase_3 scenario for noise detection sensitivity.
@@ -122,7 +122,7 @@ class TestNoiseEdgeCases:
         # The edge case had issues with noise detection, verify it's working now
         assert isinstance(noise_segments, list)
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_4_scenario(self):
         """
         Test noisy_edgecase_4 scenario for overlapping segment handling.
@@ -155,7 +155,7 @@ class TestNoiseEdgeCases:
             assert next_start_date >= end_date, \
                 f"Segments overlap at {segments[i]['end']} and {segments[i+1]['start']}"
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_5_scenario(self):
         """
         Test noisy_edgecase_5 scenario for segment boundary issues.
@@ -187,7 +187,7 @@ class TestNoiseEdgeCases:
             next_start_date = pd.to_datetime(segments[i + 1]['start'])
             assert next_start_date >= end_date
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_6_scenario(self):
         """
         Test noisy_edgecase_6 scenario for segment size issues.
@@ -213,7 +213,7 @@ class TestNoiseEdgeCases:
         assert results is not None
         assert len(results.segments) > 0
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_7_scenario(self):
         """
         Test noisy_edgecase_7 scenario for padding-dependent segment sizing.
@@ -239,7 +239,7 @@ class TestNoiseEdgeCases:
         assert results is not None
         assert len(results.segments) > 0
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_8_scenario(self):
         """
         Test noisy_edgecase_8 scenario for noise vs flat classification.
@@ -265,7 +265,7 @@ class TestNoiseEdgeCases:
         assert results is not None
         assert len(results.segments) > 0
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_9_scenario(self):
         """
         Test noisy_edgecase_9 scenario for flat sensitivity vs trend detection.
@@ -296,7 +296,7 @@ class TestNoiseEdgeCases:
         # The data should have various segment types
         assert len(directions) > 0
 
-    @pytest.mark.core
+    
     def test_noisy_edgecase_10_scenario(self):
         """
         Test noisy_edgecase_10 scenario for consistent behavior across padding modes.
@@ -323,7 +323,7 @@ class TestNoiseEdgeCases:
         assert results_padded is not None
         assert len(results_padded.segments) > 0
 
-    @pytest.mark.core
+    
     def test_all_edgecase_scenarios_batch(self):
         """
         Test that all edge case scenarios can be processed in sequence.
