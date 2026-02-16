@@ -49,9 +49,7 @@ class TestNoiseCrashes:
         )
         
         # Assert that we got results and didn't crash
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_noisy_crash_2_scenario(self):
@@ -75,9 +73,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_noisy_crash_4_scenario(self):
@@ -101,9 +97,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_noisy_crash_5_scenario(self):
@@ -127,9 +121,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_noisy_crash_6_scenario(self):
@@ -153,9 +145,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_noisy_crash_7_scenario(self):
@@ -179,9 +169,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     @pytest.mark.core
@@ -194,7 +182,7 @@ class TestNoiseCrashes:
         This scenario was noted with "TODONE: fix hangup".
         This test ensures the algorithm completes in reasonable time without hanging.
         Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
-        Marking core as this test was pretty severe for this edge case.
+        Marking core as this test was pretty severe for this
         """
         crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp_2']].copy()
@@ -237,9 +225,7 @@ class TestNoiseCrashes:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
-        assert hasattr(results, 'segments')
 
 
     def test_all_crash_scenarios_batch(self):

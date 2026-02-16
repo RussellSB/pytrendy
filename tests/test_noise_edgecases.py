@@ -210,7 +210,6 @@ class TestNoiseEdgeCases:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
 
     
@@ -236,7 +235,6 @@ class TestNoiseEdgeCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
 
     
@@ -262,7 +260,6 @@ class TestNoiseEdgeCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
 
     
@@ -288,7 +285,6 @@ class TestNoiseEdgeCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        assert results is not None
         assert len(results.segments) > 0
         
         # Verify both flat and uptrend segments can be detected
@@ -320,7 +316,6 @@ class TestNoiseEdgeCases:
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert results_padded is not None
         assert len(results_padded.segments) > 0
 
     
@@ -348,8 +343,7 @@ class TestNoiseEdgeCases:
                 method_params=dict(is_abrupt_padded=True)
             )
             
-            assert results is not None, f"Failed on column {col}"
-            assert len(results.segments) > 0, f"No segments detected for {col}"
+            assert len(results.segments) > 0
             
             # Verify no overlapping segments
             segments = results.segments
