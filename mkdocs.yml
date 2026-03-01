@@ -3,11 +3,14 @@ site_name: PyTrendy
 nav:
   - Home: index.md
   - Quick Start: quickstart.md
+  - Installation: tutorials/installation.md
   - Tutorials:
     - Overview: tutorials/index.md
-    - Installation: tutorials/installation.md
     - Core Tutorials:
       - Getting Started: tutorials/getting-started.md
+      - Gradual: tutorials/gradual.md
+      - Abrupt: tutorials/abrupt.md
+      - Noise: tutorials/noise.md
       - Custom Pipeline: tutorials/custom-pipeline.md
       - Abrupt vs Gradual: tutorials/abrupt-vs-gradual.md
     - Real-World Examples: tutorials/real-world-examples.md

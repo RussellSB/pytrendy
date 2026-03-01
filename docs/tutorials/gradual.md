@@ -1,4 +1,4 @@
-# Understanding Gradual Trends
+# Gradual Trends in PyTrendy
 
 This tutorial explains how PyTrendy identifies and classifies *gradual* trends within a time series.  
 
@@ -9,7 +9,7 @@ They differ from abrupt trends, which exhibit sharp, short‑lived deviations.
 
 ---
 
-## What Defines a Gradual Trend
+## 1. What Defines a Gradual Trend?
 
 PyTrendy classifies a segment as *gradual* when:
 
@@ -18,26 +18,59 @@ PyTrendy classifies a segment as *gradual* when:
 - Local extrema and DTW alignment indicate smooth temporal progression.
 - The segment passes minimum‑length and noise‑filtering thresholds.
 
-Gradual trends are typically associated with structural shifts, long‑term behaviour, or meaningful
-business changes rather than short‑term volatility.
+A segment is labeled 'gradual' when its DTW distance to the reference gradual pattern is lower than to the abrupt pattern.
+
+```py
+segment['trend_class'] = 'gradual'
+```
+
+---
 
 
-
-## Running Trend Detection
+## 2. Detecting Trends
 
 Let's start by detecting trends. This produces a PyTrendyResults object containing all detected segments, 
 including their classification as gradual, abrupt or noise.
 
 ```py
-import pytrendy as pt
-```
-```py
-results = pt.detect_trends(
-    df, value_col="value", date_col="date", window=7, polyorder=2
+from pytrendy import detect_trends
+import pandas as pd
+
+df = pd.read_csv("series_synthetic.csv")
+
+results = detect_trends(
+    df=df,
+    date_col="date",
+    value_col="value",
+    plot=True
 )
 ```
 
+Optional: `method_params`
+The `detect_trends()` function accepts an optional dictionary to control abrupt‑trend padding:
+
+
+```py
+results = detect_trends(
+    df,
+    "date",
+    "value",
+    method_params={
+        "is_abrupt_padded": False,   # default
+        "abrupt_padding": 28         # default
+    }
+)
+```
+
+These parameters come directly from:
+
+- `detect_trends.py` (method_params construction)
+- `abrupt_shaving.py` (padding logic)
+
+They do **not** affect gradual trends directly, but including them here helps users understand the full pipeline.
+
 ---
+
 
 ## Filtering for Gradual Segments
 
@@ -45,8 +78,10 @@ Once detection is complete, you can isolate gradual trends. This returns only th
 refinement step has assigned the label "gradual".
 
 ```py
-gradual_segments = results.filter_segments(kind="gradual")
-gradual_segments.head()
+gradual_segments = [
+    seg for seg in results.segments
+    if seg.get("trend_class") == "gradual"
+]
 ```
 
 You may also filter by direction.
