@@ -333,3 +333,8 @@ plt.show()
 # %%
 results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
 # %%
+
+
+
+# ---------- Documentation Testing 
+

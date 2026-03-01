@@ -1,0 +1,44 @@
+/* Custom badge styles for tutorials */
+
+.badge-beginner {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.badge-advanced {
+    background-color: #FF9800;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.badge-realworld {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+.badge-time {
+    color: #666;
+    margin-left: 10px;
+    font-size: 0.85em;
+}
+
+.badge-time-small {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.transparent * {
+  background-color: transparent !important;
+  padding-bottom: 1px;
+}
