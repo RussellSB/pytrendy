@@ -34,20 +34,18 @@ theme:
     - header.autohide
   palette:
     - scheme: default
-      primary: cyan
-      accent: cyan
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb
         name: Switch to dark mode
 
     - scheme: slate
-      primary: cyan
-      accent: cyan
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb-outline
         name: Switch to light mode
-        
-
 
 markdown_extensions:
   - tables
