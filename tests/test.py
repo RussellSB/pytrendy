@@ -221,7 +221,7 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 
 # %%
 # Load from test data instead of temporary files
-edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
 noise_df = edgecases_df[['date', 'noisy_edgecase_10']].copy()
 noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
@@ -296,7 +296,7 @@ results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='v
 # ------------ Latest
 # %%
 # Load from test data instead of temporary files
-crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
 noise_df = crashes_df[['date', 'noisy_crash_7']].copy()
 noise_df.columns = ['date', 'value_noisy']
 # noise_df = pd.read_csv('../temp_noisy_crash_7.csv') # TODONE: fix when padded out of bound # TODONE: crash fix
