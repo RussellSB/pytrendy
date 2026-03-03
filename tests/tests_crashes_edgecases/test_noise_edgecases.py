@@ -34,7 +34,7 @@ class TestNoiseEdgeCases:
         This edge case previously had overlapping segments of different trend directions.
         Verifies that segments are properly separated and don't overlap.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_1']].copy()
         test_df.columns = ['date', 'value']
         
@@ -69,7 +69,7 @@ class TestNoiseEdgeCases:
         This edge case had very short segments that should be filtered out.
         Verifies that insignificant short segments are handled appropriately.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_2']].copy()
         test_df.columns = ['date', 'value']
         
@@ -101,7 +101,7 @@ class TestNoiseEdgeCases:
         This edge case had a segment that should have been classified as noise
         but was initially detected as a trend. Verifies appropriate noise classification.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_3']].copy()
         test_df.columns = ['date', 'value']
         
@@ -133,7 +133,7 @@ class TestNoiseEdgeCases:
         This edge case had multiple issues: misclassified noise as uptrend,
         and overlapping segments. Verifies proper classification and no overlaps.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_4']].copy()
         test_df.columns = ['date', 'value']
         
@@ -166,7 +166,7 @@ class TestNoiseEdgeCases:
         This edge case had overlapping segments of different types.
         Verifies proper segment boundaries without overlaps.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_5']].copy()
         test_df.columns = ['date', 'value']
         
@@ -198,7 +198,7 @@ class TestNoiseEdgeCases:
         This edge case had segments that were too short. Verifies proper
         segment sizing and detection.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_6']].copy()
         test_df.columns = ['date', 'value']
         
@@ -223,7 +223,7 @@ class TestNoiseEdgeCases:
         This edge case showed different behavior with padding off.
         Verifies proper detection with padding disabled.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_7']].copy()
         test_df.columns = ['date', 'value']
         
@@ -248,7 +248,7 @@ class TestNoiseEdgeCases:
         This edge case had issues with distinguishing between flat regions and noise,
         as well as segment boundary precision. Verifies proper classification.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_8']].copy()
         test_df.columns = ['date', 'value']
         
@@ -273,7 +273,7 @@ class TestNoiseEdgeCases:
         This edge case required balancing flat detection with uptrend detection.
         Verifies the algorithm can detect both appropriately.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_9']].copy()
         test_df.columns = ['date', 'value']
         
@@ -303,7 +303,7 @@ class TestNoiseEdgeCases:
         This edge case showed inconsistent behavior between padding modes and
         had unwanted segment detection. Verifies proper behavior in both modes.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_10']].copy()
         test_df.columns = ['date', 'value']
         
@@ -327,7 +327,7 @@ class TestNoiseEdgeCases:
         does not cause any state-related issues. Each scenario should complete
         successfully and produce valid segments.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         edgecase_columns = [col for col in edgecases_df.columns if col.startswith('noisy_edgecase_')]
         
         for col in edgecase_columns:

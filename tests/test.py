@@ -1,3 +1,10 @@
+"""
+This is a mock test file to test out scenarios in a notebook before
+formalizing them into test cases in the tests/ directory. It is not intended to be 
+run as part of the test suite, but rather serves as a sandbox for exploring 
+edge cases and verifying fixes before adding them to the formal tests.
+"""
+
 #%%
 import os
 os.getcwd()

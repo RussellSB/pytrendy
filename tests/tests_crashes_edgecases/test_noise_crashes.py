@@ -35,7 +35,7 @@ class TestNoiseCrashes:
         The test verifies that detect_trends completes successfully without
         hanging or throwing exceptions.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash']].copy()
         test_df.columns = ['date', 'value']
         
@@ -61,7 +61,7 @@ class TestNoiseCrashes:
         This scenario represents another crash case found during testing.
         Verifies the algorithm completes without errors.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash_2']].copy()
         test_df.columns = ['date', 'value']
         
@@ -85,7 +85,7 @@ class TestNoiseCrashes:
         This scenario was fixed with comment "TODONE: doesnt crash now".
         Verifies the fix remains stable.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash_4']].copy()
         test_df.columns = ['date', 'value']
         
@@ -109,7 +109,7 @@ class TestNoiseCrashes:
         This scenario was fixed with comment "TODONE: doesnt crash now".
         Verifies the algorithm processes it successfully.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash_5']].copy()
         test_df.columns = ['date', 'value']
         
@@ -133,7 +133,7 @@ class TestNoiseCrashes:
         This scenario was fixed with comment "TODONE: doesnt crash now".
         Ensures continued stability on this edge case.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash_6']].copy()
         test_df.columns = ['date', 'value']
         
@@ -157,7 +157,7 @@ class TestNoiseCrashes:
         This scenario was noted with "TODONE: fix when padded out of bound # TODONE: crash fix".
         This was one of the critical crash fixes. Verifies algorithm stability.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash_7']].copy()
         test_df.columns = ['date', 'value']
         
@@ -172,7 +172,6 @@ class TestNoiseCrashes:
         assert len(results.segments) > 0
 
 
-    @pytest.mark.core
     def test_temp_2_scenario(self):
         """
         Test that algorithm handles temp_2 scenario without hanging.
@@ -182,9 +181,8 @@ class TestNoiseCrashes:
         This scenario was noted with "TODONE: fix hangup".
         This test ensures the algorithm completes in reasonable time without hanging.
         Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
-        Marking core as this test was pretty severe for this
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp_2']].copy()
         test_df.columns = ['date', 'value']
 
@@ -213,7 +211,7 @@ class TestNoiseCrashes:
         Additional crash scenario preserved in test data.
         Verifies algorithm stability on this edge case.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp']].copy()
         test_df.columns = ['date', 'value']
         
@@ -235,7 +233,7 @@ class TestNoiseCrashes:
         This test verifies that processing multiple crash scenarios in succession
         does not cause any state-related issues or cumulative errors.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         crash_columns = [col for col in crashes_df.columns if col not in ['Unnamed: 0', 'date']]
         
         for col in crash_columns:

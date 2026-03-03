@@ -33,7 +33,7 @@ class TestPlotEdgeCases:
         This ensures the plotting code handles edge case data that previously
         crashed the detection algorithm. Verifies plotting completes without errors.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'noisy_crash']].copy()
         test_df.columns = ['date', 'value']
         
@@ -58,7 +58,7 @@ class TestPlotEdgeCases:
         This scenario was noted with "TODONE: fix hangup" and verifies
         that plotting completes in reasonable time without hanging.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         test_df = crashes_df[['date', 'temp_2']].copy()
         test_df.columns = ['date', 'value']
         
@@ -82,7 +82,7 @@ class TestPlotEdgeCases:
         Reference: "TODONE: fix when green overlaps red"
         This tests plotting code's handling of complex segment boundaries.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_1']].copy()
         test_df.columns = ['date', 'value']
         
@@ -106,7 +106,7 @@ class TestPlotEdgeCases:
         Reference: "TODONE: fix green at 03-01 start that is should be too tiny for significance"
         This tests plotting code's handling of very short segments.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_2']].copy()
         test_df.columns = ['date', 'value']
         
@@ -130,7 +130,7 @@ class TestPlotEdgeCases:
         Reference: "TODONE: 03-02 could be noise"
         This tests plotting code's handling of noise segments.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_3']].copy()
         test_df.columns = ['date', 'value']
         
@@ -228,7 +228,7 @@ class TestPlotEdgeCases:
         Tests plotting code behavior when is_abrupt_padded=False,
         ensuring proper visualization without padding.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_7']].copy()
         test_df.columns = ['date', 'value']
         
@@ -253,7 +253,7 @@ class TestPlotEdgeCases:
         logic for adjusting segment start/end boundaries for visualization,
         including the displacement logic for different segment types.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         test_df = edgecases_df[['date', 'noisy_edgecase_8']].copy()
         test_df.columns = ['date', 'value']
         
@@ -302,7 +302,7 @@ class TestPlotEdgeCases:
         Ensures plotting code handles all crash scenarios without errors,
         maximizing code coverage for edge cases.
         """
-        crashes_df = pd.read_csv('tests/data/noisy_crashes.csv')
+        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         crash_columns = [col for col in crashes_df.columns if col not in ['Unnamed: 0', 'date']]
         
         for col in crash_columns[:3]:  # Test first 3 to keep test time reasonable
@@ -329,7 +329,7 @@ class TestPlotEdgeCases:
         Ensures plotting code handles all edge case scenarios without errors,
         maximizing code coverage for various segment configurations.
         """
-        edgecases_df = pd.read_csv('tests/data/noisy_edgecases.csv')
+        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         edgecase_columns = [col for col in edgecases_df.columns if col.startswith('noisy_edgecase_')]
         
         for col in edgecase_columns[:3]:  # Test first 3 to keep test time reasonable
