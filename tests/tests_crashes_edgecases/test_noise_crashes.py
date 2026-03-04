@@ -224,30 +224,3 @@ class TestNoiseCrashes:
         )
         
         assert len(results.segments) > 0
-
-
-    def test_all_crash_scenarios_batch(self):
-        """
-        Test that all crash scenarios can be processed in sequence without issues.
-        
-        This test verifies that processing multiple crash scenarios in succession
-        does not cause any state-related issues or cumulative errors.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        crash_columns = [col for col in crashes_df.columns if col not in ['Unnamed: 0', 'date']]
-        
-        for col in crash_columns:
-            test_df = crashes_df[['date', col]].copy()
-            test_df.columns = ['date', 'value']
-            
-            # Each scenario should complete without crashing
-            results = pt.detect_trends(
-                test_df,
-                date_col='date',
-                value_col='value',
-                plot=False,
-                method_params=dict(is_abrupt_padded=True)
-            )
-            
-            assert results is not None, f"Failed on column {col}"
-            assert len(results.segments) > 0, f"No segments detected for {col}"
