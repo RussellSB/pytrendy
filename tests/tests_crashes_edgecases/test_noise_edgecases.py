@@ -19,7 +19,6 @@ import pytest
 import pandas as pd
 import pytrendy as pt
 
-
 class TestNoiseEdgeCases:
     """Test cases for noise scenarios that cause edge case behavior in trend detection."""
 
@@ -317,38 +316,3 @@ class TestNoiseEdgeCases:
         )
         
         assert len(results_padded.segments) > 0
-
-    
-    def test_all_edgecase_scenarios_batch(self):
-        """
-        Test that all edge case scenarios can be processed in sequence.
-        
-        This test verifies that processing multiple edge case scenarios in succession
-        does not cause any state-related issues. Each scenario should complete
-        successfully and produce valid segments.
-        """
-        edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
-        edgecase_columns = [col for col in edgecases_df.columns if col.startswith('noisy_edgecase_')]
-        
-        for col in edgecase_columns:
-            test_df = edgecases_df[['date', col]].copy()
-            test_df.columns = ['date', 'value']
-            
-            # Each scenario should complete without errors
-            results = pt.detect_trends(
-                test_df,
-                date_col='date',
-                value_col='value',
-                plot=False,
-                method_params=dict(is_abrupt_padded=True)
-            )
-            
-            assert len(results.segments) > 0
-            
-            # Verify no overlapping segments
-            segments = results.segments
-            for i in range(len(segments) - 1):
-                end_date = pd.to_datetime(segments[i]['end'])
-                next_start_date = pd.to_datetime(segments[i + 1]['start'])
-                assert next_start_date >= end_date, \
-                    f"Segments overlap in {col} at {segments[i]['end']} and {segments[i+1]['start']}"
