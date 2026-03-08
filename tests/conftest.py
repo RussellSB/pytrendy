@@ -76,4 +76,4 @@ def assert_segments_in_a_haystack(actual_segments, expected_segments):
             unmatched_actual.remove(expected_tuple)
             continue
 
-        raise AssertionError(f"Expected {expected_tuple} could not be found in detected.")
+        raise AssertionError(f"Expected {expected_tuple} could not be found in detected trends.")
