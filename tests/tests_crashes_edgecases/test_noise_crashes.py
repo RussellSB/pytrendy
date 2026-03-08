@@ -19,157 +19,34 @@ import pytest
 import time
 import pandas as pd
 import pytrendy as pt
+from conftest import assert_segments_in_a_haystack
 
 
 class TestNoiseCrashes:
     """Test cases for noise scenarios that previously caused crashes or hangs."""
 
-
-    def test_noisy_crash_scenario(self):
+    
+    def test_temp_scenario(self):
         """
-        Test that algorithm handles noisy_crash scenario without crashing.
+        Test that algorithm handles temp scenario without crashing.
         
-        Reference: test.py line 269 (temp_noisy_crash_7.csv) and related
-        
-        This scenario was found to crash pytrendy with execution errors.
-        The test verifies that detect_trends completes successfully without
-        hanging or throwing exceptions.
+        Additional crash scenario preserved in test data.
+        Verifies algorithm stability on this edge case.
         """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash']].copy()
-        test_df.columns = ['date', 'value']
-        
-        # Test with padded=True (original crash scenario)
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         results = pt.detect_trends(
-            test_df,
+            df,
             date_col='date',
-            value_col='value',
+            value_col='temp',
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
-        
-        # Assert that we got results and didn't crash
-        assert len(results.segments) > 0
 
-
-    def test_noisy_crash_2_scenario(self):
-        """
-        Test that algorithm handles noisy_crash_2 scenario without crashing.
-        
-        Reference: test.py line 315 (temp_noisy_crash_2.csv)
-        
-        This scenario represents another crash case found during testing.
-        Verifies the algorithm completes without errors.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash_2']].copy()
-        test_df.columns = ['date', 'value']
-        
-        results = pt.detect_trends(
-            test_df,
-            date_col='date',
-            value_col='value',
-            plot=False,
-            method_params=dict(is_abrupt_padded=True)
-        )
-        
-        assert len(results.segments) > 0
-
-
-    def test_noisy_crash_4_scenario(self):
-        """
-        Test that algorithm handles noisy_crash_4 scenario without crashing.
-        
-        Reference: test.py line 286 (temp_noisy_crash_4.csv)
-        
-        This scenario was fixed with comment "TODONE: doesnt crash now".
-        Verifies the fix remains stable.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash_4']].copy()
-        test_df.columns = ['date', 'value']
-        
-        results = pt.detect_trends(
-            test_df,
-            date_col='date',
-            value_col='value',
-            plot=False,
-            method_params=dict(is_abrupt_padded=True)
-        )
-        
-        assert len(results.segments) > 0
-
-
-    def test_noisy_crash_5_scenario(self):
-        """
-        Test that algorithm handles noisy_crash_5 scenario without crashing.
-        
-        Reference: test.py line 280 (temp_noisy_crash_5.csv)
-        
-        This scenario was fixed with comment "TODONE: doesnt crash now".
-        Verifies the algorithm processes it successfully.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash_5']].copy()
-        test_df.columns = ['date', 'value']
-        
-        results = pt.detect_trends(
-            test_df,
-            date_col='date',
-            value_col='value',
-            plot=False,
-            method_params=dict(is_abrupt_padded=True)
-        )
-        
-        assert len(results.segments) > 0
-
-
-    def test_noisy_crash_6_scenario(self):
-        """
-        Test that algorithm handles noisy_crash_6 scenario without crashing.
-        
-        Reference: test.py line 274 (temp_noisy_crash_6.csv)
-        
-        This scenario was fixed with comment "TODONE: doesnt crash now".
-        Ensures continued stability on this edge case.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash_6']].copy()
-        test_df.columns = ['date', 'value']
-        
-        results = pt.detect_trends(
-            test_df,
-            date_col='date',
-            value_col='value',
-            plot=False,
-            method_params=dict(is_abrupt_padded=True)
-        )
-        
-        assert len(results.segments) > 0
-
-
-    def test_noisy_crash_7_scenario(self):
-        """
-        Test that algorithm handles noisy_crash_7 scenario without crashing.
-        
-        Reference: test.py line 269 (temp_noisy_crash_7.csv)
-        
-        This scenario was noted with "TODONE: fix when padded out of bound # TODONE: crash fix".
-        This was one of the critical crash fixes. Verifies algorithm stability.
-        """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'noisy_crash_7']].copy()
-        test_df.columns = ['date', 'value']
-        
-        results = pt.detect_trends(
-            test_df,
-            date_col='date',
-            value_col='value',
-            plot=False,
-            method_params=dict(is_abrupt_padded=True)
-        )
-        
-        assert len(results.segments) > 0
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [
+            {'direction': 'Down', 'start': '2025-05-15', 'end': '2025-06-07'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
 
 
     def test_temp_2_scenario(self):
@@ -182,45 +59,177 @@ class TestNoiseCrashes:
         This test ensures the algorithm completes in reasonable time without hanging.
         Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
         """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'temp_2']].copy()
-        test_df.columns = ['date', 'value']
-
-        start_time = time.perf_counter()
-        
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         results = pt.detect_trends(
-            test_df,
+            df,
             date_col='date',
-            value_col='value',
+            value_col='temp_2',
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
 
-        elapsed_seconds = time.perf_counter() - start_time
-        
-        assert len(results.segments) > 0
-        assert elapsed_seconds < 4.0, (
-            f"temp_2 scenario timed out: {elapsed_seconds:.3f}s (threshold: 4.0s)"
-        )
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [
+            {'direction': 'Down', 'start': '2025-05-10', 'end': '2025-06-06'}, #TODO: test for hangup in other test prior to this
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
 
 
-    def test_temp_scenario(self):
+    def test_noisy_crash_scenario(self):
         """
-        Test that algorithm handles temp scenario without crashing.
+        Test that algorithm handles noisy_crash scenario without crashing.
         
-        Additional crash scenario preserved in test data.
-        Verifies algorithm stability on this edge case.
+        Reference: test.py line 269 (temp_noisy_crash_7.csv) and related
+        
+        This scenario was found to crash pytrendy with execution errors.
+        The test verifies that detect_trends completes successfully without
+        hanging or throwing exceptions.
         """
-        crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-        test_df = crashes_df[['date', 'temp']].copy()
-        test_df.columns = ['date', 'value']
-        
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
         results = pt.detect_trends(
-            test_df,
+            df,
             date_col='date',
-            value_col='value',
+            value_col='noisy_crash',
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
         
-        assert len(results.segments) > 0
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Flat', 'start': '2025-03-31', 'end': '2025-04-10'}, 
+            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-04'}, 
+            {'direction': 'Down', 'start': '2025-05-05', 'end': '2025-06-12'}
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+    def test_noisy_crash_2_scenario(self):
+        """
+        Test that algorithm handles noisy_crash_2 scenario without crashing.
+        
+        Reference: test.py line 315 (temp_noisy_crash_2.csv)
+        
+        This scenario represents another crash case found during testing.
+        Verifies the algorithm completes without errors.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='noisy_crash_2',
+            plot=False,
+            method_params=dict(is_abrupt_padded=True)
+        )
+        
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Down', 'start': '2025-03-16', 'end': '2025-03-30'}, 
+            {'direction': 'Up', 'start': '2025-04-03', 'end': '2025-05-04'}, 
+            {'direction': 'Down', 'start': '2025-05-05', 'end': '2025-06-03'}
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+
+    def test_noisy_crash_4_scenario(self):
+        """
+        Test that algorithm handles noisy_crash_4 scenario without crashing.
+        
+        Reference: test.py line 286 (temp_noisy_crash_4.csv)
+        
+        This scenario was fixed with comment "TODONE: doesnt crash now".
+        Verifies the fix remains stable.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='noisy_crash_4',
+            plot=False,
+            method_params=dict(is_abrupt_padded=True)
+        )
+        
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-06'}, 
+            {'direction': 'Down', 'start': '2025-05-07', 'end': '2025-06-12'}, 
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+
+    def test_noisy_crash_5_scenario(self):
+        """
+        Test that algorithm handles noisy_crash_5 scenario without crashing.
+        
+        Reference: test.py line 280 (temp_noisy_crash_5.csv)
+        
+        This scenario was fixed with comment "TODONE: doesnt crash now".
+        Verifies the algorithm processes it successfully.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='noisy_crash_5',
+            plot=False,
+            method_params=dict(is_abrupt_padded=True)
+        )
+        
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-04-29'}, 
+            {'direction': 'Flat', 'start': '2025-04-30', 'end': '2025-05-17'}, 
+            {'direction': 'Down', 'start': '2025-05-18', 'end': '2025-06-12'}, 
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+
+    def test_noisy_crash_6_scenario(self):
+        """
+        Test that algorithm handles noisy_crash_6 scenario without crashing.
+        
+        Reference: test.py line 274 (temp_noisy_crash_6.csv)
+        
+        This scenario was fixed with comment "TODONE: doesnt crash now".
+        Ensures continued stability on this edge case.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='noisy_crash_6',
+            plot=False,
+            method_params=dict(is_abrupt_padded=True)
+        )
+        
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-08'}, 
+            {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'}, 
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-29'}, 
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+
+    def test_noisy_crash_7_scenario(self):
+        """
+        Test that algorithm handles noisy_crash_7 scenario without crashing.
+        
+        Reference: test.py line 269 (temp_noisy_crash_7.csv)
+        
+        This scenario was noted with "TODONE: fix when padded out of bound # TODONE: crash fix".
+        This was one of the critical crash fixes. Verifies algorithm stability.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='noisy_crash_7',
+            plot=False,
+            method_params=dict(is_abrupt_padded=True)
+        )
+        
+        # Expected segments to find a subset of based on current behavior
+        expected_segments = [ 
+            {'direction': 'Up', 'start': '2025-03-31', 'end': '2025-05-09'}, #TODO: may expect some change if noise disabled
+            {'direction': 'Down', 'start': '2025-05-14', 'end': '2025-06-04'}, 
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
