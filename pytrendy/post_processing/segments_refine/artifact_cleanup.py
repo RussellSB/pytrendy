@@ -339,15 +339,9 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     - Leading gap before the first segment if df index starts earlier.
     - Trailing gap after the last segment if df index ends later.
     """
-    if not segments:
-        if not df.empty:
-            start, end = df.index.min(), df.index.max()
-            return [dict(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), direction='Flat')]
-        return []
-
-    # Ensure df has a DateTimeIndex
-    if not isinstance(df.index, pd.DatetimeIndex):
-        raise ValueError("DataFrame index must be a DatetimeIndex for fill_in_flats.")
+    if not segments: # if refinement produced no segments, cover full range as Flat and avoid index access errors below.
+        start, end = df.index.min(), df.index.max()
+        return [dict(start=start.strftime('%Y-%m-%d'), end=end.strftime('%Y-%m-%d'), direction='Flat')]
 
     segments_refined = segments.copy()
 
