@@ -7,7 +7,7 @@ PyTrendy can be installed via `pip` and used immediately for trend detection and
 
 ### Python
 
-- **Python version:** 3.8 or newer
+- **Python version:** 3.10 or newer
 
 
 ### Package Dependencies
@@ -32,15 +32,15 @@ pip install pytrendy
 
 ## Verify Installation
 
-After installation, confirm that PyTrendy is functioning correctly by importing the package and loading a sample dataset:
+After installation, confirm that PyTrendy is functioning correctly:
 
 ```python
 import pytrendy as pt
-
-# Load a built-in synthetic dataset
-df = pt.load_data('series_synthetic')
-print(df.head())
+print(f"PyTrendy version: {pt.__version__}")
 ```
+
+!!! success "Ready to Go!"
+    If the import succeeds, you're ready to start analyzing trends! Check out the [User Guide](user-guide/index.md) or jump into the [Tutorials](tutorials/index.md).
 
 
 ## Upgrading PyTrendy
@@ -91,14 +91,11 @@ pip install pytrendy
 
 ## Next Steps
 
-Once installed, explore PyTrendy’s core functionality:
+Once installed, explore PyTrendy's core functionality:
 
-- `detect_trends()` — executes the full trend detection pipeline
-- `load_data()` — loads built-in datasets for testing and classification
-- `plot_pytrendy()` — visualizes detected trend segments
-- `PyTrendyResults` — provides structured access to results
-
-For a complete guide on how to use PyTrendy, refer to the [Usage](usage.md) section.
+- **[User Guide](user-guide/index.md)** — Complete guide to using PyTrendy's API
+- **[Tutorials](tutorials/index.md)** — Hands-on examples with real-world data
+- **[API Reference](reference/pytrendy/index.md)** — Detailed function documentation
 
 
 

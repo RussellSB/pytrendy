@@ -2,46 +2,72 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
-  - Installation: installation.md
-  - Features: features.md
-  - Usage: usage.md
+  - Quick Start: quickstart.md
+  - Installation: tutorials/installation.md
+  - Tutorials:
+    - Overview: tutorials/index.md
+    - Core Tutorials:
+      - Getting Started: tutorials/getting-started.md
+      - Gradual: tutorials/gradual.md
+      - Abrupt: tutorials/abrupt.md
+      - Noise: tutorials/noise.md
+      - Custom Pipeline: tutorials/custom-pipeline.md
+      - Abrupt vs Gradual: tutorials/abrupt-vs-gradual.md
+    - Real-World Examples: tutorials/real-world-examples.md
+  - User Guide:
+    - Overview: user-guide/index.md
+    - Working with Results: user-guide/working-with-results.md
+    - Visualization: user-guide/visualization.md
+    - Configuration Reference: user-guide/configuration-reference.md
   - API Reference: reference
 
 theme: 
   name: material # flatly, material, minty
+  font:
+    text: Roboto
   logo: icon.png
   favicon: icon.png
   features:
     - navigation.indexes
     - content.tabs.link
+    - content.code.copy
+    - header.autohide
   palette:
     - scheme: default
-      primary: cyan
-      accent: cyan
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb
         name: Switch to dark mode
 
     - scheme: slate
-      primary: cyan
-      accent: cyan
+      primary: teal
+      accent: teal
       toggle:
         icon: material/lightbulb-outline
         name: Switch to light mode
 
 markdown_extensions:
+  - tables
   - codehilite:
       guess_lang: false
       linenums: true
   - pymdownx.tabbed:
       alternate_style: true
-  - pymdownx.highlight
+  - pymdownx.highlight:
+      pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
   - admonition
   - markdown.extensions.admonition
+  - attr_list
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+  - md_in_html
 
 plugins:
+  - offline
   - search
   - mkdocstrings:
       handlers:
@@ -61,9 +87,9 @@ plugins:
             show_signature_annotations: false
             summary: false
             reload: true
-            paths: ['../pytrendy']   # <-- tell it where to load from
+            paths: ['.']   # <-- tell it where to load from
   - api-autonav:
-      modules: ['../pytrendy']
+      modules: ['pytrendy']
       module_options:
         ".*":
           show_symbol_type_heading: true
@@ -77,8 +103,21 @@ plugins:
       show_full_namespace: false
       on_implicit_namespace_package: "warn"
 
+extra_css:
+  - stylesheets/extra.css
 
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/RussellSB/pytrendy
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/pytrendy
 
+validation:
+  links:
+    unrecognized_links: ignore
 
-
+repo_url: https://github.com/RussellSB/pytrendy
+repo_name: russellsb/pytrendy
+edit_uri: edit/main/docs/
 
