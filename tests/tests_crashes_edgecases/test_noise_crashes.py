@@ -56,7 +56,9 @@ class TestNoiseCrashes:
         Reference: test.py line 327 (temp_2.csv)
         
         This scenario was noted with "TODONE: fix hangup".
-        This test ensures the algorithm completes in reasonable time without hanging.
+        This test ensures the algorithm completes in reasonable time without hanging (through pytest-timeout).
+        And also ensures it returns a sensible segment.
+
         Before it would enter an infinite loop due to incorrect abrupt shaving logic. 
         """
         df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
@@ -70,7 +72,7 @@ class TestNoiseCrashes:
 
         # Expected segments to find a subset of based on current behavior
         expected_segments = [
-            {'direction': 'Down', 'start': '2025-05-10', 'end': '2025-06-06'}, #TODO: test for hangup in other test prior to this
+            {'direction': 'Down', 'start': '2025-05-10', 'end': '2025-06-06'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
