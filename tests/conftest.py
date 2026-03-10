@@ -66,9 +66,7 @@ def assert_segments_in_a_haystack(detected_segments, expected_segments):
     for _, expected in enumerate(expected_segments):
         expected_tuple = (expected['direction'], expected['start'], expected['end'])
 
-        if expected_tuple in unmatched_detected:
-            unmatched_detected.remove(expected_tuple)
-            continue
-
-        raise AssertionError(f"Expected {expected_tuple} could not be found in detected trends.")
-        break
+        if expected_tuple not in unmatched_detected:
+            assert False, f"Expected {expected_tuple} could not be found in detected trends."
+        
+        unmatched_detected.remove(expected_tuple) # removes matched detected with expected and continues
