@@ -35,6 +35,7 @@ where = ["."]
 include = ["pytrendy*"]
 
 [tool.pytest.ini_options]
+addopts = "--cov=pytrendy --cov-report=term --cov-report=xml:coverage.xml"
 markers = [
     "core: essential tests that must pass for core functionality",
     "plot: tests for visualization/plotting functionality"
