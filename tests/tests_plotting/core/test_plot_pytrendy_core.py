@@ -13,8 +13,8 @@ import matplotlib
 matplotlib.use('Agg')  # Use non-interactive backend
 
 
-class TestPlotPytrendy:
-    """Test cases for plot visualization on synthetic data."""
+class TestPlotPytrendyCore:
+    """Test core cases for plot visualization on synthetic data."""
 
     def _prepare_and_plot(self, df, value_col, segments):
         """Helper to prepare dataframe and create plot."""
@@ -24,7 +24,7 @@ class TestPlotPytrendy:
 
     @pytest.mark.core
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='baseline')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_gradual_trends.png')
     def test_plot_gradual_trends(self):
         """Test visualization of gradual trends in synthetic data."""
         df = pt.load_data('series_synthetic')
@@ -41,7 +41,7 @@ class TestPlotPytrendy:
 
     @pytest.mark.core
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='baseline')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_trends_no_padding.png')
     def test_plot_abrupt_trends_no_padding(self):
         """Test visualization of abrupt trends without padding."""
         df = pt.load_data('series_synthetic')
@@ -58,7 +58,7 @@ class TestPlotPytrendy:
 
     @pytest.mark.core
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='baseline')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_trends_with_padding.png')
     def test_plot_abrupt_trends_with_padding(self):
         """Test visualization of abrupt trends with padding enabled."""
         df = pt.load_data('series_synthetic')
