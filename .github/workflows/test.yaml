@@ -37,7 +37,8 @@ jobs:
         run: |
           # Check if there are any non-core tests to run (exit code 5 means no tests collected)
           set +e
-          pytest tests/ --collect-only -q -m "not core" > /dev/null 2>&1
+          # Important: disable coverage for collection probe so it does not reset .coverage.
+          pytest tests/ --collect-only -q -m "not core" --no-cov > /dev/null 2>&1
           exit_code=$?
           set -e
           if [ $exit_code -eq 5 ]; then
