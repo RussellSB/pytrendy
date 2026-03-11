@@ -31,7 +31,7 @@ jobs:
       
       - name: Run core tests with coverage
         run: |
-          pytest tests/ -v -m core --cov=pytrendy --cov-report=xml --cov-report=term
+          pytest tests/ -v -m core
       
       - name: Run non-core tests with coverage (append mode)
         run: |
@@ -44,7 +44,7 @@ jobs:
           if [ $exit_code -eq 5 ]; then
             echo "No non-core tests found, skipping..."
           else
-            pytest tests/ -v -m "not core" --cov=pytrendy --cov-append --cov-report=xml --cov-report=term
+            pytest tests/ -v -m "not core" --cov-append
           fi
       
       - name: Upload coverage to Codecov
