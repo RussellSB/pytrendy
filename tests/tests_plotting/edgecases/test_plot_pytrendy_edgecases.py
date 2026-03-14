@@ -8,8 +8,16 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 
 import pytest
 import pandas as pd
+from copy import deepcopy
 import pytrendy as pt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
+from pytrendy.process_signals import process_signals
+from pytrendy.post_processing.segments_get import get_segments
+from pytrendy.post_processing.segments_analyse import analyse_segments
+from pytrendy.post_processing.segments_refine.trend_classify import classify_trends
+from pytrendy.post_processing.segments_refine.gradual_expand_contract import expand_contract_segments
+from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
+from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
 import matplotlib
 import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use non-interactive backend
@@ -24,11 +32,8 @@ class TestPlotPytrendyEdgeCases:
         df = df.set_index('date')[[value_col]]
         return plot_pytrendy(df, value_col, segments, suppress_show)
 
-
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_base_no_spikes.png')
-    def test_plot_abrupt_base_no_spikes(self):
-        """Test visualization of abrupt trends synthetic with no spikes (synth 1), for plot code coverage."""
+    def _synth_1_data(self):
+        """Helper to load and prepare synthetic dataset 1 (abrupt, base, no spikes)."""
         df = pt.load_data('series_synthetic')
         df.set_index('date', inplace=True)
         df.loc['2025-01-01':'2025-02-11', 'abrupt'] = 0
@@ -36,8 +41,14 @@ class TestPlotPytrendyEdgeCases:
         df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
         df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
         df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200
-        df = df.reset_index() # must be reset for _pepare_and_plot()
+        return df.reset_index()
 
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_base_no_spikes.png')
+    def test_plot_abrupt_base_no_spikes(self):
+        """Test visualization of abrupt trends synthetic with no spikes (synth 1), for plot code coverage."""
+        df = self._synth_1_data()
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -46,6 +57,42 @@ class TestPlotPytrendyEdgeCases:
             method_params=dict(is_abrupt_padded=False)
         )
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
+        return fig
+
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_debug_add_vertical_lines.png')
+    def test_plot_debug_add_vertical_lines(self):
+        """Same as previous unit test (synth 1), except tests statements that add lines in plot when grouping disabled."""
+        # TODO: organise in a cleaner code way, so can simply be toggled off for a higher level, will also allow more customisable pipeline
+        date_col = 'date'
+        value_col = 'abrupt'
+        df = self._synth_1_data()
+        
+        # ------ pt.detect_trends() [part 1]
+        # unwrapped-equivalent to disable grouping at a lower level     
+        df[date_col] = pd.to_datetime(df[date_col])
+        df.set_index(date_col, inplace=True)
+        df = df[[value_col]]
+        method_params = dict(is_abrupt_padded=False, abrupt_padding=28)
+
+        df = process_signals(df, value_col)
+        segments = get_segments(df)
+
+        # ------------------ refine_segments()
+        # unwrapped-equivalent to disable grouping at a lower level  
+        segments_refined = deepcopy(segments)
+        segments_refined = classify_trends(df, value_col, segments_refined)
+        # No grouping code in between these steps
+        segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
+        segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
+        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract
+        # No grouping code & further post-processing after these steps
+
+        # ------ pt.detect_trends() [part 2]
+        segments = segments_refined.copy()
+        segments = analyse_segments(df, value_col, segments)
+        fig = plot_pytrendy(df, value_col, segments)
         return fig
 
 
@@ -73,10 +120,8 @@ class TestPlotPytrendyEdgeCases:
         When verified to be called once, we can be confident that the plot is being displayed as expected.
         """
         show_calls = []
-
         def fake_show(*args, **kwargs):
             show_calls.append((args, kwargs))
-
         monkeypatch.setattr(plt, 'show', fake_show)
 
         df = pt.load_data('series_synthetic')
@@ -89,3 +134,4 @@ class TestPlotPytrendyEdgeCases:
         )
         self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False)
         assert len(show_calls) == 1
+
