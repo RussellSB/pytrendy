@@ -130,6 +130,6 @@ class TestPlotPytrendyEdgeCases:
             plot=False,
             method_params=dict(is_abrupt_padded=False)
         )
-        self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False)
+        self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False) # False, triggers plt.show()
         assert len(show_calls) == 1
 
