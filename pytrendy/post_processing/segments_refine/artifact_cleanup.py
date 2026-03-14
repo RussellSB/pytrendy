@@ -78,7 +78,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_next_abrupt = ('trend_class' in segment_next and segment_next['trend_class'] == 'abrupt')
 
         # Trigger edge cases of overlap if satisfied
-        if is_overlap_next and is_same_dir: # and not is_trend and is_curr_shorter:
+        if is_overlap_next and is_same_dir:
             return True # overlap when same direction, not trend, and curr is shorter
         if is_overlap_next and (is_trend and (is_next_noise or is_next_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and next is noise of larger window
