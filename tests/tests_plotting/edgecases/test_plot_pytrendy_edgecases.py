@@ -3,6 +3,7 @@ Tests for plot visualization functionality.
 
 These tests verify that the plot_pytrendy function generates consistent
 visualizations for different types of trends using pytest-mpl for image comparison.
+One extra test included to assess plt.show() behaviour only... for test coverage
 """
 
 import pytest
@@ -10,17 +11,18 @@ import pandas as pd
 import pytrendy as pt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 import matplotlib
+import matplotlib.pyplot as plt
 matplotlib.use('Agg')  # Use non-interactive backend
 
 
 class TestPlotPytrendyEdgeCases:
     """Test edgecases for plot visualization on synthetic data."""
 
-    def _prepare_and_plot(self, df, value_col, segments):
+    def _prepare_and_plot(self, df, value_col, segments, suppress_show=True):
         """Helper to prepare dataframe and create plot."""
         df['date'] = pd.to_datetime(df['date'])
         df = df.set_index('date')[[value_col]]
-        return plot_pytrendy(df, value_col, segments, suppress_show=True)
+        return plot_pytrendy(df, value_col, segments, suppress_show)
 
 
     @pytest.mark.plot
@@ -62,3 +64,28 @@ class TestPlotPytrendyEdgeCases:
         
         fig = self._prepare_and_plot(edgecases_df, 'noisy_edgecase_7', results.segments)
         return fig
+
+
+    def test_plot_show_behavior(self, monkeypatch):
+        """
+        Test that plot_pytrendy triggers plt.show() when suppress_show=False.
+        We use monkeypatch to replace plt.show with a fake function that records calls.
+        When verified to be called once, we can be confident that the plot is being displayed as expected.
+        """
+        show_calls = []
+
+        def fake_show(*args, **kwargs):
+            show_calls.append((args, kwargs))
+
+        monkeypatch.setattr(plt, 'show', fake_show)
+
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='gradual',
+            plot=False,
+            method_params=dict(is_abrupt_padded=False)
+        )
+        self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False)
+        assert len(show_calls) == 1
