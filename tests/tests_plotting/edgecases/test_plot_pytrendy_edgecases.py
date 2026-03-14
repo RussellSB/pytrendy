@@ -18,9 +18,7 @@ from pytrendy.post_processing.segments_refine.trend_classify import classify_tre
 from pytrendy.post_processing.segments_refine.gradual_expand_contract import expand_contract_segments
 from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
 from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
-import matplotlib
 import matplotlib.pyplot as plt
-matplotlib.use('Agg')  # Use non-interactive backend
 
 
 class TestPlotPytrendyEdgeCases:
@@ -45,7 +43,7 @@ class TestPlotPytrendyEdgeCases:
 
 
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_base_no_spikes.png')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_base_no_spikes.png', style='default')
     def test_plot_abrupt_base_no_spikes(self):
         """Test visualization of abrupt trends synthetic with no spikes (synth 1), for plot code coverage."""
         df = self._synth_1_data()
@@ -61,7 +59,7 @@ class TestPlotPytrendyEdgeCases:
 
 
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_debug_add_vertical_lines.png')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_debug_add_vertical_lines.png', style='default')
     def test_plot_debug_add_vertical_lines(self):
         """Same as previous unit test (synth 1), except tests statements that add lines in plot when grouping disabled."""
         # TODO: organise in a cleaner code way, so can simply be toggled off for a higher level, will also allow more customisable pipeline
@@ -92,12 +90,12 @@ class TestPlotPytrendyEdgeCases:
         # ------ pt.detect_trends() [part 2]
         segments = segments_refined.copy()
         segments = analyse_segments(df, value_col, segments)
-        fig = plot_pytrendy(df, value_col, segments)
+        fig = plot_pytrendy(df, value_col, segments, suppress_show=True)
         return fig
 
 
     @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_noisy_edgecase_7.png')
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_noisy_edgecase_7.png', style='default')
     def test_plot_noisy_edgecase_7(self):
         """Test visualization of noisy edgecase 7, for plot code coverage."""
         edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
