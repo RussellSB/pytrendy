@@ -215,8 +215,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
             shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
             end = pd.to_datetime(segment['end'])
-            # not checking for is_inverted here, as if it got inverted from the shift, 
-            # it will be caught above in the next pass of cleaning inverses.
+            # not checking for is_inverted here, as tests did no yield any code coverage when looped for has_partial_overlap_prev, but has for has_partial_overlap_next. 
+            # could be because noise segments are more often after trends than before, or because of the logic of how segments are adjusted from the left side in the code. 
+            # worth keeping in mind but not prioritizing for now.
             
             # when gradual, follows similar logic to expand/contract selection.
             start_df = df.loc[shifted_start:end]
