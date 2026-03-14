@@ -84,10 +84,6 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             return True # overlap when curr is trend and next is noise of larger window
         if is_overlap_next and (is_trend and is_next_flat) and is_curr_similar:
             return True # overlap when curr is trend and next is flat (with similar enough size)
-        if is_overlap_next and is_same_dir and (is_next_gradual and is_curr_shorter):
-            return True # overlap when next is also gradual but larger
-        if is_overlap_next and is_same_dir and (is_next_abrupt and not is_curr_shorter):
-            return True  # overlap when next is also abrupt but shorter
 
         return False
     
