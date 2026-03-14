@@ -274,64 +274,30 @@ results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_co
 # ---------- Previous Crash Instances
 
 # ------------ Latest
+# ------------ Latest
 # %%
 # Load from test data instead of temporary files
 crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
-noise_df = crashes_df[['date', 'noisy_crash_7']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_7.csv') # TODONE: fix when padded out of bound # TODONE: crash fix
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
-# df.to_csv('../temp_noisy_crash_7.csv')   
+# TODONE: fix when padded out of bound # TODONE: crash fix
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_7', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
-noise_df = crashes_df[['date', 'noisy_crash_6']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_6.csv')
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
-# df.to_csv('../temp_noisy_crash_6.csv') 
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_6', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
-noise_df = crashes_df[['date', 'noisy_crash_5']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_5.csv')
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
-# df.to_csv('../temp_noisy_crash_5.csv') 
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_5', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
-noise_df = crashes_df[['date', 'noisy_crash_4']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_4.csv')
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
-
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_4', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
 
 # %%
-noise_df = crashes_df[['date', 'noisy_crash_2']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
-noise_df['date'] = pd.to_datetime(noise_df['date'])
-noise_df = noise_df.set_index('date')
-# noise_df['value_noisy'].plot(figsize=(20,3))
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_2', method_params=dict(is_abrupt_padded=True))
 
 # %%
-noise_df = crashes_df[['date', 'noisy_crash']].copy()
-noise_df.columns = ['date', 'value_noisy']
-# noise_df = pd.read_csv('../temp_noisy_crash_2.csv')
-noise_df['date'] = pd.to_datetime(noise_df['date'])
-noise_df = noise_df.set_index('date')
-# noise_df['value_noisy'].plot(figsize=(20,3))
-results = pt.detect_trends(noise_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash', method_params=dict(is_abrupt_padded=True))
 
-# %% 
-temp_df = crashes_df[['date', 'temp']].copy()
-temp_df.columns = ['date', 'value_noisy']
-temp_df['date'] = pd.to_datetime(temp_df['date'])
-temp_df = temp_df.set_index('date')
-results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+# %%
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp', method_params=dict(is_abrupt_padded=True))
 
-# %% 
-temp_df = crashes_df[['date', 'temp_2']].copy()
-temp_df.columns = ['date', 'value_noisy']
-temp_df['date'] = pd.to_datetime(temp_df['date'])
-temp_df = temp_df.set_index('date')
-results = pt.detect_trends(temp_df.reset_index(), date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
+# %%
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp_2', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
