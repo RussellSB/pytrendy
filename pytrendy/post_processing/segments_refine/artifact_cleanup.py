@@ -215,13 +215,11 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
             shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
             end = pd.to_datetime(segment['end'])
-            is_inverted = (end < shifted_start) # In case noise segment is <= 1 day in length
-            if is_inverted: 
-                continue
+            # not checking for is_inverted here, as if it got inverted from the shift, 
+            # it will be caught above in the next pass of cleaning inverses.
             
             # when gradual, follows similar logic to expand/contract selection.
             start_df = df.loc[shifted_start:end]
-
             if segments[i]['direction'] == 'Up':
                 new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1)
                 segments[i]['start'] = new_start.strftime('%Y-%m-%d')
