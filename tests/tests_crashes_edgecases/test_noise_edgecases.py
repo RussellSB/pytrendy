@@ -187,3 +187,24 @@ class TestNoiseEdgeCases:
             {'direction': 'Noise', 'start': '2025-05-27', 'end': '2025-06-28'}
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
+
+
+    def test_noisy_edgecase_11_scenario(self):
+            """
+            Test that algorithm handles noisy_edgecase_11 scenario reasonably.
+            Helps with test coverage on clean artifacts has_overlap_prev, prev_is_flat condition
+            """
+            df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
+            results = pt.detect_trends(
+                df,
+                date_col='date',
+                value_col='noisy_edgecase_11',
+                plot=False,
+                method_params=dict(is_abrupt_padded=True)
+            )
+
+            expected_segments = [ 
+                {'direction': 'Up', 'start': '2025-04-13', 'end': '2025-05-08'},
+                {'direction': 'Noise', 'start': '2025-06-06', 'end': '2025-06-29'}
+            ]
+            assert_segments_in_a_haystack(results.segments, expected_segments)

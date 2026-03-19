@@ -107,6 +107,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window # TODO: assess if should be updated
+        if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
+            return True # overlap when curr is trend and prev is flat (with similar enough size), saw this in nosise 20 edge case TODO: check
         return False
     
     def has_partial_overlap_next(segment: dict, segment_next: dict) -> bool:
@@ -154,8 +156,6 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         if is_overlap_prev and (is_trend_or_flat and (is_prev_noise or is_prev_abrupt) and not is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
-        if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
-            return True # overlap when curr is trend and prev is flat (with similar enough size), saw this in nosise 20 edge case TODO: check
         return False
 
     # Pass 1: Cleans inverse length segments in case any artifacts from expand/contract and abrupt shave logic
@@ -207,9 +207,6 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
             shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
             end = pd.to_datetime(segment['end'])
-            # not checking for is_inverted here, as tests did no yield any code coverage when looped for has_partial_overlap_prev, but has for has_partial_overlap_next. 
-            # could be because noise segments are more often after trends than before, or because of the logic of how segments are adjusted from the left side in the code. 
-            # worth keeping in mind but not prioritizing for now.
             
             # when gradual, follows similar logic to expand/contract selection.
             start_df = df.loc[shifted_start:end]

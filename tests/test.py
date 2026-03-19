@@ -222,6 +222,11 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 # %%
 # Load from test data instead of temporary files
 edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
+
+#%%
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_11', method_params=dict(is_abrupt_padded=True)) 
+
+# %%
 # noise_df = pd.read_csv('../temp_noisy_edgecase_10.csv') #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
 results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_10', method_params=dict(is_abrupt_padded=True)) 
 #  df.to_csv('../temp_noisy_edgecase_10.csv')
