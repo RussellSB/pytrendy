@@ -79,7 +79,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         # Trigger edge cases of overlap if satisfied
         if is_overlap_next and is_same_dir:
-            return True # overlap when same direction, not trend, and curr is shorter
+            return True # overlap when same direction, and is same dir
 
         return False
     
@@ -106,7 +106,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_prev_flat = (prev_dir == 'Flat')
 
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
-            return True # overlap when curr is trend and prev is noise of larger/equal window
+            return True # overlap when curr is trend and prev is noise of larger/equal window # TODO: assess if should be updated
         return False
     
     def has_partial_overlap_next(segment: dict, segment_next: dict) -> bool:
@@ -154,6 +154,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         if is_overlap_prev and (is_trend_or_flat and (is_prev_noise or is_prev_abrupt) and not is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
+        if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
+            return True # overlap when curr is trend and prev is flat (with similar enough size), saw this in nosise 20 edge case TODO: check
         return False
 
     # Pass 1: Cleans inverse length segments in case any artifacts from expand/contract and abrupt shave logic
