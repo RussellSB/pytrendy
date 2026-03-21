@@ -63,7 +63,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         next_end = pd.to_datetime(segment_next['end'])
         next_width = (next_end - next_start).days
 
-        # Define conditions
+        # Define conditions # TODO: Cleanup redunant condition statements no longer used.
         is_overlap_next = (end >= next_start)
         is_same_dir = (dir == next_dir)
         is_curr_shorter = (width <= next_width)
@@ -95,7 +95,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         prev_end = pd.to_datetime(segment_prev['end'])
         prev_width = (prev_end - prev_start).days
 
-        # Define conditions
+        # Define conditions # TODO: Cleanup redunant condition statements no longer used.
         is_overlap_prev = (start <= prev_end)
         is_curr_shorter = (width <= prev_width)
         is_curr_similar = (prev_width <= 1.5 * width) and (prev_width >= 0.5 * width)
@@ -108,7 +108,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window # TODO: assess if should be updated
         if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
-            return True # overlap when curr is trend and prev is flat (with similar enough size), saw this in nosise 20 edge case TODO: check
+            return True # overlap when curr is trend and prev is flat (with similar enough size), edge case scenario 11
         return False
     
     def has_partial_overlap_next(segment: dict, segment_next: dict) -> bool:
@@ -123,7 +123,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         next_end = pd.to_datetime(segment_next['end'])
         next_width = (next_end - next_start).days
 
-        # Define conditions
+        # Define conditions # TODO: Cleanup redunant condition statements no longer used.
         is_overlap_next = (end >= next_start)
         is_curr_shorter = (width <= next_width)
         is_next_noise = (next_dir == 'Noise') 
