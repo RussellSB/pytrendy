@@ -37,7 +37,7 @@ class TestNoiseCrashes:
         results = pt.detect_trends(
             df,
             date_col='date',
-            value_col='temp', #TODO: reword temp, temp_2 etc to be consequetively classed
+            value_col='temp', #TODO: reword temp, temp_2 etc to be consecutively classed
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )

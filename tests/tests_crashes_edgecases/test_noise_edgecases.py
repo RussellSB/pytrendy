@@ -2,7 +2,7 @@
 Tests for noise edge case scenarios in trend detection algorithm.
 
 These tests verify that the trend detection algorithm handles gradual
-inputs degredaded with subtle levels of random noise, such that it becomes
+inputs degraded with subtle levels of random noise, such that it becomes
 most challenging to distinguish between true trends and noise. 
 The scenarios are designed to be particularly difficult for the algorithm, 
 and are based on real-world cases where noise can obscure underlying trends. 
