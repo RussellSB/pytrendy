@@ -1,3 +1,10 @@
+## [1.1.10](https://github.com/RussellSB/pytrendy/compare/v1.1.9...v1.1.10) (2026-03-21)
+
+
+### Bug Fixes
+
+* **test:** add automated tests for noise crashes and edge cases for full code coverage, refactor clean artifacts, and resolve mpl test bugs ([#46](https://github.com/RussellSB/pytrendy/issues/46)) ([9148d8c](https://github.com/RussellSB/pytrendy/commit/9148d8c39f24898cc8864f8013a50cd6565b1f66))
+
 ## [1.1.9](https://github.com/RussellSB/pytrendy/compare/v1.1.8...v1.1.9) (2026-02-07)
 
 
