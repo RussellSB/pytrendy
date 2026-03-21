@@ -1,0 +1,46 @@
+Automated regression testing for noisy crash + edge-case scenarios that historically caused crashes, hangs, or incorrect segmentation/plots.
+
+**Result:** test suite expanded from **67 → 100 tests** and now reaches **100% code coverage**.
+
+## What changed
+- Added dedicated regression suites driven by preserved CSV fixtures (no more ad-hoc local temp files):
+  - `tests/tests_crashes_edgecases/test_noise_crashes.py` (9 tests): ensures the algorithm completes without crashes/hangs for previously failing “noise crash” inputs; includes a sequential/batch stability check.
+  - `tests/tests_crashes_edgecases/test_noise_edgecases.py` (11 tests): validates tricky “noise edge case” scenarios; checks segment boundaries/no overlaps, noise classification, and trend detection across padding modes.
+  - `tests/tests_crashes_edgecases/test_plot_edgecases.py` (13 tests): exercises plotting code paths on challenging data (noise/abrupt segments, boundary adjustments, ranked segments, all direction types) to prevent plot regressions.
+- Refactored exploratory `tests/test.py` to load from preserved test data (`tests/tests_crashes_edgecases/data/noisy_crashes.csv`, `tests/tests_crashes_edgecases/data/noisy_edgecases.csv`) instead of local temporary files; verified results are unchanged.
+- Refactored/cleaned artifact-cleanup / segment-refinement logic to remove edge-case bugs found while building the regression suite, and resolved mpl-related test issues.
+
+## Ownership note
+This PR **started as a Copilot coding-agent task**, but as the scope grew (fixture refactors, brittle edge-case expectations, and plot/segment-refinement regressions), **@RussellSB took over** to finish the implementation and stabilize the suite end-to-end.
+
+---
+
+<!-- START COPILOT CODING AGENT SUFFIX -->
+
+
+
+<!-- START COPILOT ORIGINAL PROMPT -->
+
+
+<details>
+
+<summary>Original prompt</summary>
+
+> Please work on adding tests for noisy edge cases & crashes.
+> 
+> - Review the last few PRs for context
+> - Refactor mocked file tests.py so that it's noisy edge cases and noise crashes tests refers to the test data rather than temporary local data than was done adhoc on a local machine.
+> - Scan all tests. Acknowledge a pattern in how most use match segments list dict, and consider that when creating future tests. 
+> - After that, add auto tests versions under names test_noise_edgecases.py and test_noise_crashes.py . Use similar comment headers to what is defined in test data.
+> 
+> My main goal with this is to never let the algorithm crash or hang up like it once did running these scenarios again. Also to maximise plot code coverage for the edge cases.
+> 
+> - re plot code coverage feel free to add an extra file for this. 
+
+</details>
+
+
+<!-- START COPILOT CODING AGENT TIPS -->
+---
+
+💬 We'd love your input! Share your thoughts on Copilot coding agent in our [2 minute survey](https://gh.io/copilot-coding-agent-survey).
