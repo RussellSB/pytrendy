@@ -27,24 +27,24 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e .
-          pip install pytest pytest-cov pytest-mpl
+          pip install -e ".[dev]"
       
       - name: Run core tests with coverage
         run: |
-          pytest tests/ -v -m core --cov=pytrendy --cov-report=xml --cov-report=term
+          pytest tests/ -v -m core
       
       - name: Run non-core tests with coverage (append mode)
         run: |
           # Check if there are any non-core tests to run (exit code 5 means no tests collected)
           set +e
-          pytest tests/ --collect-only -q -m "not core" > /dev/null 2>&1
+          # Important: disable coverage for collection probe so it does not reset .coverage.
+          pytest tests/ --collect-only -q -m "not core" --no-cov > /dev/null 2>&1
           exit_code=$?
           set -e
           if [ $exit_code -eq 5 ]; then
             echo "No non-core tests found, skipping..."
           else
-            pytest tests/ -v -m "not core" --cov=pytrendy --cov-append --cov-report=xml --cov-report=term
+            pytest tests/ -v -m "not core" --cov-append
           fi
       
       - name: Upload coverage to Codecov

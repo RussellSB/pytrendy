@@ -8,3 +8,4 @@ dist/
 coverage.xml
 htmlcov/
 .pytest_cache/
+tests/testtemp.py
