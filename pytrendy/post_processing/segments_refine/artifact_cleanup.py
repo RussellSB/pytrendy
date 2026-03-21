@@ -106,7 +106,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_prev_flat = (prev_dir == 'Flat')
 
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
-            return True # overlap when curr is trend and prev is noise of larger/equal window # TODO: assess if should be updated
+            return True # overlap when curr is trend and prev is noise of larger/equal window
         if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
             return True # overlap when curr is trend and prev is flat (with similar enough size), edge case scenario 11
         return False
