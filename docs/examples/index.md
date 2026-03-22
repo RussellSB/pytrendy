@@ -1,6 +1,6 @@
 # Example Gallery
 
-Welcome to the example gallery. This gallery provides a visual navigation to all the example notebooks to help you break down your time series data for your trend analysis and detection needs.
+Welcome to the example gallery. This provides a visual navigation to all the example notebooks which can help you detect and analyse trends, and more, in your time series data.
 
 ## Fundamentals
 
