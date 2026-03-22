@@ -6,14 +6,10 @@ nav:
   - Installation: tutorials/installation.md
   - Tutorials:
     - Overview: tutorials/index.md
-    - Core Tutorials:
-      - Getting Started: tutorials/getting-started.md
-      - Gradual: tutorials/gradual.md
-      - Abrupt: tutorials/abrupt.md
-      - Noise: tutorials/noise.md
-      - Custom Pipeline: tutorials/custom-pipeline.md
-      - Abrupt vs Gradual: tutorials/abrupt-vs-gradual.md
-    - Real-World Examples: tutorials/real-world-examples.md
+    - Getting Started: tutorials/getting-started.md
+    - Gradual: tutorials/gradual.md
+    - Abrupt: tutorials/abrupt.md
+    - Noise: tutorials/noise.md
   - User Guide:
     - Overview: user-guide/index.md
     - Working with Results: user-guide/working-with-results.md

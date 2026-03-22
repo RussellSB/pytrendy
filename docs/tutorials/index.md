@@ -35,55 +35,6 @@ Your first trend analysis! Learn to load data, detect trends, and explore result
 
 ---
 
-### [Custom Pipeline Mastery](custom-pipeline.md)
-<span class="badge-advanced">ADVANCED</span> <span class="badge-time">15 minutes</span>
-
-Build a custom detection pipeline from scratch with manual control over every processing step.
-
-**What you'll learn:**
-
-- Signal processing and denoising
-- Manual segmentation workflow
-- Trend refinement techniques
-- Custom metric analysis
-
-[Start Tutorial →](custom-pipeline.md)
-
----
-
-### [Abrupt vs Gradual Trends](abrupt-vs-gradual.md)
-<span class="badge-advanced">ADVANCED</span> <span class="badge-time">10 minutes</span>
-
-Understand the difference between abrupt and gradual trends, and when to use each detection strategy.
-
-**What you'll learn:**
-
-- Characteristics of abrupt vs gradual trends
-- Configuration parameters for each type
-- Performance comparison
-- Use case recommendations
-
-[Start Tutorial →](abrupt-vs-gradual.md)
-
----
-
-## Real-World Examples
-
-See PyTrendy in action with practical applications using real datasets:
-
-### [Real-World Examples](real-world-examples.md)
-<span class="badge-realworld">REAL-WORLD</span> <span class="badge-time">30 minutes</span>
-
-Three complete examples demonstrating PyTrendy on real-world data from finance, open-source, and climate science:
-
-- **Bitcoin Crash Detection** - Identify volatility events in cryptocurrency markets
-- **GitHub Stars Growth** - Track popularity trends in open-source projects
-- **Climate Change Signals** - Detect warming patterns in temperature data
-
-[Explore Examples →](real-world-examples.md)
-
----
-
 ## Next Steps
 
 After completing these tutorials, explore:
