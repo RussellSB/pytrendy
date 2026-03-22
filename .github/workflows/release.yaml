@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - develop
   workflow_dispatch:
     inputs:
       force_publish:
@@ -46,14 +47,19 @@ jobs:
       id-token: write
     outputs:
       released: ${{ steps.release.outputs.released }}
+      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Pull latest main
-        run: git pull origin main # as precaution for when this step is rerun. Need semantic release = true
+      - name: Pull latest changes
+        run: git pull origin ${{ github.ref_name }}
+
+      - name: Use dev release config
+        if: github.ref_name == 'develop'
+        run: cp .releaserc.dev.json .releaserc
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -83,6 +89,8 @@ jobs:
 
           if echo "$OUTPUT" | grep -q "The next release version is"; then
             echo "released=true" >> $GITHUB_OUTPUT
+            VERSION=$(echo "$OUTPUT" | grep -oP 'The next release version is \K[0-9a-zA-Z.\-]+')
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
             echo "released=false" >> $GITHUB_OUTPUT
           fi
@@ -103,8 +111,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: main
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
+
+      - name: Pull latest changes
+        run: git pull origin ${{ github.ref_name }}
 
       - name: Setup Python
         uses: actions/setup-python@v5
@@ -115,6 +126,13 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Set package version
+        run: |
+          VERSION="${{ needs.semantic-release.outputs.version }}"
+          PEP440_VERSION=$(echo "$VERSION" | sed 's/-dev\./.dev/')
+          echo "Setting version to $PEP440_VERSION"
+          poetry version "$PEP440_VERSION"
 
       - name: Install dependencies & build package
         run: |
