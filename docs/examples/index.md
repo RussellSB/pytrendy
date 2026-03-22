@@ -1,48 +1,37 @@
-# Tutorials
+# Example Gallery
 
-<div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 10px; color: white; margin-bottom: 2rem;">
-  <h2 style="margin: 0; color: white;">PyTrendy Tutorials</h2>
-  <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">Hands-on guides with code examples and results</p>
+Welcome to the example gallery. This gallery provides a visual navigation to all the example notebooks to help you break down your time series data for your trend analysis and detection needs.
+
+## Fundamentals
+
+<div class="examples-grid">
+    <a class="example-card" href="gradual.md">
+        <div class="example-card__media">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif" alt="Gradual trend example preview">
+        </div>
+        <div class="example-card__body">
+            <h2>Gradual Trends</h2>
+            <p>Learn how PyTrendy identifies sustained directional movement over time and how to filter the resulting segments.</p>
+        </div>
+    </a>
+
+    <a class="example-card" href="abrupt.md">
+        <div class="example-card__media">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif" alt="Abrupt trend example preview">
+        </div>
+        <div class="example-card__body">
+            <h2>Abrupt Trends</h2>
+            <p>See how sudden spikes, shocks, and short-lived structural changes are classified, padded, and interpreted.</p>
+        </div>
+    </a>
+
+    <a class="example-card" href="noise.md">
+        <div class="example-card__media">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif" alt="Noise segment example preview">
+        </div>
+        <div class="example-card__body">
+            <h2>Noise</h2>
+            <p>Inspect how random variation and spike-heavy regions are kept separate from meaningful trend movement.</p>
+        </div>
+    </a>
 </div>
-
-Welcome to PyTrendy tutorials! This section provides hands-on guides to help you master PyTrendy, from basic trend detection to advanced pipeline customization and real-world applications.
-
-!!! tip "Interactive Learning"
-    All code examples are **copy-paste ready** and include **actual output results**. Click the dropdown arrows to expand code blocks.
-
-!!! info "Before You Start"
-    Make sure you've [installed PyTrendy](../installation.md) before running these tutorials.
-
----
-
-## Core Tutorials
-
-Master the fundamentals of PyTrendy with these step-by-step guides:
-
-### [Getting Started](getting-started.md)
-<span class="badge-beginner">BEGINNER</span> <span class="badge-time">5 minutes</span>
-
-Your first trend analysis! Learn to load data, detect trends, and explore results interactively.
-
-**What you'll learn:**
-
-- Loading and inspecting datasets
-- Running basic trend detection
-- Filtering and sorting trends
-- Exporting results to CSV
-
-[Start Tutorial →](getting-started.md)
-
----
-
-## Next Steps
-
-After completing these tutorials, explore:
-
-- **[User Guide](../user-guide/index.md)** - Complete API usage and configuration options
-- **[API Reference](../reference/pytrendy/index.md)** - Full function documentation
-
----
-
-!!! question "Need Help?"
-    If you encounter issues or have questions, check the [GitHub Issues](https://github.com/RussellSB/pytrendy/issues) or start a discussion!
