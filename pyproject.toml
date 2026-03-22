@@ -27,6 +27,12 @@ dev = [
     "pytest-mpl",
     "pytest-timeout"
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "mkdocs-api-autonav",
+    "mkdocstrings[python]"
+]
 
 [project.urls]
 repository = "https://github.com/RussellSB/pytrendy"
