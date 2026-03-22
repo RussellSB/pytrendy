@@ -30,7 +30,7 @@ It is a thoughtful algorithm with a focus on signal processing and post-processi
 
 ## Why PyTrendy?
 
-Trend detection has several use cases, such as analysing stock prices for investing, fraud detection through abrupt changes in transactions data, identifying demand trends in seasonality patterns to optimise inventory management, and more. 
+Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
 
 However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
  
