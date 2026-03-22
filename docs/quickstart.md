@@ -84,4 +84,4 @@ results.df
 | 9          | Flat      | 2025-06-18  | 2025-06-30  | NaN         | NaN         | NaN        | 12   | NaN          | 19.418124  | 9           |
 
 !!! tip "Want more?"
-    See the [Getting Started Tutorial](tutorials/getting-started.md) for a more detailed walkthrough on this example.
+    See the [Getting Started Tutorial](examples/getting-started.md) for a more detailed walkthrough on this example.

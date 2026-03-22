@@ -28,6 +28,59 @@ It is a thoughtful algorithm with a focus on signal processing and post-processi
 
 ---
 
+## Installation
+
+Install the package from PyPi.
+```bash
+pip install pytrendy
+```
+
+Alternatively, if you want the latest pre-release
+```bash
+pip install --pre pytrendy
+```
+
+---
+
+## Quickstart
+
+Import pytrendy, and apply trend detection on daily time series data.
+```py
+import pytrendy as pt
+df = pt.load_data('series_synthetic')
+results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
+results.print_summary()
+```
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual.png)
+<div class='transparent'>
+```
+Detected: 
+- 3 Uptrends. 
+- 3 Downtrends.
+- 3 Flats.
+- 0 Noise.
+
+The best detected trend is Down between dates 2025-05-09 - 2025-06-17
+
+Full Results:
+-------------------------------------------------------------------------------
+            direction       start         end  days  total_change  change_rank
+time_index                                                                   
+1                 Up  2025-01-02  2025-01-24    22     14.013348            5
+2               Down  2025-01-25  2025-02-05    11    -13.564214            6
+3               Flat  2025-02-06  2025-02-09     3           NaN            7
+4                 Up  2025-02-10  2025-03-14    32     24.632035            3
+5               Flat  2025-03-15  2025-03-17     2           NaN            8
+6               Down  2025-03-18  2025-04-01    14    -22.721861            4
+7                 Up  2025-04-02  2025-05-08    36     72.611833            2
+8               Down  2025-05-09  2025-06-17    39    -73.253968            1
+9               Flat  2025-06-18  2025-06-30    12           NaN            9 
+-------------------------------------------------------------------------------
+```
+</div>
+
+---
+
 ## Why PyTrendy?
 
 Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
@@ -64,9 +117,9 @@ However, one main use case is for identifying different periods of marketing act
 
     ---
 
-    Learn how to make the most out of PyTrendy through practical tutorials.
+    Learn how to make the most out of PyTrendy through practical examples.
 
-    [:octicons-arrow-right-24: Tutorials](tutorials/index.md)
+    [:octicons-arrow-right-24: Examples](examples/index.md)
 
 -   :material-api:{ .lg .middle } __API Reference__
 
