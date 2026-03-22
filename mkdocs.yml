@@ -72,8 +72,9 @@ plugins:
   - mkdocstrings:
       handlers:
         python:
-          import:
+          inventories:
             - https://docs.python.org/3/objects.inv
+          paths: ['.']
           options:
             docstring_section_style: list # or "table"
             docstring_style: "google"
@@ -86,8 +87,6 @@ plugins:
             show_root_full_path: false 
             show_signature_annotations: false
             summary: false
-            reload: true
-            paths: ['.']   # <-- tell it where to load from
   - api-autonav:
       modules: ['pytrendy']
       module_options:
@@ -95,7 +94,7 @@ plugins:
           show_symbol_type_heading: true
           show_symbol_type_toc: true
           heading_level: 1
-          show_docstring: false
+          show_docstring_description: false
       nav_section_title: "API Reference"
       api_root_uri: "reference"
       nav_item_prefix: "<code class='doc-symbol doc-symbol-nav'></code>" #"<code class='doc-symbol doc-symbol-nav doc-symbol-module'></code>"
