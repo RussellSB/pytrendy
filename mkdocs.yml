@@ -3,10 +3,9 @@ site_name: PyTrendy
 nav:
   - Home: index.md
   - Quick Start: quickstart.md
-  - Installation: tutorials/installation.md
+  - Installation: installation.md
   - Tutorials:
     - Overview: tutorials/index.md
-    - Getting Started: tutorials/getting-started.md
     - Gradual: tutorials/gradual.md
     - Abrupt: tutorials/abrupt.md
     - Noise: tutorials/noise.md
