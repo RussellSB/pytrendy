@@ -1,6 +1,6 @@
 # Example Gallery
 
-Welcome to the example gallery. This provides a visual navigation to all the example notebooks which can help you detect and analyse trends, and more, in your time series data.
+Welcome to the Example Gallery! This provides a visual navigation to all the example notebooks which can help you learn how to detect and analyse trends in your time series data, and more.
 
 ## Fundamentals
 
@@ -11,7 +11,7 @@ Welcome to the example gallery. This provides a visual navigation to all the exa
         </div>
         <div class="example-card__body">
             <h2>Gradual Trends</h2>
-            <p>Learn how PyTrendy identifies sustained directional movement over time and how to filter the resulting segments.</p>
+            <p>Identify sustained directional movement and filter resulting segments.</p>
         </div>
     </a>
 
@@ -21,7 +21,7 @@ Welcome to the example gallery. This provides a visual navigation to all the exa
         </div>
         <div class="example-card__body">
             <h2>Abrupt Trends</h2>
-            <p>See how sudden spikes, shocks, and short-lived structural changes are classified, padded, and interpreted.</p>
+            <p>Classify and interpret sudden shocks, and short shifts.</p>
         </div>
     </a>
 
@@ -31,7 +31,7 @@ Welcome to the example gallery. This provides a visual navigation to all the exa
         </div>
         <div class="example-card__body">
             <h2>Noise</h2>
-            <p>Inspect how random variation and spike-heavy regions are kept separate from meaningful trend movement.</p>
+            <p>Separate random variation and spikes from meaningful trend movement.</p>
         </div>
     </a>
 </div>

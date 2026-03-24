@@ -124,7 +124,9 @@
 
 .example-card__body p {
     margin: 0;
-    color: #334155;
+    color: #475569;
+    font-size: 0.8rem;
+    line-height: 1.35;
 }
 
 .example-card__body ul {
