@@ -19,6 +19,17 @@ It is a thoughtful algorithm with a focus on signal processing and post-processi
 
 ---
 
+## Why PyTrendy?
+
+Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
+
+However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
+ 
+- By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) & placebo (flat) periods for observational causal inference. 
+- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) to mitigate the risks of misleading indications.
+
+---
+
 ## Features
 
 ![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
@@ -79,14 +90,7 @@ time_index
 ```
 </div>
 
----
+More information on how the trend detection results data can be accessed are available in the [Example Gallery](examples/index.md). It is designed to be light-weight such that you can manipulate it as a Pandas DataFrame as well as make use of some pre-set helper functions for filtering to what you would like to focus on.
 
-## Why PyTrendy?
-
-Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
-
-However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
- 
-- By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) & placebo (flat) periods for observational causal inference. 
-- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) to mitigate the risks of misleading indications.
-
+</br>
+</br>
