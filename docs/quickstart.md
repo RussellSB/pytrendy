@@ -33,7 +33,7 @@ Run trend detection & plot the results.
 ```py
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 ```
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual.png)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png)
 
 The results object can be used to summarise, further analyse, and generally inspect the trend detections.
 ```python
