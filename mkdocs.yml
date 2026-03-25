@@ -4,7 +4,7 @@ nav:
   - Home: index.md
   - Example Gallery:
     - Overview: examples/index.md
-    - Gradual: examples/gradual.md
+    - Gradual: examples/gradual.ipynb
     - Abrupt: examples/abrupt.md
     - Noise: examples/noise.md
   - API Reference: reference
@@ -90,6 +90,15 @@ plugins:
       exclude_private: false
       show_full_namespace: false
       on_implicit_namespace_package: "warn"
+  - mkdocs-jupyter:
+      execute: true
+      allow_errors: true
+      ignore_h1_titles: True
+      include: ["*.ipynb"] # Default: ["*.py", "*.ipynb"]
+      execute_ignore:
+        - "reference/*"
+  # - jupyterlite:
+      # enabled: true
 
 extra_css:
   - stylesheets/extra.css
