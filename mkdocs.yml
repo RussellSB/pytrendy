@@ -2,7 +2,6 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
-  - Quick Start: quickstart.md
   - Example Gallery:
     - Overview: examples/index.md
     - Gradual: examples/gradual.md
