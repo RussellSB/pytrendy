@@ -41,6 +41,7 @@
 .transparent * {
   background-color: transparent !important;
   padding-bottom: 1px;
+  padding-top: 0px;
 }
 
 .examples-grid {
