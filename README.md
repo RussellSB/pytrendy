@@ -18,10 +18,10 @@ PyTrendy is a robust solution for identifying and analyzing trends in time serie
 
 ## Features
 
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif)
 
 ## Quickstart
 Install the package from PyPi.
@@ -55,7 +55,7 @@ Run trend detection & plot the results.
 ```py
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 ```
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual.png)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png)
 
 The results object can be used to summarise, further analyse, and generally inspect the trend detections.
 ```py
