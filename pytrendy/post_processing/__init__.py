@@ -14,8 +14,8 @@ Extracts contiguous segments from the `trend_flag` column produced by signal pro
 
 Applies minimum length constraints to ensure meaningful segments are retained:
 
-- Up/Down trends: ≥ 7 days
-- Flat/Noise regions: ≥ 3 days
+- Up/Down trends: ≥ 3 days
+- Flat/Noise regions: ≥ 1 days
 
 
 ## 2. Segment Refinement Package
