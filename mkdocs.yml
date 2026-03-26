@@ -4,9 +4,10 @@ nav:
   - Home: index.md
   - Example Gallery:
     - Overview: examples/index.md
-    - Gradual: examples/gradual.ipynb
-    - Abrupt: examples/abrupt.md
-    - Noise: examples/noise.md
+    - Fundamentals: 
+      - Gradual: examples/gradual.ipynb
+      - Abrupt: examples/abrupt.md
+      - Noise: examples/noise.md
   - API Reference: reference
 
 theme: 
