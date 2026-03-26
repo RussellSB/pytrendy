@@ -163,6 +163,13 @@
 }
 
 
+/* ── Example Gallery page ──────────────────────────────────────────── */
+
+body:has(h1#example-gallery) .md-main__inner.md-grid {
+    max-width: 100rem;
+    margin-left: 2rem;
+}
+
 /* ── JupyterLite iframe pages ──────────────────────────────────────── */
 
 body:has(#jupyterlite-iframe) .md-main__inner.md-grid {
