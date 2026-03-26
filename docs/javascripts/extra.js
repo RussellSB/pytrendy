@@ -14,8 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
     overlay.innerHTML = '<div class="spinner"></div> Loading interactive notebook…';
     wrapper.appendChild(overlay);
 
-    function hideOverlay() {
-        overlay.classList.add("hidden");
+    function suppressBeforeUnload() {
         try {
             iframe.contentWindow.addEventListener("beforeunload", function (e) {
                 e.stopImmediatePropagation();
@@ -25,7 +24,21 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 
+    function hideOverlay() {
+        overlay.classList.add("hidden");
+        suppressBeforeUnload();
+    }
+
+    /* Suppress the "Leave site?" prompt on the parent window too */
+    window.addEventListener("beforeunload", function (e) {
+        if (document.getElementById("jupyterlite-iframe")) {
+            e.stopImmediatePropagation();
+            delete e.returnValue;
+        }
+    }, true);
+
     iframe.addEventListener("load", function () {
+        suppressBeforeUnload();
         setTimeout(hideOverlay, 1000);
     });
 
