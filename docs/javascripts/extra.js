@@ -1,3 +1,13 @@
+/* Auto-expand the "Fundamentals" nav section */
+document.addEventListener("DOMContentLoaded", function () {
+    document.querySelectorAll(".md-nav__link .md-ellipsis").forEach(function (el) {
+        if (el.textContent.trim() === "Fundamentals") {
+            var toggle = el.closest(".md-nav__item").querySelector(":scope > .md-nav__toggle");
+            if (toggle && !toggle.checked) toggle.checked = true;
+        }
+    });
+});
+
 /* Disable JupyterLite "Leave site?" prompt on navigation */
 document.addEventListener("DOMContentLoaded", function () {
     var iframe = document.getElementById("jupyterlite-iframe");
