@@ -8,7 +8,7 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 
-def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict=None) -> PyTrendyResults:
+def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict=None, plot_params:dict=None) -> PyTrendyResults:
     """
     This is the main function that runs trend detection end-to-end.
     
@@ -41,6 +41,9 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
 
                 - `'is_abrupt_padded'` (`bool`, default: `False`): Whether to pad abrupt transitions between segments.
                 - `'abrupt_padding'` (`int`, default: `28`): Number of days to pad around abrupt transitions.
+        plot_params (dict, optional):
+            Dictionary of plotting parameters to pass to `plot_pytrendy`. Supported keys:
+                - `'figsize'` (`tuple`, default: `(20, 5)`): The figure size for the plot.
 
     Returns:
         PyTrendyResults:
@@ -66,7 +69,7 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     segments = get_segments(df)
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
-    if plot: plot_pytrendy(df, value_col, segments)
+    if plot: plot_pytrendy(df, value_col, segments, plot_params=plot_params)
 
     results = PyTrendyResults(segments)
     return results

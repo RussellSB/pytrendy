@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False) -> plt.Figure:
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -21,6 +21,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
+        plot_params (dict, optional):
+            Dictionary of plotting parameters. Currently supports 'figsize' (tuple). Defaults to None.
 
     Returns:
         matplotlib.figure.Figure:
@@ -35,7 +37,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         'Noise': 'lightgray',
     }
 
-    fig, ax = plt.subplots(figsize=(20, 5))
+    plot_params = plot_params or {}
+    figsize = plot_params.get("figsize", (20, 5))
+
+    fig, ax = plt.subplots(figsize=figsize)
 
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
