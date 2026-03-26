@@ -159,4 +159,25 @@
     background: rgba(15, 118, 110, 0.08);
     color: #0f766e !important;
     font-weight: 600;
+    
+}
+
+
+/* ── JupyterLite iframe pages ──────────────────────────────────────── */
+
+body:has(#jupyterlite-iframe) .md-main__inner.md-grid {
+    max-width: 80rem;
+}
+
+body:has(#jupyterlite-iframe) .md-main__inner {
+    margin-top: 0rem;
+}
+
+body:has(#jupyterlite-iframe) .md-typeset h1 {
+    margin: 0 0 0.3em;
+} 
+
+body:has(#jupyterlite-iframe) #jupyterlite-iframe {
+    border: none;
+    background: transparent;
 }
