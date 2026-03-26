@@ -181,7 +181,7 @@ body:has(#jupyterlite-iframe) .md-main__inner {
 }
 
 body:has(#jupyterlite-iframe) .md-typeset h1 {
-    margin: 0 0 0.3em;
+    display: none;
 } 
 
 body:has(#jupyterlite-iframe) #jupyterlite-iframe {
