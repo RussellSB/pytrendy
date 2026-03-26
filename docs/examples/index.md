@@ -5,7 +5,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
 ## Fundamentals
 
 <div class="examples-grid">
-    <a class="example-card" href="gradual.md">
+    <a class="example-card" href="gradual.html">
         <div class="example-card__media">
             <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" alt="Gradual trend example preview">
         </div>
@@ -15,7 +15,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
         </div>
     </a>
 
-    <a class="example-card" href="abrupt.md">
+    <a class="example-card" href="abrupt.html">
         <div class="example-card__media">
             <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif" alt="Abrupt trend example preview">
         </div>
@@ -25,7 +25,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
         </div>
     </a>
 
-    <a class="example-card" href="noise.md">
+    <a class="example-card" href="noise.html">
         <div class="example-card__media">
             <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif" alt="Noise segment example preview">
         </div>
