@@ -6,7 +6,7 @@ nav:
     - Overview: examples/index.md
     - Fundamentals: 
       - Gradual: examples/gradual.ipynb
-      - Abrupt: examples/abrupt.md
+      - Abrupt: examples/abrupt.ipynb
       - Noise: examples/noise.md
   - API Reference: reference
 
