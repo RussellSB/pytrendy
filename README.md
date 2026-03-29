@@ -57,3 +57,7 @@ time_index
 9               Flat  2025-06-18  2025-06-30    12           NaN            9 
 -------------------------------------------------------------------------------
 ```
+
+---
+
+**Read more in the full documentation:** [russellsb.github.io/pytrendy/main](https://russellsb.github.io/pytrendy/main/)
