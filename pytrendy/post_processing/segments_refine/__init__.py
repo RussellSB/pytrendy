@@ -27,7 +27,10 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
         df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): Initial segment list from detection.
-        method_params (dict): Optional parameters for abrupt padding and control.
+        method_params (dict): Optional parameters for abrupt padding and control. Supported keys:
+
+            - **is_abrupt_padded** (`bool`): Whether to pad abrupt segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `28`.
 
     Returns:
         list: Final refined segment list.
