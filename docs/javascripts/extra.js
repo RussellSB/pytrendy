@@ -55,3 +55,54 @@ document.addEventListener("DOMContentLoaded", function () {
     /* Fallback: hide overlay after 10 s even if load event is missed */
     setTimeout(function () { overlay.classList.add("hidden"); }, 10000);
 });
+
+/* Forward MkDocs-Material TOC clicks to the JupyterLite iframe via postMessage.
+ *
+ * The mkdocs-jupyterlite plugin ships its own toc-handler.js, but it targets the
+ * selector `#toc-collapse a` which belongs to the old MkDocs default theme.
+ * The Material theme stores TOC links inside
+ *   [data-md-component="toc"] a[href^="#"]
+ * so we attach our own listeners here and the plugin script becomes a no-op
+ * (it finds zero matching elements and does nothing).
+ */
+document.addEventListener("DOMContentLoaded", function () {
+    var iframe = document.getElementById("jupyterlite-iframe");
+    if (!iframe) return;
+
+    function attachMaterialTocHandlers() {
+        /* Only target the secondary nav (right-sidebar TOC), not the mobile
+         * copy that lives inside the primary navigation drawer. */
+        var tocLinks = document.querySelectorAll(
+            'nav.md-nav--secondary [data-md-component="toc"] a[href^="#"]'
+        );
+        /* Fallback: some Material versions omit the secondary nav wrapper */
+        if (!tocLinks.length) {
+            tocLinks = document.querySelectorAll('[data-md-component="toc"] a[href^="#"]');
+        }
+        tocLinks.forEach(function (link) {
+            link.addEventListener("click", function (event) {
+                event.preventDefault();
+                /* Strip excess whitespace that Material's nested <span> adds */
+                var headingText = this.textContent.replace(/\s+/g, " ").trim();
+                iframe.contentWindow.postMessage(
+                    { type: "jupyterlite-toc-navigate", headingText: headingText },
+                    window.location.origin
+                );
+            });
+        });
+    }
+
+    /* Material renders the TOC synchronously in the static HTML, so
+     * DOMContentLoaded is sufficient; but guard with a MutationObserver
+     * in case a future version defers it. */
+    attachMaterialTocHandlers();
+    if (!document.querySelectorAll('[data-md-component="toc"] a').length) {
+        var obs = new MutationObserver(function (_, observer) {
+            if (document.querySelectorAll('[data-md-component="toc"] a').length) {
+                attachMaterialTocHandlers();
+                observer.disconnect();
+            }
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
+    }
+});
