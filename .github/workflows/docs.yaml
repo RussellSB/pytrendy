@@ -1,4 +1,10 @@
 name: Docs
+# NOTE: Before this workflow can serve GitHub Pages, you must enable Pages in
+# the repository settings:
+#   Settings → Pages → Build and deployment → Source → Deploy from a branch
+#   Branch: gh-pages  /  Folder: / (root)
+# This is a one-time manual step. After that, every successful run of
+# deploy-docs will automatically update the published site.
 
 on:
   push:
@@ -17,55 +23,73 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
 
       - name: Determine if docs deployment is needed
         id: check
         run: |
-          COMMIT_MSG=$(git log -1 --pretty=%s)
-          COMMIT_BODY=$(git log -1 --pretty=%b)
-          echo "Commit subject: $COMMIT_MSG"
+          EVENT_PATH="${GITHUB_EVENT_PATH}"
+          if [ -z "$EVENT_PATH" ] || [ ! -f "$EVENT_PATH" ]; then
+            echo "Event payload not found; defaulting to deploy docs"
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
 
-          # Skip if explicitly flagged
-          if echo "$COMMIT_MSG" | grep -q '\[skip docs\]'; then
-            echo "Skipping: [skip docs] flag found"
-            echo "should_deploy=false" >> $GITHUB_OUTPUT
+          # Aggregate all commit messages from the push event (subject + body)
+          COMMIT_MESSAGES=$(jq -r '.commits[]?.message' "$EVENT_PATH")
+          echo "Commit messages in push:"
+          echo "$COMMIT_MESSAGES"
+
+          # Skip if any commit explicitly flags docs to be skipped
+          if echo "$COMMIT_MESSAGES" | grep -q '\[skip docs\]'; then
+            echo "Skipping: [skip docs] flag found in at least one commit"
+            echo "should_deploy=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           # Always deploy for semantic commit types that affect code or content:
           # feat (minor/major), fix (patch), docs, refactor, perf
-          if echo "$COMMIT_MSG" | grep -qE '^(feat|fix|docs|refactor|perf)(\([^)]*\))?!?:'; then
-            echo "Deploying: matched semantic commit type"
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          if echo "$COMMIT_MESSAGES" | grep -qE '^(feat|fix|docs|refactor|perf)(\([^)]*\))?!?:'; then
+            echo "Deploying: matched semantic commit type in at least one commit"
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           # Breaking changes (major version bump) — e.g. feat!: or type(scope)!:
-          if echo "$COMMIT_MSG" | grep -qE '^[a-z]+(\([^)]*\))?!:'; then
-            echo "Deploying: breaking change in subject"
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          if echo "$COMMIT_MESSAGES" | grep -qE '^[a-z]+(\([^)]*\))?!:'; then
+            echo "Deploying: breaking change in commit subject"
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Breaking change declared in commit body
-          if echo "$COMMIT_BODY" | grep -q 'BREAKING CHANGE'; then
-            echo "Deploying: BREAKING CHANGE in body"
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
+          # Breaking change declared in any commit body
+          if echo "$COMMIT_MESSAGES" | grep -q 'BREAKING CHANGE'; then
+            echo "Deploying: BREAKING CHANGE found in commit body"
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
-          # Deploy if relevant source or docs files were changed
-          CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
-          echo "Changed files: $CHANGED"
+          # Determine the diff range for the entire push
+          BEFORE_SHA=$(jq -r '.before' "$EVENT_PATH")
+          HEAD_SHA="${GITHUB_SHA}"
+
+          if [ -n "$BEFORE_SHA" ] && ! echo "$BEFORE_SHA" | grep -qE '^0+$'; then
+            echo "Using diff range: $BEFORE_SHA..$HEAD_SHA"
+            CHANGED=$(git diff --name-only "$BEFORE_SHA" "$HEAD_SHA" 2>/dev/null || echo "")
+          else
+            echo "No valid 'before' SHA in event; falling back to HEAD~1..HEAD"
+            CHANGED=$(git diff --name-only HEAD~1 HEAD 2>/dev/null || echo "")
+          fi
+
+          echo "Changed files across push: $CHANGED"
           if echo "$CHANGED" | grep -qE '^(docs/|mkdocs\.yml|pytrendy/)'; then
             echo "Deploying: relevant files changed"
-            echo "should_deploy=true" >> $GITHUB_OUTPUT
+            echo "should_deploy=true" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
           echo "Skipping: no relevant changes detected"
-          echo "should_deploy=false" >> $GITHUB_OUTPUT
+          echo "should_deploy=false" >> "$GITHUB_OUTPUT"
 
   deploy-docs:
     name: Build & Deploy Docs (${{ github.ref_name }})
