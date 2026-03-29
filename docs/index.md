@@ -13,7 +13,7 @@
 
 ## Welcome
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it  detects uptrends and downtrends in a way that they are not falsely detected over periods of flat or noise segments. 
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it detects uptrends and downtrends in a way that they are not falsely detected over periods of flat or noise segments. 
 
 It is a thoughtful algorithm with a focus on signal processing and post-processing. It aims to be the best package for trend detection in Python. 
 
@@ -90,7 +90,7 @@ time_index
 ```
 </div>
 
-More information on how the trend detection results data can be accessed are available in the [Example Gallery](examples/index.md). It is designed to be light-weight such that you can manipulate it as a Pandas DataFrame as well as make use of some pre-set helper functions for filtering to what you would like to focus on.
+More information on how you can interpret the trend detection results are available in the [Example Gallery](examples/index.md).
 
 </br>
 </br>

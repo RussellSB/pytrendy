@@ -31,7 +31,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
         </div>
         <div class="example-card__body">
             <h2>Noise</h2>
-            <p>Detact noise to separate random variation and spikes from meaningful trend movement.</p>
+            <p>Detect noise to separate random variation and spikes from meaningful trend movement.</p>
         </div>
     </a>
 </div>
