@@ -226,3 +226,34 @@ body:has(#jupyterlite-iframe) #jupyterlite-iframe {
     opacity: 0;
     pointer-events: none;
 }
+
+/* ── Branch indicator badge ──────────────────────────────────────────── */
+
+.branch-indicator {
+    position: fixed;
+    top: 0.65rem;
+    right: 0.9rem;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15em 0.55em;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    text-decoration: none !important;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.82) !important;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    transition: background 0.18s ease, color 0.18s ease;
+    cursor: pointer;
+    line-height: 1.6;
+}
+
+.branch-indicator:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff !important;
+    text-decoration: none !important;
+}

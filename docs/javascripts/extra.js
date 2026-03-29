@@ -1,7 +1,69 @@
-/* Auto-expand the "Fundamentals" nav section */
+/* ── Branch indicator (main / develop toggle) ────────────────────────── */
+(function () {
+    "use strict";
+
+    var GITHUB_PAGES_ROOT = "https://russellsb.github.io/pytrendy/";
+
+    function detectBranch() {
+        var h = window.location.hostname;
+        if (h === "localhost" || h === "127.0.0.1" || h === "") {
+            return "develop";
+        }
+        var p = window.location.pathname;
+        if (/\/main(\/|$)/.test(p))    return "main";
+        if (/\/develop(\/|$)/.test(p)) return "develop";
+        return "main";
+    }
+
+    function isLocal() {
+        var h = window.location.hostname;
+        return h === "localhost" || h === "127.0.0.1" || h === "";
+    }
+
+    function buildToggleUrl(branch) {
+        if (isLocal()) {
+            /* Local is always "develop"; clicking navigates to the deployed main docs */
+            return GITHUB_PAGES_ROOT + "main/";
+        }
+        var other = branch === "main" ? "develop" : "main";
+        /* Swap the branch segment in the path, e.g. /pytrendy/main/ → /pytrendy/develop/ */
+        return window.location.href.replace("/" + branch + "/", "/" + other + "/");
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        var branch = detectBranch();
+        var other  = branch === "main" ? "develop" : "main";
+        var url    = buildToggleUrl(branch);
+
+        var label = branch === "develop" ? "dev" : "main";
+        var otherLabel = other === "develop" ? "dev" : "main";
+
+        var badge = document.createElement("a");
+        badge.className = "branch-indicator branch-indicator--" + branch;
+        badge.href  = url;
+        badge.title = "Switch to " + otherLabel + " docs";
+        badge.setAttribute("aria-label",
+            "Viewing " + label + " docs — click to switch to " + otherLabel);
+        badge.textContent = label;
+
+        var headerNav = document.querySelector(".md-header__inner");
+        if (!headerNav) return;
+
+        /* Append after source widget (far right), or append to header */
+        var source = headerNav.querySelector(".md-header__source");
+        if (source) {
+            source.insertAdjacentElement("afterend", badge);
+        } else {
+            headerNav.appendChild(badge);
+        }
+    });
+}());
+
+/* Auto-expand the "Fundamentals" and "pytrendy" (API Reference) nav sections */
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".md-nav__link .md-ellipsis").forEach(function (el) {
-        if (el.textContent.trim() === "Fundamentals") {
+        var text = el.textContent.trim();
+        if (text === "Fundamentals" || text === "pytrendy") {
             var toggle = el.closest(".md-nav__item").querySelector(":scope > .md-nav__toggle");
             if (toggle && !toggle.checked) toggle.checked = true;
         }
