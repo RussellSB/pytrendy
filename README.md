@@ -25,12 +25,17 @@ PyTrendy is a robust solution for identifying and analyzing trends in time serie
 
 ## Quickstart
 
+Install the package from PyPi.
+```
+pip install pytrendy
+```
+
 Import pytrendy, and apply trend detection on daily time series data.
 ```py
 import pytrendy as pt
 df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
-results.df
+results.print_summary()
 ```
 ![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png)
 ```md
