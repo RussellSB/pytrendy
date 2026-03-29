@@ -10,8 +10,8 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
             <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" alt="Gradual trend example preview">
         </div>
         <div class="example-card__body">
-            <h2>Gradual Trends</h2>
-            <p>Identify sustained directional movement and filter resulting segments.</p>
+            <h2>Gradual</h2>
+            <p>Detect sustained directional movement and filter resulting segments.</p>
         </div>
     </a>
 
@@ -20,8 +20,8 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
             <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif" alt="Abrupt trend example preview">
         </div>
         <div class="example-card__body">
-            <h2>Abrupt Trends</h2>
-            <p>Classify and interpret sudden shocks and short shifts.</p>
+            <h2>Abrupt</h2>
+            <p>Detect sudden shocks and identify persistent shifts.</p>
         </div>
     </a>
 
@@ -31,7 +31,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
         </div>
         <div class="example-card__body">
             <h2>Noise</h2>
-            <p>Separate random variation and spikes from meaningful trend movement.</p>
+            <p>Detact noise to separate random variation and spikes from meaningful trend movement.</p>
         </div>
     </a>
 </div>
