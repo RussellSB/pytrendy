@@ -6,31 +6,22 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml)
 [![Release](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml)
-[![codecov](https://codecov.io/gh/RussellSB/pytrendy/branch/main/graph/badge.svg)](https://codecov.io/gh/RussellSB/pytrendy)
+[![codecov](https://codecov.io/gh/RussellSB/pytrendy/branch/develop/graph/badge.svg)](https://codecov.io/gh/RussellSB/pytrendy)
 [![Downloads](https://static.pepy.tech/badge/pytrendy)](https://pepy.tech/project/pytrendy)
 
 ---
 
 ## Welcome
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it  detects uptrends and downtrends in a way that they are not falsely detected over flat and noise segments. 
+PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it detects uptrends and downtrends in a way that they are not falsely detected over periods of flat or noise segments. 
 
-It is a thoughtful algorithm with a focus on signal processing and a considerable amount of post-processing for high precision at a daily level. It aims to be the best package for trend detection in Python. 
-
----
-
-## Features
-
-![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif)
-![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif)
-![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif)
-![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif)
+It is a thoughtful algorithm with a focus on signal processing and post-processing. It aims to be the best package for trend detection in Python. 
 
 ---
 
 ## Why PyTrendy?
 
-Trend detection has several use cases, such as analysing stock prices for investing, fraud detection through abrupt changes in transactions data, identifying demand trends in seasonality patterns to optimise inventory management, and more. 
+Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
 
 However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
  
@@ -39,41 +30,67 @@ However, one main use case is for identifying different periods of marketing act
 
 ---
 
-## Next Steps
+## Features
 
-<div class="grid cards" markdown>
+![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
+![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif)
+![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif)
+![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif)
 
--   :material-clock-fast:{ .lg .middle } __Set up in 5 minutes__
+---
 
-    ---
+## Installation
 
-    Install [`pytrendy`](#) with [`pip`](#) and get up
-    and running in minutes.
+Install the package from PyPi.
+```bash
+pip install pytrendy
+```
 
-    [:octicons-arrow-right-24: Quick Start](quickstart.md)
+Alternatively, if you want the latest pre-release
+```bash
+pip install --pre pytrendy
+```
 
--   :material-cog-outline:{ .lg .middle } __Further notes on usage__
+---
 
-    ---
+## Quickstart
 
-    Refer to a high-level reference on configuration and utilities.
+Import pytrendy, and apply trend detection on daily time series data.
+```py
+import pytrendy as pt
+df = pt.load_data('series_synthetic')
+results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
+results.print_summary()
+```
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png)
+<div class='transparent'>
+```
+Detected: 
+- 3 Uptrends. 
+- 3 Downtrends.
+- 3 Flats.
+- 0 Noise.
 
-    [:octicons-arrow-right-24: User Guide](user-guide/index.md)
+The best detected trend is Down between dates 2025-05-09 - 2025-06-17
 
--   :material-notebook:{ .lg .middle } __Learn practically__
-
-    ---
-
-    Learn how to make the most out of PyTrendy through practical tutorials.
-
-    [:octicons-arrow-right-24: Tutorials](tutorials/index.md)
-
--   :material-api:{ .lg .middle } __API Reference__
-
-    ---
-
-    Refer to the API, covering information on all functions and parameters.
-
-    [:octicons-arrow-right-24: API Reference](reference/pytrendy/index.md)
-
+Full Results:
+-------------------------------------------------------------------------------
+            direction       start         end  days  total_change  change_rank
+time_index                                                                   
+1                 Up  2025-01-02  2025-01-24    22     14.013348            5
+2               Down  2025-01-25  2025-02-05    11    -13.564214            6
+3               Flat  2025-02-06  2025-02-09     3           NaN            7
+4                 Up  2025-02-10  2025-03-14    32     24.632035            3
+5               Flat  2025-03-15  2025-03-17     2           NaN            8
+6               Down  2025-03-18  2025-04-01    14    -22.721861            4
+7                 Up  2025-04-02  2025-05-08    36     72.611833            2
+8               Down  2025-05-09  2025-06-17    39    -73.253968            1
+9               Flat  2025-06-18  2025-06-30    12           NaN            9 
+-------------------------------------------------------------------------------
+```
 </div>
+
+More information on how you can interpret the trend detection results are available in the [Example Gallery](examples/index.md).
+
+</br>
+</br>

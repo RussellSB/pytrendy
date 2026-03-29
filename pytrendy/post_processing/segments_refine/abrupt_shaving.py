@@ -20,9 +20,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): List of segment dictionaries with `'trend_class': 'abrupt'`.
-        method_params (dict): Optional parameters for padding and control:
-            - `'is_abrupt_padded'` (bool): Whether to pad abrupt segments.
-            - `'abrupt_padding'` (int): Number of days to pad.
+        method_params (dict): Optional parameters for padding and control. Supported keys:
+
+            - **is_abrupt_padded** (`bool`): Whether to pad abrupt segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `28`.
 
     Returns:
         list: Refined segment list with adjusted abrupt boundaries.

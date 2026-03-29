@@ -37,13 +37,13 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
         method_params (dict, optional):
-            Dictionary of optional parameters to customize detection heuristics. Supported keys:
-
-                - `'is_abrupt_padded'` (`bool`, default: `False`): Whether to pad abrupt transitions between segments.
-                - `'abrupt_padding'` (`int`, default: `28`): Number of days to pad around abrupt transitions.
+            Optional parameters to customize detection heuristics. Supported keys:
+            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
         plot_params (dict, optional):
             Dictionary of plotting parameters to pass to `plot_pytrendy`. Supported keys:
-                - `'figsize'` (`tuple`, default: `(20, 5)`): The figure size for the plot.
+            - **figsize** (`tuple`): The figure size for the plot. Defaults to (20,5)
+            
 
     Returns:
         PyTrendyResults:
