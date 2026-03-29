@@ -59,10 +59,11 @@
     });
 }());
 
-/* Auto-expand the "Fundamentals" nav section */
+/* Auto-expand the "Fundamentals" and "pytrendy" (API Reference) nav sections */
 document.addEventListener("DOMContentLoaded", function () {
     document.querySelectorAll(".md-nav__link .md-ellipsis").forEach(function (el) {
-        if (el.textContent.trim() === "Fundamentals") {
+        var text = el.textContent.trim();
+        if (text === "Fundamentals" || text === "pytrendy") {
             var toggle = el.closest(".md-nav__item").querySelector(":scope > .md-nav__toggle");
             if (toggle && !toggle.checked) toggle.checked = true;
         }
