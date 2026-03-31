@@ -167,7 +167,7 @@
 
 body:has(h1#example-gallery) .md-main__inner.md-grid {
     max-width: 100rem;
-    margin-left: 2rem;
+    margin-inline: 2rem;
 }
 
 /* ── JupyterLite iframe pages ──────────────────────────────────────── */
@@ -256,4 +256,11 @@ body:has(#jupyterlite-iframe) #jupyterlite-iframe {
     background: rgba(255, 255, 255, 0.22);
     color: #fff !important;
     text-decoration: none !important;
+}
+
+@media (max-width: 959px) {
+    .branch-indicator {
+        position: inherit;
+        margin-inline: 0.6rem;
+    }
 }
