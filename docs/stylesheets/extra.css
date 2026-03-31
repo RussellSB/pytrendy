@@ -257,3 +257,10 @@ body:has(#jupyterlite-iframe) #jupyterlite-iframe {
     color: #fff !important;
     text-decoration: none !important;
 }
+
+@media (max-width: 959px) {
+    .branch-indicator {
+        position: fixed;
+        margin-inline: 0.6rem;
+    }
+}
