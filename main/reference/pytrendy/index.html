@@ -1461,7 +1461,7 @@ support a flexible and interpretable workflow. These components work together to
 apply classification heuristics, and access structured results for downstream analysis or integration.</p>
 <hr />
 <p>This package is organized into the following modules:</p>
-<h2 id="pytrendy--1-detect_trends">1. <a href="detect_trends.html">detect_trends</a></h2>
+<h2 id="pytrendy--1-detect_trends">1. <a href="detect_trends">detect_trends</a></h2>
 <ul>
 <li>Defines the primary pipeline function for executing PyTrendy's trend detection workflow.</li>
 <li>This function coordinates signal preprocessing, segment extraction, boundary refinement, metric analysis, and optional visualization in a single call.</li>
@@ -1471,59 +1471,59 @@ apply classification heuristics, and access structured results for downstream an
 <p>The <code>io</code> module provides essential interfaces for interacting with the input and output layers of PyTrendy. 
 It streamlines access to curated datasets, supports detailed visualization of trend segments, and offers structured result handling for downstream analysis.<br />
 Designed for both exploratory workflows and programmatic integration, this module enables users to efficiently load data, interpret results, and present findings.</p>
-<h3 id="pytrendy--21-data_loader">2.1 <a href="io/data_loader.html">data_loader</a></h3>
+<h3 id="pytrendy--21-data_loader">2.1 <a href="io/data_loader">data_loader</a></h3>
 <ul>
 <li>Provides access to built-in datasets packaged with PyTrendy.</li>
 <li>Enables quick loading of synthetic time series and classification references.</li>
 <li>Supports testing, demonstration, and validation workflows.</li>
 <li>Delivers standardized input formats optimized for trend detection and segment analysis.</li>
 </ul>
-<h3 id="pytrendy--22-plot_pytrendy">2.2 <a href="io/plot_pytrendy.html">plot_pytrendy</a></h3>
+<h3 id="pytrendy--22-plot_pytrendy">2.2 <a href="io/plot_pytrendy">plot_pytrendy</a></h3>
 <ul>
 <li>Generates annotated visualizations of trend segments over time series data.</li>
 <li>Highlights matplotlib plots with Up, Down, Flat, and Noise regions using shaded overlays and metadata.</li>
 <li>Facilitates visual inspection, debugging, and interpretation of results.</li>
 <li>Makes the visualization ready for reporting, presentation, and analytical review.</li>
 </ul>
-<h3 id="pytrendy--23-results_pytrendy">2.3 <a href="io/results_pytrendy.html">results_pytrendy</a></h3>
+<h3 id="pytrendy--23-results_pytrendy">2.3 <a href="io/results_pytrendy">results_pytrendy</a></h3>
 <ul>
 <li>Wraps detection output into a structured results object.</li>
 <li>Implements the <code>PyTrendyResults</code> class for segment filtering, ranking, and summarization.</li>
 <li>Provides access to structured segment metadata and computed metrics.</li>
 <li>Supports integration with downstream analysis, reporting pipelines, and export workflows.</li>
 </ul>
-<h2 id="pytrendy--3-post_processing">3. <a href="post_processing.html">post_processing</a></h2>
+<h2 id="pytrendy--3-post_processing">3. <a href="post_processing">post_processing</a></h2>
 <p>The <code>post_processing</code> module provides utilities for refining, classifying, and analyzing trend segments.
 It transforms raw detections into interpretable, ranked structures by adjusting boundaries, labeling temporal behavior, and computing signal metrics.<br />
 This module ensures that the output is analytically robust and ready for downstream use.</p>
-<h3 id="pytrendy--31-segments_get">3.1 <a href="post_processing/segments_get.html">segments_get</a></h3>
+<h3 id="pytrendy--31-segments_get">3.1 <a href="post_processing/segments_get">segments_get</a></h3>
 <ul>
 <li>Extracts continuous segments from the <code>trend_flag</code> column.</li>
 <li>Applies minimum length constraints to filter out noise.</li>
 <li>Supports directional trends (Up/Down) and neutral regions (Flat/Noise).</li>
 <li>Serves as the first step in segment-level post-processing.</li>
 </ul>
-<h3 id="pytrendy--32-segments_refine">3.2 <a href="post_processing/segments_refine.html">segments_refine</a></h3>
+<h3 id="pytrendy--32-segments_refine">3.2 <a href="post_processing/segments_refine">segments_refine</a></h3>
 <ul>
 <li>Adjusts segment boundaries based on local extrema and changepoint detection.</li>
 <li>Classifies segments as 'gradual' or 'abrupt' using DTW alignment.</li>
 <li>Shaves abrupt segments using z-score outlier detection.</li>
 <li>Groups short consecutive segments and removes artifacts.</li>
 </ul>
-<h3 id="pytrendy--33-segments_analyse">3.3 <a href="post_processing/segments_analyse.html">segments_analyse</a></h3>
+<h3 id="pytrendy--33-segments_analyse">3.3 <a href="post_processing/segments_analyse">segments_analyse</a></h3>
 <ul>
 <li>Computes metrics for each segment, comparing pretreatment vs post-treatment behavior.</li>
 <li>Includes absolute and percent change, duration, and cumulative movement.</li>
 <li>Calculates signal-to-noise ratio (SNR) and assigns a change rank.</li>
 <li>Enables filtering and prioritization of significant trends.</li>
 </ul>
-<h2 id="pytrendy--4-process_signals">4. <a href="process_signals.html">process_signals</a></h2>
+<h2 id="pytrendy--4-process_signals">4. <a href="process_signals">process_signals</a></h2>
 <ul>
 <li>Implements core signal processing logic to identify meaningful regions within a time series.</li>
 <li>By applying Savitzky-Golay smoothing and rolling statistical measures, this module flags flat, noisy, and directional trends.</li>
 <li>These flags serve as the foundation for segment extraction and subsequent analysis within the PyTrendy pipeline.</li>
 </ul>
-<h2 id="pytrendy--5-simpledtw">5. <a href="simpledtw.html">simpledtw</a></h2>
+<h2 id="pytrendy--5-simpledtw">5. <a href="simpledtw">simpledtw</a></h2>
 <ul>
 <li>Provides an efficient implementation of Dynamic Time Warping (DTW) for comparing time series segments.</li>
 <li>This module is used internally to classify trends by aligning detected segments with reference signals and evaluating similarity based on alignment cost.</li>

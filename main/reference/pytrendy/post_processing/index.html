@@ -1462,7 +1462,7 @@ detected by the PyTrendy pipeline. It operates on raw segments extracted from si
 boundary adjustments, classification heuristics, and quantitative analysis.</p>
 <hr />
 <h2 id="pytrendy.post_processing--included-modules">Included Modules</h2>
-<h3 id="pytrendy.post_processing--1-segments_get">1. <a href="segments_get.html">segments_get</a></h3>
+<h3 id="pytrendy.post_processing--1-segments_get">1. <a href="segments_get">segments_get</a></h3>
 <p>Extracts contiguous segments from the <code>trend_flag</code> column produced by signal processing.</p>
 <p>Applies minimum length constraints to ensure meaningful segments are retained:</p>
 <ul>
@@ -1471,35 +1471,35 @@ boundary adjustments, classification heuristics, and quantitative analysis.</p>
 </ul>
 <h3 id="pytrendy.post_processing--2-segment-refinement-package">2. Segment Refinement Package</h3>
 <p>The segment refinement functionality is organized under the <code>segments_refine</code> package:</p>
-<h4 id="pytrendy.post_processing--segments_refine"><a href="segments_refine.html">segments_refine</a></h4>
+<h4 id="pytrendy.post_processing--segments_refine"><a href="segments_refine">segments_refine</a></h4>
 <p>Main orchestration module with <code>refine_segments()</code> function that coordinates the full post-processing pipeline.</p>
 <p>The <code>segments_refine</code> package contains focused sub-modules:</p>
-<h4 id="pytrendy.post_processing--segments_refineupdate_neighbours"><a href="segments_refine/update_neighbours.html">segments_refine.update_neighbours</a></h4>
+<h4 id="pytrendy.post_processing--segments_refineupdate_neighbours"><a href="segments_refine/update_neighbours">segments_refine.update_neighbours</a></h4>
 <p>Helper functions for adjusting segment boundaries when neighboring segments are updated:
 - <code>update_prev_segment</code>: Adjusts the end of the previous segment
 - <code>update_next_segment</code>: Adjusts the start of the next segment</p>
-<h4 id="pytrendy.post_processing--segments_refinegradual_expand_contract"><a href="segments_refine/gradual_expand_contract.html">segments_refine.gradual_expand_contract</a></h4>
+<h4 id="pytrendy.post_processing--segments_refinegradual_expand_contract"><a href="segments_refine/gradual_expand_contract">segments_refine.gradual_expand_contract</a></h4>
 <ul>
 <li><code>expand_contract_segments</code>: Adjusts boundaries based on local extrema (±7 days window)</li>
 </ul>
-<h4 id="pytrendy.post_processing--segments_refinetrend_classify"><a href="segments_refine/trend_classify.html">segments_refine.trend_classify</a></h4>
+<h4 id="pytrendy.post_processing--segments_refinetrend_classify"><a href="segments_refine/trend_classify">segments_refine.trend_classify</a></h4>
 <ul>
 <li><code>classify_trends</code>: Uses Dynamic Time Warping (DTW) to label segments as 'gradual' or 'abrupt'</li>
 </ul>
-<h4 id="pytrendy.post_processing--segments_refineabrupt_shaving"><a href="segments_refine/abrupt_shaving.html">segments_refine.abrupt_shaving</a></h4>
+<h4 id="pytrendy.post_processing--segments_refineabrupt_shaving"><a href="segments_refine/abrupt_shaving">segments_refine.abrupt_shaving</a></h4>
 <ul>
 <li><code>shave_abrupt_trends</code>: Detects changepoints in abrupt segments using z-score outliers</li>
 </ul>
-<h4 id="pytrendy.post_processing--segments_refinesegment_grouping"><a href="segments_refine/segment_grouping.html">segments_refine.segment_grouping</a></h4>
+<h4 id="pytrendy.post_processing--segments_refinesegment_grouping"><a href="segments_refine/segment_grouping">segments_refine.segment_grouping</a></h4>
 <ul>
 <li><code>group_segments</code>: Merges short, consecutive segments with the same direction</li>
 </ul>
-<h4 id="pytrendy.post_processing--segments_refineartifact_cleanup"><a href="segments_refine/artifact_cleanup.html">segments_refine.artifact_cleanup</a></h4>
+<h4 id="pytrendy.post_processing--segments_refineartifact_cleanup"><a href="segments_refine/artifact_cleanup">segments_refine.artifact_cleanup</a></h4>
 <ul>
 <li><code>clean_artifacts</code>: Removes invalid segments (inversions, overlaps)</li>
 <li><code>fill_in_flats</code>: Fills gaps between segments with flat regions</li>
 </ul>
-<h3 id="pytrendy.post_processing--3-segments_analyse">3. <a href="segments_analyse.html">segments_analyse</a></h3>
+<h3 id="pytrendy.post_processing--3-segments_analyse">3. <a href="segments_analyse">segments_analyse</a></h3>
 <p>Adds quantitative descriptors to each segment, comparing pretreatment vs post-treatment behavior.</p>
 <p>Metrics include:</p>
 <ul>
