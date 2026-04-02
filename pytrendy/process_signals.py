@@ -33,9 +33,7 @@ def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.D
         value_col (str): 
             Name of the column containing the signal to process.
         debug (bool, optional):
-            If `True` will run in debug mode, outputting various additional plots and print statements. 
-            Only recommended for developers of pytrendy.
-            Defaults to `False`.
+            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
 
     Returns:
         `pd.DataFrame`: Modified DataFrame with additional columns.
@@ -192,7 +190,7 @@ def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.D
 
         ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
         ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
-        plt.title("Signol-Noise Ratio (SNR)")
+        plt.title("Signal-Noise Ratio (SNR)")
         plt.show()
 
         ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')

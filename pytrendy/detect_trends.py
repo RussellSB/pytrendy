@@ -42,8 +42,7 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
             - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
             - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
         debug (bool, optional):
-            If `True` will run in debug mode, outputting various additional plots and print statements. 
-            Only recommended for developers of pytrendy.
+            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.
             Defaults to `False`.
             
     Returns:
