@@ -140,3 +140,18 @@ Bad PR titles:
 ### Tools
 
 When creating pull requests, ensure your PR titles follow these standards. When making commits, ensure your commit messages follow these standards. The CI/CD pipeline uses these messages to automate releases and generate changelogs.
+
+## Default Base Branch
+
+All pull requests **must** target the `develop` branch by default, not `main`. Never target `main` directly unless explicitly instructed otherwise.
+
+This is because:
+- `main` is the stable release branch — only `develop` gets merged into `main` via a release process
+- PRs that accidentally target `main` will include unintended diffs (e.g. release version bumps already on `develop`) when the base is corrected
+
+When creating or rebasing branches, always branch off `develop`:
+
+```bash
+git fetch origin develop
+git checkout -b my-feature origin/develop
+```
