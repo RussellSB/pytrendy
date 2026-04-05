@@ -18,10 +18,10 @@ Contributions to PyTrendy are welcome! This guide covers the standards and proce
    ```
    The `dev` group installs everything needed to run the project and its test suite — the core dependencies (`numpy`, `pandas`, `scipy`, `matplotlib`) are pulled in automatically, and `dev` adds `pytest`, `pytest-cov`, `pytest-mpl`, and `pytest-timeout` on top.
 
-   If your PR touches documentation, also install the docs group:
-   ```bash
-   pip install -e ".[dev,docs]"
-   ```
+    If your PR touches documentation, also install the docs group:
+    ```bash
+    pip install -e ".[dev,docs]"
+    ```
 
 ---
 
