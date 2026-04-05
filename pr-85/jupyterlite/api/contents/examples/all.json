@@ -2,11 +2,11 @@
   "content": [
     {
       "content": null,
-      "created": "2026-04-05T18:22:07.862695Z",
+      "created": "2026-04-05T18:32:07.338011Z",
       "format": null,
       "hash": null,
       "hash_algorithm": null,
-      "last_modified": "2026-04-05T18:22:07.862695Z",
+      "last_modified": "2026-04-05T18:32:07.338011Z",
       "mimetype": null,
       "name": "fundamentals",
       "path": "examples/fundamentals",
@@ -15,11 +15,11 @@
       "writable": true
     }
   ],
-  "created": "2026-04-05T18:22:07.860539Z",
+  "created": "2026-04-05T18:32:07.334707Z",
   "format": "json",
   "hash": null,
   "hash_algorithm": null,
-  "last_modified": "2026-04-05T18:22:07.860539Z",
+  "last_modified": "2026-04-05T18:32:07.334707Z",
   "mimetype": null,
   "name": "examples",
   "path": "examples",

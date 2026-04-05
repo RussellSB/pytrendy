@@ -1844,14 +1844,16 @@
    <div class="language-bash highlight"><pre><span></span><code>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/&lt;your-username&gt;/pytrendy.git
 <span class="nb">cd</span><span class="w"> </span>pytrendy
 </code></pre></div></li>
-<li><strong>Install development dependencies:</strong>
+<li>
+<p><strong>Install development dependencies:</strong>
    <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </code></pre></div>
-   The <code>dev</code> group installs everything needed to run the project and its test suite — the core dependencies (<code>numpy</code>, <code>pandas</code>, <code>scipy</code>, <code>matplotlib</code>) are pulled in automatically, and <code>dev</code> adds <code>pytest</code>, <code>pytest-cov</code>, <code>pytest-mpl</code>, and <code>pytest-timeout</code> on top.</li>
-</ol>
+   The <code>dev</code> group installs everything needed to run the project and its test suite — the core dependencies (<code>numpy</code>, <code>pandas</code>, <code>scipy</code>, <code>matplotlib</code>) are pulled in automatically, and <code>dev</code> adds <code>pytest</code>, <code>pytest-cov</code>, <code>pytest-mpl</code>, and <code>pytest-timeout</code> on top.</p>
 <p>If your PR touches documentation, also install the docs group:
-   <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span>
 </code></pre></div></p>
+</li>
+</ol>
 <hr />
 <h2 id="roadmap-issues">Roadmap &amp; Issues</h2>
 <p>The project roadmap lives in <strong><a href="https://github.com/RussellSB/pytrendy/issues">GitHub Issues</a></strong>. Browse open issues to find tasks to pick up, report bugs, or propose improvements.</p>
