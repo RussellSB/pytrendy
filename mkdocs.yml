@@ -9,6 +9,7 @@ nav:
       - Abrupt: examples/fundamentals/abrupt.ipynb
       - Noise: examples/fundamentals/noise.ipynb
   - API Reference: reference
+  - Contribution Guide: contributing.md
 
 theme: 
   name: material # flatly, material, minty
