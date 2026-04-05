@@ -1,6 +1,6 @@
-# Contributing to PyTrendy
+# Contribution Guide
 
-Thank you for your interest in contributing to PyTrendy! This guide covers the standards and processes we use to keep the project consistent and easy to collaborate on.
+Contributions to PyTrendy are welcome! This guide covers the standards and processes we follow to keep the project consistent and easy to collaborate on.
 
 ---
 
@@ -12,22 +12,28 @@ Thank you for your interest in contributing to PyTrendy! This guide covers the s
    git clone https://github.com/<your-username>/pytrendy.git
    cd pytrendy
    ```
-3. **Install** the development dependencies:
+3. **Install development dependencies:**
    ```bash
    pip install -e ".[dev]"
+   ```
+   The `dev` group installs everything needed to run the project and its test suite — the core dependencies (`numpy`, `pandas`, `scipy`, `matplotlib`) are pulled in automatically, and `dev` adds `pytest`, `pytest-cov`, `pytest-mpl`, and `pytest-timeout` on top.
+
+   If your PR touches documentation, also install the docs group:
+   ```bash
+   pip install -e ".[dev,docs]"
    ```
 
 ---
 
 ## Roadmap & Issues
 
-The project roadmap is tracked through **GitHub Issues**. Browse the [open issues](https://github.com/RussellSB/pytrendy/issues) to find tasks to pick up, report bugs, or suggest improvements.
+The project roadmap lives in **[GitHub Issues](https://github.com/RussellSB/pytrendy/issues)**. Browse open issues to find tasks to pick up, report bugs, or propose improvements.
 
-Before starting work, check whether a relevant issue already exists. If it does, comment on it to indicate you are working on it. If it doesn't, open a new issue first so the approach can be discussed before code is written.
+Before starting work, check whether a relevant issue already exists. If it does, comment on it to signal you are working on it. If it doesn't, open a new issue first so the approach can be discussed before code is written.
 
 ### Issue Title Conventions
 
-All issue titles follow a `[Tag] Short description` format. The tag indicates the type of work:
+Issue titles follow a `[Tag] Short description` format:
 
 | Tag | Description |
 |---|---|
@@ -40,7 +46,7 @@ All issue titles follow a `[Tag] Short description` format. The tag indicates th
 
 ### Labels
 
-Issues are also tagged with one or more labels for filtering:
+Issues are tagged with one or more labels for filtering:
 
 | Label | Meaning |
 |---|---|
@@ -70,7 +76,14 @@ Branch names should be short and descriptive, e.g. `fix/trend-detection-edge-cas
 
 ## Commit Messages
 
-This project uses the [Conventional Commits](https://www.conventionalcommits.org/) specification. All commit messages **must** follow this format:
+This project uses the [Conventional Commits](https://www.conventionalcommits.org/) specification. Following this format is important because the project uses **semantic-release** to automate versioning and changelog generation — the commit type determines what version bump is applied on release:
+
+- `feat` → minor bump (0.**x**.0)
+- `fix` → patch bump (0.0.**x**)
+- breaking change (with `!` or `BREAKING CHANGE:` in footer) → major bump (**x**.0.0)
+- All other types (`docs`, `ci`, `chore`, etc.) → no version bump
+
+All commit messages **must** follow this format:
 
 ```
 <type>(<scope>): <subject>
@@ -123,43 +136,39 @@ feat!: remove deprecated API endpoint
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 ```
 
-> **Note:** Commit types drive automated versioning. `feat` → minor bump, `fix` → patch bump, breaking changes → major bump.
-
 ---
 
 ## Pull Requests
+
+### PR Title
+
+The PR title is what gets recorded in the changelog when a PR is **squash-merged into `main`**. It must therefore follow the same Conventional Commits format as individual commit messages (`feat: ...`, `fix: ...`, etc.), and should accurately reflect the overall intent of the change.
 
 ### Before Opening a PR
 
 - Ensure your branch is based on `develop` and is up to date with it.
 - Run the full test suite locally: `pytest`
-- Keep the scope of changes focused — one PR should address one issue or concern.
-- Avoid committing unrelated changes, formatting sweeps, or whitespace diffs that are not part of the stated aim.
+- Keep the scope focused — one PR should address one issue or concern.
 
 ### PR Checklist
 
 - [ ] Branch is based off `develop`
 - [ ] PR title follows Conventional Commits format (e.g. `feat: add weekly data support`)
-- [ ] PR is linked to a relevant GitHub issue (use `Closes #<issue-number>` in the description)
+- [ ] PR is linked to a relevant GitHub issue via `Closes #<issue-number>` in the description
 - [ ] Tests are added or updated as appropriate
 - [ ] Documentation is updated if the change affects public behaviour
 
-### Linking Issues
+### Docs Preview
 
-Reference the related issue in your PR description so it is automatically closed on merge:
-
-```
-Closes #55
-```
+Every PR that touches `docs/`, `mkdocs.yml`, or `pytrendy/` automatically builds and deploys a temporary docs preview. A bot will comment on the PR with the URL (`https://russellsb.github.io/pytrendy/pr-<N>/`) so reviewers can browse the rendered site without running anything locally. The preview is removed when the PR is closed.
 
 ---
 
 ## Code Style
 
-- Follow existing code patterns in the module you are editing.
-- Write docstrings in [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
-- Add type hints to all public functions.
-- Do not leave debug prints or commented-out code in your PR.
+Follow existing code patterns in the module you are editing. Write docstrings in [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and add type hints to all public functions. Do not leave debug prints or commented-out code in your PR.
+
+Keep your diff clean. Only modify the lines directly relevant to your change — avoid reformatting code you are not touching, and do not introduce stray whitespace, blank-line, or indentation changes as side effects. These make reviews harder and can cause merge conflicts.
 
 ---
 
@@ -171,22 +180,23 @@ Tests live in the `tests/` directory and use `pytest`. To run them:
 pytest
 ```
 
-Every new feature or bug fix should include appropriate test coverage. See [testing practices](../pyproject.toml) and existing tests for patterns to follow.
+Every new feature or bug fix should include appropriate test coverage. See existing tests for patterns to follow.
 
 ---
 
 ## Documentation
 
-Docs are built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). To preview locally:
+Docs are built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). To preview locally, install the docs group first (see [Getting Started](#getting-started)), then run:
 
 ```bash
 mkdocs serve
 ```
 
-If you are adding a new page, register it under `nav:` in `mkdocs.yml`.
+If you are adding a new page, register it under `nav:` in `mkdocs.yml`. For docs-only PRs, the automated preview (see [Docs Preview](#docs-preview)) is a convenient way to share the rendered output with reviewers.
 
 ---
 
 ## Asking for Help
 
-If you are unsure about anything, feel free to open a [Discussion](https://github.com/RussellSB/pytrendy/discussions) or comment directly on the relevant issue. The maintainers are happy to guide you in the right direction.
+If you are unsure about anything, feel free to open a [Discussion](https://github.com/RussellSB/pytrendy/discussions) or comment on the relevant issue. The maintainers are happy to guide you in the right direction.
+

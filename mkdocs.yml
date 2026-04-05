@@ -2,7 +2,6 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
-  - Contributing: contributing.md
   - Example Gallery:
     - Overview: examples/index.md
     - Fundamentals:
@@ -10,6 +9,7 @@ nav:
       - Abrupt: examples/fundamentals/abrupt.ipynb
       - Noise: examples/fundamentals/noise.ipynb
   - API Reference: reference
+  - Contribution Guide: contributing.md
 
 theme: 
   name: material # flatly, material, minty
