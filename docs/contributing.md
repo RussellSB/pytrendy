@@ -184,3 +184,9 @@ mkdocs serve
 ```
 
 If you are adding a new page, register it under `nav:` in `mkdocs.yml`.
+
+---
+
+## Asking for Help
+
+If you are unsure about anything, feel free to open a [Discussion](https://github.com/RussellSB/pytrendy/discussions) or comment directly on the relevant issue. The maintainers are happy to guide you in the right direction.
