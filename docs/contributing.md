@@ -142,7 +142,7 @@ BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 
 ### PR Title
 
-The PR title is what gets recorded in the changelog when a PR is **squash-merged into `main`**. It must therefore follow the same Conventional Commits format as individual commit messages (`feat: ...`, `fix: ...`, etc.), and should accurately reflect the overall intent of the change.
+The PR title is what gets recorded in the changelog when a PR is **squash-merged into `develop`**. It must therefore follow the same Conventional Commits format as individual commit messages (`feat: ...`, `fix: ...`, etc.), and should accurately reflect the overall intent of the change.
 
 ### Before Opening a PR
 
