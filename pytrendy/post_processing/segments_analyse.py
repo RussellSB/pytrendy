@@ -60,6 +60,12 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
             segment_enhanced['pct_change'] = (
                 float(val_min / val_max - 1) if val_max != 0 else np.nan
             )
+        # I think this should capture all other segment types
+        else:
+            abs_change = float(abs(val_max - val_min))
+            segment_enhanced['change'] = abs_change
+            mean_val = df_segment[value_col].mean()
+            segment_enhanced['pct_change'] = (float(abs_change / mean_val * 100) if mean_val != 0 else np.nan)
 
         # Calculate days & cumulative total change
         days = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
@@ -68,8 +74,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         segment_enhanced['days'] = days # set days
 
         # Calculate cumulative total change
-        if segment['direction'] in ['Up', 'Down']:
-            segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())
+        segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())
 
         # Calculate Signal to Noise Ratio
         signal_power = np.mean(df_segment['signal']**2)
@@ -83,7 +88,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
 
     # Rank change, by steepest to shallowest change
     sorted_segments = sorted(segments_enhanced, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
-    sorted_trends = [seg for seg in sorted_segments if 'total_change' in seg and abs(seg['total_change']) > 0]
+    sorted_trends = [seg for seg in sorted_segments if 'total_change' in seg]
     for i, seg in enumerate(sorted_trends):
         j = seg['time_index'] - 1
         segments_enhanced[j]['change_rank'] = int(i+1)
