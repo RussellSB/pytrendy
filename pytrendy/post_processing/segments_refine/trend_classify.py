@@ -33,6 +33,9 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
 
     for i, segment in enumerate(segments):
 
+        if segment['direction'] not in ['Up', 'Down']: 
+            continue
+
         # Assume some padding for abrupt cases
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
         end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
@@ -53,7 +56,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
             else:
                 segments_classified[i]['trend_class'] = 'abrupt'
         
-        elif segment['direction'] == 'Down': 
+        if segment['direction'] == 'Down': 
 
             _, cost_gradual_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['gradual_down'])
             _, cost_abrupt_down, _, _, _ = dtw(df_segment['value_cleaned'], df_class['abrupt_down'])
@@ -67,18 +70,18 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
             else:
                 segments_classified[i]['trend_class'] = 'abrupt'
 
-        elif segment['direction'] == 'Flat':
-            segments_classified[i]['trend_class'] = 'flat'
-
-        elif segment['direction'] == 'Noise':
-            segments_classified[i]['trend_class'] = 'noise'
-            
-        else:
-            segments_classified[i]['trend_class'] = 'unknown'
-
         # Final condition, hard-classify graduals as abrupt if too short
         segment_length = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
         if segment_length < 3:
             segments_classified[i]['trend_class'] = 'abrupt'
 
+    for segment in segments_classified:
+        if 'trend_class' not in segment:
+            if segment['direction'] == 'Flat':
+                segment['trend_class'] = 'flat'
+            elif segment['direction'] == 'Noise':
+                segment['trend_class'] = 'noise'
+            else:
+                segment['trend_class'] = 'unknown'
+                
     return segments_classified

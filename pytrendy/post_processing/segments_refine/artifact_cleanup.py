@@ -311,11 +311,11 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         # Reclassify as noise if either edge cases met
         if too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise:
             segment['direction'] = 'Noise' 
-            if 'trend_class' in segment: del segment['trend_class']
+            segment['trend_class'] = 'noise'
 
         if trend_ends_too_close or trend_too_small or trend_too_flat:
             segment['direction'] = 'Flat' 
-            if 'trend_class' in segment: del segment['trend_class']
+            segment['trend_class'] = 'flat'
         
         segments_refined.append(segment)
 

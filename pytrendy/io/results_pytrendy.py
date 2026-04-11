@@ -33,13 +33,12 @@ class PyTrendyResults:
         
             - `results.best` returns best based on `total_change` (cumulative sum of differences). 
             - Identifies the best trend segment based on steepness and duration.
-            - The segment with the lowest `change_rank` among Up/Down directions is selected as the best.
+            - The segment with the lowest `change_rank` is selected as the best.
         """
-        trends = [seg for seg in self.segments if seg.get('direction') in ['Up', 'Down']]
-        if not trends:
+        if len(self.segments) == 0 or not any('change_rank' in segment for segment in [s for s in self.segments if s.get('direction') in ['Up', 'Down']]):
             self.best = None
             return
-        self.best = min(trends, key=lambda x: x.get('change_rank', math.inf))
+        self.best = min(self.segments, key=lambda x: x.get('change_rank', math.inf))
 
     def set_summary(self) -> None:
         """
