@@ -42,7 +42,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
             init_segment = init_segments[i]
             is_not_prev_trend = 'trend_class' not in init_segment # edge case, in case not trend before
             is_not_reclassified = is_not_prev_trend or segment['trend_class'] == init_segment['trend_class']
-            if is_not_reclassified: continue # exit if not re-classified for sake of second pass
+            if is_not_reclassified:
+                continue # exit if not re-classified for sake of second pass
 
         # Get start end padded for some leniency
         start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)

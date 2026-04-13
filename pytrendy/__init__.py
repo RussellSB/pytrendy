@@ -101,5 +101,4 @@ Use PyTrendy to run end-to-end trend detection, visualize results, and interact 
 from .detect_trends import detect_trends
 from .io.data_loader import load_data
 from .io.plot_pytrendy import plot_pytrendy
-from .io.results_pytrendy import PyTrendyResults
 from .simpledtw import dtw
