@@ -54,7 +54,7 @@ class PyTrendyResults:
         # Exit if nothing to report on
         if len(self.segments) == 0:
             summary['df'] = pd.DataFrame()
-            return        
+            return
 
         # Count the number of segments per direction type (Up, Down, Flat, Noise)
         direction_counts = Counter(seg["direction"] for seg in self.segments)
