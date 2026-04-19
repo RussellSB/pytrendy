@@ -1647,16 +1647,7 @@
 <span class="normal">75</span>
 <span class="normal">76</span>
 <span class="normal">77</span>
-<span class="normal">78</span>
-<span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">78</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Classifies segments as &#39;gradual&#39; or &#39;abrupt&#39; using DTW against reference signals.</span>
 
@@ -1720,15 +1711,6 @@
         <span class="n">segment_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span>
         <span class="k">if</span> <span class="n">segment_length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;abrupt&#39;</span>
-
-    <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments_classified</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s1">&#39;trend_class&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Flat&#39;</span><span class="p">:</span>
-                <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;flat&#39;</span>
-            <span class="k">elif</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span><span class="p">:</span>
-                <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;noise&#39;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;unknown&#39;</span>
 
     <span class="k">return</span> <span class="n">segments_classified</span>
 </code></pre></div></td></tr></table></div>
