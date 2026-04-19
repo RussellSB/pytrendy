@@ -16,7 +16,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
 
     Metrics added include:
     
-    - Absolute and percent change (based on min/max values)
+    - Absolute and percent change (based on start/end values)
 
     - Duration in days
 
@@ -47,25 +47,10 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         df_segment = df.loc[segment['start']:segment['end']]
 
         # Calculate absolute and relative change from first point to last point of trend.
-        # (Using min/max instead of first/last to be more robust to noise.)
-        val_min = df_segment[value_col].min()
-        val_max = df_segment[value_col].max()
-        if segment['direction'] == 'Up':  # max - min
-            segment_enhanced['change'] = float(val_max - val_min)
-            segment_enhanced['pct_change'] = (
-                float(val_max / val_min - 1) if val_min != 0 else np.nan
-            )
-        elif segment['direction'] == 'Down':  # min - max
-            segment_enhanced['change'] = float(val_min - val_max)
-            segment_enhanced['pct_change'] = (
-                float(val_min / val_max - 1) if val_max != 0 else np.nan
-            )
-        # I think this should capture all other segment types
-        else:
-            abs_change = float(abs(val_max - val_min))
-            segment_enhanced['change'] = abs_change
-            mean_val = df_segment[value_col].mean()
-            segment_enhanced['pct_change'] = (float(abs_change / mean_val * 100) if mean_val != 0 else np.nan)
+        val_start = df_segment[value_col].iloc[0]
+        val_end = df_segment[value_col].iloc[-1]
+        segment_enhanced['change'] = float(val_end - val_start)
+        segment_enhanced['pct_change'] = (float(val_end / val_start - 1) if val_start != 0 else np.nan)
 
         # Calculate days & cumulative total change
         days = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
