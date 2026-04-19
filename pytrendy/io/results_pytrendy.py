@@ -23,6 +23,8 @@ class PyTrendyResults:
                 List of dictionaries representing individual trend segments.
         """
         self.segments = segments
+        self.trend_segments = [seg for seg in self.segments if 'trend_class' in seg] # Get segments that are trends (exclude flats and noise)
+        
         self.set_best()
         self.set_df()
         self.set_summary()
@@ -35,10 +37,10 @@ class PyTrendyResults:
             - Identifies the best trend segment based on steepness and duration.
             - The segment with the lowest `change_rank` is selected as the best.
         """
-        if len(self.segments) == 0 or not any('change_rank' in segment for segment in self.segments):
+        if len(self.trend_segments) == 0:
             self.best = None
             return
-        self.best = min(self.segments, key=lambda x: x.get('change_rank', math.inf))
+        self.best = min(self.trend_segments, key=lambda x: x.get('change_rank', math.inf))
 
     def set_summary(self) -> None:
         """
@@ -52,21 +54,25 @@ class PyTrendyResults:
         # Exit if nothing to report on
         if len(self.segments) == 0:
             summary['df'] = pd.DataFrame()
-            return
+            return        
 
+        # Count the number of segments per direction type (Up, Down, Flat, Noise)
         direction_counts = Counter(seg["direction"] for seg in self.segments)
         summary["direction_counts"] = dict(direction_counts)
         
-        trend_class_counts = Counter(seg["trend_class"] for seg in self.segments if "trend_class" in seg)
+        # Count number of segments per trend classs (abrupt, gradual)
+        trend_class_counts = Counter(seg["trend_class"] for seg in self.trend_segments)
         summary["trend_class_counts"] = dict(trend_class_counts)
 
-        changes = [seg.get("total_change", 0) for seg in self.segments if "total_change" in seg]
+        # Get array of total change from trends and get max (best) total change
+        changes = [seg.get("total_change", 0) for seg in self.trend_segments]
         summary['highest_total_change'] = np.max(changes) if len(changes) > 0 else None
 
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
-        cols = ['time_index', 'direction', 'start', 'end', 'days']
-        if len(changes) > 1: cols += ['total_change', 'change_rank', 'trend_class']
+        cols = ['time_index', 'direction', 'start', 'end', 'days', 'total_change', 'change_rank']
+        if len(changes) > 1:  #  only include trend_class if atleast one trend exists
+            cols += ['trend_class']
         df = df[cols]
 
         df = df.set_index('time_index')
