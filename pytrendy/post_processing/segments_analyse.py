@@ -88,7 +88,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
 
     # Rank change, by steepest to shallowest change
     sorted_segments = sorted(segments_enhanced, key=lambda x: abs(x.get('total_change', 0)), reverse=True)
-    sorted_trends = [seg for seg in sorted_segments if 'total_change' in seg]
+    sorted_trends = [seg for seg in sorted_segments]
     for i, seg in enumerate(sorted_trends):
         j = seg['time_index'] - 1
         segments_enhanced[j]['change_rank'] = int(i+1)
