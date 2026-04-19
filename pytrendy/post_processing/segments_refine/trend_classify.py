@@ -75,4 +75,13 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
         if segment_length < 3:
             segments_classified[i]['trend_class'] = 'abrupt'
 
+    for segment in segments_classified:
+        if 'trend_class' not in segment:
+            if segment['direction'] == 'Flat':
+                segment['trend_class'] = 'flat'
+            elif segment['direction'] == 'Noise':
+                segment['trend_class'] = 'noise'
+            else:
+                segment['trend_class'] = 'unknown'
+                
     return segments_classified
