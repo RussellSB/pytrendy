@@ -2222,11 +2222,11 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
         <span class="c1"># Reclassify as noise if either edge cases met</span>
         <span class="k">if</span> <span class="n">too_noisy</span> <span class="ow">or</span> <span class="p">(</span><span class="n">is_abrupt_near_noise</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trend_ends_too_close</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_small_gradual_in_noise</span><span class="p">:</span>
             <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Noise&#39;</span> 
-            <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;noise&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span> <span class="k">del</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">trend_ends_too_close</span> <span class="ow">or</span> <span class="n">trend_too_small</span> <span class="ow">or</span> <span class="n">trend_too_flat</span><span class="p">:</span>
             <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Flat&#39;</span> 
-            <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;flat&#39;</span>
+            <span class="k">if</span> <span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span> <span class="k">del</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span>
 
         <span class="n">segments_refined</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
 

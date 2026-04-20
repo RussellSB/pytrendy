@@ -1541,7 +1541,7 @@ helping to validate the significance of each detected segment.</p>
 <p>Metrics added include:</p>
 <ul>
 <li>
-<p>Absolute and percent change (based on min/max values)</p>
+<p>Absolute and percent change (based on start/end values)</p>
 </li>
 <li>
 <p>Duration in days</p>
@@ -1677,22 +1677,7 @@ helping to validate the significance of each detected segment.</p>
 <span class="normal">77</span>
 <span class="normal">78</span>
 <span class="normal">79</span>
-<span class="normal">80</span>
-<span class="normal">81</span>
-<span class="normal">82</span>
-<span class="normal">83</span>
-<span class="normal">84</span>
-<span class="normal">85</span>
-<span class="normal">86</span>
-<span class="normal">87</span>
-<span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">80</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Enhances trend segments with quantitative metrics and rankings.</span>
 
@@ -1705,7 +1690,7 @@ helping to validate the significance of each detected segment.</p>
 
 <span class="sd">    Metrics added include:</span>
 
-<span class="sd">    - Absolute and percent change (based on min/max values)</span>
+<span class="sd">    - Absolute and percent change (based on start/end values)</span>
 
 <span class="sd">    - Duration in days</span>
 
@@ -1736,25 +1721,10 @@ helping to validate the significance of each detected segment.</p>
         <span class="n">df_segment</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]:</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]]</span>
 
         <span class="c1"># Calculate absolute and relative change from first point to last point of trend.</span>
-        <span class="c1"># (Using min/max instead of first/last to be more robust to noise.)</span>
-        <span class="n">val_min</span> <span class="o">=</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-        <span class="n">val_max</span> <span class="o">=</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Up&#39;</span><span class="p">:</span>  <span class="c1"># max - min</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_max</span> <span class="o">-</span> <span class="n">val_min</span><span class="p">)</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;pct_change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">val_max</span> <span class="o">/</span> <span class="n">val_min</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">val_min</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Down&#39;</span><span class="p">:</span>  <span class="c1"># min - max</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_min</span> <span class="o">-</span> <span class="n">val_max</span><span class="p">)</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;pct_change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="nb">float</span><span class="p">(</span><span class="n">val_min</span> <span class="o">/</span> <span class="n">val_max</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">val_max</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-            <span class="p">)</span>
-        <span class="c1"># I think this should capture all other segment types</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">abs_change</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">val_max</span> <span class="o">-</span> <span class="n">val_min</span><span class="p">))</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs_change</span>
-            <span class="n">mean_val</span> <span class="o">=</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
-            <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;pct_change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">abs_change</span> <span class="o">/</span> <span class="n">mean_val</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="k">if</span> <span class="n">mean_val</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+        <span class="n">val_start</span> <span class="o">=</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">val_end</span> <span class="o">=</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">val_end</span> <span class="o">-</span> <span class="n">val_start</span><span class="p">)</span>
+        <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">&#39;pct_change&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_end</span> <span class="o">/</span> <span class="n">val_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">val_start</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
         <span class="c1"># Calculate days &amp; cumulative total change</span>
         <span class="n">days</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span>
