@@ -10,3 +10,4 @@ htmlcov/
 .pytest_cache/
 tests/testtemp.py
 site/
+poetry.lock
