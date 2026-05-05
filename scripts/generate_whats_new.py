@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API.
+"""Generate or update docs/whats-new.md using the GitHub Models API (Claude).
 
 The script:
   1. Reads the latest release notes (from the RELEASE_BODY env var or CHANGELOG.md).
-  2. Calls the GitHub Models API (gpt-4o-mini) to produce a user-friendly
+  2. Calls the GitHub Models API (claude-3-5-haiku) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -42,7 +42,7 @@ CONTENT_START = "<!-- WHATS_NEW_CONTENT_START -->"
 CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 
 GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
-MODEL = "gpt-4o-mini"
+MODEL = "claude-3-5-haiku"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -69,7 +69,7 @@ def _read_changelog_section(tag: str) -> str:
 
 
 def _call_github_models(prompt: str, token: str) -> str | None:
-    """Call the GitHub Models API and return the generated text, or None on failure."""
+    """Call the GitHub Models API (Claude) and return the generated text, or None on failure."""
     system = textwrap.dedent("""\
         You are a technical writer for PyTrendy, a Python library for time-series trend
         detection. Your task is to turn raw CHANGELOG / release-note Markdown into a
@@ -79,10 +79,12 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         Guidelines:
         - Focus on user impact, not internal implementation details.
         - Use clear, plain language aimed at data scientists and analysts.
-        - Use MkDocs Material Markdown: admonitions, tabbed code blocks, tables, and emojis.
-        - Show before/after code examples where behaviour changed.
-        - Group changes under ### sub-headings (✨ New Features, 🐛 Bug Fixes, 🔧 Improvements).
-        - Keep it concise — no padding, no fluff.
+        - Use MkDocs Material Markdown: admonitions, tabbed code blocks (=== "Before" / === "After"),
+          tables, and `??? example "Code"` collapsible blocks to hide code by default.
+        - Keep prose short and lead with visuals (plots) where relevant. Code is secondary.
+        - Use `=== "Before"` / `=== "After"` tabs for behaviour changes where helpful.
+        - Group changes under ### sub-headings (New Features, Bug Fixes, Improvements) — no emojis.
+        - Keep it concise — no padding, no fluff, minimal emoji use.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
     """)
@@ -94,7 +96,7 @@ def _call_github_models(prompt: str, token: str) -> str | None:
             {"role": "user", "content": prompt},
         ],
         "max_tokens": 2000,
-        "temperature": 0.6,
+        "temperature": 0.5,
     }
 
     req = urllib.request.Request(
@@ -148,17 +150,17 @@ def _build_fallback_section(
             other.append(f"- {content}")
 
     if features:
-        lines.append("### ✨ New Features\n")
+        lines.append("### New Features\n")
         lines.extend(features)
         lines.append("")
 
     if fixes:
-        lines.append("### 🐛 Bug Fixes\n")
+        lines.append("### Bug Fixes\n")
         lines.extend(fixes)
         lines.append("")
 
     if other:
-        lines.append("### 🔧 Improvements\n")
+        lines.append("### Improvements\n")
         lines.extend(other)
         lines.append("")
 
@@ -197,10 +199,10 @@ def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
     if is_prerelease:
         base = version.split("-")[0]
         return (
-            f'## 🔬 Coming in v{base} <span class="badge-prerelease">pre-release</span>\n\n'
-            f"*These changes are staged on the `develop` branch and will land in the next stable release.*"
+            f'## Coming in v{base} <span class="badge-prerelease">pre-release</span>\n\n'
+            f"*Staged on the `develop` branch — will land in the next stable release.*"
         )
-    return f"## ✅ Released in v{version}\n\n> Released **{date_str}**"
+    return f"## Released in v{version}\n\n> {date_str}"
 
 
 def _inject_section(file_path: Path, new_block: str) -> None:

@@ -12,6 +12,54 @@
     display: inline-block;
 }
 
+/* ── What's New — before/after image comparison grid ──────────────────────── */
+
+.before-after-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.25rem 0;
+}
+
+@media (max-width: 700px) {
+    .before-after-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.before-after-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.before-after-panel img {
+    width: 100%;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.before-after-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.before-label {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.after-label {
+    background: #dcfce7;
+    color: #15803d;
+}
+
 .badge-beginner {
     background-color: #4CAF50;
     color: white;

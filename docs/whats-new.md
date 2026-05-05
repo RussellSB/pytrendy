@@ -1,188 +1,182 @@
 # What's New
 
-Stay up to date with every PyTrendy release — from user-facing improvements to bug fixes that directly affect your results.
+Stay up to date with every PyTrendy release — changes that affect how you detect trends and interpret results.
 
 !!! tip "Pre-release docs"
     You are viewing the **develop** (pre-release) build.  
-    The section at the top reflects changes that are staged for the next stable release.  
-    Stable-only users can always switch to the **main** docs via the badge in the header.
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## 🔬 Coming in v1.1.11 <span class="badge-prerelease">pre-release</span>
+## Coming in v1.1.11 <span class="badge-prerelease">pre-release</span>
 
-*These changes are merged on the `develop` branch and will land in the next stable release.*
+*Merged on `develop` — will land in the next stable release.*
 
-### 🐛 Bug Fixes
+### Trend detection on normalised time series
 
-**Trend detection on normalised time series**
+`detect_trends()` previously failed to detect any trends when a series was scaled to the `[0, 1]` range (e.g., after min-max normalisation). The detection threshold was absolute, making it too large relative to the signal amplitude.
 
-Previously, `detect_trends()` could fail to detect any trends when the input signal was scaled to the `[0, 1]` range (e.g., after min-max normalisation). The root cause was an absolute threshold that was too large relative to the signal amplitude.
+<div class="before-after-grid" markdown>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — v1.1.10</span>
 
-=== "Before (≤ 1.1.10)"
+![Normalised series — no trends detected in v1.1.10](img/whats_new_low_value_before.png)
 
+</div>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — v1.1.11</span>
+
+![Normalised series — trends correctly detected in v1.1.11](img/whats_new_low_value_after.png)
+
+</div>
+</div>
+
+The same normalised series now returns a correctly detected Up / Flat / Down sequence. See [`test_uncommon_values.py`](https://github.com/RussellSB/pytrendy/blob/develop/tests/tests_crashes_edgecases/test_uncommon_values.py) for the regression test.
+
+??? example "Code"
     ```python
-    import numpy as np, pandas as pd
+    import pandas as pd
     from pytrendy import detect_trends
 
-    # Values all within [0, 1]
-    dates = pd.date_range("2024-01-01", periods=60, freq="D")
-    values = np.linspace(0.1, 0.9, 60)          # clear uptrend, tiny scale
-    df = pd.DataFrame({"date": dates, "value": values})
-
-    result = detect_trends(df)
-    print(result.df)  # ← could return empty DataFrame
+    df = pd.read_csv("low_value_series.csv")   # values in [0, 1]
+    result = detect_trends(df, date_col="date", value_col="trend")
+    print(result.df[["start", "end", "direction"]])
     ```
 
-=== "After (v1.1.11+)"
+### Metrics for all segment types
 
-    ```python
-    import numpy as np, pandas as pd
-    from pytrendy import detect_trends
-
-    dates = pd.date_range("2024-01-01", periods=60, freq="D")
-    values = np.linspace(0.1, 0.9, 60)          # same data, now correctly detected
-    df = pd.DataFrame({"date": dates, "value": values})
-
-    result = detect_trends(df)
-    print(result.df)  # ← returns the detected gradual uptrend
-    ```
-
-**Metrics for all segment types**
-
-Segment metrics (e.g., `change_rate`, `change_rank`) were not being computed for every trend type. This patch ensures all output rows carry complete metric columns regardless of classification.
+Segment metrics (`change_rate`, `change_rank`) were not computed for every trend type. All output rows now carry complete metric columns regardless of classification.
 
 ---
 
-## ✅ Released in v1.1.10
+## Released in v1.1.10
 
-> Released **2026-03-21**
+> 2026-03-21
 
-### 🧪 Testing
+### Automated tests for noise edge cases
 
-- Comprehensive automated tests were added for noise-related edge cases and crash scenarios, reaching full code coverage for the noise detection module.
-- Artefact-cleaning helpers were refactored to be more testable and deterministic.
-- Several `pytest-mpl` baseline images were corrected.
+Comprehensive automated tests were added for noise-related edge cases and crash scenarios, reaching full code coverage for the noise detection module. Artefact-cleaning helpers were refactored to be more testable.
 
 ---
 
-## ✅ Released in v1.1.9
+## Released in v1.1.9
 
-> Released **2026-02-07**
+> 2026-02-07
 
-### 🐛 Bug Fixes
+### Improved spike precision
 
-- Improved spike precision in noise detection for signals that contain a single dominant outlier surrounded by otherwise stable values.
+Noise detection is now more precise for signals with a single dominant outlier spike surrounded by otherwise stable values.
 
 ---
 
-## ✅ Released in v1.1.8
+## Released in v1.1.8
 
-> Released **2025-11-15**
+> 2025-11-15
 
-### 🐛 Bug Fixes — Noise & Flat Detection
-
-A focused round of improvements to two of the trickiest parts of the pipeline:
+### Noise & flat detection improvements
 
 | Area | What changed |
 |---|---|
-| **Flat fill-in** | Now covers regions that fall outside any detected segment range, preventing visual white gaps |
-| **Flat fill-in** | Correctly skips zero-day leading / trailing regions and handles grouped segments |
-| **Noise detection** | Better precision when a spike sits on an otherwise flat-zero signal |
-| **Noise detection** | Improved sensitivity when flat conversions emerge from noisy gradual trends |
-| **Noise detection** | Handles the "semi-flat gradual in noise" edge case; `trend_too_flat` is now treated as flat rather than noise |
-| **Noise detection** | Relies on the actual signal (not the smoothed derivative) for up/down classification, reducing the need for artefact cleaning downstream |
+| Flat fill-in | Covers regions outside any detected segment range — no more visual white gaps |
+| Flat fill-in | Skips zero-day leading/trailing regions; robust to grouped segments |
+| Noise detection | Better precision for a spike on an otherwise flat-zero signal |
+| Noise detection | Improved sensitivity when flat conversions emerge from noisy gradual trends |
+| Noise detection | `trend_too_flat` is now treated as flat rather than noise |
+| Noise detection | Up/down classification relies on the actual signal, reducing downstream artefact-cleaning needs |
 
 ---
 
-## ✅ Released in v1.1.7
+## Released in v1.1.7
 
-> Released **2025-11-01**
+> 2025-11-01
 
-### 🐛 Bug Fixes
+### Bug fixes
 
 - **Expand-contract:** gradual trends can now be retroactively updated when a newer gradual changes the reference baseline.
-- **Noise detection:** several edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping checks were resolved.
-- **Plot:** visual displacement is now only applied when it does not break the up/down direction contract.
+- **Noise detection:** several edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping checks resolved.
+- **Plot:** visual displacement is only applied when it does not break the up/down direction contract.
 
 ---
 
-## 🚀 Released in v1.1.0
+## Released in v1.1.0
 
-> Released **2025-10-15** — *Minor version: new features & major robustness overhaul*
+> 2025-10-15 — *Minor version with new features and a major robustness overhaul*
 
-This release represents the most significant update to PyTrendy's core engine since the initial launch.
+### Flat fill-in
 
-### ✨ New Feature — Flat Fill-In
+Gaps between classified segments are now automatically filled with a **Flat** segment, so the output always covers the full input time range without gaps.
 
-Gaps between classified segments are now automatically filled with a **flat** segment, so the output completely covers the input time range.
+### Gradual trend detection
 
-```python
-result = detect_trends(df)
-print(result.df)
-# Every day is now classified — no more unexplained gaps in the output
-```
+<figure markdown>
+  ![Gradual trend detection output](img/whats_new_gradual.png)
+  <figcaption>A gradual uptrend, flat, and gradual downtrend — correctly classified over the full series.</figcaption>
+</figure>
 
-### ✨ New Feature — Improved Results Interface
+??? example "Code"
+    ```python
+    import pytrendy as pt
 
-The `TrendyResults` object gained two cleaner access patterns:
+    df = pt.load_data("series_synthetic")
+    result = pt.detect_trends(df, date_col="date", value_col="gradual")
+    print(result.df[["start", "end", "direction", "change_rank"]])
+    ```
 
-=== "Before (≤ 1.0.x)"
+### Abrupt trend detection
+
+<figure markdown>
+  ![Abrupt trend detection output](img/whats_new_abrupt.png)
+  <figcaption>Abrupt step-changes are shaved to their precise boundaries, with padding applied around each jump.</figcaption>
+</figure>
+
+### Improved results interface
+
+=== "Before (v1.0.x)"
 
     ```python
-    segments_df = result.segments_df          # detailed rows
-    summary_df  = result.summary["df"]        # summarised view
+    segments_df = result.segments_df
+    summary_df  = result.summary["df"]
     ```
 
 === "After (v1.1.0+)"
 
     ```python
-    segments_df = result.df                   # detailed rows (shorter alias)
-    summary_df  = result.df_summary           # summarised view (direct attribute)
+    segments_df = result.df          # shorter alias
+    summary_df  = result.df_summary  # direct attribute
     ```
 
-Both the old and new names continue to work in v1.1.x.
+### Core processing revamp
 
-### 🔧 Core Signal Processing Revamp
+The signal processing and post-processing pipeline was extensively reworked ([#8](https://github.com/RussellSB/pytrendy/issues/8)):
 
-The signal processing and post-processing pipeline underwent a **major revamp** ([#8](https://github.com/RussellSB/pytrendy/issues/8)):
-
-- Much more robust handling of edge cases across all trend types.
-- Abrupt trend detection improved with better shaving, sub-segmentation, and direction-sensitivity.
-- Gradual swallowing logic now stretches flexibly across neighbouring segment adjustments.
-- Grouping logic updated: abrupt segments that are exactly touching are now correctly grouped.
-
-### 🐛 Highlights from the Bug Fix Backlog
-
-- `has_inverse()` now also validates total-change consistency, not just direction.
-- Windows path separators now handled correctly in the data loader.
-- `detect_trends()` is now robust to wide DataFrames that contain non-numeric string columns.
-- Fixed a crash when no segments are detected (rare, but possible in real-world data).
+- More robust handling of edge cases across all trend types.
+- Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity.
+- Gradual swallowing stretches flexibly across neighbouring segment adjustments.
+- Touching consecutive abrupt segments are now correctly grouped.
 
 ---
 
-## 📦 Released in v1.0.x
+## Released in v1.0.x
 
-> Initial releases — **August–September 2025**
+> August–September 2025 — *initial release*
 
-### 🎉 Initial Release (v1.0.0)
+PyTrendy launched with gradual, abrupt, and flat trend detection in a single call:
 
-PyTrendy launched with:
+<figure markdown>
+  ![Gradual trend detection — initial release](img/whats_new_gradual.png)
+  <figcaption>Out-of-the-box annotated chart from <code>result.plot()</code>.</figcaption>
+</figure>
 
-- **Gradual trend detection** — identify slow, sustained up or down movements.
-- **Abrupt trend detection** — pinpoint sharp, step-like changes in a signal.
-- **Flat detection** — recognise periods of no meaningful movement.
-- **One-line API:**
+??? example "Quick start"
+    ```python
+    from pytrendy import detect_trends, load_data
 
-  ```python
-  from pytrendy import detect_trends
-  result = detect_trends(df, value_col="sales", date_col="date")
-  result.plot()
-  ```
-
-- **Segment summary** with change magnitude, direction, and duration.
-- **Matplotlib integration** — `result.plot()` renders an annotated time-series chart out of the box.
+    df = load_data("series_synthetic")
+    result = detect_trends(df, value_col="gradual", date_col="date")
+    result.plot()
+    ```
 
 <!-- WHATS_NEW_CONTENT_END -->
