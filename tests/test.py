@@ -31,7 +31,7 @@ df.loc['2025-02-16':'2025-03-10', 'abrupt'] = 125 #TODONE: cater for this abrupt
 df.loc['2025-03-18':'2025-04-15', 'abrupt'] = 150
 df.loc['2025-03-20':'2025-04-22', 'abrupt'] = 250
 df.loc['2025-03-25':'2025-04-01', 'abrupt'] = 200 
-results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt', method_params=dict(is_abrupt_padded=False))
+results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt')
 
 #%%
 # synth 2 - 1 spike
@@ -81,17 +81,17 @@ results = pt.detect_trends(df.reset_index(), date_col='date', value_col='abrupt'
 #%%
 # original test case 1: gradual
 df = pt.load_data('series_synthetic')
-results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 #%%
 # original test case 2.1: abrupt
 df = pt.load_data('series_synthetic')
-results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=False)) # TODONE: Fix downtrend from 2nd pass shave
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True) # TODONE: Fix downtrend from 2nd pass shave
 
 #%%
 # original test case 2.2: abrupt padded
 df = pt.load_data('series_synthetic')
-results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(abrupt_padding=28)) 
 
 # ---------- Random Noise
 
@@ -111,7 +111,7 @@ for noise_std in [50]*1:                                        #TODONE: improve
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(abrupt_padding=28))
 
 # %%
 # noise test 3 - run till crashes
@@ -120,7 +120,7 @@ for noise_std in [10]*1: #[0, 10, 15, 20,50]
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(abrupt_padding=28))
 
 # %%
 # noise test 4 - checking more edge cases
@@ -129,11 +129,11 @@ for noise_std in [20]*1: #[0, 10, 15, 20,50]
     print(f'Noise value: {noise_std}')
     df = pt.load_data('series_synthetic')
     df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
-    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+    results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(abrupt_padding=28))
 
 # %%
 # Temp
-results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(df, date_col='date', value_col='value_noisy', method_params=dict(abrupt_padding=28))
 
 # ---------- Graduals and Spikes
 
@@ -144,7 +144,7 @@ df.set_index('date', inplace=True)
 df.loc['2025-03-25':'2025-03-25', 'gradual'] = 200 # TODONE: Reopened. fix white gap after noise from final clean artifact # TODONE: still detect precisely after generelisation # TODONE: improve that it doesnt cover full one noise spike. #TODONE: improve that bad red stretches good green change rank 2
 # TODO: Reopened. fix that neglects downtrend start, on left of noise
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(abrupt_padding=28))
 
 # %%
 # spike test 1.1 - add a spike 
@@ -152,7 +152,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-06':'2025-04-06', 'gradual'] = 200 # TODONE: fix noise artifact on right # DONE: fix displaced noise on left
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(abrupt_padding=28))
 
 # %%
 # spike test 1.2 - add 3 spikes
@@ -162,7 +162,7 @@ df.loc['2025-04-08':'2025-04-08', 'gradual'] = 200
 df.loc['2025-05-08':'2025-05-08', 'gradual'] = 200 # TODONE: understand why uncovering this, changes noise at 04-08 to be tighter, and removes flats at beginning
 df.loc['2025-06-08':'2025-06-08', 'gradual'] = 200 # TODONE: improved fill in flats to also cover the end # TODONE: still detect precisely after generelisation # TODONE: fix hang up on abrupt shave # TODONE: fix displaced downtrend on right
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=True))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(abrupt_padding=28))
 
 # %%
 # spike test 1.3 - add 3 spikes
@@ -170,7 +170,7 @@ df = pt.load_data('series_synthetic')
 df.set_index('date', inplace=True)
 df.loc['2025-04-08':'2025-04-08', 'gradual'] = 250 # TODO: see if noise could be any more precise TODONE: fix white gap. TODONE: still detect precisely after generelisation # TODONE: fix hang up on abrupt shave (also messes up for 250)
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 # %%
 # spike test 1.4 - add 3 spikes
@@ -180,7 +180,7 @@ df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
 df.loc['2025-05-06':'2025-05-06', 'gradual'] = 200 # TODONE: fix white gap. TODONE: still detect precisely after generelisation #TODONE: make sure still detects after noise changes #TODONE: fix that it doesnt cover noise in middle # TODONE: fix that it kills uptrend on left
 # df.loc['2025-04-09':'2025-04-09', 'gradual'] = 100
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 # %%
 # spike test 1.5 - add 3 spikes
@@ -190,7 +190,7 @@ df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
 df.loc['2025-06-03':'2025-06-03', 'gradual'] = 350 # TODONE: fix white gap. TODONE: still detect precisely after generelisation # TODONE: make sure it detects this noise, right now it overcasts with a red (also with 350, 250)
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 # %%
 # spike test 1.6 - add 3 spikes
@@ -200,7 +200,7 @@ df.loc['2025-02-17':'2025-02-17', 'gradual'] = 100
 df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
 df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 # TODONE: fix white gap. TODONE: still detect precisely after generelisation # DONE: fix far right wont be exact, group then shave
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 
 # %%
@@ -212,7 +212,7 @@ df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
 df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
 df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 
 df = df.reset_index()
-results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True, method_params=dict(is_abrupt_padded=False))
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 
 
 # ---------- Previous Edge Case Instances from Noise (dont crash, but not perfect logic)
@@ -222,47 +222,47 @@ results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plo
 edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
 
 #%%
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_11', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_11', method_params=dict(abrupt_padding=28)) 
 
 # %%
 #TODONE: same result with padded False and True  # TODONE: get rid of green 05-23 on true padded # TODONE: make sure detects trends 04-15 - 05-20 (and up on padded true)
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_10', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_10', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODONE: make sensitive to flats, but be sensitive to up from 03-01 and 04-16
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_9', method_params=dict(is_abrupt_padded=False)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_9') 
 
 # %%
 # TODONE: 03-18 upwards should be flat/noise # TODONE: 05-08 upwards end should be one day longer
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_8', method_params=dict(is_abrupt_padded=False)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_8') 
 
 # %%
 # TODONE: 05-16 too small a red when padded is False
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_7', method_params=dict(is_abrupt_padded=False)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_7') 
 
 # %%
 # TODONE: 03-09 too small a green
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_6', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_6', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODONE: 05-01 green overlaps blue
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_5', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_5', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODONE: 02-25 should be noise not up # TODONE: red overlaps green 04-01
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_4', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_4', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODONE: 03-02 could be noise
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_3', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_3', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODONE: fix green at 03-01 start that should be too tiny for significance
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_2', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_2', method_params=dict(abrupt_padding=28)) 
 
 # %%
 # TODO: double check why 23 instead of 24 like in test # TODONE: fix when green overlaps red
-results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_1', method_params=dict(is_abrupt_padded=True)) 
+results = pt.detect_trends(edgecases_df.reset_index(), date_col='date', value_col='noisy_edgecase_1', method_params=dict(abrupt_padding=28)) 
 
 # ---------- Previous Crash Instances
 
@@ -273,25 +273,25 @@ crashes_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_crashes.csv')
 
 # %%
 # TODONE: fix when padded out of bound # TODONE: crash fix
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_7', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_7', method_params=dict(abrupt_padding=28)) # TODONE: doesnt crash now
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_6', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_6', method_params=dict(abrupt_padding=28)) # TODONE: doesnt crash now
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_5', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_5', method_params=dict(abrupt_padding=28)) # TODONE: doesnt crash now
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_4', method_params=dict(is_abrupt_padded=True)) # TODONE: doesnt crash now
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_4', method_params=dict(abrupt_padding=28)) # TODONE: doesnt crash now
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_2', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash_2', method_params=dict(abrupt_padding=28))
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='noisy_crash', method_params=dict(abrupt_padding=28))
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp', method_params=dict(is_abrupt_padded=True))
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp', method_params=dict(abrupt_padding=28))
 
 # %%
-results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp_2', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
+results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp_2', method_params=dict(abrupt_padding=28)) # TODONE: fix hangup

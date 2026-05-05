@@ -41,8 +41,7 @@ def compare_debug(monkeypatch: pytest.MonkeyPatch, df: pd.DataFrame, date_col: s
         date_col='date',
         value_col='gradual',
         plot=False,
-        debug=True,
-        method_params=dict(is_abrupt_padded=False)
+        debug=True
     )
     
     results_no_debug = pt.detect_trends(
@@ -50,8 +49,7 @@ def compare_debug(monkeypatch: pytest.MonkeyPatch, df: pd.DataFrame, date_col: s
         date_col='date',
         value_col='gradual',
         plot=False,
-        debug=False,
-        method_params=dict(is_abrupt_padded=False)
+        debug=False
     )
 
     return results_debug, results_no_debug
@@ -95,7 +93,6 @@ class TestDebug:
             date_col='date',
             value_col='gradual',
             plot=False,
-            debug=True,
-            method_params=dict(is_abrupt_padded=False)
+            debug=True
         )
         assert len(show_calls) == 7

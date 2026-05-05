@@ -22,8 +22,7 @@ class TestCoreCases:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected segments based on current behavior
@@ -49,8 +48,7 @@ class TestCoreCases:
             df,
             date_col='date',
             value_col='abrupt',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         # Expected segments based on current behavior
         expected_segments = [
@@ -72,7 +70,7 @@ class TestCoreCases:
             date_col='date',
             value_col='abrupt',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         # Expected segments based on current behavior
         expected_segments = [

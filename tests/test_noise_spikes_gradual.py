@@ -43,7 +43,7 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the spike
@@ -86,7 +86,7 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the spike
@@ -146,7 +146,7 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the three spikes
@@ -190,8 +190,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the spike
@@ -230,8 +229,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the two spikes
@@ -280,8 +278,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the three spikes
@@ -322,8 +319,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the three spikes
@@ -365,8 +361,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the four spikes
@@ -429,8 +424,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Test for missing gaps by asserting for same-day flats

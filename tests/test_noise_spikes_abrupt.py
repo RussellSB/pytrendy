@@ -44,8 +44,7 @@ class TestNoiseSpikesAbrupt:
             df.reset_index(),
             date_col='date',
             value_col='abrupt',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected segments based on current behavior

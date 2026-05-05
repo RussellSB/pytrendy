@@ -51,8 +51,7 @@ class TestPlotPytrendyEdgeCases:
             df,
             date_col='date',
             value_col='abrupt',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
         return fig
@@ -72,7 +71,7 @@ class TestPlotPytrendyEdgeCases:
         df[date_col] = pd.to_datetime(df[date_col])
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
-        method_params = dict(is_abrupt_padded=False, abrupt_padding=28)
+        method_params = {'abrupt_padding':0}
 
         df = process_signals(df, value_col)
         segments = get_segments(df)
@@ -103,8 +102,7 @@ class TestPlotPytrendyEdgeCases:
             edgecases_df,
             date_col='date',
             value_col='noisy_edgecase_7',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         fig = self._prepare_and_plot(edgecases_df, 'noisy_edgecase_7', results.segments)
@@ -127,8 +125,7 @@ class TestPlotPytrendyEdgeCases:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False) # False, triggers plt.show()
         assert len(show_calls) == 1
