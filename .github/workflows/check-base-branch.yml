@@ -2,7 +2,7 @@ name: Check Base Branch
 
 on:
   pull_request:
-    types: [opened, synchronize]
+    types: [opened, synchronize, ready_for_review]
 
 jobs:
   check-base-branch:
