@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API (Claude).
+"""Generate or update docs/whats-new.md using the GitHub Models API (Claude 3.5 Haiku).
 
 The script:
   1. Reads the latest release notes (from the RELEASE_BODY env var or CHANGELOG.md).
@@ -202,7 +202,7 @@ def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
             f'## Coming in v{base} <span class="badge-prerelease">pre-release</span>\n\n'
             f"*Staged on the `develop` branch — will land in the next stable release.*"
         )
-    return f"## Released in v{version}\n\n> {date_str}"
+    return f"## Released in v{version}\n\n> Released {date_str}"
 
 
 def _inject_section(file_path: Path, new_block: str) -> None:

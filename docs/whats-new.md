@@ -1,6 +1,6 @@
 # What's New
 
-Stay up to date with every PyTrendy release — changes that affect how you detect trends and interpret results.
+Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 !!! tip "Pre-release docs"
     You are viewing the **develop** (pre-release) build.  
@@ -13,7 +13,7 @@ Stay up to date with every PyTrendy release — changes that affect how you dete
 
 ## Coming in v1.1.11 <span class="badge-prerelease">pre-release</span>
 
-*Merged on `develop` — will land in the next stable release.*
+*Merged on the `develop` branch — will land in the next stable release.*
 
 ### Trend detection on normalised time series
 
@@ -54,7 +54,7 @@ Segment metrics (`change_rate`, `change_rank`) were not computed for every trend
 
 ## Released in v1.1.10
 
-> 2026-03-21
+> Released 2026-03-21
 
 ### Automated tests for noise edge cases
 
@@ -64,7 +64,7 @@ Comprehensive automated tests were added for noise-related edge cases and crash 
 
 ## Released in v1.1.9
 
-> 2026-02-07
+> Released 2026-02-07
 
 ### Improved spike precision
 
@@ -74,7 +74,7 @@ Noise detection is now more precise for signals with a single dominant outlier s
 
 ## Released in v1.1.8
 
-> 2025-11-15
+> Released 2025-11-15
 
 ### Noise & flat detection improvements
 
@@ -91,7 +91,7 @@ Noise detection is now more precise for signals with a single dominant outlier s
 
 ## Released in v1.1.7
 
-> 2025-11-01
+> Released 2025-11-01
 
 ### Bug fixes
 
@@ -103,7 +103,7 @@ Noise detection is now more precise for signals with a single dominant outlier s
 
 ## Released in v1.1.0
 
-> 2025-10-15 — *Minor version with new features and a major robustness overhaul*
+> Released 2025-10-15 — *Minor version with new features and a major robustness overhaul*
 
 ### Flat fill-in
 
