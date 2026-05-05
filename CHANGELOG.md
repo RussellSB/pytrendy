@@ -1,12 +1,3 @@
-## [1.1.11](https://github.com/RussellSB/pytrendy/compare/v1.1.10...v1.1.11) (2026-04-01)
-
-
-### Bug Fixes
-
-* add main as base branch in dev release config ([#64](https://github.com/RussellSB/pytrendy/issues/64)) ([08e858f](https://github.com/RussellSB/pytrendy/commit/08e858fb42fd4114112543ae74a4e335676ff85d))
-* resolve develop docs 404 and address unresolved PR [#71](https://github.com/RussellSB/pytrendy/issues/71) review comments ([#72](https://github.com/RussellSB/pytrendy/issues/72)) ([cacabdf](https://github.com/RussellSB/pytrendy/commit/cacabdf557f0b3e2900650c3f6e43fd657603fbe))
-* test prerelease versioning on develop ([#63](https://github.com/RussellSB/pytrendy/issues/63)) ([271a1e2](https://github.com/RussellSB/pytrendy/commit/271a1e2269db377449b9f19ebd5d53de11b32291))
-
 ## [1.1.10](https://github.com/RussellSB/pytrendy/compare/v1.1.9...v1.1.10) (2026-03-21)
 
 
