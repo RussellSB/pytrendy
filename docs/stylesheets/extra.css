@@ -1,5 +1,17 @@
 /* Custom badge styles for tutorials */
 
+.badge-prerelease {
+    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+    color: white;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.72em;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    vertical-align: middle;
+    display: inline-block;
+}
+
 .badge-beginner {
     background-color: #4CAF50;
     color: white;

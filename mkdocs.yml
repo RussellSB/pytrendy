@@ -2,6 +2,7 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
+  - What's New: whats-new.md
   - Example Gallery:
     - Overview: examples/index.md
     - Fundamentals:
