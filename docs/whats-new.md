@@ -2,7 +2,7 @@
 
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
-!!! tip "Pre-release docs"
+!!! note "Pre-release documentation"
     You are viewing the **develop** (pre-release) build.  
     The section at the top reflects changes staged for the next stable release.  
     Switch to the **main** docs via the badge in the header to see only stable content.

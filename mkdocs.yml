@@ -2,7 +2,6 @@ site_name: PyTrendy
 
 nav:
   - Home: index.md
-  - What's New: whats-new.md
   - Example Gallery:
     - Overview: examples/index.md
     - Fundamentals:
@@ -11,6 +10,7 @@ nav:
       - Noise: examples/fundamentals/noise.ipynb
   - API Reference: reference
   - Contribution Guide: contributing.md
+  - What's New: whats-new.md
 
 theme: 
   name: material # flatly, material, minty
