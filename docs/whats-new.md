@@ -56,7 +56,13 @@ Two fixes to trend metrics and normalised input handling.
     All output rows now carry complete metric columns regardless of classification.
     Fix: [#88](https://github.com/RussellSB/pytrendy/issues/88)
 
-    ![result.df with metrics for all segment types](img/whats_new_metrics_after.png)
+    | direction | start | end | pct_change | change_rank |
+    |---|---|---|---|---|
+    | <span style="color:#15803d;font-weight:600">Up</span> | 2000-01-01 | 2000-05-01 | **+42%** | 1 |
+    | <span style="color:#9f6b1a;font-weight:600">Flat</span> | 2000-05-02 | 2000-06-15 | +0% | — |
+    | <span style="color:#b91c1c;font-weight:600">Down</span> | 2000-06-16 | 2000-12-31 | **−38%** | 2 |
+
+    *Before v1.1.11, `pct_change` and `change_rank` were `NaN` for Flat segments.*
 
     ??? example "Code"
         ```python
@@ -127,6 +133,25 @@ A focused series of noise detection improvements, from an initial major revamp t
     Made the noise threshold slightly less sensitive to avoid false positives on near-zero signals.
     ([#16](https://github.com/RussellSB/pytrendy/issues/16))
 
+    Signals where all values are very close to zero were being incorrectly classified as alternating
+    Noise/Flat bands. After the threshold adjustment, the same signal is correctly identified as a
+    single Flat segment.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.1.5</span>
+
+    ![Near-zero flatline — false Noise detections before PR #16](img/whats_new_noise_threshold_before_pr16.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.6</span>
+
+    ![Near-zero flatline — correctly classified as Flat after PR #16](img/whats_new_noise_threshold_after_pr16.png)
+
+    </div>
+    </div>
+
 ??? note "v1.1.5 — abrupt shaving infinite loop"
     Fixed an infinite loop in abrupt shaving when a segment was broken into abrupt sub-segments.
     ([#14](https://github.com/RussellSB/pytrendy/issues/14))
@@ -171,12 +196,54 @@ A focused series of noise detection improvements, from an initial major revamp t
     Improved handling of spike segments that sit on top of gradual trends.
     ([#12](https://github.com/RussellSB/pytrendy/issues/12))
 
+    Previously, a single isolated spike in a gradual trend series was expanded into a wide Noise band
+    spanning several weeks, masking the surrounding Up/Down structure. After the fix, spikes are
+    classified as a tight 1–3 day Noise segment with the gradual trends fully intact on either side.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.1.2</span>
+
+    ![Spike on gradual — wide Noise band before PR #12](img/whats_new_spike_before_pr12.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.3</span>
+
+    ![Spike on gradual — tight Noise segment after PR #12](img/whats_new_spike_after_pr12.png)
+
+    </div>
+    </div>
+
+    Regression test: [`test_gradual_spike_single_mid_series`](https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        df.loc["2025-03-25":"2025-03-25", "gradual"] = 200  # inject spike
+        df = df.reset_index()
+        pt.detect_trends(df, date_col="date", value_col="gradual",
+                         method_params=dict(is_abrupt_padded=True))
+        ```
+
 ---
 
 ## Core Engine & Initial Launch (v1.0.x – v1.1.2)
 
 The foundation of PyTrendy — from initial release through the first major engine overhaul
 that introduced flat fill-in, a cleaner results API, and comprehensive robustness improvements.
+
+### Released in v1.1.1 and v1.1.2
+
+> v1.1.1 — 2025-10-15 · v1.1.2 — 2025-10-15
+
+Patch releases addressing deployment pipeline issues and a relative-import fix introduced
+when v1.1.0 restructured the package layout. No user-facing behaviour changes.
+
+---
 
 ### Released in v1.1.0
 
@@ -250,26 +317,18 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
     Both names continue to work in v1.1.x.
 
-??? note "Core processing revamp"
+??? note "Core processing revamp & bug fixes"
     The signal processing and post-processing pipeline was extensively reworked ([#8](https://github.com/RussellSB/pytrendy/issues/8)):
 
     - More robust handling of edge cases across all trend types.
     - Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity.
+    - **Brown-bug fix:** Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement.
     - Gradual swallowing stretches flexibly across neighbouring segment adjustments.
     - Touching consecutive abrupt segments are now correctly grouped.
     - `has_inverse()` now also validates total-change consistency, not just direction.
     - Windows path separators handled correctly in the data loader.
     - `detect_trends()` is now robust to wide DataFrames containing non-numeric columns.
     - Fixed a crash when no segments are detected.
-
----
-
-### Released in v1.1.1 and v1.1.2
-
-> v1.1.1 — 2025-10-15 · v1.1.2 — 2025-10-15
-
-Patch releases addressing deployment pipeline issues and a relative-import fix introduced
-when v1.1.0 restructured the package layout. No user-facing behaviour changes.
 
 ---
 
