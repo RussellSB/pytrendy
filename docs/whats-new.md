@@ -321,17 +321,33 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     Both names continue to work in v1.1.x.
 
 ??? note "Core processing revamp & bug fixes"
-    The signal processing and post-processing pipeline was extensively reworked ([#8](https://github.com/RussellSB/pytrendy/issues/8)):
+    The signal processing and post-processing pipeline was extensively reworked ([#8](https://github.com/RussellSB/pytrendy/issues/8) · [6c53790](https://github.com/RussellSB/pytrendy/commit/6c53790)):
 
     - More robust handling of edge cases across all trend types.
-    - Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity.
-    - **Brown-bug fix:** Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement.
-    - Gradual swallowing stretches flexibly across neighbouring segment adjustments.
-    - Touching consecutive abrupt segments are now correctly grouped.
-    - `has_inverse()` now also validates total-change consistency, not just direction.
-    - Windows path separators handled correctly in the data loader.
-    - `detect_trends()` is now robust to wide DataFrames containing non-numeric columns.
-    - Fixed a crash when no segments are detected.
+    - Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity ([c66ed2e](https://github.com/RussellSB/pytrendy/commit/c66ed2e)).
+    - **Brown-bug fix:** Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement. ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.0.x</span>
+
+    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.0</span>
+
+    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
+
+    </div>
+    </div>
+
+    - Gradual swallowing stretches flexibly across neighbouring segment adjustments ([5f6e2c9](https://github.com/RussellSB/pytrendy/commit/5f6e2c9)).
+    - Touching consecutive abrupt segments are now correctly grouped ([50d2f52](https://github.com/RussellSB/pytrendy/commit/50d2f52)).
+    - `has_inverse()` now also validates total-change consistency, not just direction ([37411fe](https://github.com/RussellSB/pytrendy/commit/37411fe)).
+    - Windows path separators handled correctly in the data loader ([d04c49c](https://github.com/RussellSB/pytrendy/commit/d04c49c)).
+    - `detect_trends()` is now robust to wide DataFrames containing non-numeric columns ([a7c286d](https://github.com/RussellSB/pytrendy/commit/a7c286d)).
+    - Fixed a crash when no segments are detected ([a3ac41f](https://github.com/RussellSB/pytrendy/commit/a3ac41f)).
 
 ---
 
