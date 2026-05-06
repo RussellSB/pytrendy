@@ -116,6 +116,36 @@ A focused series of noise detection improvements, from an initial major revamp t
     abrupt/noise distinction and more robust spike classification.
     ([#13](https://github.com/RussellSB/pytrendy/issues/13))
 
+    Before the revamp, the algorithm fragmented noisy-but-flat segments into many small
+    alternating Noise/Flat bands and missed underlying gradual downtrends. After, it consolidates
+    the noise and correctly identifies the downtrend structure.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.1.3</span>
+
+    ![Noise detection before PR #13 — fragmented](img/whats_new_noise_before_pr13.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.4</span>
+
+    ![Noise detection after PR #13 — consolidated](img/whats_new_noise_after_pr13.png)
+
+    </div>
+    </div>
+
+    Regression test: [`test_noisy_edgecase_3_scenario`](https://github.com/RussellSB/pytrendy/blob/develop/tests/tests_crashes_edgecases/test_noise_edgecases.py)
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        ec = pd.read_csv("tests/tests_crashes_edgecases/data/noisy_edgecases.csv")
+        pt.detect_trends(ec, date_col="date", value_col="noisy_edgecase_3")
+        ```
+
 ??? note "v1.1.3 — spikes on gradual trends"
     Improved handling of spike segments that sit on top of gradual trends.
     ([#12](https://github.com/RussellSB/pytrendy/issues/12))
@@ -148,10 +178,23 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
         ```
 
 ??? note "Abrupt trend detection — illustrated"
-    <figure markdown>
-      ![Abrupt trend detection output](img/whats_new_abrupt.png)
-      <figcaption>Abrupt step-changes shaved to precise boundaries, with optional padding.</figcaption>
-    </figure>
+    In v1.0.x, detected abrupt step-changes had very narrow boundaries (sometimes just 1–3 days).
+    v1.1.0 introduces smarter shaving and optional padding so transitions span their natural width.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.0.x</span>
+
+    ![Abrupt detection before PR #8 — hairline Up/Down bands](img/whats_new_abrupt_before_pr8.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.0</span>
+
+    ![Abrupt detection after PR #8 — properly padded regions](img/whats_new_abrupt_after_pr8.png)
+
+    </div>
+    </div>
 
     ??? example "Code"
         ```python
