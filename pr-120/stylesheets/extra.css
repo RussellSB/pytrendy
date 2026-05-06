@@ -28,15 +28,9 @@
 
 .before-after-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1rem;
     margin: 1.25rem 0;
-}
-
-@media (max-width: 700px) {
-    .before-after-grid {
-        grid-template-columns: 1fr;
-    }
 }
 
 .before-after-panel {
@@ -70,6 +64,45 @@
 .after-label {
     background: #dcfce7;
     color: #15803d;
+}
+
+/* ── What's New collapsibles ─────────────────────────────────────────── */
+
+/* ??? note — site teal, no pencil icon */
+.md-typeset details.note {
+    border-color: #0f766e;
+}
+
+.md-typeset details.note > summary {
+    background-color: rgba(15, 118, 110, 0.08);
+    color: #0f766e;
+}
+
+.md-typeset details.note > summary::before {
+    /* Remove the default pencil icon */
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* ??? example "Code" — light green, no book icon */
+.md-typeset details.example {
+    border-color: #15803d;
+}
+
+.md-typeset details.example > summary {
+    background-color: #dcfce7;
+    color: #15803d;
+}
+
+.md-typeset details.example > summary::before {
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
 }
 
 .badge-beginner {
