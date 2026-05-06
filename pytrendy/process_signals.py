@@ -196,9 +196,6 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     if debug:
         import matplotlib.pyplot as plt
 
-        #df['smoothed_deriv'].hist()
-        #plt.show()
-
         ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
         ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
         plt.title("Signal-Noise Ratio (SNR)")
@@ -225,8 +222,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         plt.show()
 
         ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
-        ax.right_ax.axhline(y=THRESHOLD_SMOOTH, color='gray', linestyle='--', linewidth=2)
-        ax.right_ax.axhline(y=-THRESHOLD_SMOOTH, color='gray', linestyle=':', linewidth=2)
+        ax.right_ax.axhline(y=derivative_limit, color='gray', linestyle='--', linewidth=2)
+        ax.right_ax.axhline(y=-derivative_limit, color='gray', linestyle=':', linewidth=2)
         plt.title("Smoothed Derivative")
         plt.show()
 
