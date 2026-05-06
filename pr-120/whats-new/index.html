@@ -1696,22 +1696,22 @@ Fix: <a href="https://github.com/RussellSB/pytrendy/issues/88">#88</a></p>
 <td>1</td>
 </tr>
 <tr>
-<td><span style="color:#9f6b1a;font-weight:600">Flat</span></td>
-<td>2000-05-02</td>
-<td>2000-06-15</td>
-<td>+0%</td>
-<td>—</td>
-</tr>
-<tr>
 <td><span style="color:#b91c1c;font-weight:600">Down</span></td>
 <td>2000-06-16</td>
 <td>2000-12-31</td>
 <td><strong>−38%</strong></td>
 <td>2</td>
 </tr>
+<tr>
+<td><span style="color:#9f6b1a;font-weight:600">Flat</span></td>
+<td>2000-05-02</td>
+<td>2000-06-15</td>
+<td>+0%</td>
+<td>3</td>
+</tr>
 </tbody>
 </table>
-<p><em>Before v1.1.11, <code>pct_change</code> and <code>change_rank</code> were <code>NaN</code> for Flat segments.</em></p>
+<p><em>Before v1.1.11, all three columns were <code>NaN</code> for Flat (and Noise) segments. Ranked by absolute <code>pct_change</code>.</em></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1746,7 +1746,7 @@ stability — making the algorithm significantly more reliable on real-world noi
 <blockquote>
 <p>v1.1.8 — 2025-11-15 · v1.1.9 — 2026-02-07</p>
 </blockquote>
-<p>Targeted improvements to noise detection precision and flat segment handling. (<a href="https://github.com/RussellSB/pytrendy/issues/42">v1.1.9: #42</a>)</p>
+<p>Targeted improvements to noise detection precision and flat segment handling. (<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8">v1.1.8: tag</a> · <a href="https://github.com/RussellSB/pytrendy/issues/42">v1.1.9: #42</a>)</p>
 <details class="note">
 <summary>Flat fill-in (v1.1.8)</summary>
 <ul>
@@ -1777,10 +1777,11 @@ stability — making the algorithm significantly more reliable on real-world noi
 <p>A focused series of noise detection improvements, from an initial major revamp through to edge-case tuning and stability fixes.</p>
 <details class="note">
 <summary>v1.1.7 — expand-contract &amp; noise stability</summary>
+<p>(<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.7">tag v1.1.7</a>)</p>
 <ul>
-<li><strong>Expand-contract:</strong> gradual trends can now be retroactively updated when a newer gradual changes the reference baseline.</li>
-<li><strong>Noise detection:</strong> resolved edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping validity checks.</li>
-<li><strong>Plot:</strong> visual displacement is only applied when it does not break the up/down direction contract.</li>
+<li><strong>Expand-contract:</strong> gradual trends can now be retroactively updated when a newer gradual changes the reference baseline. (<a href="https://github.com/RussellSB/pytrendy/commit/a99c30f">a99c30f</a>)</li>
+<li><strong>Noise detection:</strong> resolved edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping validity checks. (<a href="https://github.com/RussellSB/pytrendy/commit/9b41189">9b41189</a>, <a href="https://github.com/RussellSB/pytrendy/commit/06aa45c">06aa45c</a>)</li>
+<li><strong>Plot:</strong> visual displacement is only applied when it does not break the up/down direction contract. (<a href="https://github.com/RussellSB/pytrendy/commit/7ae27ad">7ae27ad</a>)</li>
 </ul>
 </details>
 <details class="note">
@@ -1876,7 +1877,8 @@ that introduced flat fill-in, a cleaner results API, and comprehensive robustnes
 <p>v1.1.1 — 2025-10-15 · v1.1.2 — 2025-10-15</p>
 </blockquote>
 <p>Patch releases addressing deployment pipeline issues and a relative-import fix introduced
-when v1.1.0 restructured the package layout. No user-facing behaviour changes.</p>
+when v1.1.0 restructured the package layout. No user-facing behaviour changes.
+(<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.1">v1.1.1</a> · <a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.2">v1.1.2</a>)</p>
 <hr />
 <h3 id="released-in-v110">Released in v1.1.0</h3>
 <blockquote>
@@ -1967,7 +1969,8 @@ v1.1.0 introduces smarter shaving and optional padding so transitions span their
 <blockquote>
 <p>August–September 2025 — <em>initial release</em></p>
 </blockquote>
-<p>PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.</p>
+<p>PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.
+(<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.0.0">v1.0.0</a>)</p>
 <figure>
 <p><img alt="Gradual trend detection — initial release" src="../img/whats_new_gradual.png" />
   </p>

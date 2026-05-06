@@ -29,18 +29,25 @@
 .before-after-grid {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.4rem;
-    margin: 0.75rem 0;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
 }
 
 .before-after-panel {
     display: flex;
     flex-direction: column;
-    gap: 0.2rem;
+    gap: 0.15rem;
+}
+
+/* Markdown-inside-div creates <p> wrappers; strip their default margin */
+.before-after-panel p {
+    margin: 0;
+    line-height: 0;
 }
 
 .before-after-panel img {
     width: 100%;
+    display: block;
     border-radius: 8px;
     border: 1px solid rgba(0, 0, 0, 0.1);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
