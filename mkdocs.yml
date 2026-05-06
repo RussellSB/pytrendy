@@ -49,6 +49,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.details
   - admonition
   - markdown.extensions.admonition
   - attr_list

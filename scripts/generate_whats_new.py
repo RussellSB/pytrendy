@@ -69,7 +69,7 @@ def _read_changelog_section(tag: str) -> str:
 
 
 def _call_github_models(prompt: str, token: str) -> str | None:
-    """Call the GitHub Models API (Claude) and return the generated text, or None on failure."""
+    """Call the GitHub Models API (Claude 3.5 Haiku) and return the generated text, or None on failure."""
     system = textwrap.dedent("""\
         You are a technical writer for PyTrendy, a Python library for time-series trend
         detection. Your task is to turn raw CHANGELOG / release-note Markdown into a
@@ -79,12 +79,16 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         Guidelines:
         - Focus on user impact, not internal implementation details.
         - Use clear, plain language aimed at data scientists and analysts.
-        - Use MkDocs Material Markdown: admonitions, tabbed code blocks (=== "Before" / === "After"),
-          tables, and `??? example "Code"` collapsible blocks to hide code by default.
-        - Keep prose short and lead with visuals (plots) where relevant. Code is secondary.
-        - Use `=== "Before"` / `=== "After"` tabs for behaviour changes where helpful.
-        - Group changes under ### sub-headings (New Features, Bug Fixes, Improvements) — no emojis.
-        - Keep it concise — no padding, no fluff, minimal emoji use.
+        - Start with a one-sentence summary of the release.
+        - Wrap each individual change in a `??? note "Change title"` collapsible block
+          (MkDocs pymdownx.details syntax) so the page stays scannable.
+        - Inside collapsible blocks, use `??? example "Code"` for code samples so code
+          is hidden by default — visuals and notes lead.
+        - Use `=== "Before"` / `=== "After"` tabbed blocks for behaviour-changing fixes.
+        - Group small patch releases (1–2 minor fixes each) into a single combined section
+          rather than giving each its own heading.
+        - Reference issue or PR numbers from the CHANGELOG where available (e.g. `[#12](url)`).
+        - Avoid emoji in headings. Keep emoji use minimal overall.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
     """)
@@ -142,25 +146,25 @@ def _build_fallback_section(
         if any(k in lower for k in ("feat", "feature", "new", "add")):
             # Strip "feat: " / "feat(scope): " prefixes from conventional commits
             content = re.sub(r"^feat(?:\([^)]*\))?!?:\s*", "", content, flags=re.IGNORECASE)
-            features.append(f"- {content}")
+            features.append(f"    - {content}")
         elif any(k in lower for k in ("fix", "bug", "resolv", "patch", "correct")):
             content = re.sub(r"^fix(?:\([^)]*\))?!?:\s*", "", content, flags=re.IGNORECASE)
-            fixes.append(f"- {content}")
+            fixes.append(f"    - {content}")
         else:
-            other.append(f"- {content}")
+            other.append(f"    - {content}")
 
     if features:
-        lines.append("### New Features\n")
+        lines.append('??? note "New Features"\n')
         lines.extend(features)
         lines.append("")
 
     if fixes:
-        lines.append("### Bug Fixes\n")
+        lines.append('??? note "Bug Fixes"\n')
         lines.extend(fixes)
         lines.append("")
 
     if other:
-        lines.append("### Improvements\n")
+        lines.append('??? note "Improvements"\n')
         lines.extend(other)
         lines.append("")
 
@@ -199,7 +203,7 @@ def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
     if is_prerelease:
         base = version.split("-")[0]
         return (
-            f'## Coming in v{base} <span class="badge-prerelease">pre-release</span>\n\n'
+            f'## Coming in v{base} <span class="version-prerelease">pre-release</span>\n\n'
             f"*Staged on the `develop` branch — will land in the next stable release.*"
         )
     return f"## Released in v{version}\n\n> Released {date_str}"

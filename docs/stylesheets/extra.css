@@ -1,18 +1,30 @@
 /* Custom badge styles for tutorials */
 
-.badge-prerelease {
-    background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-    color: white;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 0.72em;
-    font-weight: 600;
-    letter-spacing: 0.03em;
+/* Pre-release version annotation — no border, no background, just muted italic text */
+.version-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
     vertical-align: middle;
-    display: inline-block;
+    color: #94a3b8;
+    display: inline;
 }
 
-/* ── What's New — before/after image comparison grid ──────────────────────── */
+/* Legacy name kept for backwards compat with older generated content */
+.badge-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    vertical-align: middle;
+    color: #94a3b8;
+    display: inline;
+}
+
+
 
 .before-after-grid {
     display: grid;
