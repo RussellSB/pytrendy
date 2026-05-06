@@ -60,7 +60,7 @@ Two fixes to trend metrics and normalised input handling.
     |---|---|---|---|---|
     | <span style="color:#15803d;font-weight:600">Up</span> | 2000-01-01 | 2000-05-01 | **+42%** | 1 |
     | <span style="color:#b91c1c;font-weight:600">Down</span> | 2000-06-16 | 2000-12-31 | **−38%** | 2 |
-    | <span style="color:#9f6b1a;font-weight:600">Flat</span> | 2000-05-02 | 2000-06-15 | +0% | 3 |
+    | <span style="color:#1e6e9f;font-weight:600">Flat</span> | 2000-05-02 | 2000-06-15 | +0% | 3 |
 
     *Before v1.1.11, all three columns were `NaN` for Flat (and Noise) segments. Ranked by absolute `pct_change`.*
 

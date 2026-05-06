@@ -64,13 +64,13 @@
 }
 
 .before-label {
-    background: #dbeafe;
-    color: #1e40af;
+    background: #add8e6;
+    color: #1e3a5f;
 }
 
 .after-label {
-    background: #dcfce7;
-    color: #15803d;
+    background: #90ee90;
+    color: #14532d;
 }
 
 /* ── What's New collapsibles ─────────────────────────────────────────── */
@@ -95,14 +95,14 @@
     mask-image: none !important;
 }
 
-/* ??? example "Code" — light green, no book icon */
+/* ??? example "Code" — lightgreen (pytrendy Up palette), no book icon */
 .md-typeset details.example {
-    border-color: #15803d;
+    border-color: #22a85a;
 }
 
 .md-typeset details.example > summary {
-    background-color: #dcfce7;
-    color: #15803d;
+    background-color: rgba(144, 238, 144, 0.35);
+    color: #14532d;
     padding-left: 0.75rem;
 }
 
