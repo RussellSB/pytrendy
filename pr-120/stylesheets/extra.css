@@ -64,12 +64,12 @@
 }
 
 .before-label {
-    background: #add8e6;
+    background: rgba(173, 216, 230, 0.4);
     color: #1e3a5f;
 }
 
 .after-label {
-    background: #90ee90;
+    background: rgba(144, 238, 144, 0.4);
     color: #14532d;
 }
 
@@ -101,7 +101,7 @@
 }
 
 .md-typeset details.example > summary {
-    background-color: rgba(144, 238, 144, 0.35);
+    background-color: rgba(144, 238, 144, 0.25);
     color: #14532d;
     padding-left: 0.75rem;
 }
