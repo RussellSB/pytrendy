@@ -11,9 +11,9 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.1.11 <span class="version-prerelease">pre-release</span>
+## Upcoming Changes (v1.1.11 pre-release) <span class="version-prerelease">in development</span>
 
-*Merged on the `develop` branch — will land in the next stable release.*
+*Staged on the `develop` branch — will land in the next stable release.*
 
 Two fixes to trend metrics and normalised input handling.
 
@@ -42,21 +42,28 @@ Two fixes to trend metrics and normalised input handling.
 
     ??? example "Code"
         ```python
+        import pandas as pd
         import pytrendy as pt
 
-        df = pt.load_data("low_value_series")   # values in [0, 1]
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/low_value_series.csv"
+        df = pd.read_csv(url)
         result = pt.detect_trends(df, date_col="date", value_col="trend")
         print(result.df[["start", "end", "direction"]])
         ```
 
 ??? note "Metrics for all segment types"
-    Segment metrics (`change_rate`, `change_rank`) were not computed for every trend type.
+    Segment metrics (`pct_change`, `change_rank`) were not computed for every trend type.
     All output rows now carry complete metric columns regardless of classification.
     Fix: [#88](https://github.com/RussellSB/pytrendy/issues/88)
 
 ---
 
-## Released in v1.1.10
+## Noise Detection & Robustness (v1.1.3 – v1.1.10)
+
+A sustained series of improvements to noise detection, spike precision, and edge-case
+stability — making the algorithm significantly more reliable on real-world noisy signals.
+
+### Released in v1.1.10
 
 > Released 2026-03-21
 
@@ -69,7 +76,7 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 
 ---
 
-## Released in v1.1.8 and v1.1.9
+### Released in v1.1.8 and v1.1.9
 
 > v1.1.8 — 2025-11-15 · v1.1.9 — 2026-02-07
 
@@ -92,7 +99,7 @@ Targeted improvements to noise detection precision and flat segment handling. ([
 
 ---
 
-## Released in v1.1.3 – v1.1.7
+### Released in v1.1.3 – v1.1.7
 
 > v1.1.3 — 2025-10-16 · v1.1.4 — 2025-10-19 · v1.1.5 — 2025-10-22 · v1.1.6 — 2025-10-23 · v1.1.7 — 2025-11-01
 
@@ -142,8 +149,9 @@ A focused series of noise detection improvements, from an initial major revamp t
         import pandas as pd
         import pytrendy as pt
 
-        ec = pd.read_csv("tests/tests_crashes_edgecases/data/noisy_edgecases.csv")
-        pt.detect_trends(ec, date_col="date", value_col="noisy_edgecase_3")
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/noisy_edgecases.csv"
+        df = pd.read_csv(url)
+        pt.detect_trends(df, date_col="date", value_col="noisy_edgecase_3")
         ```
 
 ??? note "v1.1.3 — spikes on gradual trends"
@@ -152,7 +160,12 @@ A focused series of noise detection improvements, from an initial major revamp t
 
 ---
 
-## Released in v1.1.0
+## Core Engine & Initial Launch (v1.0.x – v1.1.2)
+
+The foundation of PyTrendy — from initial release through the first major engine overhaul
+that introduced flat fill-in, a cleaner results API, and comprehensive robustness improvements.
+
+### Released in v1.1.0
 
 > Released 2025-10-15 — *minor version: new features and major robustness overhaul*
 
@@ -238,7 +251,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
 ---
 
-## Released in v1.1.1 and v1.1.2
+### Released in v1.1.1 and v1.1.2
 
 > v1.1.1 — 2025-10-15 · v1.1.2 — 2025-10-15
 
@@ -247,7 +260,7 @@ when v1.1.0 restructured the package layout. No user-facing behaviour changes.
 
 ---
 
-## Released in v1.0.x
+### Released in v1.0.x
 
 > August–September 2025 — *initial release*
 
@@ -258,7 +271,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
   <figcaption>Out-of-the-box annotated chart from <code>detect_trends()</code>.</figcaption>
 </figure>
 
-??? example "Quick start"
+??? example "Code"
     ```python
     import pytrendy as pt
 

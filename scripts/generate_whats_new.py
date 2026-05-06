@@ -1,12 +1,18 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API (Claude 3.5 Haiku).
+"""Generate or update docs/whats-new.md using the GitHub Models API (Claude Sonnet 4).
 
 The script:
   1. Reads the latest release notes (from the RELEASE_BODY env var or CHANGELOG.md).
-  2. Calls the GitHub Models API (claude-3-5-haiku) to produce a user-friendly
+  2. Calls the GitHub Models API (claude-sonnet-4) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
+
+Agent instructions (run before each refresh):
+  - Verify that CSV file URLs referenced in code examples still resolve.
+    Files live in tests/tests_crashes_edgecases/data/ on both develop and main.
+    Use the develop branch URL for pre-releases, main branch URL for stable releases.
+    Example check: curl -sI <raw_url> | grep "200"
 
 Environment variables
 ---------------------
@@ -42,7 +48,7 @@ CONTENT_START = "<!-- WHATS_NEW_CONTENT_START -->"
 CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 
 GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
-MODEL = "claude-3-5-haiku"
+MODEL = "claude-sonnet-4"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -69,7 +75,7 @@ def _read_changelog_section(tag: str) -> str:
 
 
 def _call_github_models(prompt: str, token: str) -> str | None:
-    """Call the GitHub Models API (Claude 3.5 Haiku) and return the generated text, or None on failure."""
+    """Call the GitHub Models API (Claude Sonnet 4) and return the generated text, or None on failure."""
     system = textwrap.dedent("""\
         You are a technical writer for PyTrendy, a Python library for time-series trend
         detection. Your task is to turn raw CHANGELOG / release-note Markdown into a
@@ -84,11 +90,20 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           (MkDocs pymdownx.details syntax) so the page stays scannable.
         - Inside collapsible blocks, use `??? example "Code"` for code samples so code
           is hidden by default — visuals and notes lead.
-        - Use `=== "Before"` / `=== "After"` tabbed blocks for behaviour-changing fixes.
+        - Show before/after images stacked vertically (one column) inside a
+          `<div class="before-after-grid">` with two `<div class="before-after-panel">` children,
+          each labelled with `<span class="before-after-label before-label">Before</span>` or
+          `<span class="before-after-label after-label">After</span>`.
         - Group small patch releases (1–2 minor fixes each) into a single combined section
           rather than giving each its own heading.
         - Reference issue or PR numbers from the CHANGELOG where available (e.g. `[#12](url)`).
-        - Avoid emoji in headings. Keep emoji use minimal overall.
+        - In code examples, load CSV test data via GitHub raw URLs rather than local paths.
+          Use the develop branch URL for pre-releases:
+          `https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/<file>.csv`
+          Use the main branch URL for stable releases:
+          `https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/<file>.csv`
+          Bundled datasets (series_synthetic, classes_signals) may use `pt.load_data(name)` directly.
+        - Avoid emoji in headings and admonition titles. Keep emoji use minimal overall.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
     """)
