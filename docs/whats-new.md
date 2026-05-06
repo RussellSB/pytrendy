@@ -99,7 +99,7 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 
 > v1.1.8 — 2025-11-15 · v1.1.9 — 2026-02-07
 
-Targeted improvements to noise detection precision and flat segment handling. ([v1.1.9: #42](https://github.com/RussellSB/pytrendy/issues/42))
+Targeted improvements to noise detection precision and flat segment handling. ([v1.1.8: tag](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8) · [v1.1.9: #42](https://github.com/RussellSB/pytrendy/issues/42))
 
 ??? note "Flat fill-in (v1.1.8)"
     - Covers regions that fall outside any detected segment range, eliminating visual white gaps.
@@ -125,9 +125,11 @@ Targeted improvements to noise detection precision and flat segment handling. ([
 A focused series of noise detection improvements, from an initial major revamp through to edge-case tuning and stability fixes.
 
 ??? note "v1.1.7 — expand-contract & noise stability"
-    - **Expand-contract:** gradual trends can now be retroactively updated when a newer gradual changes the reference baseline.
-    - **Noise detection:** resolved edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping validity checks.
-    - **Plot:** visual displacement is only applied when it does not break the up/down direction contract.
+    ([tag v1.1.7](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.7))
+
+    - **Expand-contract:** gradual trends can now be retroactively updated when a newer gradual changes the reference baseline. ([a99c30f](https://github.com/RussellSB/pytrendy/commit/a99c30f))
+    - **Noise detection:** resolved edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping validity checks. ([9b41189](https://github.com/RussellSB/pytrendy/commit/9b41189), [06aa45c](https://github.com/RussellSB/pytrendy/commit/06aa45c))
+    - **Plot:** visual displacement is only applied when it does not break the up/down direction contract. ([7ae27ad](https://github.com/RussellSB/pytrendy/commit/7ae27ad))
 
 ??? note "v1.1.6 — noise threshold tuning"
     Made the noise threshold slightly less sensitive to avoid false positives on near-zero signals.
@@ -242,6 +244,7 @@ that introduced flat fill-in, a cleaner results API, and comprehensive robustnes
 
 Patch releases addressing deployment pipeline issues and a relative-import fix introduced
 when v1.1.0 restructured the package layout. No user-facing behaviour changes.
+([v1.1.1](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.1) · [v1.1.2](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.2))
 
 ---
 
@@ -337,6 +340,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 > August–September 2025 — *initial release*
 
 PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.
+([v1.0.0](https://github.com/RussellSB/pytrendy/releases/tag/v1.0.0))
 
 <figure markdown>
   ![Gradual trend detection — initial release](img/whats_new_gradual.png)
