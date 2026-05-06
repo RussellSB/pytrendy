@@ -14,11 +14,11 @@ from pytrendy.io.plot_pytrendy import plot_pytrendy
 class TestPlotPytrendyCore:
     """Test core cases for plot visualization on synthetic data."""
 
-    def _prepare_and_plot(self, df, value_col, segments):
+    def _prepare_and_plot(self, df, value_col, segments, plot_params=None):
         """Helper to prepare dataframe and create plot."""
         df['date'] = pd.to_datetime(df['date'])
         df = df.set_index('date')[[value_col]]
-        return plot_pytrendy(df, value_col, segments, suppress_show=True)
+        return plot_pytrendy(df, value_col, segments, suppress_show=True, plot_params=plot_params)
 
     @pytest.mark.core
     @pytest.mark.plot
@@ -70,3 +70,14 @@ class TestPlotPytrendyCore:
         
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
         return fig
+
+    @pytest.mark.core
+    @pytest.mark.plot
+    def test_plot_with_custom_params(self):
+        """Test visualisation with custom plot_params."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        custom_params = {'figsize': (10, 4), 'title': 'Custom Title', 'colors': {'Up': 'lightpink'}}
+        fig = self._prepare_and_plot(df, 'gradual', results.segments, plot_params=custom_params)
+        assert fig.get_size_inches()[0] == 10
+        assert fig.axes[0].get_title() == 'Custom Title'
