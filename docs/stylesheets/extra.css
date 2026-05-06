@@ -57,8 +57,8 @@
 }
 
 .before-label {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: #dbeafe;
+    color: #1e40af;
 }
 
 .after-label {
@@ -76,6 +76,7 @@
 .md-typeset details.note > summary {
     background-color: rgba(15, 118, 110, 0.08);
     color: #0f766e;
+    padding-left: 0.75rem;
 }
 
 .md-typeset details.note > summary::before {
@@ -95,6 +96,7 @@
 .md-typeset details.example > summary {
     background-color: #dcfce7;
     color: #15803d;
+    padding-left: 0.75rem;
 }
 
 .md-typeset details.example > summary::before {

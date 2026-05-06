@@ -20,7 +20,7 @@ Two fixes to trend metrics and normalised input handling.
 ??? note "Trend detection on normalised time series"
     `detect_trends()` previously returned an empty result when the input signal was scaled to the
     `[0, 1]` range (e.g., after min-max normalisation). The absolute detection threshold was too large
-    relative to the signal amplitude.
+    relative to the signal amplitude. Fix: [#79](https://github.com/RussellSB/pytrendy/pull/79)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
@@ -55,6 +55,19 @@ Two fixes to trend metrics and normalised input handling.
     Segment metrics (`pct_change`, `change_rank`) were not computed for every trend type.
     All output rows now carry complete metric columns regardless of classification.
     Fix: [#88](https://github.com/RussellSB/pytrendy/issues/88)
+
+    ![result.df with metrics for all segment types](img/whats_new_metrics_after.png)
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/low_value_series.csv"
+        df = pd.read_csv(url)
+        result = pt.detect_trends(df, date_col="date", value_col="trend", plot=False)
+        print(result.df[["direction", "pct_change", "change_rank"]])
+        ```
 
 ---
 
