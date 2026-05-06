@@ -1647,7 +1647,7 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <summary>Trend detection on normalised time series</summary>
 <p><code>detect_trends()</code> previously returned an empty result when the input signal was scaled to the
 <code>[0, 1]</code> range (e.g., after min-max normalisation). The absolute detection threshold was too large
-relative to the signal amplitude.</p>
+relative to the signal amplitude. Fix: <a href="https://github.com/RussellSB/pytrendy/pull/79">#79</a></p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.1.10</span></p>
@@ -1677,6 +1677,18 @@ Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tes
 <p>Segment metrics (<code>pct_change</code>, <code>change_rank</code>) were not computed for every trend type.
 All output rows now carry complete metric columns regardless of classification.
 Fix: <a href="https://github.com/RussellSB/pytrendy/issues/88">#88</a></p>
+<p><img alt="result.df with metrics for all segment types" src="../img/whats_new_metrics_after.png" /></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/low_value_series.csv&quot;</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;trend&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;pct_change&quot;</span><span class="p">,</span> <span class="s2">&quot;change_rank&quot;</span><span class="p">]])</span>
+</code></pre></div>
+</details>
 </details>
 <hr />
 <h2 id="noise-detection-robustness-v113-v1110">Noise Detection &amp; Robustness (v1.1.3 – v1.1.10)</h2>
