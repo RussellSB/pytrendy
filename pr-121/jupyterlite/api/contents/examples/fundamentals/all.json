@@ -1,0 +1,57 @@
+{
+  "content": [
+    {
+      "content": null,
+      "created": "2026-05-06T10:16:25.230114Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-05-06T10:16:22.221073Z",
+      "mimetype": null,
+      "name": "gradual.ipynb",
+      "path": "examples/fundamentals/gradual.ipynb",
+      "size": 202199,
+      "type": "notebook",
+      "writable": true
+    },
+    {
+      "content": null,
+      "created": "2026-05-06T10:16:25.230830Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-05-06T10:16:22.221280Z",
+      "mimetype": null,
+      "name": "noise.ipynb",
+      "path": "examples/fundamentals/noise.ipynb",
+      "size": 1154019,
+      "type": "notebook",
+      "writable": true
+    },
+    {
+      "content": null,
+      "created": "2026-05-06T10:16:25.228694Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-05-06T10:16:22.220753Z",
+      "mimetype": null,
+      "name": "abrupt.ipynb",
+      "path": "examples/fundamentals/abrupt.ipynb",
+      "size": 527739,
+      "type": "notebook",
+      "writable": true
+    }
+  ],
+  "created": "2026-05-06T10:16:25.230182Z",
+  "format": "json",
+  "hash": null,
+  "hash_algorithm": null,
+  "last_modified": "2026-05-06T10:16:25.230182Z",
+  "mimetype": null,
+  "name": "fundamentals",
+  "path": "examples/fundamentals",
+  "size": null,
+  "type": "directory",
+  "writable": true
+}
