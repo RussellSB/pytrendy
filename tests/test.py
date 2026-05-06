@@ -295,3 +295,29 @@ results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col=
 
 # %%
 results = pt.detect_trends(crashes_df.reset_index(), date_col='date', value_col='temp_2', method_params=dict(is_abrupt_padded=True)) # TODONE: fix hangup
+
+# ---------- Avoid Noise Toggle Test
+
+# %%
+# Modified from spike test case 1.7, with avoid_noise True)
+df = pt.load_data('series_synthetic')
+df.set_index('date', inplace=True)
+df.loc['2025-02-28':'2025-02-28', 'gradual'] = 125 # TODONE: fix white gap. TODONE: fix noise detected on right-side
+df.loc['2025-04-09':'2025-04-09', 'gradual'] = 150
+df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300 
+df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320 
+df = df.reset_index()
+results_gradual = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True
+                                   , method_params=dict(is_abrupt_padded=False, avoid_noise=False))
+
+
+#%%
+# original test case 2.2: abrupt padded
+df = pt.load_data('series_synthetic')
+
+df.set_index('date', inplace=True)
+df.loc['2025-01-01':'2025-02-27', 'abrupt'] = 0
+df.loc['2025-05-05':'2025-06-30', 'abrupt'] = 0
+df = df.reset_index()
+
+results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(is_abrupt_padded=True, avoid_noise=False))
