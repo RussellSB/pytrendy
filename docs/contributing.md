@@ -4,7 +4,7 @@ Contributions to PyTrendy are welcome! This guide covers the standards and proce
 
 ---
 
-## Getting Started
+## 1. Getting Started
 
 1. **Fork** the repository on GitHub.
 2. **Clone** your fork locally:
@@ -25,7 +25,7 @@ Contributions to PyTrendy are welcome! This guide covers the standards and proce
 
 ---
 
-## Roadmap & Issues
+## 2. Working on Issues
 
 The project roadmap lives in **[GitHub Issues](https://github.com/RussellSB/pytrendy/issues)**. Browse open issues to find tasks to pick up, report bugs, or propose improvements.
 
@@ -61,7 +61,9 @@ Issues are tagged with one or more labels for filtering:
 
 ---
 
-## Branching
+## 3. Development Workflow
+
+### Branching
 
 All work should branch off `develop`, **not** `main`. The `main` branch is reserved for stable releases.
 
@@ -72,9 +74,7 @@ git checkout -b my-feature origin/develop
 
 Branch names should be short and descriptive, e.g. `fix/trend-detection-edge-case` or `docs/add-contribution-guide`.
 
----
-
-## Commit Messages
+### Commit Messages
 
 This project uses the [Conventional Commits](https://www.conventionalcommits.org/) specification. Following this format is important because the project uses **semantic-release** to automate versioning and changelog generation — the commit type determines what version bump is applied on release:
 
@@ -93,7 +93,7 @@ All commit messages **must** follow this format:
 <footer>
 ```
 
-### Types
+#### Types
 
 | Type | When to use |
 |---|---|
@@ -109,7 +109,7 @@ All commit messages **must** follow this format:
 | `chore` | Miscellaneous changes that don't modify src or tests |
 | `revert` | Reverts a previous commit |
 
-### Examples
+#### Examples
 
 ```
 feat: add trend detection for seasonal data
@@ -118,7 +118,7 @@ docs: update quickstart guide with new examples
 test: add unit tests for detect_trends function
 ```
 
-### Guidelines
+#### Guidelines
 
 - Use the **imperative mood**: "add feature" not "added feature"
 - Keep the subject line **under 72 characters**
@@ -126,7 +126,7 @@ test: add unit tests for detect_trends function
 - Use the body to explain **what and why**, not how
 - Reference issues in the footer: `Closes #55`
 
-### Breaking Changes
+#### Breaking Changes
 
 Append `!` to the type or add `BREAKING CHANGE:` in the footer:
 
@@ -138,7 +138,7 @@ BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 
 ---
 
-## Pull Requests
+## 4. Submitting a Pull Request
 
 ### PR Title
 
@@ -164,15 +164,15 @@ Every PR that touches `docs/`, `mkdocs.yml`, or `pytrendy/` automatically builds
 
 ---
 
-## Code Style
+## 5. Code Quality Standards
+
+### Code Style
 
 Follow existing code patterns in the module you are editing. Write docstrings in [Google style](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings) and add type hints to all public functions. Do not leave debug prints or commented-out code in your PR.
 
 Keep your diff clean. Only modify the lines directly relevant to your change — avoid reformatting code you are not touching, and do not introduce stray whitespace, blank-line, or indentation changes as side effects. These make reviews harder and can cause merge conflicts.
 
----
-
-## Tests
+### Tests
 
 Tests live in the `tests/` directory and use `pytest`. To run them:
 
@@ -182,11 +182,9 @@ pytest
 
 Every new feature or bug fix should include appropriate test coverage. See existing tests for patterns to follow.
 
----
+### Documentation
 
-## Documentation
-
-Docs are built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). To preview locally, install the docs group first (see [Getting Started](#getting-started)), then run:
+Docs are built with [MkDocs Material](https://squidfunk.github.io/mkdocs-material/). To preview locally, install the docs group first (see [Getting Started](#1-getting-started)), then run:
 
 ```bash
 mkdocs serve
@@ -196,7 +194,7 @@ If you are adding a new page, register it under `nav:` in `mkdocs.yml`. For docs
 
 ---
 
-## Asking for Help
+## 6. Getting Help
 
 If you are unsure about anything, feel free to open a [Discussion](https://github.com/RussellSB/pytrendy/discussions) or comment on the relevant issue. The maintainers are happy to guide you in the right direction.
 
