@@ -64,12 +64,12 @@
 }
 
 .before-label {
-    background: rgba(173, 216, 230, 0.4);
+    background: rgba(173, 216, 230, 0.2);
     color: #1e3a5f;
 }
 
 .after-label {
-    background: rgba(144, 238, 144, 0.4);
+    background: rgba(144, 238, 144, 0.2);
     color: #14532d;
 }
 
