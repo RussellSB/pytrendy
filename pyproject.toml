@@ -25,7 +25,8 @@ dev = [
     "pytest",
     "pytest-cov",
     "pytest-mpl",
-    "pytest-timeout"
+    "pytest-timeout",
+    "ruff"
 ]
 docs = [
     "mkdocs>=1.6,<2",
@@ -50,3 +51,6 @@ markers = [
     "core: essential tests that must pass for core functionality",
     "plot: tests for visualization/plotting functionality"
 ]
+
+[tool.ruff]
+exclude = ["**/*"]
