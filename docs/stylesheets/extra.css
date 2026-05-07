@@ -1,5 +1,119 @@
 /* Custom badge styles for tutorials */
 
+/* Pre-release version annotation — no border, no background, just muted italic text */
+.version-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    vertical-align: middle;
+    color: #94a3b8;
+    display: inline;
+}
+
+/* Legacy name kept for backwards compat with older generated content */
+.badge-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    vertical-align: middle;
+    color: #94a3b8;
+    display: inline;
+}
+
+
+
+.before-after-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+}
+
+.before-after-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+/* Markdown-inside-div creates <p> wrappers; strip their default margin */
+.before-after-panel p {
+    margin: 0;
+    line-height: 0;
+}
+
+.before-after-panel img {
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.before-after-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.before-label {
+    background: rgba(173, 216, 230, 0.2);
+    color: #1e3a5f;
+}
+
+.after-label {
+    background: rgba(144, 238, 144, 0.2);
+    color: #14532d;
+}
+
+/* ── What's New collapsibles ─────────────────────────────────────────── */
+
+/* ??? note — site teal, no pencil icon */
+.md-typeset details.note {
+    border-color: #0f766e;
+}
+
+.md-typeset details.note > summary {
+    background-color: rgba(15, 118, 110, 0.08);
+    color: #0f766e;
+    padding-left: 0.75rem;
+}
+
+.md-typeset details.note > summary::before {
+    /* Remove the default pencil icon */
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* ??? example "Code" — lightgreen (pytrendy Up palette), no book icon */
+.md-typeset details.example {
+    border-color: #22a85a;
+}
+
+.md-typeset details.example > summary {
+    background-color: rgba(144, 238, 144, 0.25);
+    color: #14532d;
+    padding-left: 0.75rem;
+}
+
+.md-typeset details.example > summary::before {
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
 .badge-beginner {
     background-color: #4CAF50;
     color: white;
