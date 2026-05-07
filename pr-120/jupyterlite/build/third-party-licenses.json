@@ -800,121 +800,121 @@
     },
     {
       "name": "@jupyterlite/app-consoles",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/app-edit",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/app-lab",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/app-notebooks",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/app-repl",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/app-tree",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/application",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/application-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/apputils",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/apputils-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/contents",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/iframe-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/kernel",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/localforage",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/notebook-application-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/repl-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/server",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/services",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/services-extension",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },
     {
       "name": "@jupyterlite/ui-components",
-      "versionInfo": "0.7.5",
+      "versionInfo": "0.7.6",
       "licenseId": "BSD-3-Clause",
       "extractedText": ""
     },

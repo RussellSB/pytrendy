@@ -2061,11 +2061,11 @@ resolved; segments now align directionally before any visual displacement.
 </blockquote>
 <p>PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.
 (<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.0.0">v1.0.0</a>)</p>
-<figure>
-<p><img alt="Gradual trend detection — initial release" src="../img/whats_new_gradual.png" />
-  </p>
-<figcaption>Out-of-the-box annotated chart from <code>detect_trends()</code>.</figcaption>
-</figure>
+<details class="note">
+<summary>Gradual trend detection</summary>
+<p>Smooth up and down trends are detected and annotated as Up, Down, and Flat segments out of the
+box with a single call to <code>detect_trends()</code>.</p>
+<p><img alt="Gradual trend detection — initial release" src="../img/whats_new_gradual.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
@@ -2073,6 +2073,7 @@ resolved; segments now align directionally before any visual displacement.
 <span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
 </code></pre></div>
+</details>
 </details>
 <details class="note">
 <summary>Abrupt trend detection</summary>
@@ -2107,6 +2108,9 @@ algorithm identifies noise segments while still extracting the underlying Up/Dow
 <summary>Noise detection — spikes on a gradual trend</summary>
 <p>Isolated outlier spikes sitting on top of a smooth gradual trend are classified as short Noise
 segments, leaving the surrounding Up/Down structure intact.</p>
+<p><em>This was the initial implementation of spike detection in v1.0.x. Subsequent versions (v1.1.3,
+v1.1.4, v1.1.7) targeted significant precision improvements — reducing over-wide Noise bands and
+better distinguishing spike outliers from sustained noise regions.</em></p>
 <p><img alt="Noise spike — initial release output" src="../img/whats_new_v10x_noise_spike.png" /></p>
 <details class="example">
 <summary>Code</summary>
