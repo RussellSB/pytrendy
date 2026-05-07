@@ -24,6 +24,7 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     [`scripts/generate_whats_new.py`](https://github.com/RussellSB/pytrendy/blob/develop/scripts/generate_whats_new.py),
     which calls the **GitHub Models API** (Claude Sonnet 4) to write a user-friendly What's New entry
     from the release notes, then opens a pull request for review.
+    Introduced: [#120](https://github.com/RussellSB/pytrendy/pull/120)
 
     Key behaviours:
 
@@ -31,6 +32,7 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     - Stable releases (from `main`) add a versioned entry and open a sync PR back to `develop`.
     - Code examples reference GitHub raw URLs (`develop` for pre-release, `main` for stable) so they are always reproducible.
     - Within each section, fixes and features are listed in **descending time order** (most recent at the top).
+    - Before/after plot comparisons use `plot_pytrendy` with a consistent style (figsize, grid, legend) so the images are directly comparable.
     - Agent instructions embedded in the script docstring remind the generator to verify that referenced CSV files still exist before each refresh.
 
 ??? note "Noise detection control (`avoid_noise`)"
@@ -38,13 +40,9 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     When set to `False`, spikes and noisy regions are ignored and trend detection proceeds straight through them.
     Introduced: [#110](https://github.com/RussellSB/pytrendy/pull/110)
 
-    **Example 1 — new-market / quasi-experiment case (abrupt)**
-
-    Useful when modelling a new-market launch or quasi-experiment where the treatment signal is 0
-    before and after the activation window. Without `avoid_noise=False`, small noisy boundary
-    regions around the step-changes are classified as Noise segments, fragmenting the clean Up/Down
-    structure. With `avoid_noise=False`, those boundary artefacts are suppressed and the signal is
-    read as two clean trend segments.
+    Useful for modelling a new-market launch or quasi-experiment where the signal is zero before and
+    after the activation window. With `avoid_noise=False`, boundary artefacts around step-changes are
+    suppressed, yielding clean Up/Down segments.
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
@@ -75,47 +73,6 @@ Four updates are landing in the next stable release: an agentic docs generator, 
         result = pt.detect_trends(
             df, date_col="date", value_col="abrupt",
             method_params=dict(is_abrupt_padded=True, avoid_noise=False)
-        )
-        print(result.df[["direction", "start", "end"]])
-        ```
-
-    **Example 2 — spiky gradual trend**
-
-    <div class="before-after-grid" markdown>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
-
-    ![Spiky gradual series — noise segments fragment the detected trends](img/whats_new_avoid_noise_before_pr110.png)
-
-    </div>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — `avoid_noise=False`</span>
-
-    ![Spiky gradual series — trends detected through the spikes with avoid_noise=False](img/whats_new_avoid_noise_after_pr110.png)
-
-    </div>
-    </div>
-
-    With the default `avoid_noise=True`, each spike is classified as a Noise segment (producing many
-    fragmented intervals). Setting `avoid_noise=False` produces clean Up/Down/Flat segments that span
-    right through the spikes.
-
-    ??? example "Code"
-        ```python
-        import pytrendy as pt
-
-        df = pt.load_data("series_synthetic")
-        df.set_index("date", inplace=True)
-        # Add four synthetic spikes to a gradual trend
-        df.loc["2025-02-28":"2025-02-28", "gradual"] = 125
-        df.loc["2025-04-09":"2025-04-09", "gradual"] = 150
-        df.loc["2025-05-08":"2025-05-08", "gradual"] = 300
-        df.loc["2025-06-03":"2025-06-03", "gradual"] = 320
-        df = df.reset_index()
-
-        result = pt.detect_trends(
-            df, date_col="date", value_col="gradual", plot=False,
-            method_params=dict(avoid_noise=False)
         )
         print(result.df[["direction", "start", "end"]])
         ```
