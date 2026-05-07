@@ -154,7 +154,7 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 
 ??? note "Details"
     - Automated tests for noise crashes (`test_noise_crashes.py`) and edge cases (`test_noise_edgecases.py`).
-    - Artefact-cleaning helpers refactored to be more testable and deterministic.
+    - Artifact-cleaning helpers refactored to be more testable and deterministic.
     - Several `pytest-mpl` baseline images corrected.
 
 ---
