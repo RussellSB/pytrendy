@@ -447,18 +447,19 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.
 ([v1.0.0](https://github.com/RussellSB/pytrendy/releases/tag/v1.0.0))
 
-<figure markdown>
-  ![Gradual trend detection — initial release](img/whats_new_gradual.png)
-  <figcaption>Out-of-the-box annotated chart from <code>detect_trends()</code>.</figcaption>
-</figure>
+??? note "Gradual trend detection"
+    Smooth up and down trends are detected and annotated as Up, Down, and Flat segments out of the
+    box with a single call to `detect_trends()`.
 
-??? example "Code"
-    ```python
-    import pytrendy as pt
+    ![Gradual trend detection — initial release](img/whats_new_gradual.png)
 
-    df = pt.load_data("series_synthetic")
-    pt.detect_trends(df, value_col="gradual", date_col="date")
-    ```
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        pt.detect_trends(df, value_col="gradual", date_col="date")
+        ```
 
 ??? note "Abrupt trend detection"
     Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
@@ -492,6 +493,10 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
 ??? note "Noise detection — spikes on a gradual trend"
     Isolated outlier spikes sitting on top of a smooth gradual trend are classified as short Noise
     segments, leaving the surrounding Up/Down structure intact.
+
+    *This was the initial implementation of spike detection in v1.0.x. Subsequent versions (v1.1.3,
+    v1.1.4, v1.1.7) targeted significant precision improvements — reducing over-wide Noise bands and
+    better distinguishing spike outliers from sustained noise regions.*
 
     ![Noise spike — initial release output](img/whats_new_v10x_noise_spike.png)
 
