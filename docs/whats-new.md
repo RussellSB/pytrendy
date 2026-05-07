@@ -173,15 +173,15 @@ Targeted improvements to noise detection precision and flat segment handling. ([
 
     The before/after below shows three spikes distributed across a gradual series. In v1.1.7, the period after the last Noise segment (2025-06-18 → 2025-06-30) was left uncoloured. In v1.1.8 it is correctly filled as Flat.
 
-    <div class="before-after-grid">
-    <div class="before-after-panel">
-    <span class="before-label">BEFORE — V1.1.7</span>
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.1.7</span>
 
     ![Trailing region left uncovered before v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_before_pr42.png)
 
     </div>
-    <div class="before-after-panel">
-    <span class="after-label">AFTER — V1.1.8</span>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.8</span>
 
     ![Trailing region covered as Flat after v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_after_pr42.png)
 
