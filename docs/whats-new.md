@@ -15,6 +15,8 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 *Staged on the `develop` branch — will land in the next stable release.*
 
+To try it now: `pip install --pre pytrendy`
+
 Four updates are landing in the next stable release: an agentic docs generator, a new noise toggle, and two fixes to trend metrics and normalised input handling.
 
 ??? note "Automated What's New — agentic docs generator"
