@@ -53,6 +53,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          # GH_TOKEN should be a PAT with the repo scope (or contents:write
+          # plus branch-protection bypass) so semantic-release can push the
+          # changelog commit back to the protected release branch. Falls back
+          # to GITHUB_TOKEN, which cannot push to a protected branch — the
+          # commit will be skipped and a warning will be issued.
+          token: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Pull latest changes
         run: git pull origin ${{ github.ref_name }}
@@ -82,17 +88,32 @@ jobs:
       - name: Run semantic-release
         id: release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use GH_TOKEN (PAT with repo scope and branch-protection bypass)
+          # when available. GITHUB_TOKEN is used as a fallback, but it cannot
+          # push to a protected branch, so @semantic-release/git will fail and
+          # the changelog commit will be skipped (handled below).
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
         run: |
-          OUTPUT=$(npx semantic-release)
+          set +e
+          OUTPUT=$(npx semantic-release 2>&1)
+          EXIT_CODE=$?
+          set -e
           echo "$OUTPUT"
 
           if echo "$OUTPUT" | grep -q "The next release version is"; then
             echo "released=true" >> $GITHUB_OUTPUT
             VERSION=$(echo "$OUTPUT" | grep -oP 'The next release version is \K[0-9a-zA-Z.\-]+')
             echo "version=$VERSION" >> $GITHUB_OUTPUT
+            if [ $EXIT_CODE -ne 0 ]; then
+              echo "::warning::semantic-release exited with code $EXIT_CODE."
+              echo "::warning::This is likely because GITHUB_TOKEN cannot push to the protected '${{ github.ref_name }}' branch."
+              echo "::warning::The release and PyPI publish will still proceed. To also commit the changelog back to the branch, create a GH_TOKEN repository secret set to a PAT with the repo scope and branch-protection bypass for the '${{ github.ref_name }}' branch."
+            fi
           else
             echo "released=false" >> $GITHUB_OUTPUT
+            if [ $EXIT_CODE -ne 0 ]; then
+              exit $EXIT_CODE
+            fi
           fi
 
   build-and-publish:
