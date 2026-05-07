@@ -43,14 +43,14 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     Introduced: [#110](https://github.com/RussellSB/pytrendy/pull/110)
 
     Useful for modelling a new-market launch or quasi-experiment where the signal is zero before and
-    after the activation window. With `avoid_noise=False`, boundary artefacts around step-changes are
+    after the activation window. With `avoid_noise=False`, boundary artifacts around step-changes are
     suppressed, yielding clean Up/Down segments.
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
 
-    ![New-market case — Noise artefacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
+    ![New-market case — Noise artifacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
 
     </div>
     <div class="before-after-panel" markdown>
@@ -210,7 +210,7 @@ Targeted improvements to noise detection precision and flat segment handling. ([
     - Better precision for a spike on an otherwise flat-zero signal.
     - Improved sensitivity when flat conversions emerge from noisy gradual trends.
     - `trend_too_flat` now treated as a flat conversion rather than noise.
-    - Up/down classification uses the actual signal (not the smoothed derivative), reducing downstream artefact-cleaning needs.
+    - Up/down classification uses the actual signal (not the smoothed derivative), reducing downstream artifact-cleaning needs.
     - Gradual trends enclosed in noise are handled more leniently.
     - Noise adjustment for contract logic now crops correctly before start/end boundary checks.
 
@@ -451,7 +451,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
 ??? note "Brown-bug fix"
     Up (green) and Down (red) regions were stacking on top of each other in v1.0.x, blending into a
-    brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was
+    brownish artifact. The root cause — abrupt spikes being shaved without direction-awareness — was
     resolved; segments now align directionally before any visual displacement.
     ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
 
@@ -459,7 +459,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.0.x</span>
 
-    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png)
+    ![Brown-bug — Up/Down regions stack causing brown artifact (v1.0.x)](img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
