@@ -16,7 +16,7 @@ Agent instructions (run before each refresh):
   - Before/after plot comparisons must be visually consistent. For bug fixes or features
     directly related to time-series trend detection, generate both images via the same
     `detect_trends()` + `plot_pytrendy()` pipeline so that figsize, grid style, legend,
-    and colour scheme are identical between the two images.
+    and color scheme are identical between the two images.
 
 Environment variables
 ---------------------
@@ -113,7 +113,7 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         - Before/after images must be visually comparable. For any bug fix or feature
           directly related to time-series trend detection, produce both the "before" and
           "after" images through the same `detect_trends()` + `plot_pytrendy()` pipeline
-          so that figsize, grid style, legend, and colour scheme are identical.
+          so that figsize, grid style, legend, and color scheme are identical.
     """)
 
     payload = {
