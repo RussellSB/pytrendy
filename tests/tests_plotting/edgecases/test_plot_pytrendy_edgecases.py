@@ -72,9 +72,9 @@ class TestPlotPytrendyEdgeCases:
         df[date_col] = pd.to_datetime(df[date_col])
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
-        method_params = dict(is_abrupt_padded=False, abrupt_padding=28)
+        method_params = dict(is_abrupt_padded=False, abrupt_padding=28, avoid_noise=True) 
 
-        df = process_signals(df, value_col)
+        df = process_signals(df, value_col, method_params)
         segments = get_segments(df)
 
         # ------------------ refine_segments()

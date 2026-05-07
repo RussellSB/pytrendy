@@ -6,7 +6,7 @@ from scipy.signal import savgol_filter
 from scipy.stats import iqr
 from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
-def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.DataFrame:
+def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug: bool=False) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 
@@ -32,6 +32,12 @@ def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.D
             Input time series data with a datetime index and signal column.
         value_col (str): 
             Name of the column containing the signal to process.
+        method_params (dict, optional):
+            Optional parameters to customize detection heuristics. Supported keys:
+
+            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
+            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
 
@@ -177,16 +183,18 @@ def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.D
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
 
+    # Important condition to establish non-trend segments to avoid detecting trends over
+    avoid_condition = (df['flat_flag'] == 0) # flat is always avoided
+    if method_params['avoid_noise']: # noise can be optionally avoided, up to the user
+        avoid_condition &= (df['noise_flag'] == 0)
+
     derivative_limit = abs(iqr(df[value_col])) * THRESHOLD_SMOOTH
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
-    df.loc[(df['smoothed_deriv'] >= derivative_limit) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
-    df.loc[(df['smoothed_deriv'] < -derivative_limit) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+    df.loc[(df['smoothed_deriv'] >= derivative_limit) & avoid_condition, 'trend_flag'] = 1
+    df.loc[(df['smoothed_deriv'] < -derivative_limit) & avoid_condition, 'trend_flag'] = -1
 
     if debug:
         import matplotlib.pyplot as plt
-
-        #df['smoothed_deriv'].hist()
-        #plt.show()
 
         ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
         ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
@@ -214,8 +222,8 @@ def process_signals(df: pd.DataFrame, value_col: str, debug: bool=False) -> pd.D
         plt.show()
 
         ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
-        ax.right_ax.axhline(y=THRESHOLD_SMOOTH, color='gray', linestyle='--', linewidth=2)
-        ax.right_ax.axhline(y=-THRESHOLD_SMOOTH, color='gray', linestyle=':', linewidth=2)
+        ax.right_ax.axhline(y=derivative_limit, color='gray', linestyle='--', linewidth=2)
+        ax.right_ax.axhline(y=-derivative_limit, color='gray', linestyle=':', linewidth=2)
         plt.title("Smoothed Derivative")
         plt.show()
 
