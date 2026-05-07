@@ -88,7 +88,7 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     | <span style="color:#b91c1c;font-weight:600">Down</span> | 2000-06-16 | 2000-12-31 | **−38%** | 2 |
     | <span style="color:#1e6e9f;font-weight:600">Flat</span> | 2000-05-02 | 2000-06-15 | +0% | 3 |
 
-    *Before v1.1.11, all three columns were `NaN` for Flat (and Noise) segments. Ranked by absolute `pct_change`.*
+    *Before v1.1.11, all three columns were `NaN` for Flat (and Noise) segments. Ranked by `change_rank`.*
 
     ??? example "Code"
         ```python
@@ -385,23 +385,11 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
         )
         ```
 
-??? note "Gradual trend detection — illustrated"
-    <figure markdown>
-      ![Gradual trend detection output](img/whats_new_gradual.png)
-      <figcaption>Gradual uptrend, flat, and downtrend — correctly classified over the full series.</figcaption>
-    </figure>
-
-    ??? example "Code"
-        ```python
-        import pytrendy as pt
-
-        df = pt.load_data("series_synthetic")
-        pt.detect_trends(df, date_col="date", value_col="gradual")
-        ```
-
 ??? note "Abrupt trend detection — illustrated"
-    In v1.0.x, detected abrupt step-changes had very narrow boundaries (sometimes just 1–3 days).
-    v1.1.0 introduces smarter shaving and optional padding so transitions span their natural width.
+    v1.1.0 introduced `is_abrupt_padded` for the first time, enabling boundary padding so that
+    abrupt transitions span their natural width rather than hairline boundaries.
+    This unlocks quasi-experiment designs such as Interrupted Time Series Analysis (ITSA),
+    where clean pre/post intervention windows are required.
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
