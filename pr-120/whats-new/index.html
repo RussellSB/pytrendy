@@ -1808,28 +1808,37 @@ stability — making the algorithm significantly more reliable on real-world noi
 <p>Targeted improvements to noise detection precision and flat segment handling. (<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8">v1.1.8: tag</a> · <a href="https://github.com/RussellSB/pytrendy/issues/42">v1.1.9: #42</a>)</p>
 <details class="note">
 <summary>Flat fill-in improvements (v1.1.8)</summary>
-<p>Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to additional edge cases:</p>
+<p>Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to two additional edge cases:</p>
 <ul>
-<li>Extended coverage to leading and trailing regions that fall outside the detected segment range.</li>
-<li>Correctly skips zero-day boundary regions and handles grouped segments without gaps.</li>
+<li><strong>Trailing / leading regions</strong>: if the detected segments don't span the full series range, the uncovered leading or trailing period is now filled in with a Flat segment.</li>
+<li><strong>Robustness to grouping</strong>: zero-day boundary regions are safely skipped; grouped segments no longer produce gaps.</li>
 </ul>
-<p>The same four-spike series now produces a gapless output where every interval between noise and
-trend segments is filled with an explicit Flat segment.</p>
-<p><img alt="Flat fill-in improvements — gapless output after v1.1.8" src="../img/whats-new/v1.1.8/whats_new_flat_fill_after_pr42.png" /></p>
+<p>The before/after below shows three spikes distributed across a gradual series. In v1.1.7, the period after the last Noise segment (2025-06-18 → 2025-06-30) was left uncoloured. In v1.1.8 it is correctly filled as Flat.</p>
+<p><div class="before-after-grid">
+<div class="before-after-panel">
+<span class="before-label">BEFORE — V1.1.7</span></p>
+<p><img alt="Trailing region left uncovered before v1.1.8" src="../img/whats-new/v1.1.8/whats_new_flat_fill_trailing_before_pr42.png" /></p>
+<p></div>
+<div class="before-after-panel">
+<span class="after-label">AFTER — V1.1.8</span></p>
+<p><img alt="Trailing region covered as Flat after v1.1.8" src="../img/whats-new/v1.1.8/whats_new_flat_fill_trailing_after_pr42.png" /></p>
+<p></div>
+</div></p>
 <p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_four_spikes_distributed_flatfillins</code></a></p>
 <details class="example">
 <summary>Code</summary>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">])</span>
 <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
-                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </code></pre></div>
 </details>
 </details>
