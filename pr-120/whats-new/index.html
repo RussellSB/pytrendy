@@ -1890,6 +1890,39 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 <summary>Flat fill-in</summary>
 <p>Gaps between classified segments are now automatically filled with a <strong>Flat</strong> segment,
 so the output always covers the full input time range.</p>
+<p>Before this change, those uncovered intervals appeared as white gaps between coloured regions.
+After v1.1.0, they are explicitly represented as blue Flat segments.</p>
+<p><div class="before-after-grid" markdown>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — v1.0.x</span></p>
+<p><img alt="Flat fill-in before PR #8 — white gaps remain between segments" src="../img/whats_new_flat_fill_before_pr8.png" /></p>
+<p></div>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — v1.1.0</span></p>
+<p><img alt="Flat fill-in after PR #8 — gaps covered by Flat segments" src="../img/whats_new_flat_fill_after_pr8.png" /></p>
+<p></div>
+</div></p>
+<p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_four_spikes_distributed_flatfillins</code></a></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div>
+</details>
 </details>
 <details class="note">
 <summary>Gradual trend detection — illustrated</summary>
@@ -1958,15 +1991,34 @@ v1.1.0 introduces smarter shaving and optional padding so transitions span their
 <li><strong>Brown-bug fix:</strong> Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement. (<a href="https://github.com/RussellSB/pytrendy/commit/b0d1690">b0d1690</a> · <a href="https://github.com/RussellSB/pytrendy/commit/5509178">5509178</a>)</li>
 </ul>
 <p><div class="before-after-grid" markdown>
-<div class="before-after-panel" markdown>
-<span class="before-after-label before-label">Before — v1.0.x</span></p>
+  <div class="before-after-panel" markdown>
+  <span class="before-after-label before-label">Before — v1.0.x</span></p>
 <p><img alt="Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)" src="../img/whats_new_brown_bug_before_pr8.png" /></p>
 <p></div>
-<div class="before-after-panel" markdown>
-<span class="before-after-label after-label">After — v1.1.0</span></p>
+  <div class="before-after-panel" markdown>
+  <span class="before-after-label after-label">After — v1.1.0</span></p>
 <p><img alt="Brown-bug fixed — segments align directionally, no overlap (v1.1.0)" src="../img/whats_new_brown_bug_after_pr8.png" /></p>
 <p></div>
-</div></p>
+  </div></p>
+<p>??? example "Code"
+      <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-11&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-16&quot;</span><span class="p">:</span><span class="s2">&quot;2025-03-10&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-18&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-15&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-20&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-22&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-25&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-01&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span>
+    <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
+<span class="p">)</span>
+</code></pre></div></p>
 <ul>
 <li>Gradual swallowing stretches flexibly across neighbouring segment adjustments (<a href="https://github.com/RussellSB/pytrendy/commit/5f6e2c9">5f6e2c9</a>).</li>
 <li>Touching consecutive abrupt segments are now correctly grouped (<a href="https://github.com/RussellSB/pytrendy/commit/50d2f52">50d2f52</a>).</li>
