@@ -32,7 +32,7 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     - Stable releases (from `main`) add a versioned entry and open a sync PR back to `develop`.
     - Code examples reference GitHub raw URLs (`develop` for pre-release, `main` for stable) so they are always reproducible.
     - Within each section, fixes and features are listed in **descending time order** (most recent at the top).
-    - Before/after plot comparisons use `plot_pytrendy` with a consistent style (figsize, grid, legend) so the images are directly comparable.
+    - Before/after plot comparisons use `plot_pytrendy(df, value_col, segments, suppress_show=True)` — this ensures a consistent `figsize=(20, 5)`, weekly grid, and legend across all images so they are directly comparable.
     - Agent instructions embedded in the script docstring remind the generator to verify that referenced CSV files still exist before each refresh.
 
 ??? note "Noise detection control (`avoid_noise`)"
