@@ -1748,11 +1748,31 @@ stability — making the algorithm significantly more reliable on real-world noi
 </blockquote>
 <p>Targeted improvements to noise detection precision and flat segment handling. (<a href="https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8">v1.1.8: tag</a> · <a href="https://github.com/RussellSB/pytrendy/issues/42">v1.1.9: #42</a>)</p>
 <details class="note">
-<summary>Flat fill-in (v1.1.8)</summary>
+<summary>Flat fill-in improvements (v1.1.8)</summary>
+<p>Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to additional edge cases:</p>
 <ul>
-<li>Covers regions that fall outside any detected segment range, eliminating visual white gaps.</li>
-<li>Correctly skips zero-day leading/trailing regions and handles grouped segments.</li>
+<li>Extended coverage to leading and trailing regions that fall outside the detected segment range.</li>
+<li>Correctly skips zero-day boundary regions and handles grouped segments without gaps.</li>
 </ul>
+<p>The same four-spike series now produces a gapless output where every interval between noise and
+trend segments is filled with an explicit Flat segment.</p>
+<p><img alt="Flat fill-in improvements — gapless output after v1.1.8" src="../img/whats_new_flat_fill_after_pr42.png" /></p>
+<p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_four_spikes_distributed_flatfillins</code></a></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</code></pre></div>
+</details>
 </details>
 <details class="note">
 <summary>Noise detection (v1.1.8)</summary>
@@ -1983,25 +2003,24 @@ v1.1.0 introduces smarter shaving and optional padding so transitions span their
 <p>Both names continue to work in v1.1.x.</p>
 </details>
 <details class="note">
-<summary>Core processing revamp &amp; bug fixes</summary>
-<p>The signal processing and post-processing pipeline was extensively reworked (<a href="https://github.com/RussellSB/pytrendy/issues/8">#8</a> · <a href="https://github.com/RussellSB/pytrendy/commit/6c53790">6c53790</a>):</p>
-<ul>
-<li>More robust handling of edge cases across all trend types.</li>
-<li>Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity (<a href="https://github.com/RussellSB/pytrendy/commit/c66ed2e">c66ed2e</a>).</li>
-<li><strong>Brown-bug fix:</strong> Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement. (<a href="https://github.com/RussellSB/pytrendy/commit/b0d1690">b0d1690</a> · <a href="https://github.com/RussellSB/pytrendy/commit/5509178">5509178</a>)</li>
-</ul>
+<summary>Brown-bug fix</summary>
+<p>Up (green) and Down (red) regions were stacking on top of each other in v1.0.x, blending into a
+brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was
+resolved; segments now align directionally before any visual displacement.
+(<a href="https://github.com/RussellSB/pytrendy/commit/b0d1690">b0d1690</a> · <a href="https://github.com/RussellSB/pytrendy/commit/5509178">5509178</a>)</p>
 <p><div class="before-after-grid" markdown>
-  <div class="before-after-panel" markdown>
-  <span class="before-after-label before-label">Before — v1.0.x</span></p>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — v1.0.x</span></p>
 <p><img alt="Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)" src="../img/whats_new_brown_bug_before_pr8.png" /></p>
 <p></div>
-  <div class="before-after-panel" markdown>
-  <span class="before-after-label after-label">After — v1.1.0</span></p>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — v1.1.0</span></p>
 <p><img alt="Brown-bug fixed — segments align directionally, no overlap (v1.1.0)" src="../img/whats_new_brown_bug_after_pr8.png" /></p>
 <p></div>
-  </div></p>
-<p>??? example "Code"
-      <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+</div></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
 <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -2018,8 +2037,15 @@ v1.1.0 introduces smarter shaving and optional padding so transitions span their
     <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
 <span class="p">)</span>
-</code></pre></div></p>
+</code></pre></div>
+</details>
+</details>
+<details class="note">
+<summary>Other core processing revamp &amp; bug fixes</summary>
+<p>The signal processing and post-processing pipeline was extensively reworked (<a href="https://github.com/RussellSB/pytrendy/issues/8">#8</a> · <a href="https://github.com/RussellSB/pytrendy/commit/6c53790">6c53790</a>):</p>
 <ul>
+<li>More robust handling of edge cases across all trend types.</li>
+<li>Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity (<a href="https://github.com/RussellSB/pytrendy/commit/c66ed2e">c66ed2e</a>).</li>
 <li>Gradual swallowing stretches flexibly across neighbouring segment adjustments (<a href="https://github.com/RussellSB/pytrendy/commit/5f6e2c9">5f6e2c9</a>).</li>
 <li>Touching consecutive abrupt segments are now correctly grouped (<a href="https://github.com/RussellSB/pytrendy/commit/50d2f52">50d2f52</a>).</li>
 <li><code>has_inverse()</code> now also validates total-change consistency, not just direction (<a href="https://github.com/RussellSB/pytrendy/commit/37411fe">37411fe</a>).</li>
@@ -2047,6 +2073,52 @@ v1.1.0 introduces smarter shaving and optional padding so transitions span their
 <span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
 </code></pre></div>
+</details>
+<details class="note">
+<summary>Abrupt trend detection</summary>
+<p>Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
+already supported multi-segment abrupt series, though boundary padding was added later in v1.1.0.</p>
+<p><img alt="Abrupt detection — initial release output" src="../img/whats_new_v10x_abrupt.png" /></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+</code></pre></div>
+</details>
+</details>
+<details class="note">
+<summary>Noise detection — random noise on a gradual trend</summary>
+<p>When the input signal carries moderate random noise layered on top of a gradual trend, the
+algorithm identifies noise segments while still extracting the underlying Up/Down/Flat structure.</p>
+<p><img alt="Noise random — initial release output" src="../img/whats_new_v10x_noise_random.png" /></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual-noisy-20&quot;</span><span class="p">)</span>
+</code></pre></div>
+</details>
+</details>
+<details class="note">
+<summary>Noise detection — spikes on a gradual trend</summary>
+<p>Isolated outlier spikes sitting on top of a smooth gradual trend are classified as short Noise
+segments, leaving the surrounding Up/Down structure intact.</p>
+<p><img alt="Noise spike — initial release output" src="../img/whats_new_v10x_noise_spike.png" /></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-01&quot;</span><span class="p">:</span><span class="s2">&quot;2025-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># inject spike</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">)</span>
+</code></pre></div>
+</details>
 </details>
 <!-- WHATS_NEW_CONTENT_END -->
 
