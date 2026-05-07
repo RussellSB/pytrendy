@@ -259,6 +259,46 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     Gaps between classified segments are now automatically filled with a **Flat** segment,
     so the output always covers the full input time range.
 
+    Before this change, those uncovered intervals appeared as white gaps between coloured regions.
+    After v1.1.0, they are explicitly represented as blue Flat segments.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.0.x</span>
+
+    ![Flat fill-in before PR #8 — white gaps remain between segments](img/whats_new_flat_fill_before_pr8.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.0</span>
+
+    ![Flat fill-in after PR #8 — gaps covered by Flat segments](img/whats_new_flat_fill_after_pr8.png)
+
+    </div>
+    </div>
+
+    Regression test: [`test_gradual_four_spikes_distributed_flatfillins`](https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        df.loc["2025-02-28":"2025-02-28", "gradual"] = 125
+        df.loc["2025-04-09":"2025-04-09", "gradual"] = 150
+        df.loc["2025-05-08":"2025-05-08", "gradual"] = 300
+        df.loc["2025-06-03":"2025-06-03", "gradual"] = 320
+        df = df.reset_index()
+
+        pt.detect_trends(
+            df,
+            date_col="date",
+            value_col="gradual",
+            method_params=dict(is_abrupt_padded=False),
+        )
+        ```
+
 ??? note "Gradual trend detection — illustrated"
     <figure markdown>
       ![Gradual trend detection output](img/whats_new_gradual.png)
@@ -327,20 +367,41 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     - Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity ([c66ed2e](https://github.com/RussellSB/pytrendy/commit/c66ed2e)).
     - **Brown-bug fix:** Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement. ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
 
-    <div class="before-after-grid" markdown>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.0.x</span>
+      <div class="before-after-grid" markdown>
+      <div class="before-after-panel" markdown>
+      <span class="before-after-label before-label">Before — v1.0.x</span>
 
-    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
+      ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
 
-    </div>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.0</span>
+      </div>
+      <div class="before-after-panel" markdown>
+      <span class="before-after-label after-label">After — v1.1.0</span>
 
-    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
+      ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
 
-    </div>
-    </div>
+      </div>
+      </div>
+
+      ??? example "Code"
+          ```python
+          import pytrendy as pt
+
+          df = pt.load_data("series_synthetic")
+          df.set_index("date", inplace=True)
+          df.loc["2025-01-01":"2025-02-11", "abrupt"] = 0
+          df.loc["2025-02-16":"2025-03-10", "abrupt"] = 125
+          df.loc["2025-03-18":"2025-04-15", "abrupt"] = 150
+          df.loc["2025-03-20":"2025-04-22", "abrupt"] = 250
+          df.loc["2025-03-25":"2025-04-01", "abrupt"] = 200
+          df = df.reset_index()
+
+          pt.detect_trends(
+              df,
+              date_col="date",
+              value_col="abrupt",
+              method_params=dict(is_abrupt_padded=False),
+          )
+          ```
 
     - Gradual swallowing stretches flexibly across neighbouring segment adjustments ([5f6e2c9](https://github.com/RussellSB/pytrendy/commit/5f6e2c9)).
     - Touching consecutive abrupt segments are now correctly grouped ([50d2f52](https://github.com/RussellSB/pytrendy/commit/50d2f52)).
