@@ -102,7 +102,7 @@ jobs:
 
             ### What changed
             - A new entry was prepended to `docs/whats-new.md` using the GitHub Models API
-              (`gpt-4o-mini`) to summarise the release notes in a user-friendly way.
+              (`claude-sonnet-4`) to summarise the release notes in a user-friendly way.
 
             ### Review checklist
             - [ ] The generated content is accurate and user-friendly.
