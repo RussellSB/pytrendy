@@ -101,9 +101,33 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 
 Targeted improvements to noise detection precision and flat segment handling. ([v1.1.8: tag](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8) · [v1.1.9: #42](https://github.com/RussellSB/pytrendy/issues/42))
 
-??? note "Flat fill-in (v1.1.8)"
-    - Covers regions that fall outside any detected segment range, eliminating visual white gaps.
-    - Correctly skips zero-day leading/trailing regions and handles grouped segments.
+??? note "Flat fill-in improvements (v1.1.8)"
+    Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to additional edge cases:
+
+    - Extended coverage to leading and trailing regions that fall outside the detected segment range.
+    - Correctly skips zero-day boundary regions and handles grouped segments without gaps.
+
+    The same four-spike series now produces a gapless output where every interval between noise and
+    trend segments is filled with an explicit Flat segment.
+
+    ![Flat fill-in improvements — gapless output after v1.1.8](img/whats_new_flat_fill_after_pr42.png)
+
+    Regression test: [`test_gradual_four_spikes_distributed_flatfillins`](https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        df.loc["2025-02-28":"2025-02-28", "gradual"] = 125
+        df.loc["2025-04-09":"2025-04-09", "gradual"] = 150
+        df.loc["2025-05-08":"2025-05-08", "gradual"] = 300
+        df.loc["2025-06-03":"2025-06-03", "gradual"] = 320
+        df = df.reset_index()
+        pt.detect_trends(df, date_col="date", value_col="gradual",
+                         method_params=dict(is_abrupt_padded=False))
+        ```
 
 ??? note "Noise detection (v1.1.8)"
     - Better precision for a spike on an otherwise flat-zero signal.
@@ -360,49 +384,53 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
     Both names continue to work in v1.1.x.
 
-??? note "Core processing revamp & bug fixes"
+??? note "Brown-bug fix"
+    Up (green) and Down (red) regions were stacking on top of each other in v1.0.x, blending into a
+    brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was
+    resolved; segments now align directionally before any visual displacement.
+    ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.0.x</span>
+
+    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.1.0</span>
+
+    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        df.loc["2025-01-01":"2025-02-11", "abrupt"] = 0
+        df.loc["2025-02-16":"2025-03-10", "abrupt"] = 125
+        df.loc["2025-03-18":"2025-04-15", "abrupt"] = 150
+        df.loc["2025-03-20":"2025-04-22", "abrupt"] = 250
+        df.loc["2025-03-25":"2025-04-01", "abrupt"] = 200
+        df = df.reset_index()
+
+        pt.detect_trends(
+            df,
+            date_col="date",
+            value_col="abrupt",
+            method_params=dict(is_abrupt_padded=False),
+        )
+        ```
+
+??? note "Other core processing revamp & bug fixes"
     The signal processing and post-processing pipeline was extensively reworked ([#8](https://github.com/RussellSB/pytrendy/issues/8) · [6c53790](https://github.com/RussellSB/pytrendy/commit/6c53790)):
 
     - More robust handling of edge cases across all trend types.
     - Abrupt detection: better shaving, sub-segmentation, and direction-sensitivity ([c66ed2e](https://github.com/RussellSB/pytrendy/commit/c66ed2e)).
-    - **Brown-bug fix:** Up (green) and Down (red) regions were stacking on top of each other, blending into a brownish artefact. The root cause — abrupt spikes being shaved without direction-awareness — was resolved; segments now align directionally before any visual displacement. ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
-
-      <div class="before-after-grid" markdown>
-      <div class="before-after-panel" markdown>
-      <span class="before-after-label before-label">Before — v1.0.x</span>
-
-      ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
-
-      </div>
-      <div class="before-after-panel" markdown>
-      <span class="before-after-label after-label">After — v1.1.0</span>
-
-      ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
-
-      </div>
-      </div>
-
-      ??? example "Code"
-          ```python
-          import pytrendy as pt
-
-          df = pt.load_data("series_synthetic")
-          df.set_index("date", inplace=True)
-          df.loc["2025-01-01":"2025-02-11", "abrupt"] = 0
-          df.loc["2025-02-16":"2025-03-10", "abrupt"] = 125
-          df.loc["2025-03-18":"2025-04-15", "abrupt"] = 150
-          df.loc["2025-03-20":"2025-04-22", "abrupt"] = 250
-          df.loc["2025-03-25":"2025-04-01", "abrupt"] = 200
-          df = df.reset_index()
-
-          pt.detect_trends(
-              df,
-              date_col="date",
-              value_col="abrupt",
-              method_params=dict(is_abrupt_padded=False),
-          )
-          ```
-
     - Gradual swallowing stretches flexibly across neighbouring segment adjustments ([5f6e2c9](https://github.com/RussellSB/pytrendy/commit/5f6e2c9)).
     - Touching consecutive abrupt segments are now correctly grouped ([50d2f52](https://github.com/RussellSB/pytrendy/commit/50d2f52)).
     - `has_inverse()` now also validates total-change consistency, not just direction ([37411fe](https://github.com/RussellSB/pytrendy/commit/37411fe)).
@@ -431,5 +459,51 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     df = pt.load_data("series_synthetic")
     pt.detect_trends(df, value_col="gradual", date_col="date")
     ```
+
+??? note "Abrupt trend detection"
+    Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
+    already supported multi-segment abrupt series, though boundary padding was added later in v1.1.0.
+
+    ![Abrupt detection — initial release output](img/whats_new_v10x_abrupt.png)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        pt.detect_trends(df, date_col="date", value_col="abrupt",
+                         method_params=dict(is_abrupt_padded=True))
+        ```
+
+??? note "Noise detection — random noise on a gradual trend"
+    When the input signal carries moderate random noise layered on top of a gradual trend, the
+    algorithm identifies noise segments while still extracting the underlying Up/Down/Flat structure.
+
+    ![Noise random — initial release output](img/whats_new_v10x_noise_random.png)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        pt.detect_trends(df, date_col="date", value_col="gradual-noisy-20")
+        ```
+
+??? note "Noise detection — spikes on a gradual trend"
+    Isolated outlier spikes sitting on top of a smooth gradual trend are classified as short Noise
+    segments, leaving the surrounding Up/Down structure intact.
+
+    ![Noise spike — initial release output](img/whats_new_v10x_noise_spike.png)
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        df.loc["2025-03-01":"2025-03-01", "gradual"] = 500  # inject spike
+        df = df.reset_index()
+        pt.detect_trends(df, date_col="date", value_col="gradual")
+        ```
 
 <!-- WHATS_NEW_CONTENT_END -->
