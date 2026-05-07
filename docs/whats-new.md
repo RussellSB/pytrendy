@@ -48,13 +48,13 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
 
-    ![New-market case — Noise artefacts at step boundaries](img/whats_new_avoid_noise_abrupt_before_pr110.png)
+    ![New-market case — Noise artefacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — `avoid_noise=False`</span>
 
-    ![New-market case — clean Up/Down with avoid_noise=False](img/whats_new_avoid_noise_abrupt_after_pr110.png)
+    ![New-market case — clean Up/Down with avoid_noise=False](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png)
 
     </div>
     </div>
@@ -112,13 +112,13 @@ Four updates are landing in the next stable release: an agentic docs generator, 
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.1.10</span>
 
-    ![Normalised series — whole series shown as Flat (nothing detected)](img/whats_new_low_value_before.png)
+    ![Normalised series — whole series shown as Flat (nothing detected)](img/whats-new/v1.1.11/whats_new_low_value_before.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.11</span>
 
-    ![Normalised series — trends correctly detected in v1.1.11](img/whats_new_low_value_after.png)
+    ![Normalised series — trends correctly detected in v1.1.11](img/whats-new/v1.1.11/whats_new_low_value_after.png)
 
     </div>
     </div>
@@ -172,7 +172,7 @@ Targeted improvements to noise detection precision and flat segment handling. ([
     The same four-spike series now produces a gapless output where every interval between noise and
     trend segments is filled with an explicit Flat segment.
 
-    ![Flat fill-in improvements — gapless output after v1.1.8](img/whats_new_flat_fill_after_pr42.png)
+    ![Flat fill-in improvements — gapless output after v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_after_pr42.png)
 
     Regression test: [`test_gradual_four_spikes_distributed_flatfillins`](https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py)
 
@@ -229,13 +229,13 @@ A focused series of noise detection improvements, from an initial major revamp t
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.1.5</span>
 
-    ![Near-zero flatline — false Noise detections before PR #16](img/whats_new_noise_threshold_before_pr16.png)
+    ![Near-zero flatline — false Noise detections before PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_before_pr16.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.6</span>
 
-    ![Near-zero flatline — correctly classified as Flat after PR #16](img/whats_new_noise_threshold_after_pr16.png)
+    ![Near-zero flatline — correctly classified as Flat after PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_after_pr16.png)
 
     </div>
     </div>
@@ -257,13 +257,13 @@ A focused series of noise detection improvements, from an initial major revamp t
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.1.3</span>
 
-    ![Noise detection before PR #13 — fragmented](img/whats_new_noise_before_pr13.png)
+    ![Noise detection before PR #13 — fragmented](img/whats-new/v1.1.4/whats_new_noise_before_pr13.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.4</span>
 
-    ![Noise detection after PR #13 — consolidated](img/whats_new_noise_after_pr13.png)
+    ![Noise detection after PR #13 — consolidated](img/whats-new/v1.1.4/whats_new_noise_after_pr13.png)
 
     </div>
     </div>
@@ -292,13 +292,13 @@ A focused series of noise detection improvements, from an initial major revamp t
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.1.2</span>
 
-    ![Spike on gradual — wide Noise band before PR #12](img/whats_new_spike_before_pr12.png)
+    ![Spike on gradual — wide Noise band before PR #12](img/whats-new/v1.1.3/whats_new_spike_before_pr12.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.3</span>
 
-    ![Spike on gradual — tight Noise segment after PR #12](img/whats_new_spike_after_pr12.png)
+    ![Spike on gradual — tight Noise segment after PR #12](img/whats-new/v1.1.3/whats_new_spike_after_pr12.png)
 
     </div>
     </div>
@@ -352,13 +352,13 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.0.x</span>
 
-    ![Flat fill-in before PR #8 — white gaps remain between segments](img/whats_new_flat_fill_before_pr8.png)
+    ![Flat fill-in before PR #8 — white gaps remain between segments](img/whats-new/v1.1.0/whats_new_flat_fill_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.0</span>
 
-    ![Flat fill-in after PR #8 — gaps covered by Flat segments](img/whats_new_flat_fill_after_pr8.png)
+    ![Flat fill-in after PR #8 — gaps covered by Flat segments](img/whats-new/v1.1.0/whats_new_flat_fill_after_pr8.png)
 
     </div>
     </div>
@@ -395,13 +395,13 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.0.x</span>
 
-    ![Abrupt detection before PR #8 — hairline Up/Down bands](img/whats_new_abrupt_before_pr8.png)
+    ![Abrupt detection before PR #8 — hairline Up/Down bands](img/whats-new/v1.1.0/whats_new_abrupt_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.0</span>
 
-    ![Abrupt detection after PR #8 — properly padded regions](img/whats_new_abrupt_after_pr8.png)
+    ![Abrupt detection after PR #8 — properly padded regions](img/whats-new/v1.1.0/whats_new_abrupt_after_pr8.png)
 
     </div>
     </div>
@@ -444,13 +444,13 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.0.x</span>
 
-    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats_new_brown_bug_before_pr8.png)
+    ![Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)](img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.1.0</span>
 
-    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats_new_brown_bug_after_pr8.png)
+    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats-new/v1.1.0/whats_new_brown_bug_after_pr8.png)
 
     </div>
     </div>
@@ -501,7 +501,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     Smooth up and down trends are detected and annotated as Up, Down, and Flat segments out of the
     box with a single call to `detect_trends()`.
 
-    ![Gradual trend detection — initial release](img/whats_new_gradual.png)
+    ![Gradual trend detection — initial release](img/whats-new/v1.0.x/whats_new_gradual.png)
 
     ??? example "Code"
         ```python
@@ -516,7 +516,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     already supported multi-segment abrupt series. Boundary padding (`is_abrupt_padded=True`) was
     not yet available — detections reflect instantaneous precision at the point of change.
 
-    ![Abrupt detection — initial release output (non-padded)](img/whats_new_v10x_abrupt.png)
+    ![Abrupt detection — initial release output (non-padded)](img/whats-new/v1.0.x/whats_new_v10x_abrupt.png)
 
     ??? example "Code"
         ```python
@@ -531,7 +531,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     When the input signal carries moderate random noise layered on top of a gradual trend, the
     algorithm identifies noise segments while still extracting the underlying Up/Down/Flat structure.
 
-    ![Noise random — initial release output](img/whats_new_v10x_noise_random.png)
+    ![Noise random — initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_random.png)
 
     ??? example "Code"
         ```python
@@ -549,7 +549,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     v1.1.4, v1.1.7) targeted significant precision improvements — reducing over-wide Noise bands and
     better distinguishing spike outliers from sustained noise regions.*
 
-    ![Noise spike — initial release output](img/whats_new_v10x_noise_spike.png)
+    ![Noise spike — initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_spike.png)
 
     ??? example "Code"
         ```python
