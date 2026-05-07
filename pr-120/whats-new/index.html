@@ -1354,10 +1354,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#upcoming-changes-v1111-pre-release-in-development" class="md-nav__link">
+  <a href="#upcoming-changes-v120-pre-release-in-development" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Upcoming Changes (v1.1.11 pre-release) in development
+        Upcoming Changes (v1.2.0 pre-release) in development
       
     </span>
   </a>
@@ -1499,10 +1499,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#upcoming-changes-v1111-pre-release-in-development" class="md-nav__link">
+  <a href="#upcoming-changes-v120-pre-release-in-development" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Upcoming Changes (v1.1.11 pre-release) in development
+        Upcoming Changes (v1.2.0 pre-release) in development
       
     </span>
   </a>
@@ -1640,9 +1640,9 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <hr />
 <!-- WHATS_NEW_CONTENT_START -->
 
-<h2 id="upcoming-changes-v1111-pre-release-in-development">Upcoming Changes (v1.1.11 pre-release) <span class="version-prerelease">in development</span></h2>
+<h2 id="upcoming-changes-v120-pre-release-in-development">Upcoming Changes (v1.2.0 pre-release) <span class="version-prerelease">in development</span></h2>
 <p><em>Staged on the <code>develop</code> branch — will land in the next stable release.</em></p>
-<p>Two fixes to trend metrics and normalised input handling.</p>
+<p>Three updates: two fixes to trend metrics and normalised input handling, plus a new user control to toggle noise detection.</p>
 <details class="note">
 <summary>Trend detection on normalised time series</summary>
 <p><code>detect_trends()</code> previously returned an empty result when the input signal was scaled to the
@@ -1723,6 +1723,62 @@ Fix: <a href="https://github.com/RussellSB/pytrendy/issues/88">#88</a></p>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;pct_change&quot;</span><span class="p">,</span> <span class="s2">&quot;change_rank&quot;</span><span class="p">]])</span>
 </code></pre></div>
 </details>
+</details>
+<details class="note">
+<summary>Noise detection control (<code>avoid_noise</code>)</summary>
+<p>A new <code>avoid_noise</code> parameter in <code>method_params</code> lets users opt out of noise detection entirely.
+When set to <code>False</code>, spikes and noisy regions are ignored and trend detection proceeds straight through them.
+Useful for treatment signals where you don't care about short-term noise.
+Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/110">#110</a></p>
+<p><div class="before-after-grid" markdown>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — <code>avoid_noise=True</code> (default)</span></p>
+<p><img alt="Spiky gradual series — noise segments fragment the detected trends" src="../img/whats_new_avoid_noise_before_pr110.png" /></p>
+<p></div>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — <code>avoid_noise=False</code></span></p>
+<p><img alt="Spiky gradual series — trends detected through the spikes with avoid_noise=False" src="../img/whats_new_avoid_noise_after_pr110.png" /></p>
+<p></div>
+</div></p>
+<p>With the default <code>avoid_noise=True</code>, each spike is classified as a Noise segment (20 total fragments).
+Setting <code>avoid_noise=False</code> produces 8 clean Up/Down/Flat segments that span right through the spikes.</p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># Add four synthetic spikes to a gradual trend</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+<span class="c1"># Detect trends, ignoring noise/spike classification</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">avoid_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+</code></pre></div>
+</details>
+</details>
+<details class="note">
+<summary>Automated What's New — agentic docs generator</summary>
+<p>The What's New page itself is now generated by an AI agent. A GitHub Actions workflow
+(<a href="https://github.com/RussellSB/pytrendy/blob/develop/.github/workflows/whats-new.yaml"><code>whats-new.yaml</code></a>)
+fires automatically whenever a GitHub Release is published. It invokes
+<a href="https://github.com/RussellSB/pytrendy/blob/develop/scripts/generate_whats_new.py"><code>scripts/generate_whats_new.py</code></a>,
+which calls the <strong>GitHub Models API</strong> (Claude Sonnet 4) to write a user-friendly What's New entry
+from the release notes, then opens a pull request for review.</p>
+<p>Key behaviours:</p>
+<ul>
+<li>Pre-releases (from <code>develop</code>) add a collapsible entry to the <strong>Upcoming Changes</strong> section.</li>
+<li>Stable releases (from <code>main</code>) add a versioned entry and open a sync PR back to <code>develop</code>.</li>
+<li>Code examples reference GitHub raw URLs (<code>develop</code> for pre-release, <code>main</code> for stable) so they are always reproducible.</li>
+<li>Agent instructions embedded in the script docstring remind the generator to verify that referenced CSV files still exist before each refresh.</li>
+</ul>
 </details>
 <hr />
 <h2 id="noise-detection-robustness-v113-v1110">Noise Detection &amp; Robustness (v1.1.3 – v1.1.10)</h2>
