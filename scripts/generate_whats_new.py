@@ -13,6 +13,10 @@ Agent instructions (run before each refresh):
     Files live in tests/tests_crashes_edgecases/data/ on both develop and main.
     Use the develop branch URL for pre-releases, main branch URL for stable releases.
     Example check: curl -sI <raw_url> | grep "200"
+  - Before/after plot comparisons must be visually consistent. For bug fixes or features
+    directly related to time-series trend detection, generate both images via the same
+    `detect_trends()` + `plot_pytrendy()` pipeline so that figsize, grid style, legend,
+    and colour scheme are identical between the two images.
 
 Environment variables
 ---------------------
@@ -106,6 +110,10 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         - Avoid emoji in headings and admonition titles. Keep emoji use minimal overall.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
+        - Before/after images must be visually comparable. For any bug fix or feature
+          directly related to time-series trend detection, produce both the "before" and
+          "after" images through the same `detect_trends()` + `plot_pytrendy()` pipeline
+          so that figsize, grid style, legend, and colour scheme are identical.
     """)
 
     payload = {
