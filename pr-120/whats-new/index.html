@@ -1673,11 +1673,11 @@ suppressed, yielding clean Up/Down segments.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — <code>avoid_noise=True</code> (default)</span></p>
-<p><img alt="New-market case — Noise artefacts at step boundaries" src="../img/whats_new_avoid_noise_abrupt_before_pr110.png" /></p>
+<p><img alt="New-market case — Noise artefacts at step boundaries" src="../img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — <code>avoid_noise=False</code></span></p>
-<p><img alt="New-market case — clean Up/Down with avoid_noise=False" src="../img/whats_new_avoid_noise_abrupt_after_pr110.png" /></p>
+<p><img alt="New-market case — clean Up/Down with avoid_noise=False" src="../img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png" /></p>
 <p></div>
 </div></p>
 <details class="example">
@@ -1738,7 +1738,7 @@ Fix: <a href="https://github.com/RussellSB/pytrendy/issues/88">#88</a></p>
 </tr>
 </tbody>
 </table>
-<p><em>Before v1.1.11, all three columns were <code>NaN</code> for Flat (and Noise) segments. Ranked by absolute <code>pct_change</code>.</em></p>
+<p><em>Before v1.1.11, all three columns were <code>NaN</code> for Flat (and Noise) segments. Ranked by <code>change_rank</code>.</em></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -1761,11 +1761,11 @@ Fix: <a href="https://github.com/RussellSB/pytrendy/pull/79">#79</a></p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.1.10</span></p>
-<p><img alt="Normalised series — whole series shown as Flat (nothing detected)" src="../img/whats_new_low_value_before.png" /></p>
+<p><img alt="Normalised series — whole series shown as Flat (nothing detected)" src="../img/whats-new/v1.1.11/whats_new_low_value_before.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.11</span></p>
-<p><img alt="Normalised series — trends correctly detected in v1.1.11" src="../img/whats_new_low_value_after.png" /></p>
+<p><img alt="Normalised series — trends correctly detected in v1.1.11" src="../img/whats-new/v1.1.11/whats_new_low_value_after.png" /></p>
 <p></div>
 </div></p>
 <p>The same normalised series now returns a correctly detected Up / Flat / Down sequence.
@@ -1814,7 +1814,7 @@ stability — making the algorithm significantly more reliable on real-world noi
 </ul>
 <p>The same four-spike series now produces a gapless output where every interval between noise and
 trend segments is filled with an explicit Flat segment.</p>
-<p><img alt="Flat fill-in improvements — gapless output after v1.1.8" src="../img/whats_new_flat_fill_after_pr42.png" /></p>
+<p><img alt="Flat fill-in improvements — gapless output after v1.1.8" src="../img/whats-new/v1.1.8/whats_new_flat_fill_after_pr42.png" /></p>
 <p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_four_spikes_distributed_flatfillins</code></a></p>
 <details class="example">
 <summary>Code</summary>
@@ -1872,11 +1872,11 @@ single Flat segment.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.1.5</span></p>
-<p><img alt="Near-zero flatline — false Noise detections before PR #16" src="../img/whats_new_noise_threshold_before_pr16.png" /></p>
+<p><img alt="Near-zero flatline — false Noise detections before PR #16" src="../img/whats-new/v1.1.6/whats_new_noise_threshold_before_pr16.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.6</span></p>
-<p><img alt="Near-zero flatline — correctly classified as Flat after PR #16" src="../img/whats_new_noise_threshold_after_pr16.png" /></p>
+<p><img alt="Near-zero flatline — correctly classified as Flat after PR #16" src="../img/whats-new/v1.1.6/whats_new_noise_threshold_after_pr16.png" /></p>
 <p></div>
 </div></p>
 </details>
@@ -1896,11 +1896,11 @@ the noise and correctly identifies the downtrend structure.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.1.3</span></p>
-<p><img alt="Noise detection before PR #13 — fragmented" src="../img/whats_new_noise_before_pr13.png" /></p>
+<p><img alt="Noise detection before PR #13 — fragmented" src="../img/whats-new/v1.1.4/whats_new_noise_before_pr13.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.4</span></p>
-<p><img alt="Noise detection after PR #13 — consolidated" src="../img/whats_new_noise_after_pr13.png" /></p>
+<p><img alt="Noise detection after PR #13 — consolidated" src="../img/whats-new/v1.1.4/whats_new_noise_after_pr13.png" /></p>
 <p></div>
 </div></p>
 <p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/tests_crashes_edgecases/test_noise_edgecases.py"><code>test_noisy_edgecase_3_scenario</code></a></p>
@@ -1925,11 +1925,11 @@ classified as a tight 1–3 day Noise segment with the gradual trends fully inta
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.1.2</span></p>
-<p><img alt="Spike on gradual — wide Noise band before PR #12" src="../img/whats_new_spike_before_pr12.png" /></p>
+<p><img alt="Spike on gradual — wide Noise band before PR #12" src="../img/whats-new/v1.1.3/whats_new_spike_before_pr12.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.3</span></p>
-<p><img alt="Spike on gradual — tight Noise segment after PR #12" src="../img/whats_new_spike_after_pr12.png" /></p>
+<p><img alt="Spike on gradual — tight Noise segment after PR #12" src="../img/whats-new/v1.1.3/whats_new_spike_after_pr12.png" /></p>
 <p></div>
 </div></p>
 <p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_spike_single_mid_series</code></a></p>
@@ -1973,11 +1973,11 @@ After v1.1.0, they are explicitly represented as blue Flat segments.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.0.x</span></p>
-<p><img alt="Flat fill-in before PR #8 — white gaps remain between segments" src="../img/whats_new_flat_fill_before_pr8.png" /></p>
+<p><img alt="Flat fill-in before PR #8 — white gaps remain between segments" src="../img/whats-new/v1.1.0/whats_new_flat_fill_before_pr8.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.0</span></p>
-<p><img alt="Flat fill-in after PR #8 — gaps covered by Flat segments" src="../img/whats_new_flat_fill_after_pr8.png" /></p>
+<p><img alt="Flat fill-in after PR #8 — gaps covered by Flat segments" src="../img/whats-new/v1.1.0/whats_new_flat_fill_after_pr8.png" /></p>
 <p></div>
 </div></p>
 <p>Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py"><code>test_gradual_four_spikes_distributed_flatfillins</code></a></p>
@@ -2003,32 +2003,19 @@ After v1.1.0, they are explicitly represented as blue Flat segments.</p>
 </details>
 </details>
 <details class="note">
-<summary>Gradual trend detection — illustrated</summary>
-<p><figure markdown>
-  <img alt="Gradual trend detection output" src="../img/whats_new_gradual.png" />
-  <figcaption>Gradual uptrend, flat, and downtrend — correctly classified over the full series.</figcaption>
-</figure></p>
-<details class="example">
-<summary>Code</summary>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">)</span>
-</code></pre></div>
-</details>
-</details>
-<details class="note">
 <summary>Abrupt trend detection — illustrated</summary>
-<p>In v1.0.x, detected abrupt step-changes had very narrow boundaries (sometimes just 1–3 days).
-v1.1.0 introduces smarter shaving and optional padding so transitions span their natural width.</p>
+<p>v1.1.0 introduced <code>is_abrupt_padded</code> for the first time, enabling boundary padding so that
+abrupt transitions span their natural width rather than hairline boundaries.
+This unlocks quasi-experiment designs such as Interrupted Time Series Analysis (ITSA),
+where clean pre/post intervention windows are required.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.0.x</span></p>
-<p><img alt="Abrupt detection before PR #8 — hairline Up/Down bands" src="../img/whats_new_abrupt_before_pr8.png" /></p>
+<p><img alt="Abrupt detection before PR #8 — hairline Up/Down bands" src="../img/whats-new/v1.1.0/whats_new_abrupt_before_pr8.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.0</span></p>
-<p><img alt="Abrupt detection after PR #8 — properly padded regions" src="../img/whats_new_abrupt_after_pr8.png" /></p>
+<p><img alt="Abrupt detection after PR #8 — properly padded regions" src="../img/whats-new/v1.1.0/whats_new_abrupt_after_pr8.png" /></p>
 <p></div>
 </div></p>
 <details class="example">
@@ -2069,11 +2056,11 @@ resolved; segments now align directionally before any visual displacement.
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — v1.0.x</span></p>
-<p><img alt="Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)" src="../img/whats_new_brown_bug_before_pr8.png" /></p>
+<p><img alt="Brown-bug — Up/Down regions stack causing brown artefact (v1.0.x)" src="../img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">After — v1.1.0</span></p>
-<p><img alt="Brown-bug fixed — segments align directionally, no overlap (v1.1.0)" src="../img/whats_new_brown_bug_after_pr8.png" /></p>
+<p><img alt="Brown-bug fixed — segments align directionally, no overlap (v1.1.0)" src="../img/whats-new/v1.1.0/whats_new_brown_bug_after_pr8.png" /></p>
 <p></div>
 </div></p>
 <details class="example">
@@ -2123,7 +2110,7 @@ resolved; segments now align directionally before any visual displacement.
 <summary>Gradual trend detection</summary>
 <p>Smooth up and down trends are detected and annotated as Up, Down, and Flat segments out of the
 box with a single call to <code>detect_trends()</code>.</p>
-<p><img alt="Gradual trend detection — initial release" src="../img/whats_new_gradual.png" /></p>
+<p><img alt="Gradual trend detection — initial release" src="../img/whats-new/v1.0.x/whats_new_gradual.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
@@ -2138,7 +2125,7 @@ box with a single call to <code>detect_trends()</code>.</p>
 <p>Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
 already supported multi-segment abrupt series. Boundary padding (<code>is_abrupt_padded=True</code>) was
 not yet available — detections reflect instantaneous precision at the point of change.</p>
-<p><img alt="Abrupt detection — initial release output (non-padded)" src="../img/whats_new_v10x_abrupt.png" /></p>
+<p><img alt="Abrupt detection — initial release output (non-padded)" src="../img/whats-new/v1.0.x/whats_new_v10x_abrupt.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
@@ -2153,7 +2140,7 @@ not yet available — detections reflect instantaneous precision at the point of
 <summary>Noise detection — random noise on a gradual trend</summary>
 <p>When the input signal carries moderate random noise layered on top of a gradual trend, the
 algorithm identifies noise segments while still extracting the underlying Up/Down/Flat structure.</p>
-<p><img alt="Noise random — initial release output" src="../img/whats_new_v10x_noise_random.png" /></p>
+<p><img alt="Noise random — initial release output" src="../img/whats-new/v1.0.x/whats_new_v10x_noise_random.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
@@ -2170,7 +2157,7 @@ segments, leaving the surrounding Up/Down structure intact.</p>
 <p><em>This was the initial implementation of spike detection in v1.0.x. Subsequent versions (v1.1.3,
 v1.1.4, v1.1.7) targeted significant precision improvements — reducing over-wide Noise bands and
 better distinguishing spike outliers from sustained noise regions.</em></p>
-<p><img alt="Noise spike — initial release output" src="../img/whats_new_v10x_noise_spike.png" /></p>
+<p><img alt="Noise spike — initial release output" src="../img/whats-new/v1.0.x/whats_new_v10x_noise_spike.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
