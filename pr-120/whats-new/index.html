@@ -2078,15 +2078,16 @@ box with a single call to <code>detect_trends()</code>.</p>
 <details class="note">
 <summary>Abrupt trend detection</summary>
 <p>Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
-already supported multi-segment abrupt series, though boundary padding was added later in v1.1.0.</p>
-<p><img alt="Abrupt detection — initial release output" src="../img/whats_new_v10x_abrupt.png" /></p>
+already supported multi-segment abrupt series. Boundary padding (<code>is_abrupt_padded=True</code>) was
+not yet available — detections reflect instantaneous precision at the point of change.</p>
+<p><img alt="Abrupt detection — initial release output (non-padded)" src="../img/whats_new_v10x_abrupt.png" /></p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
-                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+                 <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </code></pre></div>
 </details>
 </details>
