@@ -3,9 +3,10 @@
 import pandas as pd
 import numpy as np
 from scipy.signal import savgol_filter
+from scipy.stats import iqr
 from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
-def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
+def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug: bool=False) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 
@@ -31,6 +32,14 @@ def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
             Input time series data with a datetime index and signal column.
         value_col (str): 
             Name of the column containing the signal to process.
+        method_params (dict, optional):
+            Optional parameters to customize detection heuristics. Supported keys:
+
+            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
+            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        debug (bool, optional):
+            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
 
     Returns:
         `pd.DataFrame`: Modified DataFrame with additional columns.
@@ -43,7 +52,7 @@ def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
 
     THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
-    THRESHOLD_SMOOTH = 0.25 # Sensitivity to detecting trends (recommended 0-0.5)
+    THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
 
     # 1. Noise detection via SNR. 
     # 1.1 Compute the SNR
@@ -173,38 +182,54 @@ def process_signals(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
+
+    # Important condition to establish non-trend segments to avoid detecting trends over
+    avoid_condition = (df['flat_flag'] == 0) # flat is always avoided
+    if method_params['avoid_noise']: # noise can be optionally avoided, up to the user
+        avoid_condition &= (df['noise_flag'] == 0)
+
+    derivative_limit = abs(iqr(df[value_col])) * THRESHOLD_SMOOTH
     df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
-    df.loc[(df['smoothed_deriv'] >= THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = 1
-    df.loc[(df['smoothed_deriv'] < -THRESHOLD_SMOOTH) & (df['flat_flag'] == 0) & (df['noise_flag'] == 0), 'trend_flag'] = -1
+    df.loc[(df['smoothed_deriv'] >= derivative_limit) & avoid_condition, 'trend_flag'] = 1
+    df.loc[(df['smoothed_deriv'] < -derivative_limit) & avoid_condition, 'trend_flag'] = -1
 
-    # import matplotlib.pyplot as plt
+    if debug:
+        import matplotlib.pyplot as plt
 
-    # ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
+        ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
+        plt.title("Signal-Noise Ratio (SNR)")
+        plt.show()
 
-    # ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.title("Noise Flag")
+        plt.show()
 
-    # ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.title("Smoothed")
+        plt.show()
 
-    # ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.title("Smoothed Std")
+        plt.show()
 
-    # ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.title("Flat Flag")
+        plt.show()
 
-    # ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
+        ax.right_ax.axhline(y=derivative_limit, color='gray', linestyle='--', linewidth=2)
+        ax.right_ax.axhline(y=-derivative_limit, color='gray', linestyle=':', linewidth=2)
+        plt.title("Smoothed Derivative")
+        plt.show()
 
-    # ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
-    # ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
-    # plt.show()
+        ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
+        ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
+        plt.title("Trend Flag")
+        plt.show()
 
     return df

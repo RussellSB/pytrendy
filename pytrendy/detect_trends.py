@@ -8,7 +8,7 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 
-def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, method_params:dict=None) -> PyTrendyResults:
+def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, method_params: dict=None, debug: bool=False ) -> PyTrendyResults:
     """
     This is the main function that runs trend detection end-to-end.
     
@@ -41,7 +41,11 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
 
             - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
             - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
-
+            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        debug (bool, optional):
+            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.
+            Defaults to `False`.
+            
     Returns:
         PyTrendyResults:
             An object encapsulating the detected segments and associated metadata.
@@ -59,10 +63,11 @@ def detect_trends(df:pd.DataFrame, date_col:str, value_col: str, plot=True, meth
     method_params = {
         'is_abrupt_padded': method_params.get('is_abrupt_padded', False),
         'abrupt_padding': method_params.get('abrupt_padding', 28),
+        'avoid_noise': method_params.get('avoid_noise', True),
     }
 
     # Core 5-step pipeline
-    df = process_signals(df, value_col)
+    df = process_signals(df, value_col, method_params, debug)
     segments = get_segments(df)
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)

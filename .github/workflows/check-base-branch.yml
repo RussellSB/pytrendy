@@ -1,0 +1,33 @@
+name: Check Base Branch
+
+on:
+  pull_request:
+    types: [opened, synchronize, ready_for_review]
+
+jobs:
+  check-base-branch:
+    name: Validate Base Branch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ensure PR targets allowed base branch
+        run: |
+          BASE="${{ github.base_ref }}"
+          HEAD="${{ github.head_ref }}"
+
+          if [ "$BASE" = "develop" ]; then
+            echo "Base branch check passed: targeting 'develop'."
+            exit 0
+          fi
+
+          if [ "$BASE" = "main" ] && [ "$HEAD" = "develop" ]; then
+            echo "Base branch check passed: allowing release PR from 'develop' to 'main'."
+            exit 0
+          fi
+
+          if [ "$BASE" = "main" ]; then
+            echo "Error: Pull requests targeting 'main' must come from the 'develop' branch, not '$HEAD'."
+            exit 1
+          fi
+
+          echo "Error: Pull requests must target 'develop' (or target 'main' only from 'develop'), not '$BASE'."
+          exit 1

@@ -20,6 +20,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
             - **is_abrupt_padded** (`bool`): If `True`, skips neighboring-noise checks around abrupt segments. Defaults to `False`.
             - **abrupt_padding** (`int`): Padding window in days used by abrupt refinement; included for pipeline consistency. Defaults to `28`.
+            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
@@ -182,49 +183,51 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         segments_refined.append(segment)
 
     # Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise
-    segments = deepcopy(segments_refined)
-    segments_refined = [] 
-    for i, segment in enumerate(segments):
-        if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):
+    # Only runs post-processing cleanup logic when avoid_noise is True, enabled by default.
+    if method_params['avoid_noise']:
+        segments = deepcopy(segments_refined)
+        segments_refined = [] 
+        for i, segment in enumerate(segments):
+            if (i < len(segments)-1 and has_partial_overlap_next(segment, segments[i+1])):
 
-            shifted_end = (pd.to_datetime(segments[i+1]['start']) - pd.Timedelta(days=1))
-            start = pd.to_datetime(segment['start'])
-            is_inverted = (shifted_end < start) # In case noise segment is <= 1 day in length
-            if is_inverted: 
-                continue
+                shifted_end = (pd.to_datetime(segments[i+1]['start']) - pd.Timedelta(days=1))
+                start = pd.to_datetime(segment['start'])
+                is_inverted = (shifted_end < start) # In case noise segment is <= 1 day in length
+                if is_inverted: 
+                    continue
 
-            # when gradual, follows similar logic to expand/contract selection.
-            end_df = df.loc[start:shifted_end]
-            if segments[i]['direction'] == 'Up':
-                new_end = end_df[value_col].idxmax()
-                segments[i]['end'] = new_end.strftime('%Y-%m-%d')
-            
-            if segments[i]['direction'] == 'Down':
-                new_end = end_df[value_col].idxmin()
-                segments[i]['end'] = new_end.strftime('%Y-%m-%d')
+                # when gradual, follows similar logic to expand/contract selection.
+                end_df = df.loc[start:shifted_end]
+                if segments[i]['direction'] == 'Up':
+                    new_end = end_df[value_col].idxmax()
+                    segments[i]['end'] = new_end.strftime('%Y-%m-%d')
+                
+                if segments[i]['direction'] == 'Down':
+                    new_end = end_df[value_col].idxmin()
+                    segments[i]['end'] = new_end.strftime('%Y-%m-%d')
 
-            elif segments[i]['direction'] == 'Flat':
-                segments[i]['end'] = shifted_end.strftime('%Y-%m-%d')
+                elif segments[i]['direction'] == 'Flat':
+                    segments[i]['end'] = shifted_end.strftime('%Y-%m-%d')
 
-        if (i > 0 and has_partial_overlap_prev(segment, segments[i-1])): 
+            if (i > 0 and has_partial_overlap_prev(segment, segments[i-1])): 
 
-            shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
-            end = pd.to_datetime(segment['end'])
-            
-            # when gradual, follows similar logic to expand/contract selection.
-            start_df = df.loc[shifted_start:end]
-            if segments[i]['direction'] == 'Up':
-                new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1)
-                segments[i]['start'] = new_start.strftime('%Y-%m-%d')
+                shifted_start = (pd.to_datetime(segments[i-1]['end']) + pd.Timedelta(days=1))
+                end = pd.to_datetime(segment['end'])
+                
+                # when gradual, follows similar logic to expand/contract selection.
+                start_df = df.loc[shifted_start:end]
+                if segments[i]['direction'] == 'Up':
+                    new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1)
+                    segments[i]['start'] = new_start.strftime('%Y-%m-%d')
 
-            if segments[i]['direction'] == 'Down':
-                new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1)
-                segments[i]['start'] = new_start.strftime('%Y-%m-%d') 
+                if segments[i]['direction'] == 'Down':
+                    new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1)
+                    segments[i]['start'] = new_start.strftime('%Y-%m-%d') 
 
-            elif segments[i]['direction'] == 'Flat':
-                segments[i]['start'] = shifted_start.strftime('%Y-%m-%d')
+                elif segments[i]['direction'] == 'Flat':
+                    segments[i]['start'] = shifted_start.strftime('%Y-%m-%d')
 
-        segments_refined.append(segment)
+            segments_refined.append(segment)
 
     # Pass 4: Cleans inverse AGAIN: in case any artifacts from overlap adjustments
     segments = deepcopy(segments_refined)
@@ -235,7 +238,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         segments_refined.append(segment)
 
     # Pass 5: 
-    # - Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough
+    # - Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough (enabled when avoid_noise is True)
     # - Sets trends to flat when too flat.
     segments = deepcopy(segments_refined)
     segments_refined = [] 
@@ -309,7 +312,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise:
+        if method_params['avoid_noise'] and \
+            (too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise):
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
 

@@ -10,6 +10,7 @@ nav:
       - Noise: examples/fundamentals/noise.ipynb
   - API Reference: reference
   - Contribution Guide: contributing.md
+  - What's New: whats-new.md
 
 theme: 
   name: material # flatly, material, minty
@@ -48,6 +49,7 @@ markdown_extensions:
       pygments_lang_class: true
   - pymdownx.inlinehilite
   - pymdownx.superfences
+  - pymdownx.details
   - admonition
   - markdown.extensions.admonition
   - attr_list
