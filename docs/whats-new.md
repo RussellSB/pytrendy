@@ -166,31 +166,44 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 Targeted improvements to noise detection precision and flat segment handling. ([v1.1.8: tag](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8) · [v1.1.9: #42](https://github.com/RussellSB/pytrendy/issues/42))
 
 ??? note "Flat fill-in improvements (v1.1.8)"
-    Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to additional edge cases:
+    Building on the flat fill-in first introduced in v1.1.0, v1.1.8 extended coverage to two additional edge cases:
 
-    - Extended coverage to leading and trailing regions that fall outside the detected segment range.
-    - Correctly skips zero-day boundary regions and handles grouped segments without gaps.
+    - **Trailing / leading regions**: if the detected segments don't span the full series range, the uncovered leading or trailing period is now filled in with a Flat segment.
+    - **Robustness to grouping**: zero-day boundary regions are safely skipped; grouped segments no longer produce gaps.
 
-    The same four-spike series now produces a gapless output where every interval between noise and
-    trend segments is filled with an explicit Flat segment.
+    The before/after below shows three spikes distributed across a gradual series. In v1.1.7, the period after the last Noise segment (2025-06-18 → 2025-06-30) was left uncoloured. In v1.1.8 it is correctly filled as Flat.
 
-    ![Flat fill-in improvements — gapless output after v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_after_pr42.png)
+    <div class="before-after-grid">
+    <div class="before-after-panel">
+    <span class="before-label">BEFORE — V1.1.7</span>
+
+    ![Trailing region left uncovered before v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_before_pr42.png)
+
+    </div>
+    <div class="before-after-panel">
+    <span class="after-label">AFTER — V1.1.8</span>
+
+    ![Trailing region covered as Flat after v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_after_pr42.png)
+
+    </div>
+    </div>
 
     Regression test: [`test_gradual_four_spikes_distributed_flatfillins`](https://github.com/RussellSB/pytrendy/blob/develop/tests/test_noise_spikes_gradual.py)
 
     ??? example "Code"
         ```python
+        import pandas as pd
         import pytrendy as pt
 
         df = pt.load_data("series_synthetic")
+        df["date"] = pd.to_datetime(df["date"])
         df.set_index("date", inplace=True)
-        df.loc["2025-02-28":"2025-02-28", "gradual"] = 125
-        df.loc["2025-04-09":"2025-04-09", "gradual"] = 150
-        df.loc["2025-05-08":"2025-05-08", "gradual"] = 300
-        df.loc["2025-06-03":"2025-06-03", "gradual"] = 320
+        df.loc["2025-04-08":"2025-04-08", "gradual"] = 200
+        df.loc["2025-05-08":"2025-05-08", "gradual"] = 200
+        df.loc["2025-06-08":"2025-06-08", "gradual"] = 200
         df = df.reset_index()
         pt.detect_trends(df, date_col="date", value_col="gradual",
-                         method_params=dict(is_abrupt_padded=False))
+                         method_params=dict(is_abrupt_padded=True))
         ```
 
 ??? note "Noise detection (v1.1.8)"
