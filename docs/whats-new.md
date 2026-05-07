@@ -463,9 +463,10 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
 
 ??? note "Abrupt trend detection"
     Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
-    already supported multi-segment abrupt series, though boundary padding was added later in v1.1.0.
+    already supported multi-segment abrupt series. Boundary padding (`is_abrupt_padded=True`) was
+    not yet available — detections reflect instantaneous precision at the point of change.
 
-    ![Abrupt detection — initial release output](img/whats_new_v10x_abrupt.png)
+    ![Abrupt detection — initial release output (non-padded)](img/whats_new_v10x_abrupt.png)
 
     ??? example "Code"
         ```python
@@ -473,7 +474,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
 
         df = pt.load_data("series_synthetic")
         pt.detect_trends(df, date_col="date", value_col="abrupt",
-                         method_params=dict(is_abrupt_padded=True))
+                         method_params=dict(is_abrupt_padded=False))
         ```
 
 ??? note "Noise detection — random noise on a gradual trend"
