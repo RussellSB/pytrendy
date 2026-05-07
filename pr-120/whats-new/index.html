@@ -1650,13 +1650,15 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 fires automatically whenever a GitHub Release is published. It invokes
 <a href="https://github.com/RussellSB/pytrendy/blob/develop/scripts/generate_whats_new.py"><code>scripts/generate_whats_new.py</code></a>,
 which calls the <strong>GitHub Models API</strong> (Claude Sonnet 4) to write a user-friendly What's New entry
-from the release notes, then opens a pull request for review.</p>
+from the release notes, then opens a pull request for review.
+Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/120">#120</a></p>
 <p>Key behaviours:</p>
 <ul>
 <li>Pre-releases (from <code>develop</code>) add a collapsible entry to the <strong>Upcoming Changes</strong> section.</li>
 <li>Stable releases (from <code>main</code>) add a versioned entry and open a sync PR back to <code>develop</code>.</li>
 <li>Code examples reference GitHub raw URLs (<code>develop</code> for pre-release, <code>main</code> for stable) so they are always reproducible.</li>
 <li>Within each section, fixes and features are listed in <strong>descending time order</strong> (most recent at the top).</li>
+<li>Before/after plot comparisons use <code>plot_pytrendy(df, value_col, segments, suppress_show=True)</code> — this ensures a consistent <code>figsize=(20, 5)</code>, weekly grid, and legend across all images so they are directly comparable.</li>
 <li>Agent instructions embedded in the script docstring remind the generator to verify that referenced CSV files still exist before each refresh.</li>
 </ul>
 </details>
@@ -1665,12 +1667,9 @@ from the release notes, then opens a pull request for review.</p>
 <p>A new <code>avoid_noise</code> parameter in <code>method_params</code> lets users opt out of noise detection entirely.
 When set to <code>False</code>, spikes and noisy regions are ignored and trend detection proceeds straight through them.
 Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/110">#110</a></p>
-<p><strong>Example 1 — new-market / quasi-experiment case (abrupt)</strong></p>
-<p>Useful when modelling a new-market launch or quasi-experiment where the treatment signal is 0
-before and after the activation window. Without <code>avoid_noise=False</code>, small noisy boundary
-regions around the step-changes are classified as Noise segments, fragmenting the clean Up/Down
-structure. With <code>avoid_noise=False</code>, those boundary artefacts are suppressed and the signal is
-read as two clean trend segments.</p>
+<p>Useful for modelling a new-market launch or quasi-experiment where the signal is zero before and
+after the activation window. With <code>avoid_noise=False</code>, boundary artefacts around step-changes are
+suppressed, yielding clean Up/Down segments.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label before-label">Before — <code>avoid_noise=True</code> (default)</span></p>
@@ -1695,40 +1694,6 @@ read as two clean trend segments.</p>
 <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">avoid_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
-</code></pre></div>
-</details>
-<p><strong>Example 2 — spiky gradual trend</strong></p>
-<p><div class="before-after-grid" markdown>
-<div class="before-after-panel" markdown>
-<span class="before-after-label before-label">Before — <code>avoid_noise=True</code> (default)</span></p>
-<p><img alt="Spiky gradual series — noise segments fragment the detected trends" src="../img/whats_new_avoid_noise_before_pr110.png" /></p>
-<p></div>
-<div class="before-after-panel" markdown>
-<span class="before-after-label after-label">After — <code>avoid_noise=False</code></span></p>
-<p><img alt="Spiky gradual series — trends detected through the spikes with avoid_noise=False" src="../img/whats_new_avoid_noise_after_pr110.png" /></p>
-<p></div>
-</div></p>
-<p>With the default <code>avoid_noise=True</code>, each spike is classified as a Noise segment (producing many
-fragmented intervals). Setting <code>avoid_noise=False</code> produces clean Up/Down/Flat segments that span
-right through the spikes.</p>
-<details class="example">
-<summary>Code</summary>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
-
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="c1"># Add four synthetic spikes to a gradual trend</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-
-<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">avoid_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
 </code></pre></div>
