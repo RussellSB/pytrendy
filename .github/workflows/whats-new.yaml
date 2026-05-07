@@ -9,7 +9,7 @@ name: What's New Generator
 # Flow
 # ─────────────────────────────────────────────────────────────────────────────
 # • Parse the release notes (or fall back to CHANGELOG.md).
-# • Call the GitHub Models API (gpt-4o-mini) to generate a user-friendly entry.
+# • Call the GitHub Models API (Claude Sonnet 4) to generate a user-friendly entry.
 # • Prepend the new entry into docs/whats-new.md.
 # • Open a PR back to the release branch (develop or main) for review.
 # • On main: also open a follow-up PR to sync the page back to develop.
