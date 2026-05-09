@@ -66,6 +66,16 @@ def _env(key: str, default: str = "") -> str:
     return os.environ.get(key, default).strip()
 
 
+def _base_version(tag: str) -> str:
+    """Return the base semver string from a tag, stripping the leading 'v' and any pre-release suffix.
+
+    Examples:
+        "v1.2.0"        → "1.2.0"
+        "v1.3.0-dev.1"  → "1.3.0"
+    """
+    return tag.lstrip("v").split("-")[0]
+
+
 def _read_changelog_section(tag: str) -> str:
     """Extract the changelog block for a given tag from CHANGELOG.md."""
     if not CHANGELOG_PATH.exists():
@@ -225,14 +235,13 @@ def _build_section(
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
-    version = tag.lstrip("v")
+    base = _base_version(tag)
     if is_prerelease:
-        base = version.split("-")[0]
         return (
             f'## Coming in v{base} <span class="version-prerelease">pre-release</span>\n\n'
             f"*Staged on the `develop` branch — will land in the next stable release.*"
         )
-    return f"## Released in v{version}\n\n> Released {date_str}"
+    return f"## Released in v{base}\n\n> Released {date_str}"
 
 
 def _remove_prerelease_for_version_in_file(file_path: Path, base_version: str) -> None:
@@ -254,8 +263,10 @@ def _remove_prerelease_for_version_in_file(file_path: Path, base_version: str) -
     content = text[after_start:end_idx]
 
     escaped = re.escape(base_version)
+    # Match any ## heading line that references this version as pre-release.
+    # Use [^\n]* (any non-newline chars) to keep the match strictly on one line.
     header_pat = re.compile(
-        rf"^## .*?v{escaped}.*?(?:pre-release|version-prerelease).*$",
+        rf"^## [^\n]*v{escaped}[^\n]*(?:pre-release|version-prerelease)[^\n]*$",
         re.MULTILINE | re.IGNORECASE,
     )
     m = header_pat.search(content)
@@ -274,9 +285,12 @@ def _remove_prerelease_for_version_in_file(file_path: Path, base_version: str) -
     end_m = end_pat.search(rest)
     sec_end = m.end() + (end_m.start() if end_m else len(rest))
 
-    # Rebuild content without the pre-release section.
-    new_content = content[:sec_start].rstrip("\n") + content[sec_end:].lstrip("\n")
-    new_content = re.sub(r"\n{3,}", "\n\n", new_content).strip()
+    # Rebuild content without the pre-release section; collapse extra blank lines.
+    new_content = re.sub(
+        r"\n{3,}",
+        "\n\n",
+        content[:sec_start].rstrip("\n") + content[sec_end:].lstrip("\n"),
+    ).strip()
 
     new_text = (
         text[:after_start]
@@ -308,7 +322,7 @@ def _update_develop_note(file_path: Path, is_prerelease: bool, tag: str) -> None
     if ns == -1 or ne == -1:
         return  # No note sentinels — nothing to update (e.g. main branch).
 
-    version = tag.lstrip("v").split("-")[0]
+    version = _base_version(tag)
     if is_prerelease:
         note = (
             '!!! note "Pre-release documentation"\n'
@@ -398,8 +412,7 @@ def main() -> None:
     # for the same base version to avoid duplication (dev branch has the pre-release
     # entry; syncing the stable version should replace it, not duplicate it).
     if not is_prerelease:
-        base_version = tag.lstrip("v").split("-")[0]
-        _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, base_version)
+        _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, _base_version(tag))
 
     body = _build_section(tag, raw_notes, is_prerelease, token)
     heading = _make_heading(tag, is_prerelease, date_str)
