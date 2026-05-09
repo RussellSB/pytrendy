@@ -281,13 +281,14 @@ def _remove_prerelease_for_version_in_file(file_path: Path, base_version: str) -
     rest = content[m.end():]
 
     # The section ends at the next `---` separator or the next `## ` heading.
-    end_pat = re.compile(r"^(?:---\s*|##\s)", re.MULTILINE)
+    end_pat = re.compile(r"^(?:---\s*|##\s+)", re.MULTILINE)
     end_m = end_pat.search(rest)
     sec_end = m.end() + (end_m.start() if end_m else len(rest))
 
-    # Rebuild content without the pre-release section; collapse extra blank lines.
+    # Rebuild content without the pre-release section; collapse extra blank lines
+    # (including lines that contain only whitespace).
     new_content = re.sub(
-        r"\n{3,}",
+        r"\n[ \t]*\n[ \t]*\n+",
         "\n\n",
         content[:sec_start].rstrip("\n") + content[sec_end:].lstrip("\n"),
     ).strip()
