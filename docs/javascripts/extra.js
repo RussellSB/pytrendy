@@ -10,7 +10,7 @@
             return "develop";
         }
         var p = window.location.pathname;
-        if (/\/pr-preview\//.test(p))  return "pr-preview";
+        if (/\/pr-\d+\//.test(p))      return "pr-preview";
         if (/\/main(\/|$)/.test(p))    return "main";
         if (/\/develop(\/|$)/.test(p)) return "develop";
         return "main";
