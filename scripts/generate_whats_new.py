@@ -51,6 +51,9 @@ CHANGELOG_PATH = REPO_ROOT / "CHANGELOG.md"
 CONTENT_START = "<!-- WHATS_NEW_CONTENT_START -->"
 CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 
+NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
+NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
+
 GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
 MODEL = "claude-sonnet-4"
 
@@ -232,6 +235,105 @@ def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
     return f"## Released in v{version}\n\n> Released {date_str}"
 
 
+def _remove_prerelease_for_version_in_file(file_path: Path, base_version: str) -> None:
+    """Remove any pre-release section for *base_version* from the sentinel-delimited block.
+
+    Matches headings such as:
+      ## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+      ## Upcoming Changes (v1.2.0 pre-release) <span class="version-prerelease">in development</span>
+    """
+    if not file_path.exists():
+        return
+    text = file_path.read_text(encoding="utf-8")
+    start_idx = text.find(CONTENT_START)
+    end_idx = text.find(CONTENT_END)
+    if start_idx == -1 or end_idx == -1:
+        return
+
+    after_start = start_idx + len(CONTENT_START)
+    content = text[after_start:end_idx]
+
+    escaped = re.escape(base_version)
+    header_pat = re.compile(
+        rf"^## .*?v{escaped}.*?(?:pre-release|version-prerelease).*$",
+        re.MULTILINE | re.IGNORECASE,
+    )
+    m = header_pat.search(content)
+    if not m:
+        print(
+            f"[whats-new] No pre-release section found for v{base_version}; nothing removed.",
+            file=sys.stderr,
+        )
+        return
+
+    sec_start = m.start()
+    rest = content[m.end():]
+
+    # The section ends at the next `---` separator or the next `## ` heading.
+    end_pat = re.compile(r"^(?:---\s*|##\s)", re.MULTILINE)
+    end_m = end_pat.search(rest)
+    sec_end = m.end() + (end_m.start() if end_m else len(rest))
+
+    # Rebuild content without the pre-release section.
+    new_content = content[:sec_start].rstrip("\n") + content[sec_end:].lstrip("\n")
+    new_content = re.sub(r"\n{3,}", "\n\n", new_content).strip()
+
+    new_text = (
+        text[:after_start]
+        + ("\n\n" + new_content if new_content else "")
+        + "\n\n"
+        + text[end_idx:]
+    )
+    file_path.write_text(new_text, encoding="utf-8")
+    print(f"[whats-new] Removed pre-release section for v{base_version}.")
+
+
+def _update_develop_note(file_path: Path, is_prerelease: bool, tag: str) -> None:
+    """Replace the content between the note sentinels (if present) with appropriate text.
+
+    Pre-release pending:
+        !!! note "Pre-release documentation"
+            The section at the top reflects changes staged for the next stable release.
+    No pre-release (after stable sync):
+        !!! note "Develop build"
+            Currently aligned with stable release vX.Y.Z.
+
+    On the ``main`` branch the sentinels are absent, so this is a no-op.
+    """
+    if not file_path.exists():
+        return
+    text = file_path.read_text(encoding="utf-8")
+    ns = text.find(NOTE_START)
+    ne = text.find(NOTE_END)
+    if ns == -1 or ne == -1:
+        return  # No note sentinels — nothing to update (e.g. main branch).
+
+    version = tag.lstrip("v").split("-")[0]
+    if is_prerelease:
+        note = (
+            '!!! note "Pre-release documentation"\n'
+            "    You are viewing the **develop** (pre-release) build.  \n"
+            "    The section at the top reflects changes staged for the next stable release.  \n"
+            "    Switch to the **main** docs via the badge in the header to see only stable content."
+        )
+    else:
+        note = (
+            '!!! note "Develop build"\n'
+            f"    You are viewing the **develop** build, currently aligned with stable release **v{version}**.  \n"
+            "    Switch to the **main** docs via the badge in the header to see the stable documentation."
+        )
+
+    new_text = (
+        text[: ns + len(NOTE_START)]
+        + "\n"
+        + note
+        + "\n"
+        + text[ne:]
+    )
+    file_path.write_text(new_text, encoding="utf-8")
+    print(f"[whats-new] Updated develop note (is_prerelease={is_prerelease}).")
+
+
 def _inject_section(file_path: Path, new_block: str) -> None:
     """Prepend `new_block` inside the sentinel markers in `file_path`."""
     text = file_path.read_text(encoding="utf-8")
@@ -292,11 +394,22 @@ def main() -> None:
 
     print(f"[whats-new] Generating entry for {tag} (prerelease={is_prerelease})…")
 
+    # When a stable release is published, remove any existing pre-release section
+    # for the same base version to avoid duplication (dev branch has the pre-release
+    # entry; syncing the stable version should replace it, not duplicate it).
+    if not is_prerelease:
+        base_version = tag.lstrip("v").split("-")[0]
+        _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, base_version)
+
     body = _build_section(tag, raw_notes, is_prerelease, token)
     heading = _make_heading(tag, is_prerelease, date_str)
     new_block = heading + "\n\n" + body
 
     _inject_section(WHATS_NEW_PATH, new_block)
+
+    # Update the develop-branch note block (no-op when sentinels are absent, e.g. main).
+    _update_develop_note(WHATS_NEW_PATH, is_prerelease, tag)
+
     print(f"[whats-new] Updated {WHATS_NEW_PATH}")
 
 
