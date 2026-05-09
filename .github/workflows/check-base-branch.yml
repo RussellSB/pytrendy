@@ -24,6 +24,11 @@ jobs:
             exit 0
           fi
 
+          if [ "$BASE" = "main" ] && [[ "$HEAD" == docs/whats-new-* ]]; then
+            echo "Base branch check passed: allowing automated What's New PR from '$HEAD' to 'main'."
+            exit 0
+          fi
+
           if [ "$BASE" = "main" ]; then
             echo "Error: Pull requests targeting 'main' must come from the 'develop' branch, not '$HEAD'."
             exit 1
