@@ -10,6 +10,7 @@
             return "develop";
         }
         var p = window.location.pathname;
+        if (/\/pr-preview\//.test(p))  return "pr-preview";
         if (/\/main(\/|$)/.test(p))    return "main";
         if (/\/develop(\/|$)/.test(p)) return "develop";
         return "main";
@@ -32,19 +33,30 @@
 
     document.addEventListener("DOMContentLoaded", function () {
         var branch = detectBranch();
-        var other  = branch === "main" ? "develop" : "main";
-        var url    = buildToggleUrl(branch);
+        var isPrPreview = branch === "pr-preview";
 
-        var label = branch === "develop" ? "dev" : "main";
-        var otherLabel = other === "develop" ? "dev" : "main";
+        var label = (branch === "develop" || isPrPreview) ? "dev" : "main";
 
-        var badge = document.createElement("a");
-        badge.className = "branch-indicator branch-indicator--" + branch;
-        badge.href  = url;
-        badge.title = "Switch to " + otherLabel + " docs";
-        badge.setAttribute("aria-label",
-            "Viewing " + label + " docs — click to switch to " + otherLabel);
-        badge.textContent = label;
+        var badge;
+        if (isPrPreview) {
+            /* PR preview builds show "dev" with no toggle link */
+            badge = document.createElement("span");
+            badge.className = "branch-indicator branch-indicator--develop";
+            badge.setAttribute("aria-label", "Viewing dev docs (PR preview)");
+            badge.textContent = label;
+        } else {
+            var other = branch === "main" ? "develop" : "main";
+            var url   = buildToggleUrl(branch);
+            var otherLabel = other === "develop" ? "dev" : "main";
+
+            badge = document.createElement("a");
+            badge.className = "branch-indicator branch-indicator--" + branch;
+            badge.href  = url;
+            badge.title = "Switch to " + otherLabel + " docs";
+            badge.setAttribute("aria-label",
+                "Viewing " + label + " docs — click to switch to " + otherLabel);
+            badge.textContent = label;
+        }
 
         var headerNav = document.querySelector(".md-header__inner");
         if (!headerNav) return;

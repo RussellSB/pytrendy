@@ -73,6 +73,36 @@
     color: #14532d;
 }
 
+/* ── Dark mode overrides for What's New page ────────────────────────── */
+
+[data-md-color-scheme="slate"] .before-label {
+    background: rgba(96, 165, 250, 0.15);
+    color: #93c5fd;
+}
+
+[data-md-color-scheme="slate"] .after-label {
+    background: rgba(74, 222, 128, 0.15);
+    color: #86efac;
+}
+
+[data-md-color-scheme="slate"] .before-after-panel img {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.note > summary {
+    color: #5eead4;
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.example {
+    border-color: #4ade80;
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.example > summary {
+    background-color: rgba(74, 222, 128, 0.12);
+    color: #86efac;
+}
+
 /* ── What's New collapsibles ─────────────────────────────────────────── */
 
 /* ??? note — site teal, no pencil icon */
@@ -370,6 +400,16 @@ body:has(#jupyterlite-iframe) #jupyterlite-iframe {
     background: rgba(255, 255, 255, 0.22);
     color: #fff !important;
     text-decoration: none !important;
+}
+
+/* PR preview builds use a <span> — not clickable */
+span.branch-indicator {
+    cursor: default;
+}
+
+span.branch-indicator:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.82) !important;
 }
 
 @media (max-width: 959px) {
