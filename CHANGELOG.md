@@ -1,3 +1,16 @@
+# [1.2.0](https://github.com/RussellSB/pytrendy/compare/v1.1.11...v1.2.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* metrics for remaining segment types [#88](https://github.com/RussellSB/pytrendy/issues/88) ([b9d8e39](https://github.com/RussellSB/pytrendy/commit/b9d8e39c000558da15cb96a5edec1e1553840657))
+* trend detection for normalised time series (PR [#79](https://github.com/RussellSB/pytrendy/issues/79)) ([dc5917b](https://github.com/RussellSB/pytrendy/commit/dc5917bafc4b9a040354c4e3ecbd71022249500d))
+
+
+### Features
+
+* allow user to toggle noise off ([#110](https://github.com/RussellSB/pytrendy/issues/110)) ([35f25fc](https://github.com/RussellSB/pytrendy/commit/35f25fce307fae2f3303bd6ec4a60d309ec297a7))
+
 ## [1.1.11](https://github.com/RussellSB/pytrendy/compare/v1.1.10...v1.1.11) (2026-04-01)
 
 
