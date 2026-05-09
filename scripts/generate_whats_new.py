@@ -310,8 +310,11 @@ def _update_develop_note(file_path: Path, is_prerelease: bool, tag: str) -> None
         !!! note "Pre-release documentation"
             The section at the top reflects changes staged for the next stable release.
     No pre-release (after stable sync):
-        !!! note "Develop build"
-            Currently aligned with stable release vX.Y.Z.
+        The note is wrapped in an HTML comment so it is invisible when rendered.
+        This is intentional: when develop is merged into main for a stable release the
+        commented-out block is carried along but produces no visible output on either branch.
+        The comment acts as "optional html" — it can be uncommented to view the note, and
+        the script restores it as a visible admonition automatically on the next pre-release.
 
     On the ``main`` branch the sentinels are absent, so this is a no-op.
     """
@@ -332,10 +335,14 @@ def _update_develop_note(file_path: Path, is_prerelease: bool, tag: str) -> None
             "    Switch to the **main** docs via the badge in the header to see only stable content."
         )
     else:
+        # Wrap in an HTML comment so the banner is invisible on both develop and main after a
+        # stable release merge. The script restores a visible note on the next pre-release.
         note = (
+            "<!--\n"
             '!!! note "Develop build"\n'
             f"    You are viewing the **develop** build, currently aligned with stable release **v{version}**.  \n"
-            "    Switch to the **main** docs via the badge in the header to see the stable documentation."
+            "    Switch to the **main** docs via the badge in the header to see the stable documentation.\n"
+            "-->"
         )
 
     new_text = (
