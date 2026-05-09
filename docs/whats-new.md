@@ -3,9 +3,11 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
+<!--
 !!! note "Develop build"
     You are viewing the **develop** build, currently aligned with stable release **v1.2.0**.  
     Switch to the **main** docs via the badge in the header to see the stable documentation.
+-->
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
