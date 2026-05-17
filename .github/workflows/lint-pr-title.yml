@@ -1,0 +1,27 @@
+name: Lint PR Title
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened, ready_for_review]
+
+jobs:
+  lint-pr-title:
+    name: Validate PR Title
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check PR title follows Conventional Commits format
+        run: |
+          TITLE="${{ github.event.pull_request.title }}"
+          PATTERN='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+'
+          if ! echo "$TITLE" | grep -qE "$PATTERN"; then
+            echo "Error: PR title does not follow Conventional Commits format."
+            echo "Title: $TITLE"
+            echo "Expected format: <type>(<scope>): <subject>"
+            echo "Valid types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert"
+            echo "Examples:"
+            echo "  feat: add trend detection for seasonal data"
+            echo "  fix(api): correct calculation in SNR algorithm"
+            echo "  ci!: remove deprecated workflow"
+            exit 1
+          fi
+          echo "PR title check passed: '$TITLE'"

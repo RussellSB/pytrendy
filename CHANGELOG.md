@@ -1,3 +1,25 @@
+# [1.2.0](https://github.com/RussellSB/pytrendy/compare/v1.1.11...v1.2.0) (2026-05-09)
+
+
+### Bug Fixes
+
+* metrics for remaining segment types [#88](https://github.com/RussellSB/pytrendy/issues/88) ([b9d8e39](https://github.com/RussellSB/pytrendy/commit/b9d8e39c000558da15cb96a5edec1e1553840657))
+* trend detection for normalised time series (PR [#79](https://github.com/RussellSB/pytrendy/issues/79)) ([dc5917b](https://github.com/RussellSB/pytrendy/commit/dc5917bafc4b9a040354c4e3ecbd71022249500d))
+
+
+### Features
+
+* allow user to toggle noise off ([#110](https://github.com/RussellSB/pytrendy/issues/110)) ([35f25fc](https://github.com/RussellSB/pytrendy/commit/35f25fce307fae2f3303bd6ec4a60d309ec297a7))
+
+## [1.1.11](https://github.com/RussellSB/pytrendy/compare/v1.1.10...v1.1.11) (2026-04-01)
+
+
+### Bug Fixes
+
+* add main as base branch in dev release config ([#64](https://github.com/RussellSB/pytrendy/issues/64)) ([08e858f](https://github.com/RussellSB/pytrendy/commit/08e858fb42fd4114112543ae74a4e335676ff85d))
+* resolve develop docs 404 and address unresolved PR [#71](https://github.com/RussellSB/pytrendy/issues/71) review comments ([#72](https://github.com/RussellSB/pytrendy/issues/72)) ([cacabdf](https://github.com/RussellSB/pytrendy/commit/cacabdf557f0b3e2900650c3f6e43fd657603fbe))
+* test prerelease versioning on develop ([#63](https://github.com/RussellSB/pytrendy/issues/63)) ([271a1e2](https://github.com/RussellSB/pytrendy/commit/271a1e2269db377449b9f19ebd5d53de11b32291))
+
 ## [1.1.10](https://github.com/RussellSB/pytrendy/compare/v1.1.9...v1.1.10) (2026-03-21)
 
 
