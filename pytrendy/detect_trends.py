@@ -32,7 +32,7 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
         date_col (str):
             Name of the column representing timestamps. This column is converted to datetime and set as the index.
         value_col (str):
-            Name of the column containing the primary signal to analyze for trend detection.
+            Name of the column containing the primary signal to analyse for trend detection.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.

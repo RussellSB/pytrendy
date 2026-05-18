@@ -3,7 +3,7 @@ Tests for core logic of trend detection on synthetic data.
 
 These tests verify that the trend detection algorithm produces consistent
 results for gradual and abrupt trends, validating segment boundaries and
-directions against expected behavior.
+directions against expected behaviour.
 """
 
 import pytest
@@ -26,7 +26,7 @@ class TestCoreCases:
             method_params=dict(is_abrupt_padded=False)
         )
         
-        # Expected segments based on current behavior
+        # Expected segments based on current behaviour
         expected_segments = [
             {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
             {'direction': 'Down', 'start': '2025-01-25', 'end': '2025-02-05'},
@@ -52,7 +52,7 @@ class TestCoreCases:
             plot=False,
             method_params=dict(is_abrupt_padded=False)
         )
-        # Expected segments based on current behavior
+        # Expected segments based on current behaviour
         expected_segments = [
             {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
             {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-01'},
@@ -74,7 +74,7 @@ class TestCoreCases:
             plot=False,
             method_params=dict(is_abrupt_padded=True)
         )
-        # Expected segments based on current behavior
+        # Expected segments based on current behaviour
         expected_segments = [
             {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-27'},
             {'direction': 'Up', 'start': '2025-02-28', 'end': '2025-03-29'},

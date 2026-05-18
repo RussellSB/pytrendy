@@ -16,7 +16,7 @@ from conftest import assert_segments_in_a_haystack
 
 
 class TestNoiseEdgeCases:
-    """Test cases for noise scenarios that cause edge case behavior in trend detection."""
+    """Test cases for noise scenarios that cause edge case behaviour in trend detection."""
 
     def test_noisy_edgecase_1_scenario(self):
         """Test that algorithm handles noisy_edgecase_1 scenario reasonably."""
