@@ -30,8 +30,7 @@ class TestPlotPytrendyCore:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         fig = self._prepare_and_plot(df, 'gradual', results.segments)
@@ -47,8 +46,7 @@ class TestPlotPytrendyCore:
             df,
             date_col='date',
             value_col='abrupt',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
@@ -65,7 +63,7 @@ class TestPlotPytrendyCore:
             date_col='date',
             value_col='abrupt',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)

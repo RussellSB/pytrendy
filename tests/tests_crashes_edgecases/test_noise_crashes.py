@@ -39,7 +39,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='temp', #TODO: reword temp, temp_2 etc to be consecutively classed
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         # Expected segments to find a subset of based on current behavior
@@ -67,7 +67,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='temp_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         # Expected segments to find a subset of based on current behavior
@@ -93,7 +93,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
@@ -119,7 +119,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
@@ -146,7 +146,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_4',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
@@ -172,7 +172,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_5',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
@@ -199,7 +199,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_6',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
@@ -226,7 +226,7 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_7',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected segments to find a subset of based on current behavior
