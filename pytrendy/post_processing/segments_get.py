@@ -4,7 +4,7 @@ import pandas as pd
 
 def get_segments(df: pd.DataFrame) -> list[dict]:
     """
-    Extracts contiguous segments from a flagged time series.
+    Extracts contiguous segments from a flagged series.
 
     This function scans the `trend_flag` column in the input DataFrame and groups
     consecutive values into segments based on direction. It applies minimum length
@@ -25,17 +25,17 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
 
     Args:
         df (pd.DataFrame): 
-            Time series DataFrame containing a `trend_flag` column.
+            Series DataFrame containing a `trend_flag` column.
 
     Returns:
         list: 
             A list of dictionaries, each representing a segment with keys:
 
             - `'direction'`: Segment type (e.g., `'Up'`, `'Down'`)
-            - `'start'`: Start date of the segment
-            - `'end'`: End date of the segment
-            - `'segmenth_length'`: Duration in days
-            - `'time_index'`: Sequential index of the segment
+            - `'start'`: Start index of the segment
+            - `'end'`: End index of the segment
+            - `'segmenth_length'`: Duration of the segment, in elements.
+    
     """
     map_direction = {
         0: 'Unknown'
@@ -62,14 +62,14 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
                     or (direction_prev == 'Noise' and (segment_length_prev >= 1)) \
                     or (direction_prev == 'Flat' and (segment_length_prev >= 1)) \
                 ):
-                start = (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1))
-                end = (pd.to_datetime(index) - pd.Timedelta(days=1))
+                start = index - segment_length_prev+1
+                end = index - 1
 
                 # Save the segment
                 segments.append({
                     'direction': direction_prev
-                    , 'start': start.strftime('%Y-%m-%d')
-                    , 'end': end.strftime('%Y-%m-%d')
+                    , 'start': start
+                    , 'end': end
                 })
                 segment_length=0
 

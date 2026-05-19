@@ -1,6 +1,7 @@
 """**End-to-End Trend Detection**"""
 
 import pandas as pd
+import numpy as np
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
 from .post_processing.segments_refine import refine_segments
@@ -8,7 +9,13 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 
-def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, method_params: dict=None, debug: bool=False ) -> PyTrendyResults:
+def detect_trends(df: pd.DataFrame, 
+                  value_col: str,
+                  index_col: str|None=None,
+                  plot: bool=True, 
+                  method_params: dict|None=None, 
+                  debug: bool=False
+                  ) -> PyTrendyResults:
     """
     This is the main function that runs trend detection end-to-end.
     
@@ -29,10 +36,10 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
         df (pd.DataFrame):
             Input time series data containing at least the specified `date_col` and `value_col`.
             The `date_col` must contain datetime-like values (daily frequency recommended).
-        date_col (str):
-            Name of the column representing timestamps. This column is converted to datetime and set as the index.
         value_col (str):
             Name of the column containing the primary signal to analyze for trend detection.
+        index_col (str|None):
+            Name of the column that represents human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
@@ -52,8 +59,21 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
             Use this object to access segment statistics, rankings, and export utilities.
     """
     df = df.copy()
-    df[date_col] = pd.to_datetime(df[date_col])
-    df.set_index(date_col, inplace=True)
+
+    columns = df.columns
+    if value_col not in columns:
+        raise ValueError(f"{value_col} is not in supplied dataframe. Did you mean?")
+    # TODO implement a similarity matcher here to find similar strings
+
+    if index_col is not None:
+        external_index = df[index_col]
+    else:
+        external_index = np.arange(len(df))
+
+    internal_index = np.arange(len(df))
+    index_lookup = pd.DataFrame({"external_index" : external_index, "integer_index" : internal_index.copy() })
+    df[index_col] = internal_index.copy()
+    df.set_index(index_col, inplace=True)
     df = df[[value_col]]
 
     # Configures trend detection heuristics
@@ -72,6 +92,8 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
     if plot: plot_pytrendy(df, value_col, segments)
+
+    print(segments)
 
     results = PyTrendyResults(segments)
     return results

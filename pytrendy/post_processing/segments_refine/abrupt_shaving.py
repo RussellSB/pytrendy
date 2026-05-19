@@ -46,8 +46,8 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
                 continue # exit if not re-classified for sake of second pass
 
         # Get start end padded for some leniency
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+        start = segment['start'] - 2
+        end = segment['end'] + 2
         df_segment = df.loc[start:end].copy()
 
         # Use z-score on diff, to know when a change is an anomoly in the trend
@@ -71,7 +71,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
             if len(after_ends) > 0:
                 abrupt_end = after_ends[0]  # first if aligned
             elif abrupt_start == df.index[-1]: 
-                abrupt_end = min(abrupt_start + pd.Timedelta(days=1), df.index[-1])
+                abrupt_end = min(abrupt_start + 1, df.index[-1])
             else:
                 continue # neither if not connected
 
@@ -81,13 +81,13 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
             abrupt_end = abrupt_ends[0]
             early_starts = [start for start in abrupt_starts if start < abrupt_end]
             if len(early_starts) == 0:
-                abrupt_start = max(abrupt_end - pd.Timedelta(days=1), df.index[0])
+                abrupt_start = max(abrupt_end - 1, df.index[0])
                 abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
 
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
-            new_start = abrupt_subseg['start'] - pd.Timedelta(days=1)
-            new_end = abrupt_subseg['end'] - pd.Timedelta(days=1)
+            new_start = abrupt_subseg['start'] - 1
+            new_end = abrupt_subseg['end'] - 1
 
             start_value = df.loc[new_start, value_col] # referencing df, in case outside df_segment scope
             end_value = df.loc[new_end, value_col]
@@ -100,17 +100,17 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
 
             if j == 0:
                 # Update current segment
-                segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+                segments_refined[i]['start'] = new_start
                 update_prev_segment(i, new_start, segments, segments_refined)
 
-                segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+                segments_refined[i]['end'] = new_end
                 update_next_segment(i, new_end, segments, segments_refined)
 
             elif j > 0:
                 # Wedge in a new segment between current and next (needed for edge case of many abrupt near each other)
                 new_seg = segment.copy()
-                new_seg['start'] = new_start.strftime('%Y-%m-%d')
-                new_seg['end'] = new_end.strftime('%Y-%m-%d')
+                new_seg['start'] = new_start
+                new_seg['end'] = new_end
                 new_segments.append((i, new_seg))  # Store with reference index
 
     # Add to main segments list, then sort.
@@ -118,38 +118,38 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         insert_index = base_index + offset + 1
         segments_refined.insert(insert_index, new_seg)
         segments.insert(insert_index, new_seg)
-        update_prev_segment(insert_index, pd.to_datetime(new_seg['start']), segments, segments_refined)
-        update_next_segment(insert_index, pd.to_datetime(new_seg['end']), segments, segments_refined)
-    segments_refined = sorted(segments_refined, key=lambda seg: pd.to_datetime(seg['start']))
+        update_prev_segment(insert_index, new_seg['start'], segments, segments_refined)
+        update_next_segment(insert_index, new_seg['end'], segments, segments_refined)
+    segments_refined = sorted(segments_refined, key=lambda seg: seg['start'])
 
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
     if method_params.get('is_abrupt_padded', False) == True:
 
-        meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by datetime easily
-        meta_df['start'] = pd.to_datetime(meta_df['start'])
-        meta_df['end'] = pd.to_datetime(meta_df['end'])
+        meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by easily
+        meta_df['start'] = meta_df['start']
+        meta_df['end'] = meta_df['end']
 
         for i, segment in enumerate(segments_refined):
 
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
                 continue
 
-            abrupt_start = pd.to_datetime(segment['start'])
-            abrupt_end = pd.to_datetime(segment['end'])
+            abrupt_start = segment['start']
+            abrupt_end = segment['end']
 
             # Simulate new end with padding and cater for any overlaps it might cause
-            new_end = abrupt_end + pd.Timedelta(days=method_params['abrupt_padding'])
+            new_end = abrupt_end + method_params['abrupt_padding']
             overlaps = meta_df.loc[(meta_df['start'] > abrupt_end) & (meta_df['start'] <= new_end)]
             overlaps_nonflats = overlaps[overlaps['direction']!='Flat']
 
             # Adjust padding to be before first nonflat segment that it would overlap
             if not overlaps_nonflats.empty:
                 first_notflat_overlap = overlaps_nonflats.iloc[0]
-                new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
+                new_end = first_notflat_overlap['start'] - 1
 
             new_end = min(new_end, df.index[-1]) # make sure doesnt go out of bounds
-            segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
+            segments_padded[i]['end'] = new_end
             update_next_segment(i, new_end, segments_refined, segments_padded) # will always be a flat it adjusts/overwrites
 
             # Store meta data that got padded & stretched out

@@ -50,7 +50,7 @@ def group_segments(segments: list[dict]) -> list[dict]:
         if (
             direction == direction_prev
             and segment_history
-            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= GROUPING_DISTANCE
+            and (segment['start'] - segment_history[-1]['end']) <= GROUPING_DISTANCE
             and ((not 'trend_class' in segment) or ('trend_class' in segment and segment['trend_class'] != 'abrupt')) # dont group up abrupt trends
         ):
             # same direction and within allowed distance -> extend history
@@ -59,7 +59,7 @@ def group_segments(segments: list[dict]) -> list[dict]:
             direction == direction_prev
             and segment_history
             and (('trend_class' in segment and segment['trend_class'] == 'abrupt')) 
-            and (pd.to_datetime(segment['start']) - pd.to_datetime(segment_history[-1]['end'])).days <= 1
+            and (segment['start'] - segment_history[-1]['end']) <= 1
         ):
             # same direction and within tight allowed distance for abrupt -> extend history
             segment_history.append(segment)
