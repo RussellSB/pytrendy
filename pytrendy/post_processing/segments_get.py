@@ -62,7 +62,8 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
                     or (direction_prev == 'Noise' and (segment_length_prev >= 1)) \
                     or (direction_prev == 'Flat' and (segment_length_prev >= 1)) \
                 ):
-                start = index - segment_length_prev+1
+                start = index - (segment_length_prev+1)
+                print(start, index, segment_length_prev)
                 end = index - 1
 
                 # Save the segment
