@@ -71,7 +71,9 @@ def detect_trends(df: pd.DataFrame,
         external_index = np.arange(len(df))
 
     internal_index = np.arange(len(df))
-    index_lookup = pd.DataFrame({"external_index" : external_index, "integer_index" : internal_index.copy() })
+    #index_lookup = pd.DataFrame({"external_index" : external_index, "integer_index" : internal_index.copy() })
+    index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
+
     df[index_col] = internal_index.copy()
     df.set_index(index_col, inplace=True)
     df = df[[value_col]]
@@ -91,6 +93,12 @@ def detect_trends(df: pd.DataFrame,
     segments = get_segments(df)
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
+
+    # reinstate 
+    #for segment in segments:
+        #segment['start'] = index_lookup[segment['start']]
+        #segment['end'] = index_lookup[segment['end']]
+
     if plot: plot_pytrendy(df, value_col, segments)
 
     print(segments)
