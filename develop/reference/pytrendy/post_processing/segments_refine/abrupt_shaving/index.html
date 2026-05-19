@@ -1623,8 +1623,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
           <div class="doc-md-description">
             <p>Optional parameters for padding and control. Supported keys:</p>
 <ul>
-<li><strong>is_abrupt_padded</strong> (<code>bool</code>): Whether to pad abrupt segments. Defaults to <code>False</code>.</li>
-<li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>28</code>.</li>
+<li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>0</code>.</li>
 </ul>
           </div>
         </li>
@@ -1791,8 +1790,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 <span class="normal">154</span>
 <span class="normal">155</span>
 <span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">second_pass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">init_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">157</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">second_pass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">init_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Refines abrupt segments by detecting changepoints using z-score outliers.</span>
 
@@ -1806,8 +1804,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 <span class="sd">        segments (list): List of segment dictionaries with `&#39;trend_class&#39;: &#39;abrupt&#39;`.</span>
 <span class="sd">        method_params (dict): Optional parameters for padding and control. Supported keys:</span>
 
-<span class="sd">            - **is_abrupt_padded** (`bool`): Whether to pad abrupt segments. Defaults to `False`.</span>
-<span class="sd">            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `28`.</span>
+<span class="sd">            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Refined segment list with adjusted abrupt boundaries.</span>
@@ -1908,7 +1905,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 
     <span class="c1"># Second pass to pad segments if specified</span>
     <span class="n">segments_padded</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;is_abrupt_padded&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;abrupt_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
 
         <span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># metadata df, to filter by datetime easily</span>
         <span class="n">meta_df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
