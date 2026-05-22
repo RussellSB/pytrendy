@@ -83,6 +83,8 @@ This project uses the [Conventional Commits](https://www.conventionalcommits.org
 - breaking change (with `!` or `BREAKING CHANGE:` in footer) → major bump (**x**.0.0)
 - All other types (`docs`, `ci`, `chore`, etc.) → no version bump
 
+For `develop` pre-releases, `refactor` commits are also treated as a patch bump so internal API updates can still produce a `-dev.N` release and trigger automated docs updates (for example, What's New generation).
+
 All commit messages **must** follow this format:
 
 ```
@@ -197,4 +199,3 @@ If you are adding a new page, register it under `nav:` in `mkdocs.yml`. For docs
 ## 6. Getting Help
 
 If you are unsure about anything, feel free to open a [Discussion](https://github.com/RussellSB/pytrendy/discussions) or comment on the relevant issue. The maintainers are happy to guide you in the right direction.
-
