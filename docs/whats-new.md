@@ -15,7 +15,11 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
-*Staged on the `develop` branch — will land in the next stable release.*
+*Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
+
+```bash
+pip install --pre pytrendy==1.2.0.dev2
+```
 
 `is_abrupt_padded` in `method_params` is deprecated — use the integer `abrupt_padding` parameter instead for direct control over the number of days padded around abrupt transitions.
 
