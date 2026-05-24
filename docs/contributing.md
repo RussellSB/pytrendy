@@ -83,8 +83,6 @@ This project uses the [Conventional Commits](https://www.conventionalcommits.org
 - breaking change (with `!` or `BREAKING CHANGE:` in footer) → major bump (**x**.0.0)
 - All other types (`docs`, `ci`, `chore`, etc.) → no version bump
 
-For `develop` pre-releases, `refactor` commits are also treated as a patch bump so internal API updates can still produce a `-dev.N` release and trigger automated docs updates (for example, What's New generation).
-
 All commit messages **must** follow this format:
 
 ```
@@ -137,6 +135,22 @@ feat!: remove deprecated API endpoint
 
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 ```
+
+#### Deprecations
+
+When deprecating a parameter or behaviour on a **core public API method** (such as `detect_trends()`), use `feat:` — not `refactor:` — even if the underlying code change is a rename or internal restructure:
+
+```
+feat: deprecate is_abrupt_padded parameter in detect_trends()
+```
+
+**Why `feat:` and not `refactor:`?** Deprecating a public parameter is a user-facing signal: it tells callers to update their code and documents intent to remove the parameter in a future major release. That makes it an intentional API evolution, which belongs in the minor-bump category, not as a silent refactor.
+
+| Situation | Type | Bump |
+|---|---|---|
+| Parameter still works but is deprecated (soft) | `feat:` | minor |
+| Parameter or behaviour removed entirely (hard) | `feat!:` or `BREAKING CHANGE:` | major |
+| Internal restructuring, zero public API impact | `refactor:` | none |
 
 ---
 

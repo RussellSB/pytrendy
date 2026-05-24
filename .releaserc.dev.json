@@ -5,10 +5,7 @@
   ],
   "plugins": [
     ["@semantic-release/commit-analyzer", {
-      "preset": "conventionalcommits",
-      "releaseRules": [
-        { "type": "refactor", "release": "patch" }
-      ]
+      "preset": "conventionalcommits"
     }],
     "@semantic-release/release-notes-generator",
     ["@semantic-release/github", {
