@@ -326,20 +326,8 @@ results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, m
 # Bug: abrupt_padding=0 detects short Up, but abrupt_padding=28 collapses full window to Flat.
 
 # %%
-# Build synthetic new-market series: zero baseline pre-activation, noisy plateau post-activation
-import numpy as np
-dates = pd.date_range('2026-03-01', '2026-05-15', freq='D')
-active_mask = dates >= pd.Timestamp('2026-03-22')
-active_n = int(active_mask.sum())
-rng = np.random.default_rng(1)
-active_values = (100.0
-    + rng.normal(0, 5.0, active_n)
-    + 1.0 * np.sin(np.linspace(0, 4 * np.pi, active_n))
-    + np.concatenate([np.linspace(0, 3.0, active_n // 3), np.linspace(3.0, -2.0, active_n // 3), np.linspace(-2.0, 0.0, active_n - 2 * (active_n // 3))]))
-active_values[0], active_values[1], active_values[-1] = 41.85642516624511, 112.74340160938634, 0.0
-temp_like_values = np.zeros(len(dates), dtype=float)
-temp_like_values[active_mask] = np.clip(active_values, 0, None)
-temp_like_df = pd.DataFrame({'date': dates.strftime('%Y-%m-%d'), 'value': temp_like_values})
+# Load zero-baseline market entry fixture (backed up from synthetic inline recreation)
+temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
 
 # %%
 # abrupt_padding=0: expects Flat / Up / Flat
