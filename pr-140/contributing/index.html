@@ -1457,6 +1457,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deprecations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecations
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1779,6 +1790,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deprecations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecations
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2051,7 +2073,6 @@ git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </
 <li>breaking change (with <code>!</code> or <code>BREAKING CHANGE:</code> in footer) → major bump (<strong>x</strong>.0.0)</li>
 <li>All other types (<code>docs</code>, <code>ci</code>, <code>chore</code>, etc.) → no version bump</li>
 </ul>
-<p>For <code>develop</code> pre-releases, <code>refactor</code> commits are also treated as a patch bump so internal API updates can still produce a <code>-dev.N</code> release and trigger automated docs updates (for example, What's New generation).</p>
 <p>All commit messages <strong>must</strong> follow this format:</p>
 <div class="language-text highlight"><pre><span></span><code>&lt;type&gt;(&lt;scope&gt;): &lt;subject&gt;
 
@@ -2134,6 +2155,37 @@ test: add unit tests for detect_trends function
 
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 </code></pre></div>
+<h4 id="deprecations">Deprecations</h4>
+<p>When deprecating a parameter or behaviour on a <strong>core public API method</strong> (such as <code>detect_trends()</code>), use <code>feat:</code> — not <code>refactor:</code> — even if the underlying code change is a rename or internal restructure:</p>
+<div class="language-text highlight"><pre><span></span><code>feat: deprecate is_abrupt_padded parameter in detect_trends()
+</code></pre></div>
+<p><strong>Why <code>feat:</code> and not <code>refactor:</code>?</strong> Deprecating a public parameter is a user-facing signal: it tells callers to update their code and documents intent to remove the parameter in a future major release. That makes it an intentional API evolution, which belongs in the minor-bump category, not as a silent refactor.</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Type</th>
+<th>Bump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameter still works but is deprecated (soft)</td>
+<td><code>feat:</code></td>
+<td>minor</td>
+</tr>
+<tr>
+<td>Parameter or behaviour removed entirely (hard)</td>
+<td><code>feat!:</code> or <code>BREAKING CHANGE:</code></td>
+<td>major</td>
+</tr>
+<tr>
+<td>Internal restructuring, zero public API impact</td>
+<td><code>refactor:</code></td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-submitting-a-pull-request">4. Submitting a Pull Request</h2>
 <h3 id="pr-title">PR Title</h3>
