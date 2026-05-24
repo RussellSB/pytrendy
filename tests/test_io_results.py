@@ -43,8 +43,7 @@ def gradual_results():
         df,
         date_col='date',
         value_col='gradual',
-        plot=False,
-        method_params=dict(is_abrupt_padded=False)
+        plot=False
     )
     return results
 
