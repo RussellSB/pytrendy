@@ -32,6 +32,7 @@ on:
 
 env:
   RELEASE_LOOKBACK_MINUTES: "5"
+  RELEASE_FETCH_PAGE_SIZE: "30"
 
 jobs:
   generate-whats-new:
@@ -49,16 +50,18 @@ jobs:
         uses: actions/github-script@v7
         env:
           LOOKBACK_MINUTES: ${{ env.RELEASE_LOOKBACK_MINUTES }}
+          RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
             const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES || "5");
+            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE || "30");
             const headBranch = context.payload.workflow_run.head_branch;
             const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              per_page: 30,
+              per_page: releasePageSize,
             });
 
             const match = releases.find((release) => {
@@ -186,15 +189,17 @@ jobs:
         uses: actions/github-script@v7
         env:
           LOOKBACK_MINUTES: ${{ env.RELEASE_LOOKBACK_MINUTES }}
+          RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
             const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES || "5");
+            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE || "30");
             const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              per_page: 30,
+              per_page: releasePageSize,
             });
 
             const stable = releases.find((release) => {
