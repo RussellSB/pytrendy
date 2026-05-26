@@ -55,6 +55,7 @@ jobs:
           script: |
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
             const headBranch = context.payload.workflow_run.head_branch;
+            const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -72,7 +73,10 @@ jobs:
               return true;
             });
 
-            if (!match) {
+            // Guard: skip if no release was found, or if the release was not published
+            // after this workflow run started (meaning the Release workflow completed
+            // with no new release).
+            if (!match || new Date(match.published_at) <= runStartedAt) {
               core.setOutput("skip", "true");
               core.setOutput("branch", headBranch);
               return;
@@ -194,6 +198,7 @@ jobs:
         with:
           script: |
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
+            const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -210,7 +215,10 @@ jobs:
               return true;
             });
 
-            if (!stable) {
+            // Guard: skip if no stable release was found, or if it was not published
+            // after this workflow run started (meaning the Release workflow completed
+            // with no new stable release).
+            if (!stable || new Date(stable.published_at) <= runStartedAt) {
               core.setOutput("skip", "true");
               return;
             }
