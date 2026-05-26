@@ -38,7 +38,7 @@ env:
 jobs:
   generate-whats-new:
     name: Generate What's New entry
-    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.meta.outputs.skip }}
@@ -58,8 +58,9 @@ jobs:
           script: |
             const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
+            const MILLISECONDS_PER_MINUTE = 60 * 1000;
             const headBranch = context.payload.workflow_run.head_branch;
-            const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
+            const cutoff = Date.now() - lookbackMinutes * MILLISECONDS_PER_MINUTE;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -199,7 +200,8 @@ jobs:
           script: |
             const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
-            const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
+            const MILLISECONDS_PER_MINUTE = 60 * 1000;
+            const cutoff = Date.now() - lookbackMinutes * MILLISECONDS_PER_MINUTE;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
