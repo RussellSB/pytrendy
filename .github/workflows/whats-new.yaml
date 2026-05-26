@@ -31,7 +31,7 @@ on:
         default: 'develop'
 
 env:
-  # Default to 5 minutes per issue requirements; override if repository timing needs a wider window.
+  # Default 5-minute window for release discovery; increase if your workflows are delayed.
   RELEASE_LOOKBACK_MINUTES: "5"
   RELEASE_FETCH_PAGE_SIZE: "30"
 
@@ -40,6 +40,8 @@ jobs:
     name: Generate What's New entry
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    outputs:
+      skip: ${{ steps.meta.outputs.skip }}
     permissions:
       contents: write
       pull-requests: write
@@ -54,8 +56,8 @@ jobs:
           RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
-            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES || "5");
-            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE || "30");
+            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
+            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
             const headBranch = context.payload.workflow_run.head_branch;
             const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
 
@@ -83,7 +85,7 @@ jobs:
             core.setOutput("tag", match.tag_name);
             core.setOutput("name", match.name || match.tag_name);
             core.setOutput("body", match.body || "");
-            core.setOutput("prerelease", String(Boolean(match.prerelease)));
+            core.setOutput("prerelease", String(match.prerelease));
             core.setOutput("branch", headBranch);
 
       # ── 1. Resolve metadata ─────────────────────────────────────────────────
@@ -179,6 +181,7 @@ jobs:
     if: |
       github.event_name == 'workflow_run' &&
       github.event.workflow_run.conclusion == 'success' &&
+      needs.generate-whats-new.outputs.skip != 'true' &&
       github.event.workflow_run.head_branch == 'main'
     runs-on: ubuntu-latest
     permissions:
@@ -194,8 +197,8 @@ jobs:
           RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
-            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES || "5");
-            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE || "30");
+            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
+            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
             const cutoff = Date.now() - lookbackMinutes * 60 * 1000;
 
             const { data: releases } = await github.rest.repos.listReleases({
