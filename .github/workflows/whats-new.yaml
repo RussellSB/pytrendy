@@ -31,8 +31,6 @@ on:
         default: 'develop'
 
 env:
-  # Default 5-minute window for release discovery; increase if your workflows are delayed.
-  RELEASE_LOOKBACK_MINUTES: "5"
   RELEASE_FETCH_PAGE_SIZE: "30"
 
 jobs:
@@ -52,15 +50,11 @@ jobs:
         if: github.event_name == 'workflow_run'
         uses: actions/github-script@v7
         env:
-          LOOKBACK_MINUTES: ${{ env.RELEASE_LOOKBACK_MINUTES }}
           RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
-            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
-            const MILLISECONDS_PER_MINUTE = 60 * 1000;
             const headBranch = context.payload.workflow_run.head_branch;
-            const cutoff = Date.now() - lookbackMinutes * MILLISECONDS_PER_MINUTE;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -68,12 +62,14 @@ jobs:
               per_page: releasePageSize,
             });
 
+            // Pick the most-recent non-draft release on this branch.
+            // listReleases returns results sorted newest-first, so the first
+            // matching entry is always the release that just completed.
             const match = releases.find((release) => {
               if (release.draft) return false;
               if (release.target_commitish !== headBranch) return false;
               if (!release.published_at) return false;
-              const publishedAt = new Date(release.published_at).getTime();
-              return publishedAt >= cutoff;
+              return true;
             });
 
             if (!match) {
@@ -194,14 +190,10 @@ jobs:
         id: get_stable_release
         uses: actions/github-script@v7
         env:
-          LOOKBACK_MINUTES: ${{ env.RELEASE_LOOKBACK_MINUTES }}
           RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
         with:
           script: |
-            const lookbackMinutes = Number(process.env.LOOKBACK_MINUTES);
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
-            const MILLISECONDS_PER_MINUTE = 60 * 1000;
-            const cutoff = Date.now() - lookbackMinutes * MILLISECONDS_PER_MINUTE;
 
             const { data: releases } = await github.rest.repos.listReleases({
               owner: context.repo.owner,
@@ -209,12 +201,13 @@ jobs:
               per_page: releasePageSize,
             });
 
+            // Pick the most-recent non-draft stable release on main.
+            // listReleases returns results sorted newest-first.
             const stable = releases.find((release) => {
               if (release.draft || release.prerelease) return false;
               if (release.target_commitish !== "main") return false;
               if (!release.published_at) return false;
-              const publishedAt = new Date(release.published_at).getTime();
-              return publishedAt >= cutoff;
+              return true;
             });
 
             if (!stable) {
