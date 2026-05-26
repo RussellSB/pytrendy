@@ -31,6 +31,7 @@ on:
         default: 'develop'
 
 env:
+  # Default to 5 minutes per issue requirements; override if repository timing needs a wider window.
   RELEASE_LOOKBACK_MINUTES: "5"
   RELEASE_FETCH_PAGE_SIZE: "30"
 
@@ -67,7 +68,8 @@ jobs:
             const match = releases.find((release) => {
               if (release.draft) return false;
               if (release.target_commitish !== headBranch) return false;
-              const publishedAt = release.published_at ? new Date(release.published_at).getTime() : 0;
+              if (!release.published_at) return false;
+              const publishedAt = new Date(release.published_at).getTime();
               return publishedAt >= cutoff;
             });
 
@@ -205,7 +207,8 @@ jobs:
             const stable = releases.find((release) => {
               if (release.draft || release.prerelease) return false;
               if (release.target_commitish !== "main") return false;
-              const publishedAt = release.published_at ? new Date(release.published_at).getTime() : 0;
+              if (!release.published_at) return false;
+              const publishedAt = new Date(release.published_at).getTime();
               return publishedAt >= cutoff;
             });
 
