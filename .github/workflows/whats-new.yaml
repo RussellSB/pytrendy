@@ -31,6 +31,11 @@ on:
         default: 'develop'
 
 env:
+  # How many releases to fetch when scanning for the latest matching release.
+  # 30 is enough for any realistic cadence (well above the number of releases
+  # that could be published between two successive workflow_run triggers) while
+  # keeping the API response small. Increase if releases are published very
+  # rapidly without a corresponding What's New run in between.
   RELEASE_FETCH_PAGE_SIZE: "30"
 
 jobs:
@@ -57,11 +62,17 @@ jobs:
             const headBranch = context.payload.workflow_run.head_branch;
             const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
 
-            const { data: releases } = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: releasePageSize,
-            });
+            let releases;
+            try {
+              ({ data: releases } = await github.rest.repos.listReleases({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: releasePageSize,
+              }));
+            } catch (err) {
+              core.setFailed(`Failed to fetch releases from GitHub API: ${err.message}`);
+              return;
+            }
 
             // Pick the most-recent non-draft release on this branch.
             // listReleases returns results sorted newest-first, so the first
@@ -200,11 +211,17 @@ jobs:
             const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
             const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
 
-            const { data: releases } = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              per_page: releasePageSize,
-            });
+            let releases;
+            try {
+              ({ data: releases } = await github.rest.repos.listReleases({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: releasePageSize,
+              }));
+            } catch (err) {
+              core.setFailed(`Failed to fetch releases from GitHub API: ${err.message}`);
+              return;
+            }
 
             // Pick the most-recent non-draft stable release on main.
             // listReleases returns results sorted newest-first.
