@@ -55,7 +55,10 @@ jobs:
           fetch-depth: 0
 
       - name: Pull latest changes
-        run: git pull origin ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git pull --rebase origin ${{ github.ref_name }}
 
       - name: Use dev release config
         if: github.ref_name == 'develop'
