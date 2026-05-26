@@ -136,7 +136,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
           RELEASE_NAME: ${{ steps.meta.outputs.name }}
-          RELEASE_BODY: ${{ github.event_name == 'workflow_run' && steps.get_release.outputs.body || '' }}
+          RELEASE_BODY: ${{ steps.get_release.outputs.body }}
           IS_PRERELEASE: ${{ steps.meta.outputs.prerelease }}
           BRANCH: ${{ steps.meta.outputs.branch }}
         run: python scripts/generate_whats_new.py
