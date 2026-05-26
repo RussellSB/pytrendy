@@ -108,6 +108,7 @@ jobs:
             echo "skip=${{ steps.get_release.outputs.skip }}"                >> "$GITHUB_OUTPUT"
             echo "tag=${{ steps.get_release.outputs.tag }}"                  >> "$GITHUB_OUTPUT"
             echo "name=${{ steps.get_release.outputs.name }}"                >> "$GITHUB_OUTPUT"
+            echo "body=${{ steps.get_release.outputs.body }}"                >> "$GITHUB_OUTPUT"
             echo "prerelease=${{ steps.get_release.outputs.prerelease }}"    >> "$GITHUB_OUTPUT"
             echo "branch=${{ steps.get_release.outputs.branch }}"            >> "$GITHUB_OUTPUT"
           else
@@ -116,6 +117,9 @@ jobs:
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
             echo "tag=${TAG:-HEAD}"                                          >> "$GITHUB_OUTPUT"
             echo "name=Manual dispatch"                                      >> "$GITHUB_OUTPUT"
+            # Body is not available for workflow_dispatch; the generator
+            # script will fall back to reading the relevant CHANGELOG.md entry.
+            echo "body="                                                     >> "$GITHUB_OUTPUT"
             # Treat as pre-release when targeting develop
             if [ "${BRANCH}" = "main" ]; then
               echo "prerelease=false"                                        >> "$GITHUB_OUTPUT"
@@ -147,7 +151,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
           RELEASE_NAME: ${{ steps.meta.outputs.name }}
-          RELEASE_BODY: ${{ steps.get_release.outputs.body }}
+          RELEASE_BODY: ${{ steps.meta.outputs.body }}
           IS_PRERELEASE: ${{ steps.meta.outputs.prerelease }}
           BRANCH: ${{ steps.meta.outputs.branch }}
         run: python scripts/generate_whats_new.py
