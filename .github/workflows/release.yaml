@@ -47,7 +47,6 @@ jobs:
       id-token: write
     outputs:
       released: ${{ steps.release.outputs.released }}
-      version: ${{ steps.release.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -89,8 +88,6 @@ jobs:
 
           if echo "$OUTPUT" | grep -q "The next release version is"; then
             echo "released=true" >> $GITHUB_OUTPUT
-            VERSION=$(echo "$OUTPUT" | grep -oP 'The next release version is \K[0-9a-zA-Z.\-]+')
-            echo "version=$VERSION" >> $GITHUB_OUTPUT
           else
             echo "released=false" >> $GITHUB_OUTPUT
           fi
@@ -126,13 +123,6 @@ jobs:
         run: |
           curl -sSL https://install.python-poetry.org | python3 -
           echo "$HOME/.local/bin" >> $GITHUB_PATH
-
-      - name: Set package version
-        run: |
-          VERSION="${{ needs.semantic-release.outputs.version }}"
-          PEP440_VERSION=$(echo "$VERSION" | sed 's/-dev\./.dev/')
-          echo "Setting version to $PEP440_VERSION"
-          poetry version "$PEP440_VERSION"
 
       - name: Install dependencies & build package
         run: |
