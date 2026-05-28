@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+from difflib import get_close_matches
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
 from .post_processing.segments_refine import refine_segments
@@ -11,7 +12,7 @@ from .io.results_pytrendy import PyTrendyResults
 
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
-                  index_col: str|None=None,
+                  date_col: str|None=None,
                   plot: bool=True, 
                   method_params: dict|None=None, 
                   debug: bool=False
@@ -38,8 +39,8 @@ def detect_trends(df: pd.DataFrame,
             The `date_col` must contain datetime-like values (daily frequency recommended).
         value_col (str):
             Name of the column containing the primary signal to analyze for trend detection.
-        index_col (str|None):
-            Name of the column that represents human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
+        date_col (str|None):
+            Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
@@ -61,21 +62,36 @@ def detect_trends(df: pd.DataFrame,
     df = df.copy()
 
     columns = df.columns
-    if value_col not in columns:
-        raise ValueError(f"{value_col} is not in supplied dataframe. Did you mean?")
-    # TODO implement a similarity matcher here to find similar strings
 
-    if index_col is not None:
-        external_index = df[index_col]
+    def test_column(columns, name):
+        if name not in columns:
+            suggestions = get_close_matches(name, columns, n=3, cutoff=0.6)
+            raise ValueError(f"Column '{name}' not found. Did you mean: {suggestions}?")
+        
+    test_column(columns, value_col)
+    index_type = "continious"
+    
+    if date_col is not None:
+        test_column(columns, date_col)
+        if pd.api.types.is_string_dtype(df[date_col]):
+            try:        
+                df[date_col] = pd.to_datetime(df[date_col])
+                index_type = "date"
+            except Exception as e:
+                print(f"Attempting to cast {date_col} to date failed, treating as string lookup.")
+        elif pd.api.types.is_numeric_dtype(df[date_col]):
+            pass
+        else:
+            raise NotImplementedError(f"date_col has unimplimented dtype {df[date_col].dtype}")
+        external_index = df[date_col]    
     else:
         external_index = np.arange(len(df))
 
     internal_index = np.arange(len(df))
-    #index_lookup = pd.DataFrame({"external_index" : external_index, "integer_index" : internal_index.copy() })
     index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
 
-    df[index_col] = internal_index.copy()
-    df.set_index(index_col, inplace=True)
+    df[date_col] = internal_index.copy()
+    df.set_index(date_col, inplace=True)
     df = df[[value_col]]
 
     # Configures trend detection heuristics
@@ -94,14 +110,14 @@ def detect_trends(df: pd.DataFrame,
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
 
-    # reinstate 
-    #for segment in segments:
-        #segment['start'] = index_lookup[segment['start']]
-        #segment['end'] = index_lookup[segment['end']]
+    for segment in segments:
+        segment['start'] = index_lookup[segment['start']]
+        segment['end'] = index_lookup[segment['end']]
 
-    if plot: plot_pytrendy(df, value_col, segments)
-
-    print(segments)
+    if plot: 
+        df[date_col] = external_index
+        df.set_index(date_col, inplace=True)
+        plot_pytrendy(df=df, value_col=value_col, segments_enhanced=segments, index_type=index_type)
 
     results = PyTrendyResults(segments)
     return results

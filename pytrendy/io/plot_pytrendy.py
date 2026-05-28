@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False) -> plt.Figure:
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False, index_type: str = "date") -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -44,18 +44,22 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
     for i, seg in enumerate(segments_enhanced):
         
-        #start = pd.to_datetime(seg['start'])
-        #end = pd.to_datetime(seg['end'])
-        start = seg['start']
-        end = seg['end']
+        if index_type == "date":
+            start = pd.to_datetime(seg['start'])
+            end = pd.to_datetime(seg['end'])
+        else:
+            start = seg['start']
+            end = seg['end']
         
-
         color = color_map.get(seg['direction'], 'gray')
 
         # Get context on prev seg if possible
         prev_seg = segments_enhanced[i-1] if i-1 >= 0 else None
-        #prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
-        prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
+        if index_type == "date":
+            prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
+        else:
+            prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
+
         is_prev_not_trend = prev_seg and (not ('trend_class' in prev_seg))
 
         # Current seg context
@@ -65,8 +69,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Get context on next seg if possible
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
-        #next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
-        next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
+        if index_type == 'date':
+            next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        else:
+            next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
         next_seg_abrupt = next_seg and (('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt'))
         next_seg_noise = next_seg and (next_seg['direction'] == 'Noise')
 
@@ -74,8 +80,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         if is_abrupt or is_noise: 
             start = start # Conditional logic for making abrupt visually tighter
         else: 
-            #new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
-            new_start = start - 1 # Everything else displaced left start
+            if index_type == 'date':
+                new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
+            else:
+                new_start = start - 1 # Everything else displaced left start
 
             # Check validity of plot start adjustment
             value_new_start = df.loc[new_start, value_col] if new_start in df.index else None
@@ -87,20 +95,23 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 start = new_start # Apply left displacement only if valid
             else: 
                 # if not displaced and prev is not trend, adjust by plotting (as prev has already been drawn)
-                if is_prev_not_trend and prev_neighbouring: 
-                    #prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
-                    prev_end = segments_enhanced[i-1]['end']
-                    #prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-                    prev_new_end = prev_end + 1
+                if is_prev_not_trend and prev_neighbouring:
+                    if index_type == 'date':
+                        prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
+                        prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    else:
+                        prev_end = segments_enhanced[i-1]['end']
+                        prev_new_end = prev_end + 1
                     mask = (df.index >= prev_end) & (df.index <= prev_new_end) 
                     prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
                     ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=0.4)
 
-
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
-            #new_end = end + pd.Timedelta(days=1)
-            new_end = end + 1
+            if index_type == 'date':
+                new_end = end + pd.Timedelta(days=1)
+            else:
+                new_end = end + 1
             
             # Check validity of plot end adjustment
             value_new_end = df.loc[new_end, value_col] if new_end in df.index else None
@@ -114,8 +125,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             else: 
                 # if not displaced and next is noise, adjust for next plotting round
                 if next_seg_noise and next_neighbouring: 
-                    #segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-                    segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
+                    if index_type == 'date':
+                        segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    else:
+                        segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
         else: 
             end = end
 
@@ -132,8 +145,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             
         # Add vertical line if next seg is same & touching
         if next_seg and next_neighbouring and next_seg['direction'] == seg['direction']:
-            #line_date = pd.to_datetime(seg['end'])
-            line_date = seg['end']
+            if index_type == 'date':
+                line_date = pd.to_datetime(seg['end'])
+            else:
+                line_date = seg['end']
             ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits

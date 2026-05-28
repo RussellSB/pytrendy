@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import math
 from scipy.signal import savgol_filter
 from scipy.stats import iqr
 from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
@@ -95,7 +96,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         noise_segments_grouped = []
         prev_seg = noise_segments[0].copy()
         for i, seg in enumerate(noise_segments[1:]):
-            width = (seg['start'] - prev_seg['end']).days
+            width = (seg['start'] - prev_seg['end'])
             if width <= GROUPING_DISTANCE:
                 new_seg = {'start': prev_seg['start'], 'end': seg['end']}
                 noise_segments_grouped.append(new_seg)
@@ -115,7 +116,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     # 1.3.4 Refine the noise segments early
     for segment in noise_segments_grouped:
 
-        width = (segment['end'] - segment['start']).days
+        width = (segment['end'] - segment['start'])
         start = segment['start'] - 1
         end = segment['end'] + 1
 
@@ -140,8 +141,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
         # Define center as 30% - 70% of window.
-        center_start = (start + (0.3 * width_padded)).floor('D') 
-        center_end   = (start + (0.7 * width_padded)).floor('D')
+        center_start = math.floor(start + (0.3 * width_padded)) #.floor('D') 
+        center_end   = math.floor(start + (0.7 * width_padded)) #.floor('D')
         is_central = ts_max >= center_start and ts_max <= center_end
 
         # Identify spike-type noise by peak in center, then shave for precision

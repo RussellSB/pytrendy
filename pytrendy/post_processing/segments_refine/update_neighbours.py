@@ -88,8 +88,8 @@ def update_next_segment(i: int, new_end: int, segments: list[dict], segments_ref
             continue
 
         # Update when a valid neighbour of close enough distance.
-        new_dist = (next_start - new_end).days
-        old_dist = (next_start - old_end).days
+        new_dist = (next_start - new_end)
+        old_dist = (next_start - old_end)
         is_neighbour = (new_dist <= NEIGHBOUR_DISTANCE) or (old_dist <= NEIGHBOUR_DISTANCE)
         if is_neighbour:
             segments_refined[i_neighbour]['start'] = new_end + 1
