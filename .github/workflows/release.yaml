@@ -78,6 +78,14 @@ jobs:
       - name: Install semantic-release plugins
         run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github @semantic-release/exec conventional-changelog-conventionalcommits
 
+      - name: Setup SSH deploy key
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.RELEASE_SSH_KEY }}
+
+      - name: Configure git to use SSH instead of HTTPS
+        run: git config --global url."git@github.com:".insteadOf "https://github.com/"
+
       - name: Run semantic-release
         id: release
         env:
