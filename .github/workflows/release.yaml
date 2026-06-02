@@ -51,10 +51,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
-      - name: Pull latest changes
-        run: git pull origin ${{ github.ref_name }}
+      - name: Configure git and fetch remote refs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -B ${{ github.ref_name }} ${{ github.sha }}
+          git fetch origin
 
       - name: Use dev release config
         if: github.ref_name == 'develop'
