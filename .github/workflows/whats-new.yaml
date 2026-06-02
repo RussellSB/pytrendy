@@ -88,7 +88,7 @@ jobs:
             # Find the most recent release targeting this branch that was
             # published after the triggering workflow run started.
             RELEASE=$(curl -sf \
-              -H "Authorization: ****** secrets.GITHUB_TOKEN }}" \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
               -H "Accept: application/vnd.github+json" \
               "https://api.github.com/repos/${{ github.repository }}/releases?per_page=5" | \
               jq -r --arg branch "${BRANCH}" \
@@ -101,10 +101,10 @@ jobs:
               exit 0
             fi
 
-            TAG=$(echo    "${RELEASE}" | jq -r '.tag_name')
-            NAME=$(echo   "${RELEASE}" | jq -r '.name // ""')
+            TAG=$(echo "${RELEASE}" | jq -r '.tag_name')
+            NAME=$(echo "${RELEASE}" | jq -r '.name // ""')
             PRERELEASE=$(echo "${RELEASE}" | jq -r '.prerelease | ascii_downcase')
-            BODY_RAW=$(echo   "${RELEASE}" | jq -r '.body // ""')
+            BODY_RAW=$(echo "${RELEASE}" | jq -r '.body // ""')
 
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
             echo "tag=${TAG}"                                                >> "$GITHUB_OUTPUT"
