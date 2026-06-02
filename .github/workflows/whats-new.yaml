@@ -2,12 +2,13 @@ name: What's New Generator
 
 # Triggers
 # ─────────────────────────────────────────────────────────────────────────────
-# 1. Automatically after the Release workflow completes on main/develop.
-# 2. Manually via workflow_dispatch for ad-hoc regeneration.
+# 1. Automatically when a GitHub Release is published.
+# 2. Automatically on semantic-release bot pushes to main/develop.
+# 3. Manually via workflow_dispatch for ad-hoc regeneration.
 #
 # Flow
 # ─────────────────────────────────────────────────────────────────────────────
-# • Resolve release metadata from the most recent release matching the branch.
+# • Resolve release metadata from release events, dispatch inputs, or semantic-release commits.
 # • Parse release notes (or fall back to CHANGELOG.md).
 # • Call the GitHub Models API (Claude Sonnet 4.6) to generate a user-friendly entry.
 # • Prepend the new entry into docs/whats-new.md.
@@ -15,9 +16,9 @@ name: What's New Generator
 # • On main: also open a follow-up PR to sync the page back to develop.
 
 on:
-  workflow_run:
-    workflows: ["Release"]
-    types: [completed]
+  release:
+    types: [published]
+  push:
     branches: [main, develop]
   workflow_dispatch:
     inputs:
@@ -30,18 +31,13 @@ on:
         required: false
         default: 'develop'
 
-env:
-  # How many releases to fetch when scanning for the latest matching release.
-  # 30 is enough for any realistic cadence (well above the number of releases
-  # that could be published between two successive workflow_run triggers) while
-  # keeping the API response small. Increase if releases are published very
-  # rapidly without a corresponding What's New run in between.
-  RELEASE_FETCH_PAGE_SIZE: "30"
-
 jobs:
   generate-whats-new:
     name: Generate What's New entry
-    if: github.event_name == 'workflow_dispatch' || (github.event.workflow_run.conclusion && github.event.workflow_run.conclusion == 'success')
+    if: |
+      github.event_name == 'release' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.meta.outputs.skip }}
@@ -50,78 +46,23 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Get latest release
-        id: get_release
-        if: github.event_name == 'workflow_run'
-        uses: actions/github-script@v7
-        env:
-          RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
-        with:
-          script: |
-            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
-            const headBranch = context.payload.workflow_run.head_branch;
-            const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
-
-            let releases;
-            try {
-              ({ data: releases } = await github.rest.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                per_page: releasePageSize,
-              }));
-            } catch (err) {
-              core.setFailed(`Failed to fetch releases from GitHub API: ${err.message}`);
-              return;
-            }
-
-            // Pick the most-recent non-draft release on this branch.
-            // listReleases returns results sorted newest-first, so the first
-            // matching entry is always the release that just completed.
-            const match = releases.find((release) => {
-              if (release.draft) return false;
-              if (release.target_commitish !== headBranch) return false;
-              if (!release.published_at) return false;
-              return true;
-            });
-
-            // Guard: skip if no release was found, or if the release was not published
-            // after this workflow run started (meaning the Release workflow completed
-            // with no new release). Use strict < so a release published in the same
-            // second as run_started_at is not incorrectly skipped.
-            if (!match || new Date(match.published_at) < runStartedAt) {
-              core.setOutput("skip", "true");
-              core.setOutput("branch", headBranch);
-              return;
-            }
-
-            core.setOutput("skip", "false");
-            core.setOutput("tag", match.tag_name);
-            core.setOutput("name", match.name || match.tag_name);
-            core.setOutput("body", match.body || "");
-            core.setOutput("prerelease", String(match.prerelease));
-            core.setOutput("branch", headBranch);
-
       # ── 1. Resolve metadata ─────────────────────────────────────────────────
       - name: Resolve release metadata
         id: meta
-        env:
-          # Pass the release body via env so multiline content is handled safely
-          # (avoids corrupting $GITHUB_OUTPUT with an inline `echo "body=..."`).
-          RELEASE_BODY: ${{ steps.get_release.outputs.body }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_run" ]; then
-            echo "skip=${{ steps.get_release.outputs.skip }}"                >> "$GITHUB_OUTPUT"
-            echo "tag=${{ steps.get_release.outputs.tag }}"                  >> "$GITHUB_OUTPUT"
-            echo "name=${{ steps.get_release.outputs.name }}"                >> "$GITHUB_OUTPUT"
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "skip=false"                                                >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.event.release.tag_name }}"                  >> "$GITHUB_OUTPUT"
+            echo "name=${{ github.event.release.name }}"                     >> "$GITHUB_OUTPUT"
             BODY_DELIM=$(openssl rand -hex 8)
             {
               echo "body<<${BODY_DELIM}"
-              echo "${RELEASE_BODY}"
+              echo "${{ github.event.release.body }}"
               echo "${BODY_DELIM}"
             } >> "$GITHUB_OUTPUT"
-            echo "prerelease=${{ steps.get_release.outputs.prerelease }}"    >> "$GITHUB_OUTPUT"
-            echo "branch=${{ steps.get_release.outputs.branch }}"            >> "$GITHUB_OUTPUT"
-          else
+            echo "prerelease=${{ github.event.release.prerelease }}"         >> "$GITHUB_OUTPUT"
+            echo "branch=${{ github.event.release.target_commitish }}"       >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TAG="${{ github.event.inputs.tag }}"
             BRANCH="${{ github.event.inputs.target_branch }}"
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
@@ -137,6 +78,29 @@ jobs:
               echo "prerelease=true"                                         >> "$GITHUB_OUTPUT"
             fi
             echo "branch=${BRANCH:-develop}"                                 >> "$GITHUB_OUTPUT"
+          else
+            # Support semantic-release push commits so docs generation still runs
+            # when release events are not emitted by workflows using GITHUB_TOKEN.
+            MSG="${{ github.event.head_commit.message }}"
+            # Extract version token from messages like:
+            #   chore(release): 1.2.0-dev.3 [skip ci]
+            VERSION="$(printf '%s' "${MSG}" | sed -E 's/^chore\(release\):[[:space:]]*([^[:space:]]+).*/\1/')"
+            BRANCH="${{ github.ref_name }}"
+            if [ -z "${VERSION}" ] || [ "${VERSION}" = "${MSG}" ]; then
+              echo "skip=true"                                               >> "$GITHUB_OUTPUT"
+              echo "branch=${BRANCH}"                                        >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            echo "skip=false"                                                >> "$GITHUB_OUTPUT"
+            echo "tag=v${VERSION}"                                           >> "$GITHUB_OUTPUT"
+            echo "name=Release ${VERSION}"                                   >> "$GITHUB_OUTPUT"
+            echo "body="                                                     >> "$GITHUB_OUTPUT"
+            if printf '%s' "${VERSION}" | grep -q -- "-dev\\."; then
+              echo "prerelease=true"                                         >> "$GITHUB_OUTPUT"
+            else
+              echo "prerelease=false"                                        >> "$GITHUB_OUTPUT"
+            fi
+            echo "branch=${BRANCH}"                                          >> "$GITHUB_OUTPUT"
           fi
 
       # ── 2. Checkout the release branch ──────────────────────────────────────
@@ -205,99 +169,51 @@ jobs:
     name: Sync What's New back to develop
     needs: generate-whats-new
     if: |
-      github.event_name == 'workflow_run' &&
-      github.event.workflow_run.conclusion == 'success' &&
+      github.event_name == 'release' &&
+      github.event.release.prerelease == false &&
+      github.event.release.target_commitish == 'main' &&
       needs.generate-whats-new.outputs.skip != 'true' &&
-      github.event.workflow_run.head_branch == 'main'
+      needs.generate-whats-new.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
       pull-requests: write
 
     steps:
-      - name: Get latest stable release
-        id: get_stable_release
-        uses: actions/github-script@v7
-        env:
-          RELEASE_PAGE_SIZE: ${{ env.RELEASE_FETCH_PAGE_SIZE }}
-        with:
-          script: |
-            const releasePageSize = Number(process.env.RELEASE_PAGE_SIZE);
-            const runStartedAt = new Date(context.payload.workflow_run.run_started_at);
-
-            let releases;
-            try {
-              ({ data: releases } = await github.rest.repos.listReleases({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                per_page: releasePageSize,
-              }));
-            } catch (err) {
-              core.setFailed(`Failed to fetch releases from GitHub API: ${err.message}`);
-              return;
-            }
-
-            // Pick the most-recent non-draft stable release on main.
-            // listReleases returns results sorted newest-first.
-            const stable = releases.find((release) => {
-              if (release.draft || release.prerelease) return false;
-              if (release.target_commitish !== "main") return false;
-              if (!release.published_at) return false;
-              return true;
-            });
-
-            // Guard: skip if no stable release was found, or if it was not published
-            // after this workflow run started (meaning the Release workflow completed
-            // with no new stable release). Use strict < so a release published in the
-            // same second as run_started_at is not incorrectly skipped.
-            if (!stable || new Date(stable.published_at) < runStartedAt) {
-              core.setOutput("skip", "true");
-              return;
-            }
-
-            core.setOutput("skip", "false");
-            core.setOutput("tag", stable.tag_name);
-            core.setOutput("name", stable.name || stable.tag_name);
-            core.setOutput("body", stable.body || "");
-
       - name: Checkout develop
-        if: steps.get_stable_release.outputs.skip != 'true'
         uses: actions/checkout@v4
         with:
           ref: develop
           fetch-depth: 0
 
       - name: Setup Python
-        if: steps.get_stable_release.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
       - name: Re-generate What's New for develop (reframe as stable)
-        if: steps.get_stable_release.outputs.skip != 'true'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ steps.get_stable_release.outputs.tag }}
-          RELEASE_NAME: ${{ steps.get_stable_release.outputs.name }}
-          RELEASE_BODY: ${{ steps.get_stable_release.outputs.body }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+          RELEASE_NAME: ${{ github.event.release.name }}
+          RELEASE_BODY: ${{ github.event.release.body }}
           IS_PRERELEASE: "false"
           BRANCH: develop
         run: python scripts/generate_whats_new.py
 
       - name: Create sync PR to develop
-        if: steps.get_stable_release.outputs.skip != 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs(whats-new): sync stable entry for ${{ steps.get_stable_release.outputs.tag }} to develop [skip ci]"
-          branch: "docs/whats-new-sync-${{ steps.get_stable_release.outputs.tag }}"
+          commit-message: "docs(whats-new): sync stable entry for ${{ github.event.release.tag_name }} to develop [skip ci]"
+          branch: "docs/whats-new-sync-${{ github.event.release.tag_name }}"
           base: develop
-          title: "docs(whats-new): sync what's new entry for ${{ steps.get_stable_release.outputs.tag }} to develop"
+          title: "docs(whats-new): sync what's new entry for ${{ github.event.release.tag_name }} to develop"
           body: |
             ## 🔄 Automated What's New sync
 
             This PR was generated automatically to keep the `develop` branch in sync
-            with the stable `${{ steps.get_stable_release.outputs.tag }}` release notes that were
+            with the stable `${{ github.event.release.tag_name }}` release notes that were
             already merged to `main`.
 
             > **Auto-generated** · [What's New Generator workflow](../actions/workflows/whats-new.yaml)

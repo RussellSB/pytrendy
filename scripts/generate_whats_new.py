@@ -2,7 +2,8 @@
 """Generate or update docs/whats-new.md using the GitHub Models API (Claude Sonnet 4.6).
 
 The script:
-  1. Reads the latest release notes (from the RELEASE_BODY env var or CHANGELOG.md).
+  1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
+     tag, then CHANGELOG.md).
   2. Calls the GitHub Models API (claude-sonnet-4.6) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
@@ -36,6 +37,7 @@ import re
 import sys
 import textwrap
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -89,6 +91,42 @@ def _read_changelog_section(tag: str) -> str:
     )
     match = pattern.search(text)
     return match.group(1).strip() if match else ""
+
+
+def _fetch_release_body_from_github(tag: str, token: str) -> str:
+    """Fetch release notes body from the GitHub Release API by tag."""
+    repository = _env("GITHUB_REPOSITORY")
+    if not token or not repository or "/" not in repository:
+        return ""
+
+    url_encoded_tag = urllib.parse.quote(tag, safe="")
+    url = f"https://api.github.com/repos/{repository}/releases/tags/{url_encoded_tag}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + token,
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            body = data.get("body", "")
+            return body.strip() if isinstance(body, str) else ""
+    except (urllib.error.URLError, json.JSONDecodeError) as exc:
+        print(
+            f"[whats-new] Warning: failed to fetch release notes for {tag} from GitHub API: {exc}",
+            file=sys.stderr,
+        )
+        return ""
+
+
+def _resolve_raw_notes(tag: str, release_body: str, token: str) -> str:
+    """Resolve release notes in priority order: env body, GitHub API, changelog."""
+    if release_body:
+        return release_body
+    return _fetch_release_body_from_github(tag, token) or _read_changelog_section(tag)
 
 
 def _call_github_models(prompt: str, token: str) -> str | None:
@@ -404,8 +442,8 @@ def main() -> None:
     is_prerelease = _env("IS_PRERELEASE", "false").lower() == "true"
     date_str = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
 
-    # Prefer the GitHub Release body; fall back to CHANGELOG.md
-    raw_notes = release_body or _read_changelog_section(tag)
+    # Prefer event body, then GitHub API by tag, then changelog fallback.
+    raw_notes = _resolve_raw_notes(tag, release_body, token)
 
     if not raw_notes:
         print(
