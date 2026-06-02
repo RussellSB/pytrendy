@@ -3,12 +3,12 @@ name: What's New Generator
 # Triggers
 # ─────────────────────────────────────────────────────────────────────────────
 # 1. Automatically when a GitHub Release is published.
-# 2. Automatically on semantic-release bot pushes to main/develop.
+# 2. Automatically when the Release workflow completes successfully on main/develop.
 # 3. Manually via workflow_dispatch for ad-hoc regeneration.
 #
 # Flow
 # ─────────────────────────────────────────────────────────────────────────────
-# • Resolve release metadata from release events, dispatch inputs, or semantic-release commits.
+# • Resolve release metadata from release events, dispatch inputs, or the Release workflow run.
 # • Parse release notes (or fall back to CHANGELOG.md).
 # • Call the GitHub Models API (Claude Sonnet 4.6) to generate a user-friendly entry.
 # • Prepend the new entry into docs/whats-new.md.
@@ -18,7 +18,9 @@ name: What's New Generator
 on:
   release:
     types: [published]
-  push:
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
     branches: [main, develop]
   workflow_dispatch:
     inputs:
@@ -37,7 +39,7 @@ jobs:
     if: |
       github.event_name == 'release' ||
       github.event_name == 'workflow_dispatch' ||
-      (github.event_name == 'push' && startsWith(github.event.head_commit.message, 'chore(release):'))
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
     outputs:
       skip: ${{ steps.meta.outputs.skip }}
@@ -79,27 +81,41 @@ jobs:
             fi
             echo "branch=${BRANCH:-develop}"                                 >> "$GITHUB_OUTPUT"
           else
-            # Support semantic-release push commits so docs generation still runs
-            # when release events are not emitted by workflows using GITHUB_TOKEN.
-            MSG="${{ github.event.head_commit.message }}"
-            # Extract version token from messages like:
-            #   chore(release): 1.2.0-dev.3 [skip ci]
-            VERSION="$(printf '%s' "${MSG}" | sed -E 's/^chore\(release\):[[:space:]]*([^[:space:]]+).*/\1/')"
-            BRANCH="${{ github.ref_name }}"
-            if [ -z "${VERSION}" ] || [ "${VERSION}" = "${MSG}" ]; then
+            # Support workflow_run trigger so docs generation still runs when
+            # release events are not emitted by workflows using GITHUB_TOKEN.
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+
+            # Find the most recent release targeting this branch that was
+            # published after the triggering workflow run started.
+            RELEASE=$(curl -sf \
+              -H "Authorization: ****** secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/releases?per_page=5" | \
+              jq -r --arg branch "${BRANCH}" \
+                    --arg since "${{ github.event.workflow_run.created_at }}" \
+                'map(select(.target_commitish == $branch and .published_at >= $since)) | first | @json // ""')
+
+            if [ -z "${RELEASE}" ] || [ "${RELEASE}" = "null" ]; then
               echo "skip=true"                                               >> "$GITHUB_OUTPUT"
               echo "branch=${BRANCH}"                                        >> "$GITHUB_OUTPUT"
               exit 0
             fi
+
+            TAG=$(echo    "${RELEASE}" | jq -r '.tag_name')
+            NAME=$(echo   "${RELEASE}" | jq -r '.name // ""')
+            PRERELEASE=$(echo "${RELEASE}" | jq -r '.prerelease | ascii_downcase')
+            BODY_RAW=$(echo   "${RELEASE}" | jq -r '.body // ""')
+
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
-            echo "tag=v${VERSION}"                                           >> "$GITHUB_OUTPUT"
-            echo "name=Release ${VERSION}"                                   >> "$GITHUB_OUTPUT"
-            echo "body="                                                     >> "$GITHUB_OUTPUT"
-            if printf '%s' "${VERSION}" | grep -q -- "-dev\\."; then
-              echo "prerelease=true"                                         >> "$GITHUB_OUTPUT"
-            else
-              echo "prerelease=false"                                        >> "$GITHUB_OUTPUT"
-            fi
+            echo "tag=${TAG}"                                                >> "$GITHUB_OUTPUT"
+            echo "name=${NAME}"                                              >> "$GITHUB_OUTPUT"
+            BODY_DELIM=$(openssl rand -hex 8)
+            {
+              echo "body<<${BODY_DELIM}"
+              echo "${BODY_RAW}"
+              echo "${BODY_DELIM}"
+            } >> "$GITHUB_OUTPUT"
+            echo "prerelease=${PRERELEASE}"                                  >> "$GITHUB_OUTPUT"
             echo "branch=${BRANCH}"                                          >> "$GITHUB_OUTPUT"
           fi
 

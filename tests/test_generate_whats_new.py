@@ -57,6 +57,24 @@ def test_fetch_release_body_from_github_returns_empty_and_warns_on_failure(monke
     assert "Warning: failed to fetch release notes" in capsys.readouterr().err
 
 
+def test_fetch_release_body_from_github_returns_empty_and_warns_on_timeout(monkeypatch, capsys):
+    monkeypatch.setenv("GITHUB_REPOSITORY", "RussellSB/pytrendy")
+
+    def _raise_timeout(*_args, **_kwargs):
+        raise TimeoutError("timed out")
+
+    monkeypatch.setattr(
+        generate_whats_new.urllib.request,
+        "urlopen",
+        _raise_timeout,
+    )
+
+    result = generate_whats_new._fetch_release_body_from_github("v1.2.0-dev.3", "token")
+
+    assert result == ""
+    assert "Warning: failed to fetch release notes" in capsys.readouterr().err
+
+
 def test_fetch_release_body_from_github_reads_body(monkeypatch):
     monkeypatch.setenv("GITHUB_REPOSITORY", "RussellSB/pytrendy")
 

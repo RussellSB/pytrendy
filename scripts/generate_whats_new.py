@@ -114,7 +114,7 @@ def _fetch_release_body_from_github(tag: str, token: str) -> str:
             data = json.loads(resp.read().decode("utf-8"))
             body = data.get("body", "")
             return body.strip() if isinstance(body, str) else ""
-    except (urllib.error.URLError, json.JSONDecodeError) as exc:
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
         print(
             f"[whats-new] Warning: failed to fetch release notes for {tag} from GitHub API: {exc}",
             file=sys.stderr,
