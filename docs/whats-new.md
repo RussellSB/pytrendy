@@ -3,16 +3,54 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-<!--
-!!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.2.0**.  
-    Switch to the **main** docs via the badge in the header to see the stable documentation.
--->
+!!! note "Pre-release documentation"
+    You are viewing the **develop** (pre-release) build.  
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
+
+```bash
+pip install --pre pytrendy==1.2.0.dev2
+```
+
+`is_abrupt_padded` in `method_params` is deprecated — use the integer `abrupt_padding` parameter instead for direct control over the number of days padded around abrupt transitions.
+
+??? note "Deprecation: `is_abrupt_padded` replaced by `abrupt_padding`"
+    The boolean `is_abrupt_padded` flag in `method_params` has been deprecated in favour of the integer `abrupt_padding` parameter. Rather than toggling padding on or off, you now specify the number of days to pad around abrupt transitions directly. The default is `0` (no padding), matching the previous `is_abrupt_padded=False` behaviour.
+
+    Passing `is_abrupt_padded` still works but raises a `DeprecationWarning` at runtime, guiding you to migrate.
+    Introduced: [#117](https://github.com/RussellSB/pytrendy/pull/117)
+
+    | Old API | New API |
+    |---|---|
+    | `method_params=dict(is_abrupt_padded=True)` | `method_params=dict(abrupt_padding=28)` |
+    | `method_params=dict(is_abrupt_padded=False)` | (default — no change needed) |
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Before — deprecated (raises DeprecationWarning)
+        result = pt.detect_trends(df, date_col="date", value_col="abrupt",
+                                  method_params=dict(is_abrupt_padded=True))
+
+        # After — use abrupt_padding (int: number of days to pad)
+        result = pt.detect_trends(df, date_col="date", value_col="abrupt",
+                                  method_params=dict(abrupt_padding=28))
+        print(result.df[["direction", "start", "end"]])
+        ```
+
+---
 
 ## Agentic Docs, Noise Control & Trend Fixes (v1.2.0)
 
