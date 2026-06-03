@@ -103,7 +103,7 @@ jobs:
 
             TAG=$(echo "${RELEASE}" | jq -r '.tag_name')
             NAME=$(echo "${RELEASE}" | jq -r '.name // ""')
-            PRERELEASE=$(echo "${RELEASE}" | jq -r '.prerelease | ascii_downcase')
+            PRERELEASE=$(echo "${RELEASE}" | jq -r '.prerelease | tostring')
             BODY_RAW=$(echo "${RELEASE}" | jq -r '.body // ""')
 
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
