@@ -86,7 +86,7 @@ def _read_changelog_section(tag: str) -> str:
     # Match the heading line containing the version number
     version = tag.lstrip("v").split("-")[0]  # strip "v" and pre-release suffix
     pattern = re.compile(
-        rf"(?:^|\n)(#{1,2}\s+\[?{re.escape(version)}\]?.*?)(?=\n#{1,2}\s|\Z)",
+        rf"(?:^|\n)(#{{1,2}}\s+\[?{re.escape(version)}\]?.*?)(?=\n#{{1,2}}\s|\Z)",
         re.DOTALL,
     )
     match = pattern.search(text)
