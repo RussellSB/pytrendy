@@ -13,6 +13,18 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release.*
+
+??? note "Improvements"
+
+    - metrics for remaining segment types [#88](https://github.com/RussellSB/pytrendy/issues/88) ([b9d8e39](https://github.com/RussellSB/pytrendy/commit/b9d8e39c000558da15cb96a5edec1e1553840657))
+    - trend detection for normalised time series (PR [#79](https://github.com/RussellSB/pytrendy/issues/79)) ([dc5917b](https://github.com/RussellSB/pytrendy/commit/dc5917bafc4b9a040354c4e3ecbd71022249500d))
+    - allow user to toggle noise off ([#110](https://github.com/RussellSB/pytrendy/issues/110)) ([35f25fc](https://github.com/RussellSB/pytrendy/commit/35f25fce307fae2f3303bd6ec4a60d309ec297a7))
+
+---
+
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
