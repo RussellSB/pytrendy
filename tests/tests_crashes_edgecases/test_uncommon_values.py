@@ -53,9 +53,7 @@ class TestUncommonValues:
         """Test that a new-market series with abrupt_padding=28 correctly extends the Up segment
         rather than collapsing the entire window to Flat.
 
-        BUG: currently abrupt_padding=28 causes all segments to be reclassified as Flat.
-        This test documents the desired behaviour and will fail until the bug is resolved.
-        Expected fix: the padded Up segment should extend to 2026-04-20 (28 days after activation)
+        Expected: the padded Up segment should extend to 2026-04-20 (28 days after activation)
         and the trailing Flat should cover 2026-04-21 to 2026-05-15.
         """
         df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
