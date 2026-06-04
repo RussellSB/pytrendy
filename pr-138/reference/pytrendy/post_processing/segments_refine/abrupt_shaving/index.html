@@ -1905,7 +1905,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 
     <span class="c1"># Second pass to pad segments if specified</span>
     <span class="n">segments_padded</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;abrupt_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;abrupt_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
         <span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># metadata df, to filter by datetime easily</span>
         <span class="n">meta_df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
