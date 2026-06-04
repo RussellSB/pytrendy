@@ -55,6 +55,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
     THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
 
+    assert pd.api.types.is_integer_dtype(df.index.dtype), f"Supplied Index has type {df.index.dtype}"
+
     # 1. Noise detection via SNR. 
     # 1.1 Compute the SNR
     df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()

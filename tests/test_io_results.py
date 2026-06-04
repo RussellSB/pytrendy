@@ -402,6 +402,7 @@ class TestResultsFilterSegments:
     @pytest.mark.core
     def test_filter_segments_by_direction_noise(self, outlier_signal):
         """Test filtering segments by 'Noise' direction."""
+
         results = pt.detect_trends(
             outlier_signal,
             date_col='date',
@@ -416,8 +417,11 @@ class TestResultsFilterSegments:
         assert len(noise_segments) == 1
         
         # Expected Noise segment from outlier signal
-        expected_noise = [
-            {'direction': 'Noise', 'start': '2025-02-19', 'end': '2025-02-21'},
+        expected_noise = [{
+             'direction': 'Noise', 
+             'start': pd.to_datetime('2025-02-19'), 
+             'end': pd.to_datetime('2025-02-21')
+            },
         ]
         
         assert_segments_match(noise_segments, expected_noise)

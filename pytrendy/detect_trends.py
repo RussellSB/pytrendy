@@ -9,6 +9,7 @@ from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
+from datetime import date
 
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
@@ -69,9 +70,13 @@ def detect_trends(df: pd.DataFrame,
             raise ValueError(f"Column '{name}' not found. Did you mean: {suggestions}?")
         
     test_column(columns, value_col)
-    index_type = "continious"
-    
+
+    s = df[date_col]
+
+    index_type = None
+
     if date_col is not None:
+        external_index = df[date_col].copy()
         test_column(columns, date_col)
         if pd.api.types.is_string_dtype(df[date_col]):
             try:        
@@ -79,11 +84,15 @@ def detect_trends(df: pd.DataFrame,
                 index_type = "date"
             except Exception as e:
                 print(f"Attempting to cast {date_col} to date failed, treating as string lookup.")
+                index_type = "string"
+        elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
+            index_type = "datetime64"
+        elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():
+            index_type = "datetimePd"
         elif pd.api.types.is_numeric_dtype(df[date_col]):
-            pass
+            index_type = "continious"
         else:
-            raise NotImplementedError(f"date_col has unimplimented dtype {df[date_col].dtype}")
-        external_index = df[date_col]    
+            raise NotImplementedError(f"date_col has unimplimented dtype {df[date_col].dtype}") 
     else:
         external_index = np.arange(len(df))
 

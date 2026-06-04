@@ -8,6 +8,7 @@ directions against expected behavior.
 
 import pytest
 import pytrendy as pt
+import pandas as pd
 from conftest import assert_segments_match
 
 
@@ -38,7 +39,7 @@ class TestCoreCases:
             {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
             {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},
         ]
-        
+
         assert_segments_match(results.segments, expected_segments)
 
     @pytest.mark.core

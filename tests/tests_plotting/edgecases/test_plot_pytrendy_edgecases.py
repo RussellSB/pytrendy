@@ -8,6 +8,7 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 
 import pytest
 import pandas as pd
+import numpy as np
 from copy import deepcopy
 import pytrendy as pt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
@@ -69,10 +70,14 @@ class TestPlotPytrendyEdgeCases:
         
         # ------ pt.detect_trends() [part 1]
         # unwrapped-equivalent to disable grouping at a lower level     
-        df[date_col] = pd.to_datetime(df[date_col])
+        external_index = pd.to_datetime(df[date_col])
+        internal_index = np.arange(len(df))
+        index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
+    
+        df[date_col] = internal_index
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
-        method_params = dict(is_abrupt_padded=False, abrupt_padding=28, avoid_noise=True) 
+        method_params = dict(is_abrupt_padded=False, abrupt_padding=28, avoid_noise=True)
 
         df = process_signals(df, value_col, method_params)
         segments = get_segments(df)
@@ -90,6 +95,13 @@ class TestPlotPytrendyEdgeCases:
         # ------ pt.detect_trends() [part 2]
         segments = segments_refined.copy()
         segments = analyse_segments(df, value_col, segments)
+
+        for segment in segments:
+            segment['start'] = index_lookup[segment['start']]
+            segment['end'] = index_lookup[segment['end']]
+
+        df[date_col] = external_index
+        df.set_index(date_col, inplace=True)
         fig = plot_pytrendy(df, value_col, segments, suppress_show=True)
         return fig
 
