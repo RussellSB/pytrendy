@@ -41,8 +41,15 @@ jobs:
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     runs-on: ubuntu-latest
+    concurrency:
+      group: whats-new-${{ github.event.release.tag_name || github.event.workflow_run.head_branch || github.run_id }}
+      cancel-in-progress: false
     outputs:
       skip: ${{ steps.meta.outputs.skip }}
+      tag: ${{ steps.meta.outputs.tag }}
+      name: ${{ steps.meta.outputs.name }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+      branch: ${{ steps.meta.outputs.branch }}
     permissions:
       contents: write
       pull-requests: write
@@ -51,6 +58,8 @@ jobs:
       # ── 1. Resolve metadata ─────────────────────────────────────────────────
       - name: Resolve release metadata
         id: meta
+        env:
+          RELEASE_BODY_INPUT: ${{ github.event.release.body }}
         run: |
           if [ "${{ github.event_name }}" = "release" ]; then
             echo "skip=false"                                                >> "$GITHUB_OUTPUT"
@@ -59,7 +68,7 @@ jobs:
             BODY_DELIM=$(openssl rand -hex 8)
             {
               echo "body<<${BODY_DELIM}"
-              echo "${{ github.event.release.body }}"
+              echo "${RELEASE_BODY_INPUT}"
               echo "${BODY_DELIM}"
             } >> "$GITHUB_OUTPUT"
             echo "prerelease=${{ github.event.release.prerelease }}"         >> "$GITHUB_OUTPUT"
@@ -93,7 +102,7 @@ jobs:
               "https://api.github.com/repos/${{ github.repository }}/releases?per_page=5" | \
               jq -r --arg branch "${BRANCH}" \
                     --arg since "${{ github.event.workflow_run.created_at }}" \
-                'map(select(.target_commitish == $branch and .published_at >= $since)) | first | @json // ""')
+                '[.[] | select(.target_commitish == $branch and .published_at >= $since)] | if length > 0 then .[0] | @json else "" end')
 
             if [ -z "${RELEASE}" ] || [ "${RELEASE}" = "null" ]; then
               echo "skip=true"                                               >> "$GITHUB_OUTPUT"
@@ -185,9 +194,9 @@ jobs:
     name: Sync What's New back to develop
     needs: generate-whats-new
     if: |
-      github.event_name == 'release' &&
-      github.event.release.prerelease == false &&
-      github.event.release.target_commitish == 'main' &&
+      (github.event_name == 'release' || github.event_name == 'workflow_run') &&
+      needs.generate-whats-new.outputs.prerelease == 'false' &&
+      needs.generate-whats-new.outputs.branch == 'main' &&
       needs.generate-whats-new.outputs.skip != 'true' &&
       needs.generate-whats-new.result == 'success'
     runs-on: ubuntu-latest
@@ -210,9 +219,10 @@ jobs:
       - name: Re-generate What's New for develop (reframe as stable)
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: ${{ github.event.release.tag_name }}
-          RELEASE_NAME: ${{ github.event.release.name }}
-          RELEASE_BODY: ${{ github.event.release.body }}
+          RELEASE_TAG: ${{ needs.generate-whats-new.outputs.tag }}
+          RELEASE_NAME: ${{ needs.generate-whats-new.outputs.name }}
+          # Leave RELEASE_BODY empty; the generator falls back to the GitHub API by tag.
+          RELEASE_BODY: ""
           IS_PRERELEASE: "false"
           BRANCH: develop
         run: python scripts/generate_whats_new.py
@@ -221,15 +231,15 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs(whats-new): sync stable entry for ${{ github.event.release.tag_name }} to develop [skip ci]"
-          branch: "docs/whats-new-sync-${{ github.event.release.tag_name }}"
+          commit-message: "docs(whats-new): sync stable entry for ${{ needs.generate-whats-new.outputs.tag }} to develop [skip ci]"
+          branch: "docs/whats-new-sync-${{ needs.generate-whats-new.outputs.tag }}"
           base: develop
-          title: "docs(whats-new): sync what's new entry for ${{ github.event.release.tag_name }} to develop"
+          title: "docs(whats-new): sync what's new entry for ${{ needs.generate-whats-new.outputs.tag }} to develop"
           body: |
             ## 🔄 Automated What's New sync
 
             This PR was generated automatically to keep the `develop` branch in sync
-            with the stable `${{ github.event.release.tag_name }}` release notes that were
+            with the stable `${{ needs.generate-whats-new.outputs.tag }}` release notes that were
             already merged to `main`.
 
             > **Auto-generated** · [What's New Generator workflow](../actions/workflows/whats-new.yaml)
