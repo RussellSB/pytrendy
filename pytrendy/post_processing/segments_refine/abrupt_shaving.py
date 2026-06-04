@@ -123,7 +123,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
 
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
-    if method_params.get('abrupt_padding', 0) >= 0:
+    if method_params.get('abrupt_padding', 0) > 0:
 
         meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by datetime easily
         meta_df['start'] = pd.to_datetime(meta_df['start'])

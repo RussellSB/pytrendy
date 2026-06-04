@@ -321,3 +321,20 @@ df.loc['2025-05-05':'2025-06-30', 'abrupt'] = 0
 df = df.reset_index()
 
 results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, method_params=dict(abrupt_padding=28, avoid_noise=False))
+
+# ---------- New Reproduction: abrupt padding all-flat fallback on zero-baseline market entry
+# Bug: abrupt_padding=0 detects short Up, but abrupt_padding=28 collapses full window to Flat.
+
+# %%
+# Load zero-baseline market entry fixture (backed up from synthetic inline recreation)
+temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
+
+# %%
+# abrupt_padding=0: expects Flat / Up / Flat
+results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=0))
+
+# %%
+# abrupt_padding=28: currently broken - collapses to Flat only
+results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=28))
+
+# %%
