@@ -13,6 +13,16 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release.*
+
+??? note "New Features"
+
+    - zero baseline bug on missed abrupt padding ([#142](https://github.com/RussellSB/pytrendy/issues/142)) ([df4152b](https://github.com/RussellSB/pytrendy/commit/df4152bc23e7ca811d0b8bd3cc53a69cc186e581))
+
+---
+
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
