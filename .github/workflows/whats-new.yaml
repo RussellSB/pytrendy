@@ -53,6 +53,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      models: read
 
     steps:
       # ── 1. Resolve metadata ─────────────────────────────────────────────────
@@ -203,6 +204,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      models: read
 
     steps:
       - name: Checkout develop
