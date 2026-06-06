@@ -35,6 +35,8 @@ class TestPlotPytrendyCore:
         )
         
         fig = self._prepare_and_plot(df, 'gradual', results.segments)
+
+        fig.savefig("test.png")
         return fig
 
     @pytest.mark.core

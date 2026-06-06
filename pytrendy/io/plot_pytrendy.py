@@ -157,12 +157,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     ax.set_xlim(first_date, last_date)
     ax.set_ylim(ymin, ymax)
 
-    # Major ticks: every 7 days (with labels)
-    #ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-    #ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    if index_type == 'date':
+        # Major ticks: every 7 days (with labels)
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-    # Minor ticks: every day (no labels, just tick marks/grid)
-    #ax.xaxis.set_minor_locator(mdates.DayLocator())
+        # Minor ticks: every day (no labels, just tick marks/grid)
+        ax.xaxis.set_minor_locator(mdates.DayLocator())
 
     # Rotate major tick labels
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
