@@ -4,7 +4,7 @@
 The script:
   1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
      tag, then CHANGELOG.md).
-  2. Calls the GitHub Models API (openai/gpt-5) to produce a user-friendly
+  3. Calls the GitHub Models API (openai/gpt-4.1) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -57,7 +57,7 @@ NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
 NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
 
 GITHUB_MODELS_URL = "https://models.github.ai/inference/chat/completions"
-MODEL = "openai/gpt-5"
+MODEL = "openai/gpt-4.1"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -167,6 +167,55 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           directly related to time-series trend detection, produce both the "before" and
           "after" images through the same `detect_trends()` + `plot_pytrendy()` pipeline
           so that figsize, grid style, legend, and color scheme are identical.
+
+        Here is a high-quality example of a finished entry (for a feature that added
+        `avoid_noise` support). Match this level of depth, structure, and detail:
+
+        ---
+        Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two fixes to trend metrics and normalised input handling.
+
+        ??? note "Noise detection control (`avoid_noise`)"
+            A new `avoid_noise` parameter in `method_params` lets users opt out of noise detection entirely.
+            When set to `False`, spikes and noisy regions are ignored and trend detection proceeds straight through them.
+            Introduced: [#110](https://github.com/RussellSB/pytrendy/pull/110)
+
+            Useful for modelling a new-market launch or quasi-experiment where the signal is zero before and
+            after the activation window. With `avoid_noise=False`, boundary artifacts around step-changes are
+            suppressed, yielding clean Up/Down segments.
+
+            <div class="before-after-grid" markdown>
+            <div class="before-after-panel" markdown>
+            <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
+
+            ![New-market case — Noise artifacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
+
+            </div>
+            <div class="before-after-panel" markdown>
+            <span class="before-after-label after-label">After — `avoid_noise=False`</span>
+
+            ![New-market case — clean Up/Down with avoid_noise=False](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png)
+
+            </div>
+            </div>
+
+            ??? example "Code"
+                ```python
+                import pytrendy as pt
+
+                df = pt.load_data("series_synthetic")
+                df.set_index("date", inplace=True)
+                # Simulate a new-market / quasi-experiment: zero activity before and after activation
+                df.loc["2025-01-01":"2025-02-27", "abrupt"] = 0
+                df.loc["2025-05-05":"2025-06-30", "abrupt"] = 0
+                df = df.reset_index()
+
+                result = pt.detect_trends(
+                    df, date_col="date", value_col="abrupt",
+                    method_params=dict(is_abrupt_padded=True, avoid_noise=False)
+                )
+                print(result.df[["direction", "start", "end"]])
+                ```
+        ---
     """)
 
     payload = {
@@ -175,7 +224,7 @@ def _call_github_models(prompt: str, token: str) -> str | None:
             {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ],
-        "max_tokens": 2000,
+        "max_tokens": 4000,
         "temperature": 0.5,
     }
 
@@ -260,6 +309,13 @@ def _build_section(
     token: str,
 ) -> str:
     """Return the full Markdown block for one release (without top-level heading)."""
+    if not token:
+        print(
+            "[whats-new] Error: GITHUB_TOKEN is not set. Cannot call the GitHub Models API.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     prompt = textwrap.dedent(f"""\
         PyTrendy release {tag} ({'pre-release / develop' if is_prerelease else 'stable'}).
 
@@ -272,8 +328,15 @@ def _build_section(
         Omit the top-level ## heading — I will add it myself.
     """)
 
-    ai_content = _call_github_models(prompt, token) if token else None
-    return ai_content or _build_fallback_section(tag, raw_notes, is_prerelease)
+    ai_content = _call_github_models(prompt, token)
+    if ai_content is None:
+        print(
+            "[whats-new] Error: GitHub Models API call failed. See above for details. "
+            "Failing the workflow rather than writing a low-quality fallback entry.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return ai_content
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
