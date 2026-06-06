@@ -260,6 +260,13 @@ def _build_section(
     token: str,
 ) -> str:
     """Return the full Markdown block for one release (without top-level heading)."""
+    if not token:
+        print(
+            "[whats-new] Error: GITHUB_TOKEN is not set. Cannot call the GitHub Models API.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     prompt = textwrap.dedent(f"""\
         PyTrendy release {tag} ({'pre-release / develop' if is_prerelease else 'stable'}).
 
@@ -272,8 +279,15 @@ def _build_section(
         Omit the top-level ## heading — I will add it myself.
     """)
 
-    ai_content = _call_github_models(prompt, token) if token else None
-    return ai_content or _build_fallback_section(tag, raw_notes, is_prerelease)
+    ai_content = _call_github_models(prompt, token)
+    if ai_content is None:
+        print(
+            "[whats-new] Error: GitHub Models API call failed. See above for details. "
+            "Failing the workflow rather than writing a low-quality fallback entry.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return ai_content
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
