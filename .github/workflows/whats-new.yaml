@@ -162,7 +162,7 @@ jobs:
         if: steps.meta.outputs.skip != 'true'
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DOCS_PREVIEW_PAT }}
           commit-message: "docs(whats-new): add entry for ${{ steps.meta.outputs.tag }} [skip ci]"
           branch: "docs/whats-new-${{ steps.meta.outputs.tag }}"
           base: ${{ steps.meta.outputs.branch }}
@@ -232,7 +232,7 @@ jobs:
       - name: Create sync PR to develop
         uses: peter-evans/create-pull-request@v7
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.DOCS_PREVIEW_PAT }}
           commit-message: "docs(whats-new): sync stable entry for ${{ needs.generate-whats-new.outputs.tag }} to develop [skip ci]"
           branch: "docs/whats-new-sync-${{ needs.generate-whats-new.outputs.tag }}"
           base: develop
