@@ -13,6 +13,53 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release.*
+
+A single bug fix in v1.2.0-dev.4 improves baseline handling for abrupt trends.
+
+??? note "Abrupt trend baseline correction"
+    Fixed an issue where abrupt trends with padded boundaries could incorrectly default to a zero baseline if padding was missed. Now, baseline values are preserved as expected, ensuring accurate segment detection and classification.
+    Issue: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+
+    This change is especially relevant for step-change signals or quasi-experimental time series with abrupt transitions. Trend segments now properly respect the true baseline, preventing spurious zero-valued segments.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — Zero baseline artifact</span>
+
+    ![Abrupt trend with missed padding — segment baseline incorrectly zeroed](img/whats-new/pre-release/whats_new_abrupt_baseline_before_pr142.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — Baseline preserved</span>
+
+    ![Abrupt trend with missed padding — segment baseline preserved](img/whats-new/pre-release/whats_new_abrupt_baseline_after_pr142.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        # Load synthetic abrupt series for demonstration
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        # Simulate missed abrupt padding: zero out pre-activation region
+        df.loc["2025-01-01":"2025-02-27", "abrupt"] = 0
+        df = df.reset_index()
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="abrupt",
+            method_params=dict(is_abrupt_padded=False)  # Missed padding
+        )
+        pt.plot_pytrendy(result)
+        ```
+
+---
+
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
