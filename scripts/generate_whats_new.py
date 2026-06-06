@@ -99,7 +99,9 @@ def _fetch_release_body_from_github(tag: str, token: str) -> str:
     if not token or not repository or "/" not in repository:
         return ""
 
-    url_encoded_tag = urllib.parse.quote(tag, safe="")
+    # Normalise tag: GitHub releases are conventionally prefixed with 'v'
+    normalised_tag = tag if tag.startswith("v") else f"v{tag}"
+    url_encoded_tag = urllib.parse.quote(normalised_tag, safe="")
     url = f"https://api.github.com/repos/{repository}/releases/tags/{url_encoded_tag}"
     req = urllib.request.Request(
         url,
