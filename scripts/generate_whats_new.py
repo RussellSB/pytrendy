@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API (Claude Sonnet 4.6).
+"""Generate or update docs/whats-new.md using the GitHub Models API (GPT-5).
 
 The script:
   1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
      tag, then CHANGELOG.md).
-  2. Calls the GitHub Models API (claude-sonnet-4.6) to produce a user-friendly
+  2. Calls the GitHub Models API (openai/gpt-5) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -56,8 +56,8 @@ CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
 NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
 
-GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
-MODEL = "claude-sonnet-4.6"
+GITHUB_MODELS_URL = "https://models.github.ai/inference/chat/completions"
+MODEL = "openai/gpt-5"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -182,7 +182,9 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
+            "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2026-03-10",
         },
         method="POST",
     )
