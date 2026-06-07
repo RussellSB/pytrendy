@@ -13,6 +13,52 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release.*
+
+This pre-release includes a bug fix for abrupt trend detection, improving baseline handling in edge cases.
+
+??? note "Abrupt trend padding: zero baseline fix"
+    Fixed a bug where abrupt Up/Down trends with padded zeros could misassign baseline segments, leading to incorrect trend boundaries when data started or ended with zeros. Now, the trend segmentation correctly recognizes zero baselines and avoids spurious Up/Down trends at the edges.  
+    Issue: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — Missed zero baseline at edges</span>
+
+    ![Abrupt trend — baseline misassigned at start/end](img/whats-new/pre-release/whats_new_abrupt_zero_baseline_before_issue142.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — Correct baseline segmentation</span>
+
+    ![Abrupt trend — baseline correctly detected](img/whats-new/pre-release/whats_new_abrupt_zero_baseline_after_issue142.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        # Load synthetic series with abrupt trend, padded with zeros at start/end
+        import pandas as pd
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/abrupt_zero_padding.csv"
+        df = pd.read_csv(url)
+        df.set_index("date", inplace=True)
+
+        # Detect trends with abrupt padding enabled
+        result = pt.detect_trends(
+            df.reset_index(),
+            date_col="date", value_col="abrupt",
+            method_params=dict(is_abrupt_padded=True)
+        )
+        print(result.df[["direction", "start", "end"]])
+        ```
+
+---
+
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
