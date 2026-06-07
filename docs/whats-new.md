@@ -13,6 +13,55 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v1.2.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release.*
+
+A single bug fix in v1.2.0-dev.4 improves abrupt trend detection for zero baselines.
+
+??? note "Abrupt padding fix for zero baseline series"
+    Trend detection now correctly handles abrupt transitions when the baseline value is zero.
+    Previously, segments with abrupt changes could be missed or misclassified if the series started or ended at zero, especially in quasi-experimental or activation scenarios.
+    Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+
+    In the example below, the "abrupt" series has zero values before and after a central activation window. The fix ensures Up/Down segments are correctly detected, without missing boundaries.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — Missed abrupt segments at zero baseline</span>
+
+    ![Abrupt series with zero baseline — missed Up/Down segments](img/whats-new/pre-release/whats_new_zero_baseline_abrupt_before_pr142.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — Correct Up/Down detection at zero baseline</span>
+
+    ![Abrupt series with zero baseline — correct Up/Down detection](img/whats-new/pre-release/whats_new_zero_baseline_abrupt_after_pr142.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        # Load synthetic abrupt series
+        df = pt.load_data("series_synthetic")
+        df.set_index("date", inplace=True)
+        # Zero baseline before and after activation window
+        df.loc["2025-01-01":"2025-02-27", "abrupt"] = 0
+        df.loc["2025-05-05":"2025-06-30", "abrupt"] = 0
+        df = df.reset_index()
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="abrupt",
+            method_params=dict(is_abrupt_padded=True)
+        )
+        print(result.df[["direction", "start", "end"]])
+        ```
+
+---
+
 ## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
