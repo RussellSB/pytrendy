@@ -13,18 +13,57 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
+## Coming in v1.2.4 <span class="version-prerelease">pre-release</span>
 
-*Staged on the `develop` branch — will land in the next stable release. Currently available as pre-release **v1.2.0.dev2**:*
+*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
 
 ```bash
-pip install --pre pytrendy==1.2.0.dev2
+pip install --pre pytrendy
 ```
 
-`is_abrupt_padded` in `method_params` is deprecated — use the integer `abrupt_padding` parameter instead for direct control over the number of days padded around abrupt transitions.
+??? note "Abrupt padding fix for zero baseline series"
+    When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat.
+    Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+
+    The example below uses a new-market entry scenario: the series starts at zero, activates abruptly on 2026-03-21, then levels off. With `abrupt_padding=28`, the padded Up segment should extend to 2026-04-20. Before the fix, the entire series was misclassified as Flat.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.2.0</span>
+
+    ![Zero-baseline market entry — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.2.4</span>
+
+    ![Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv"
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="zero_baseline_market_entry_1",
+            method_params=dict(abrupt_padding=28)
+        )
+        print(result.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Flat       2026-03-01  2026-03-20
+        # Up         2026-03-21  2026-04-20   ← padded by 28 days
+        # Flat       2026-04-21  2026-05-15
+        ```
 
 ??? note "Deprecation: `is_abrupt_padded` replaced by `abrupt_padding`"
-    The boolean `is_abrupt_padded` flag in `method_params` has been deprecated in favour of the integer `abrupt_padding` parameter. Rather than toggling padding on or off, you now specify the number of days to pad around abrupt transitions directly. The default is `0` (no padding), matching the previous `is_abrupt_padded=False` behaviour.
+    `is_abrupt_padded` in `method_params` is deprecated; use integer `abrupt_padding` for direct control over padded days.
+    The boolean `is_abrupt_padded` flag has been deprecated in favour of the integer `abrupt_padding` parameter. Rather than toggling padding on or off, you now specify the number of days to pad around abrupt transitions directly. The default is `0` (no padding), matching the previous `is_abrupt_padded=False` behaviour.
 
     Passing `is_abrupt_padded` still works but raises a `DeprecationWarning` at runtime, guiding you to migrate.
     Introduced: [#117](https://github.com/RussellSB/pytrendy/pull/117)
