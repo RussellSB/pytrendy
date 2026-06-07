@@ -163,7 +163,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.DOCS_PREVIEW_PAT }}
-          commit-message: "docs(whats-new): add entry for ${{ steps.meta.outputs.tag }} [skip ci]"
+          # Do not use [skip ci] here: these commits back PR branches and must run PR checks.
+          commit-message: "docs(whats-new): add entry for ${{ steps.meta.outputs.tag }}"
           branch: "docs/whats-new-${{ steps.meta.outputs.tag }}"
           base: ${{ steps.meta.outputs.branch }}
           title: "docs(whats-new): add what's new entry for ${{ steps.meta.outputs.tag }}"
@@ -233,7 +234,8 @@ jobs:
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.DOCS_PREVIEW_PAT }}
-          commit-message: "docs(whats-new): sync stable entry for ${{ needs.generate-whats-new.outputs.tag }} to develop [skip ci]"
+          # Do not use [skip ci] here: these commits back PR branches and must run PR checks.
+          commit-message: "docs(whats-new): sync stable entry for ${{ needs.generate-whats-new.outputs.tag }} to develop"
           branch: "docs/whats-new-sync-${{ needs.generate-whats-new.outputs.tag }}"
           base: develop
           title: "docs(whats-new): sync what's new entry for ${{ needs.generate-whats-new.outputs.tag }} to develop"
