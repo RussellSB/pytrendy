@@ -1676,11 +1676,11 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/142">#142</a></p>
 <p>The example below uses a new-market entry scenario: the series starts at zero, activates abruptly on 2026-03-21, then levels off. With <code>abrupt_padding=28</code>, the padded Up segment should extend to 2026-04-20. Before the fix, the entire series was misclassified as Flat.</p>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
-<span class="before-after-label before-label">Before — <code>abrupt_padding=28</code> collapsed Up to Flat</span></p>
+<span class="before-after-label before-label">Before — v1.2.0</span></p>
 <p><img alt="Zero-baseline market entry — entire series incorrectly shown as Flat" src="../img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png" /></p>
 <p></div>
 <div class="before-after-panel" markdown>
-<span class="before-after-label after-label">After — Up segment correctly extended by padding window</span></p>
+<span class="before-after-label after-label">After — v1.2.4</span></p>
 <p><img alt="Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat" src="../img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png" /></p>
 <p></div>
 </div></p>
