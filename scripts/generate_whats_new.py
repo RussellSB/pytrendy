@@ -18,6 +18,12 @@ Agent instructions (run before each refresh):
     directly related to time-series trend detection, generate both images via the same
     `detect_trends()` + `plot_pytrendy()` pipeline so that figsize, grid style, legend,
     and color scheme are identical between the two images.
+  - For bug-fix before/after images, derive the scenario from the PR's test cases
+    (look in tests/tests_crashes_edgecases/ for the relevant test), not from an
+    arbitrary synthetic example. The "before" image must reproduce the actual broken
+    output (e.g. by constructing the segment list that the pre-fix code produced) and
+    the "after" image must use the current fixed `detect_trends()` output. Use the same
+    `value_col`, `method_params`, and data file as the test so users can reproduce it.
 
 Environment variables
 ---------------------
@@ -193,6 +199,14 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           directly related to time-series trend detection, produce both the "before" and
           "after" images through the same `detect_trends()` + `plot_pytrendy()` pipeline
           so that figsize, grid style, legend, and color scheme are identical.
+        - For bug-fix before/after comparisons, base them on the exact test case from the
+          related PR, not on an arbitrary synthetic example. Look up the PR referenced in
+          the CHANGELOG, find its regression/edge-case tests (e.g. in
+          `tests/tests_crashes_edgecases/`), and reproduce the failing scenario for the
+          "before" image and the passing scenario for the "after" image. The code example
+          must use the same `value_col`, `method_params`, and data file as the test.
+          Never fabricate a "before" by hand-crafting segments unless you have verified
+          via the test or the PR description what the actual broken output was.
 
         Here is a high-quality example of a finished entry (for a feature that added
         `avoid_noise` support). Match this level of depth, structure, and detail:

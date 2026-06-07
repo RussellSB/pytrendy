@@ -22,43 +22,43 @@ pip install --pre pytrendy
 ```
 
 ??? note "Abrupt padding fix for zero baseline series"
-    Abrupt transitions at a zero baseline are now detected without dropping boundary segments.  
+    When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat.
     Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
 
-    In the example below, the "abrupt" series has zero values before and after a central activation window. The before panel shows missed trend boundaries; the after panel shows corrected Up/Down detection.
+    The example below uses a new-market entry scenario: the series starts at zero, activates abruptly on 2026-03-21, then levels off. With `abrupt_padding=28`, the padded Up segment should extend to 2026-04-20. Before the fix, the entire series was misclassified as Flat.
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — Missed abrupt segments at zero baseline</span>
+    <span class="before-after-label before-label">Before — `abrupt_padding=28` collapsed Up to Flat</span>
 
-    ![Abrupt series with zero baseline — missed Up/Down segments](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
+    ![Zero-baseline market entry — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — Correct Up/Down detection at zero baseline</span>
+    <span class="before-after-label after-label">After — Up segment correctly extended by padding window</span>
 
-    ![Abrupt series with zero baseline — correct Up/Down detection](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
+    ![Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
 
     </div>
     </div>
 
     ??? example "Code"
         ```python
+        import pandas as pd
         import pytrendy as pt
 
-        # Load synthetic abrupt series
-        df = pt.load_data("series_synthetic")
-        df.set_index("date", inplace=True)
-        # Zero baseline before and after activation window
-        df.loc["2025-01-01":"2025-02-27", "abrupt"] = 0
-        df.loc["2025-05-05":"2025-06-30", "abrupt"] = 0
-        df = df.reset_index()
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv"
+        df = pd.read_csv(url)
 
         result = pt.detect_trends(
-            df, date_col="date", value_col="abrupt",
+            df, date_col="date", value_col="zero_baseline_market_entry_1",
             method_params=dict(abrupt_padding=28)
         )
         print(result.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Flat       2026-03-01  2026-03-20
+        # Up         2026-03-21  2026-04-20   ← padded by 28 days
+        # Flat       2026-04-21  2026-05-15
         ```
 
 ??? note "Deprecation: `is_abrupt_padded` replaced by `abrupt_padding`"
