@@ -78,6 +78,25 @@ def _base_version(tag: str) -> str:
     return tag.lstrip("v").split("-")[0]
 
 
+def _target_prerelease_version(tag: str) -> str:
+    """Return the upcoming stable version for a pre-release tag when derivable.
+
+    For tags in the form ``vMAJOR.MINOR.PATCH-dev.N``, use ``MAJOR.MINOR.N`` so
+    pre-release streams are grouped by the latest dev index (e.g. ``v1.2.0-dev.4``
+    becomes ``1.2.4``).
+    """
+    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)-dev\.(\d+)$", tag.strip())
+    if not match:
+        return _base_version(tag)
+    major, minor, _patch, dev_index = match.groups()
+    return f"{major}.{minor}.{dev_index}"
+
+
+def _major_minor(version: str) -> str:
+    parts = version.split(".")
+    return ".".join(parts[:2]) if len(parts) >= 2 else version
+
+
 def _read_changelog_section(tag: str) -> str:
     """Extract the changelog block for a given tag from CHANGELOG.md."""
     if not CHANGELOG_PATH.exists():
@@ -143,8 +162,12 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         - Focus on user impact, not internal implementation details.
         - Use clear, plain language aimed at data scientists and analysts.
         - Start with a one-sentence summary of the release.
+        - Keep all change-specific prose inside `??? note` blocks. Do not place
+          standalone change descriptions outside those blocks.
         - Wrap each individual change in a `??? note "Change title"` collapsible block
           (MkDocs pymdownx.details syntax) so the page stays scannable.
+        - In each note block, use the first sentence as a concise summary, then
+          add details in subsequent lines.
         - Inside collapsible blocks, use `??? example "Code"` for code samples so code
           is hidden by default — visuals and notes lead.
         - Show before/after images stacked vertically (one column) inside a
@@ -161,6 +184,9 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           `https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/<file>.csv`
           Bundled datasets (series_synthetic, classes_signals) may use `pt.load_data(name)` directly.
         - Avoid emoji in headings and admonition titles. Keep emoji use minimal overall.
+        - For images, always use local docs-relative paths under
+          `img/whats-new/v<version>/...` (or `img/whats-new/pre-release/...` when a
+          versioned path is not available). Never link to GitHub user-attachments URLs.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
         - Before/after images must be visually comparable. For any bug fix or feature
@@ -342,9 +368,14 @@ def _build_section(
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
     base = _base_version(tag)
     if is_prerelease:
+        target = _target_prerelease_version(tag)
         return (
-            f'## Coming in v{base} <span class="version-prerelease">pre-release</span>\n\n'
-            f"*Staged on the `develop` branch — will land in the next stable release.*"
+            f'## Coming in v{target} <span class="version-prerelease">pre-release</span>\n\n'
+            "*Staged on the `develop` branch — will land in the next stable release. "
+            "Currently available as the latest pre-release:*\n\n"
+            "```bash\n"
+            "pip install --pre pytrendy\n"
+            "```"
         )
     return f"## Released in v{base}\n\n> Released {date_str}"
 
@@ -497,6 +528,74 @@ def _inject_section(file_path: Path, new_block: str) -> None:
     file_path.write_text(updated, encoding="utf-8")
 
 
+def _note_blocks(markdown: str) -> list[tuple[str, str]]:
+    """Return (`title`, `block`) tuples for top-level `??? note` blocks."""
+    pattern = re.compile(
+        r'(^\?\?\? note "([^"]+)"[\s\S]*?)(?=^\?\?\? note "|\Z)',
+        re.MULTILINE,
+    )
+    return [(m.group(2), m.group(1).strip()) for m in pattern.finditer(markdown)]
+
+
+def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str) -> bool:
+    """Merge into an existing pre-release stream section when one already exists.
+
+    This keeps a single "Coming in ..." section per major.minor stream, updates it to
+    the latest target version, and appends any older note blocks not already present.
+    """
+    text = file_path.read_text(encoding="utf-8")
+    start_idx = text.find(CONTENT_START)
+    end_idx = text.find(CONTENT_END)
+    if start_idx == -1 or end_idx == -1:
+        return False
+
+    after_start = start_idx + len(CONTENT_START)
+    content = text[after_start:end_idx].strip()
+    if not content:
+        return False
+
+    stream = _major_minor(_target_prerelease_version(tag))
+    heading_pattern = re.compile(
+        r'^## Coming in v(?P<version>\d+\.\d+\.\d+)\s+<span class="version-prerelease">pre-release</span>$',
+        re.MULTILINE,
+    )
+
+    match = None
+    for m in heading_pattern.finditer(content):
+        if _major_minor(m.group("version")) == stream:
+            match = m
+            break
+    if not match:
+        return False
+
+    section_start = match.start()
+    separator = re.search(r"^\s*---\s*$", content[match.end():], re.MULTILINE)
+    if separator:
+        section_end = match.end() + separator.start()
+        post_separator = match.end() + separator.end()
+    else:
+        section_end = len(content)
+        post_separator = len(content)
+
+    existing_section = content[section_start:section_end].strip()
+    existing_notes = _note_blocks(existing_section)
+    new_notes = _note_blocks(new_block)
+    new_titles = {title for title, _ in new_notes}
+
+    carryover = [block for title, block in existing_notes if title not in new_titles]
+    merged_block = new_block.strip()
+    if carryover:
+        merged_block += "\n\n" + "\n\n".join(carryover)
+
+    remaining = (content[:section_start].rstrip() + "\n\n" + content[post_separator:].lstrip()).strip()
+    merged_content = merged_block + (f"\n\n---\n\n{remaining}" if remaining else "")
+
+    updated = text[:after_start] + "\n\n" + merged_content + "\n\n" + text[end_idx:]
+    file_path.write_text(updated, encoding="utf-8")
+    print(f"[whats-new] Updated existing pre-release stream section for v{stream}.")
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -531,7 +630,10 @@ def main() -> None:
     heading = _make_heading(tag, is_prerelease, date_str)
     new_block = heading + "\n\n" + body
 
-    _inject_section(WHATS_NEW_PATH, new_block)
+    if is_prerelease and _upsert_prerelease_stream_section(WHATS_NEW_PATH, new_block, tag):
+        pass
+    else:
+        _inject_section(WHATS_NEW_PATH, new_block)
 
     # Update the develop-branch note block (no-op when sentinels are absent, e.g. main).
     _update_develop_note(WHATS_NEW_PATH, is_prerelease, tag)
