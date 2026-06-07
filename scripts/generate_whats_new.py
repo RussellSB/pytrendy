@@ -180,6 +180,10 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           `<div class="before-after-grid">` with two `<div class="before-after-panel">` children,
           each labelled with `<span class="before-after-label before-label">Before</span>` or
           `<span class="before-after-label after-label">After</span>`.
+          For bug fixes, always label with version numbers: `Before — vX.Y.Z` (the last
+          stable release before the fix) and `After — vX.Y.Z` (the release introducing
+          the fix). For feature toggles or configuration comparisons, a short descriptive
+          label (e.g. `Before — \`avoid_noise=True\` (default)`) is acceptable instead.
         - Group small patch releases (1–2 minor fixes each) into a single combined section
           rather than giving each its own heading.
         - Reference issue or PR numbers from the CHANGELOG where available (e.g. `[#12](url)`).

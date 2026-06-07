@@ -29,13 +29,13 @@ pip install --pre pytrendy
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — `abrupt_padding=28` collapsed Up to Flat</span>
+    <span class="before-after-label before-label">Before — v1.2.0</span>
 
     ![Zero-baseline market entry — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — Up segment correctly extended by padding window</span>
+    <span class="before-after-label after-label">After — v1.2.4</span>
 
     ![Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
 
