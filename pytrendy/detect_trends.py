@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import warnings
 from difflib import get_close_matches
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
@@ -71,26 +72,40 @@ def detect_trends(df: pd.DataFrame,
         
     test_column(columns, value_col)
 
-    s = df[date_col]
+  
 
-    index_type = None
+    index_type = 'integer'
 
     if date_col is not None:
+        s = df[date_col]
         external_index = df[date_col].copy()
         test_column(columns, date_col)
         if pd.api.types.is_string_dtype(df[date_col]):
-            try:        
-                df[date_col] = pd.to_datetime(df[date_col])
+
+            with warnings.catch_warnings():
+                warnings.filterwarnings(
+                    "ignore",
+                    message="Could not infer format.*"
+                )
+                parsed = pd.to_datetime(df[date_col], errors="coerce")
+
+            if parsed.notna().all():
+                df[date_col] = parsed
                 index_type = "date"
-            except Exception as e:
-                print(f"Attempting to cast {date_col} to date failed, treating as string lookup.")
+            else:
+                print(
+                    f"Attempting to cast {date_col} to date failed, "
+                    "treating as string lookup."
+                    )
                 index_type = "string"
         elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
             index_type = "datetime64"
         elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():
             index_type = "datetimePd"
-        elif pd.api.types.is_numeric_dtype(df[date_col]):
-            index_type = "continious"
+        elif pd.api.types.is_integer_dtype(df[date_col]):
+                pass
+        elif pd.api.types.is_float_dtype(df[date_col]):
+                index_type = "float"
         else:
             raise NotImplementedError(f"date_col has unimplimented dtype {df[date_col].dtype}") 
     else:
@@ -98,7 +113,7 @@ def detect_trends(df: pd.DataFrame,
 
     internal_index = np.arange(len(df))
     index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
-
+    
     df[date_col] = internal_index.copy()
     df.set_index(date_col, inplace=True)
     df = df[[value_col]]
@@ -123,10 +138,13 @@ def detect_trends(df: pd.DataFrame,
         segment['start'] = index_lookup[segment['start']]
         segment['end'] = index_lookup[segment['end']]
 
+    if index_type == 'date':
+        external_index = pd.to_datetime(external_index)
+
     if plot: 
         df[date_col] = external_index
         df.set_index(date_col, inplace=True)
         plot_pytrendy(df=df, value_col=value_col, segments_enhanced=segments, index_type=index_type)
 
-    results = PyTrendyResults(segments)
+    results = PyTrendyResults(segments=segments, index_type=index_type)
     return results

@@ -1,11 +1,12 @@
 """**Visualize Detected Trends Over Time Series**"""
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False, index_type: str = "date") -> plt.Figure:
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -19,6 +20,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             Name of the column containing the signal to plot.
         segments_enhanced (list):
             List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
+        index_type (str):
+            The type of index passed by the user. Different index types require different logic. Currently Accepted Index Types are: "date", "integer", "float".
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
 
@@ -35,10 +38,16 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         'Noise': 'lightgray',
     }
 
+    accepted_index_types = ['date', 'integer', 'float', 'string']
+    print(f"internal index type {index_type}")
+    if not (index_type in accepted_index_types):
+        raise NotImplementedError(f"Index Type {index_type} not yet implemented.")
+
     fig, ax = plt.subplots(figsize=(20, 5))
 
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
+
 
     # Add shaded regions with fill_between
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
@@ -57,6 +66,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         prev_seg = segments_enhanced[i-1] if i-1 >= 0 else None
         if index_type == "date":
             prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
+        elif index_type in ['string']:
+            prev_neighbouring = prev_seg and (prev_seg['end'] == df.index[df.index.get_loc(start) - 1])
         else:
             prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
 
@@ -71,8 +82,12 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
         if index_type == 'date':
             next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        elif index_type in ['string']:
+            next_neighbouring = next_seg and (next_seg['start'] == df.index[df.index.get_loc(start) + 1])
         else:
             next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
+        
+        
         next_seg_abrupt = next_seg and (('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt'))
         next_seg_noise = next_seg and (next_seg['direction'] == 'Noise')
 
@@ -82,11 +97,14 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         else: 
             if index_type == 'date':
                 new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
+            elif index_type in ['string']:
+                new_start = df.index[df.index.get_loc(start) - 1]
             else:
                 new_start = start - 1 # Everything else displaced left start
 
             # Check validity of plot start adjustment
             value_new_start = df.loc[new_start, value_col] if new_start in df.index else None
+
             value = df.loc[start, value_col]
 
             valid_up_start = (value_new_start) and (seg['direction'] == 'Up') and (value_new_start < value)
@@ -132,16 +150,29 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         else: 
             end = end
 
-        mask = (df.index >= start) & (df.index <= end) 
+        if index_type in ['string']:
+            mask = (np.arange(len(df)) >= df.index.get_loc(start)) & (np.arange(len(df)) <= df.index.get_loc(end))
+        else:
+            mask = (df.index >= start) & (df.index <= end) 
+
+
         ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
         if 'change_rank' in seg and seg['direction'] in ['Up', 'Down']:
-            mid_date = start + (end - start) / 2
+            
+            if index_type in ['string']:
+                midpoint = int((df.index.get_loc(end) - df.index.get_loc(start))/2)
+                mid_date = df.index[df.index.get_loc(start) + midpoint]
+            else:
+                mid_date = start + (end - start) / 2
+
+            
             y_pos = ymax - (ymax - ymin) * 0.05
-            ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
-                    fontweight='bold', ha='center', va='top',
-                    color=color[5:])
+            if not index_type in ['string']:
+                ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
+                        fontweight='bold', ha='center', va='top',
+                        color=color[5:])
             
         # Add vertical line if next seg is same & touching
         if next_seg and next_neighbouring and next_seg['direction'] == seg['direction']:
@@ -152,8 +183,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits
-    first_date = df.index.min()
-    last_date = df.index.max()
+    if index_type in ['string']:
+        first_date = df.index[0]
+        last_date = df.index[-1]
+    else:
+        first_date = df.index.min()
+        last_date = df.index.max()
+
     ax.set_xlim(first_date, last_date)
     ax.set_ylim(ymin, ymax)
 
@@ -171,8 +207,23 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     # Optional: show grid lines for both
     ax.grid(True, which='major', color='gray', alpha=0.3)
 
+    if index_type in ['string']:
+        ticks = ax.get_xticks()
+        labels = [t.get_text() for t in ax.get_xticklabels()]
+        n = 10
+        ax.set_xticks(ticks[::n])
+        ax.set_xticklabels(labels[::n], rotation=90, ha='center')
+
+
     ax.set_title("PyTrendy Detection", fontsize=20)
-    ax.set_xlabel("Date")
+
+    if index_type == 'date':
+        ax.set_xlabel("Date")
+    elif index_type in ['string']:
+        ax.set_xlabel('Label')
+    else:
+        ax.set_xlabel("Index")
+
     ax.set_ylabel("Value")
 
     # Create custom legend handles (colored boxes)

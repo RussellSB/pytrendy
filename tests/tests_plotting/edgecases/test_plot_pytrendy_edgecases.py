@@ -29,7 +29,7 @@ class TestPlotPytrendyEdgeCases:
         """Helper to prepare dataframe and create plot."""
         df['date'] = pd.to_datetime(df['date'])
         df = df.set_index('date')[[value_col]]
-        return plot_pytrendy(df, value_col, segments, suppress_show)
+        return plot_pytrendy(df=df, value_col=value_col, segments_enhanced=segments, suppress_show=suppress_show)
 
     def _synth_1_data(self):
         """Helper to load and prepare synthetic dataset 1 (abrupt, base, no spikes)."""
