@@ -7,7 +7,7 @@ import math
 
 class PyTrendyResults: 
     """
-    Wrapper class for accessing and analyzing detected trend segments.
+    Wrapper class for accessing and analysing detected trend segments.
 
     This class provides utilities for summarizing, filtering, and exporting trend segments
     detected by the `detect_trends` pipeline. It encapsulates both raw segment data and

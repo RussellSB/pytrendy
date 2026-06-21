@@ -27,7 +27,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             The figure object containing the plot. Can be displayed with `plt.show()` or saved.
     """
     
-    # Define colors
+    # Define colours
     color_map = {
         'Up': 'lightgreen',
         'Down': 'lightcoral',

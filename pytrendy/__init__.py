@@ -8,7 +8,7 @@ apply classification heuristics, and access structured results for downstream an
 
 ---
 
-This package is organized into the following modules:
+This package is organised into the following modules:
 
 # 1. [detect_trends](detect_trends)
 
@@ -50,8 +50,8 @@ Designed for both exploratory workflows and programmatic integration, this modul
 
 # 3. [post_processing](post_processing)
 
-The `post_processing` module provides utilities for refining, classifying, and analyzing trend segments.
-It transforms raw detections into interpretable, ranked structures by adjusting boundaries, labeling temporal behavior, and computing signal metrics.  
+The `post_processing` module provides utilities for refining, classifying, and analysing trend segments.
+It transforms raw detections into interpretable, ranked structures by adjusting boundaries, labelling temporal behaviour, and computing signal metrics.  
 This module ensures that the output is analytically robust and ready for downstream use.
 
 ## 3.1 [segments_get](post_processing/segments_get)
@@ -72,7 +72,7 @@ This module ensures that the output is analytically robust and ready for downstr
 
 ## 3.3 [segments_analyse](post_processing/segments_analyse)
 
-- Computes metrics for each segment, comparing pretreatment vs post-treatment behavior.
+- Computes metrics for each segment, comparing pretreatment vs post-treatment behaviour.
 - Includes absolute and percent change, duration, and cumulative movement.
 - Calculates signal-to-noise ratio (SNR) and assigns a change rank.
 - Enables filtering and prioritization of significant trends.
