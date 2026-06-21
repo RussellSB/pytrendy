@@ -146,7 +146,9 @@ jobs:
       # ── 4. Install OpenCode CLI ─────────────────────────────────────────────
       - name: Install OpenCode CLI
         if: steps.meta.outputs.skip != 'true'
-        run: curl -fsSL https://opencode.ai/install | bash
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          opencode --version
 
       # ── 5. Run the agentic generator ────────────────────────────────────────
       - name: Generate What's New entry
@@ -226,7 +228,9 @@ jobs:
           python-version: "3.12"
 
       - name: Install OpenCode CLI
-        run: curl -fsSL https://opencode.ai/install | bash
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          opencode --version
 
       - name: Re-generate What's New for develop (reframe as stable)
         env:
