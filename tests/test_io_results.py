@@ -7,7 +7,7 @@ This module rigorously tests the PyTrendyResults class to ensure it handles:
 - All public methods and properties
 - Proper data structure conversions
 
-Tests are organized into separate test classes for better maintainability:
+Tests are organised into separate test classes for better maintainability:
 - TestResultsInitialization: Object creation and basic setup
 - TestResultsAttributes: Direct attribute access (segments, best, summary, df, df_summary)
 - TestResultsSetBest: Best trend identification
@@ -297,8 +297,8 @@ class TestResultsSetDataFrame:
         from pytrendy.io.results_pytrendy import PyTrendyResults
         results = PyTrendyResults([])
         
-        # Current behavior: When segments are empty, set_df returns early
-        # without setting self.df attribute. This test verifies this behavior.
+        # Current behaviour: When segments are empty, set_df returns early
+        # without setting self.df attribute. This test verifies this behaviour.
         # If the attribute exists, it should be an empty DataFrame.
         if hasattr(results, 'df'):
             assert isinstance(results.df, pd.DataFrame)
@@ -590,7 +590,7 @@ class TestResultsPrintSummary:
             plot=False
         )
         
-        # Current behavior: When segments are empty, set_summary() returns early
+        # Current behaviour: When segments are empty, set_summary() returns early
         # without setting the summary attribute. This test handles that case.
         # Only attempt print_summary if results have segments and summary exists.
         if len(results.segments) > 0 and hasattr(results, 'summary'):

@@ -452,6 +452,6 @@ class TestNoiseSpikesGradual:
             {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},  
             {'direction': 'Flat', 'start': '2025-05-30', 'end': '2025-06-01'}, 
             {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},
-            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},  # Last flat (not neighboring spike)
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},  # Last flat (not neighbouring spike)
         ]
         assert_segments_match(other_flats, expected_other_flats)

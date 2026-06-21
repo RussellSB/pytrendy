@@ -1,6 +1,6 @@
 """**Boundary Adjustment Utilities**
 
-Functions for adjusting segment boundaries when neighboring segments are updated.
+Functions for adjusting segment boundaries when neighbouring segments are updated.
 """
 
 import pandas as pd
