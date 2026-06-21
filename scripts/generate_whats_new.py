@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API (Claude Sonnet 4.6).
+"""Generate or update docs/whats-new.md using the GitHub Models API (GPT-5).
 
 The script:
-  1. Reads the latest release notes (from the RELEASE_BODY env var or CHANGELOG.md).
-  2. Calls the GitHub Models API (claude-sonnet-4.6) to produce a user-friendly
+  1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
+     tag, then CHANGELOG.md).
+  3. Calls the GitHub Models API (openai/gpt-4.1) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -16,7 +17,13 @@ Agent instructions (run before each refresh):
   - Before/after plot comparisons must be visually consistent. For bug fixes or features
     directly related to time-series trend detection, generate both images via the same
     `detect_trends()` + `plot_pytrendy()` pipeline so that figsize, grid style, legend,
-    and colour scheme are identical between the two images.
+    and color scheme are identical between the two images.
+  - For bug-fix before/after images, derive the scenario from the PR's test cases
+    (look in tests/tests_crashes_edgecases/ for the relevant test), not from an
+    arbitrary synthetic example. The "before" image must reproduce the actual broken
+    output (e.g. by constructing the segment list that the pre-fix code produced) and
+    the "after" image must use the current fixed `detect_trends()` output. Use the same
+    `value_col`, `method_params`, and data file as the test so users can reproduce it.
 
 Environment variables
 ---------------------
@@ -36,6 +43,7 @@ import re
 import sys
 import textwrap
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -54,8 +62,8 @@ CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
 NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
 
-GITHUB_MODELS_URL = "https://models.inference.ai.azure.com/chat/completions"
-MODEL = "claude-sonnet-4.6"
+GITHUB_MODELS_URL = "https://models.github.ai/inference/chat/completions"
+MODEL = "openai/gpt-4.1"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -76,6 +84,25 @@ def _base_version(tag: str) -> str:
     return tag.lstrip("v").split("-")[0]
 
 
+def _target_prerelease_version(tag: str) -> str:
+    """Return the upcoming stable version for a pre-release tag when derivable.
+
+    For tags in the form ``vMAJOR.MINOR.PATCH-dev.N``, use ``MAJOR.MINOR.N`` so
+    pre-release streams are grouped by the latest dev index (e.g. ``v1.2.0-dev.4``
+    becomes ``1.2.4``).
+    """
+    match = re.match(r"^v?(\d+)\.(\d+)\.(\d+)-dev\.(\d+)$", tag.strip())
+    if not match:
+        return _base_version(tag)
+    major, minor, _patch, dev_index = match.groups()
+    return f"{major}.{minor}.{dev_index}"
+
+
+def _major_minor(version: str) -> str:
+    parts = version.split(".")
+    return ".".join(parts[:2]) if len(parts) >= 2 else version
+
+
 def _read_changelog_section(tag: str) -> str:
     """Extract the changelog block for a given tag from CHANGELOG.md."""
     if not CHANGELOG_PATH.exists():
@@ -84,11 +111,49 @@ def _read_changelog_section(tag: str) -> str:
     # Match the heading line containing the version number
     version = tag.lstrip("v").split("-")[0]  # strip "v" and pre-release suffix
     pattern = re.compile(
-        rf"(?:^|\n)(#{1,2}\s+\[?{re.escape(version)}\]?.*?)(?=\n#{1,2}\s|\Z)",
+        rf"(?:^|\n)(#{{1,2}}\s+\[?{re.escape(version)}\]?.*?)(?=\n#{{1,2}}\s|\Z)",
         re.DOTALL,
     )
     match = pattern.search(text)
     return match.group(1).strip() if match else ""
+
+
+def _fetch_release_body_from_github(tag: str, token: str) -> str:
+    """Fetch release notes body from the GitHub Release API by tag."""
+    repository = _env("GITHUB_REPOSITORY")
+    if not token or not repository or "/" not in repository:
+        return ""
+
+    # Normalise tag: GitHub releases are conventionally prefixed with 'v'
+    normalised_tag = tag if tag.startswith("v") else f"v{tag}"
+    url_encoded_tag = urllib.parse.quote(normalised_tag, safe="")
+    url = f"https://api.github.com/repos/{repository}/releases/tags/{url_encoded_tag}"
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/vnd.github+json",
+            "Authorization": "Bearer " + token,
+        },
+        method="GET",
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+            body = data.get("body", "")
+            return body.strip() if isinstance(body, str) else ""
+    except (urllib.error.URLError, TimeoutError, json.JSONDecodeError) as exc:
+        print(
+            f"[whats-new] Warning: failed to fetch release notes for {tag} from GitHub API: {exc}",
+            file=sys.stderr,
+        )
+        return ""
+
+
+def _resolve_raw_notes(tag: str, release_body: str, token: str) -> str:
+    """Resolve release notes in priority order: env body, GitHub API, changelog."""
+    if release_body:
+        return release_body
+    return _fetch_release_body_from_github(tag, token) or _read_changelog_section(tag)
 
 
 def _call_github_models(prompt: str, token: str) -> str | None:
@@ -103,14 +168,22 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         - Focus on user impact, not internal implementation details.
         - Use clear, plain language aimed at data scientists and analysts.
         - Start with a one-sentence summary of the release.
+        - Keep all change-specific prose inside `??? note` blocks. Do not place
+          standalone change descriptions outside those blocks.
         - Wrap each individual change in a `??? note "Change title"` collapsible block
           (MkDocs pymdownx.details syntax) so the page stays scannable.
+        - In each note block, use the first sentence as a concise summary, then
+          add details in subsequent lines.
         - Inside collapsible blocks, use `??? example "Code"` for code samples so code
           is hidden by default — visuals and notes lead.
         - Show before/after images stacked vertically (one column) inside a
           `<div class="before-after-grid">` with two `<div class="before-after-panel">` children,
           each labelled with `<span class="before-after-label before-label">Before</span>` or
           `<span class="before-after-label after-label">After</span>`.
+          For bug fixes, always label with version numbers: `Before — vX.Y.Z` (the last
+          stable release before the fix) and `After — vX.Y.Z` (the release introducing
+          the fix). For feature toggles or configuration comparisons, a short descriptive
+          label (e.g. `Before — \`avoid_noise=True\` (default)`) is acceptable instead.
         - Group small patch releases (1–2 minor fixes each) into a single combined section
           rather than giving each its own heading.
         - Reference issue or PR numbers from the CHANGELOG where available (e.g. `[#12](url)`).
@@ -121,12 +194,72 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           `https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/<file>.csv`
           Bundled datasets (series_synthetic, classes_signals) may use `pt.load_data(name)` directly.
         - Avoid emoji in headings and admonition titles. Keep emoji use minimal overall.
+        - For images, always use local docs-relative paths under
+          `img/whats-new/v<version>/...` (or `img/whats-new/pre-release/...` when a
+          versioned path is not available). Never link to GitHub user-attachments URLs.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
         - Before/after images must be visually comparable. For any bug fix or feature
           directly related to time-series trend detection, produce both the "before" and
           "after" images through the same `detect_trends()` + `plot_pytrendy()` pipeline
-          so that figsize, grid style, legend, and colour scheme are identical.
+          so that figsize, grid style, legend, and color scheme are identical.
+        - For bug-fix before/after comparisons, base them on the exact test case from the
+          related PR, not on an arbitrary synthetic example. Look up the PR referenced in
+          the CHANGELOG, find its regression/edge-case tests (e.g. in
+          `tests/tests_crashes_edgecases/`), and reproduce the failing scenario for the
+          "before" image and the passing scenario for the "after" image. The code example
+          must use the same `value_col`, `method_params`, and data file as the test.
+          Never fabricate a "before" by hand-crafting segments unless you have verified
+          via the test or the PR description what the actual broken output was.
+
+        Here is a high-quality example of a finished entry (for a feature that added
+        `avoid_noise` support). Match this level of depth, structure, and detail:
+
+        ---
+        Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two fixes to trend metrics and normalised input handling.
+
+        ??? note "Noise detection control (`avoid_noise`)"
+            A new `avoid_noise` parameter in `method_params` lets users opt out of noise detection entirely.
+            When set to `False`, spikes and noisy regions are ignored and trend detection proceeds straight through them.
+            Introduced: [#110](https://github.com/RussellSB/pytrendy/pull/110)
+
+            Useful for modelling a new-market launch or quasi-experiment where the signal is zero before and
+            after the activation window. With `avoid_noise=False`, boundary artifacts around step-changes are
+            suppressed, yielding clean Up/Down segments.
+
+            <div class="before-after-grid" markdown>
+            <div class="before-after-panel" markdown>
+            <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
+
+            ![New-market case — Noise artifacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
+
+            </div>
+            <div class="before-after-panel" markdown>
+            <span class="before-after-label after-label">After — `avoid_noise=False`</span>
+
+            ![New-market case — clean Up/Down with avoid_noise=False](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png)
+
+            </div>
+            </div>
+
+            ??? example "Code"
+                ```python
+                import pytrendy as pt
+
+                df = pt.load_data("series_synthetic")
+                df.set_index("date", inplace=True)
+                # Simulate a new-market / quasi-experiment: zero activity before and after activation
+                df.loc["2025-01-01":"2025-02-27", "abrupt"] = 0
+                df.loc["2025-05-05":"2025-06-30", "abrupt"] = 0
+                df = df.reset_index()
+
+                result = pt.detect_trends(
+                    df, date_col="date", value_col="abrupt",
+                    method_params=dict(is_abrupt_padded=True, avoid_noise=False)
+                )
+                print(result.df[["direction", "start", "end"]])
+                ```
+        ---
     """)
 
     payload = {
@@ -135,7 +268,7 @@ def _call_github_models(prompt: str, token: str) -> str | None:
             {"role": "system", "content": system},
             {"role": "user", "content": prompt},
         ],
-        "max_tokens": 2000,
+        "max_tokens": 4000,
         "temperature": 0.5,
     }
 
@@ -144,7 +277,9 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         data=json.dumps(payload).encode("utf-8"),
         headers={
             "Content-Type": "application/json",
+            "Accept": "application/vnd.github+json",
             "Authorization": f"Bearer {token}",
+            "X-GitHub-Api-Version": "2026-03-10",
         },
         method="POST",
     )
@@ -218,6 +353,13 @@ def _build_section(
     token: str,
 ) -> str:
     """Return the full Markdown block for one release (without top-level heading)."""
+    if not token:
+        print(
+            "[whats-new] Error: GITHUB_TOKEN is not set. Cannot call the GitHub Models API.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     prompt = textwrap.dedent(f"""\
         PyTrendy release {tag} ({'pre-release / develop' if is_prerelease else 'stable'}).
 
@@ -230,16 +372,28 @@ def _build_section(
         Omit the top-level ## heading — I will add it myself.
     """)
 
-    ai_content = _call_github_models(prompt, token) if token else None
-    return ai_content or _build_fallback_section(tag, raw_notes, is_prerelease)
+    ai_content = _call_github_models(prompt, token)
+    if ai_content is None:
+        print(
+            "[whats-new] Error: GitHub Models API call failed. See above for details. "
+            "Failing the workflow rather than writing a low-quality fallback entry.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    return ai_content
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
     base = _base_version(tag)
     if is_prerelease:
+        target = _target_prerelease_version(tag)
         return (
-            f'## Coming in v{base} <span class="version-prerelease">pre-release</span>\n\n'
-            f"*Staged on the `develop` branch — will land in the next stable release.*"
+            f'## Coming in v{target} <span class="version-prerelease">pre-release</span>\n\n'
+            "*Staged on the `develop` branch — will land in the next stable release. "
+            "Currently available as the latest pre-release:*\n\n"
+            "```bash\n"
+            "pip install --pre pytrendy\n"
+            "```"
         )
     return f"## Released in v{base}\n\n> Released {date_str}"
 
@@ -392,6 +546,74 @@ def _inject_section(file_path: Path, new_block: str) -> None:
     file_path.write_text(updated, encoding="utf-8")
 
 
+def _note_blocks(markdown: str) -> list[tuple[str, str]]:
+    """Return (`title`, `block`) tuples for top-level `??? note` blocks."""
+    pattern = re.compile(
+        r'(^\?\?\? note "([^"]+)"[\s\S]*?)(?=^\?\?\? note "|\Z)',
+        re.MULTILINE,
+    )
+    return [(m.group(2), m.group(1).strip()) for m in pattern.finditer(markdown)]
+
+
+def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str) -> bool:
+    """Merge into an existing pre-release stream section when one already exists.
+
+    This keeps a single "Coming in ..." section per major.minor stream, updates it to
+    the latest target version, and appends any older note blocks not already present.
+    """
+    text = file_path.read_text(encoding="utf-8")
+    start_idx = text.find(CONTENT_START)
+    end_idx = text.find(CONTENT_END)
+    if start_idx == -1 or end_idx == -1:
+        return False
+
+    after_start = start_idx + len(CONTENT_START)
+    content = text[after_start:end_idx].strip()
+    if not content:
+        return False
+
+    stream = _major_minor(_target_prerelease_version(tag))
+    heading_pattern = re.compile(
+        r'^## Coming in v(?P<version>\d+\.\d+\.\d+)\s+<span class="version-prerelease">pre-release</span>$',
+        re.MULTILINE,
+    )
+
+    match = None
+    for m in heading_pattern.finditer(content):
+        if _major_minor(m.group("version")) == stream:
+            match = m
+            break
+    if not match:
+        return False
+
+    section_start = match.start()
+    separator = re.search(r"^\s*---\s*$", content[match.end():], re.MULTILINE)
+    if separator:
+        section_end = match.end() + separator.start()
+        post_separator = match.end() + separator.end()
+    else:
+        section_end = len(content)
+        post_separator = len(content)
+
+    existing_section = content[section_start:section_end].strip()
+    existing_notes = _note_blocks(existing_section)
+    new_notes = _note_blocks(new_block)
+    new_titles = {title for title, _ in new_notes}
+
+    carryover = [block for title, block in existing_notes if title not in new_titles]
+    merged_block = new_block.strip()
+    if carryover:
+        merged_block += "\n\n" + "\n\n".join(carryover)
+
+    remaining = (content[:section_start].rstrip() + "\n\n" + content[post_separator:].lstrip()).strip()
+    merged_content = merged_block + (f"\n\n---\n\n{remaining}" if remaining else "")
+
+    updated = text[:after_start] + "\n\n" + merged_content + "\n\n" + text[end_idx:]
+    file_path.write_text(updated, encoding="utf-8")
+    print(f"[whats-new] Updated existing pre-release stream section for v{stream}.")
+    return True
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -404,8 +626,8 @@ def main() -> None:
     is_prerelease = _env("IS_PRERELEASE", "false").lower() == "true"
     date_str = datetime.now(tz=timezone.utc).strftime("%Y-%m-%d")
 
-    # Prefer the GitHub Release body; fall back to CHANGELOG.md
-    raw_notes = release_body or _read_changelog_section(tag)
+    # Prefer event body, then GitHub API by tag, then changelog fallback.
+    raw_notes = _resolve_raw_notes(tag, release_body, token)
 
     if not raw_notes:
         print(
@@ -426,7 +648,10 @@ def main() -> None:
     heading = _make_heading(tag, is_prerelease, date_str)
     new_block = heading + "\n\n" + body
 
-    _inject_section(WHATS_NEW_PATH, new_block)
+    if is_prerelease and _upsert_prerelease_stream_section(WHATS_NEW_PATH, new_block, tag):
+        pass
+    else:
+        _inject_section(WHATS_NEW_PATH, new_block)
 
     # Update the develop-branch note block (no-op when sentinels are absent, e.g. main).
     _update_develop_note(WHATS_NEW_PATH, is_prerelease, tag)

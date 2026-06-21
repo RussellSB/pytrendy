@@ -11,3 +11,4 @@ htmlcov/
 tests/testtemp.py
 site/
 poetry.lock
+temp.csv

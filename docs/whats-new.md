@@ -3,16 +3,93 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-<!--
-!!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.2.0**.  
-    Switch to the **main** docs via the badge in the header to see the stable documentation.
--->
+!!! note "Pre-release documentation"
+    You are viewing the **develop** (pre-release) build.  
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Coming in v1.2.4 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+
+```bash
+pip install --pre pytrendy
+```
+
+??? note "Abrupt padding fix for zero baseline series"
+    When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat.
+    Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+
+    The example below uses a new-market entry scenario: the series starts at zero, activates abruptly on 2026-03-21, then levels off. With `abrupt_padding=28`, the padded Up segment should extend to 2026-04-20. Before the fix, the entire series was misclassified as Flat.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.2.0</span>
+
+    ![Zero-baseline market entry — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.2.4</span>
+
+    ![Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv"
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="zero_baseline_market_entry_1",
+            method_params=dict(abrupt_padding=28)
+        )
+        print(result.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Flat       2026-03-01  2026-03-20
+        # Up         2026-03-21  2026-04-20   ← padded by 28 days
+        # Flat       2026-04-21  2026-05-15
+        ```
+
+??? note "Deprecation: `is_abrupt_padded` replaced by `abrupt_padding`"
+    `is_abrupt_padded` in `method_params` is deprecated; use integer `abrupt_padding` for direct control over padded days.
+    The boolean `is_abrupt_padded` flag has been deprecated in favour of the integer `abrupt_padding` parameter. Rather than toggling padding on or off, you now specify the number of days to pad around abrupt transitions directly. The default is `0` (no padding), matching the previous `is_abrupt_padded=False` behaviour.
+
+    Passing `is_abrupt_padded` still works but raises a `DeprecationWarning` at runtime, guiding you to migrate.
+    Introduced: [#117](https://github.com/RussellSB/pytrendy/pull/117)
+
+    | Old API | New API |
+    |---|---|
+    | `method_params=dict(is_abrupt_padded=True)` | `method_params=dict(abrupt_padding=28)` |
+    | `method_params=dict(is_abrupt_padded=False)` | (default — no change needed) |
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Before — deprecated (raises DeprecationWarning)
+        result = pt.detect_trends(df, date_col="date", value_col="abrupt",
+                                  method_params=dict(is_abrupt_padded=True))
+
+        # After — use abrupt_padding (int: number of days to pad)
+        result = pt.detect_trends(df, date_col="date", value_col="abrupt",
+                                  method_params=dict(abrupt_padding=28))
+        print(result.df[["direction", "start", "end"]])
+        ```
+
+---
 
 ## Agentic Docs, Noise Control & Trend Fixes (v1.2.0)
 
@@ -25,7 +102,7 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
     ([`whats-new.yaml`](https://github.com/RussellSB/pytrendy/blob/main/.github/workflows/whats-new.yaml))
     fires automatically whenever a GitHub Release is published. It invokes
     [`scripts/generate_whats_new.py`](https://github.com/RussellSB/pytrendy/blob/main/scripts/generate_whats_new.py),
-    which calls the **GitHub Models API** (Claude Sonnet 4.6) to write a user-friendly What's New entry
+    which calls the **GitHub Models API** (GPT-4.1) to write a user-friendly What's New entry
     from the release notes, then opens a pull request for review.
     Introduced: [#120](https://github.com/RussellSB/pytrendy/pull/120)
 

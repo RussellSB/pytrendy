@@ -68,6 +68,16 @@ feat!: remove deprecated API endpoint
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 ```
 
+### Deprecations
+
+When deprecating a parameter or behaviour on a **core public API method** (such as `detect_trends()`), use `feat:` — not `refactor:` — even if the underlying code change is a rename or internal restructure:
+
+```
+feat: deprecate is_abrupt_padded parameter in detect_trends()
+```
+
+`refactor:` is strictly for internal code restructuring with **zero** observable public API impact. Deprecating a public parameter is a user-facing signal that triggers a **minor** bump. When the deprecated item is later removed, that removal is a **breaking change** and must use `feat!:` or `BREAKING CHANGE:`.
+
 ### Automated Release
 
 This repository uses semantic-release, which automatically:

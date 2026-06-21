@@ -13,6 +13,10 @@ on:
       - develop
   workflow_dispatch:
 
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   check-should-deploy:
     name: Check if docs should be deployed

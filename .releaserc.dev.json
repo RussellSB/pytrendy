@@ -8,8 +8,15 @@
       "preset": "conventionalcommits"
     }],
     "@semantic-release/release-notes-generator",
+    ["@semantic-release/exec", {
+      "prepareCmd": "poetry version $(echo '${nextRelease.version}' | sed 's/-dev\\./.dev/')"
+    }],
     ["@semantic-release/github", {
       "successComment": false
+    }],
+    ["@semantic-release/git", {
+      "assets": ["pyproject.toml"],
+      "message": "chore(release): ${nextRelease.version} [skip ci]"
     }]
   ]
 }
