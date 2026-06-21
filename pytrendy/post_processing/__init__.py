@@ -20,7 +20,7 @@ Applies minimum length constraints to ensure meaningful segments are retained:
 
 ## 2. Segment Refinement Package
 
-The segment refinement functionality is organized under the `segments_refine` package:
+The segment refinement functionality is organised under the `segments_refine` package:
 
 ### [segments_refine](segments_refine)
 Main orchestration module with `refine_segments()` function that coordinates the full post-processing pipeline.
@@ -28,7 +28,7 @@ Main orchestration module with `refine_segments()` function that coordinates the
 The `segments_refine` package contains focused sub-modules:
 
 ### [segments_refine.update_neighbours](segments_refine/update_neighbours)
-Helper functions for adjusting segment boundaries when neighboring segments are updated:
+Helper functions for adjusting segment boundaries when neighbouring segments are updated:
 - `update_prev_segment`: Adjusts the end of the previous segment
 - `update_next_segment`: Adjusts the start of the next segment
 
@@ -50,7 +50,7 @@ Helper functions for adjusting segment boundaries when neighboring segments are 
 
 
 ## 3. [segments_analyse](segments_analyse)
-Adds quantitative descriptors to each segment, comparing pretreatment vs post-treatment behavior.
+Adds quantitative descriptors to each segment, comparing pretreatment vs post-treatment behaviour.
 
 Metrics include:
 

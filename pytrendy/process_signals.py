@@ -164,7 +164,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     df['value_cleaned'] = df['value_cleaned'].ffill().bfill()
 
     # 3. Flat detection using rolling std of savgol filter.
-    # with leading and trailing to cater for periods centered windows doesnt cover
+    # with leading and trailing to cater for periods centred windows doesnt cover
     df['smoothed'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1)
     df['smoothed_std'] = df['smoothed'].rolling(WINDOW_FLAT, center=True).std()
     df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=WINDOW_FLAT).std().iloc[::-1]
