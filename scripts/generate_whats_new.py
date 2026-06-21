@@ -75,6 +75,7 @@ DEFAULT_OPENCODE_MODEL = "opencode-go/kimi-k2.7-code"
 
 
 def _env(key: str, default: str = "") -> str:
+    """Return the value of environment variable ``key``, stripped, or ``default``."""
     return os.environ.get(key, default).strip()
 
 
@@ -103,6 +104,7 @@ def _target_prerelease_version(tag: str) -> str:
 
 
 def _major_minor(version: str) -> str:
+    """Return the ``major.minor`` prefix of a dotted version string."""
     parts = version.split(".")
     return ".".join(parts[:2]) if len(parts) >= 2 else version
 
@@ -391,6 +393,7 @@ def _build_section(
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
+    """Return the top-level Markdown heading for a release section."""
     base = _base_version(tag)
     if is_prerelease:
         target = _target_prerelease_version(tag)
@@ -627,6 +630,7 @@ def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str)
 
 
 def main() -> None:
+    """Generate or update the What's New documentation entry."""
     token = _env("GITHUB_TOKEN")
     tag = _env("RELEASE_TAG") or "v0.0.0"
     release_body = _env("RELEASE_BODY")
