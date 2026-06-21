@@ -27,7 +27,7 @@ class TestNoiseSpikesAbrupt:
         
         Reference: test.py synth 1, lines 19-27
         
-        This test establishes the baseline behavior for abrupt trend detection
+        This test establishes the baseline behaviour for abrupt trend detection
         without any noise spikes. The data has multiple abrupt changes at
         different levels.
         """
@@ -44,11 +44,10 @@ class TestNoiseSpikesAbrupt:
             df.reset_index(),
             date_col='date',
             value_col='abrupt',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
-        # Expected segments based on current behavior
+        # Expected segments based on current behaviour
         expected_segments = [
             {'direction': 'Flat', 'start': '2025-01-01', 'end': '2025-02-14'},
             {'direction': 'Up', 'start': '2025-02-15', 'end': '2025-02-16'},

@@ -39,10 +39,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='temp', #TODO: reword temp, temp_2 etc to be consecutively classed
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [
             {'direction': 'Down', 'start': '2025-05-15', 'end': '2025-06-07'},
         ]
@@ -67,10 +67,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='temp_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [
             {'direction': 'Down', 'start': '2025-05-10', 'end': '2025-06-06'},
         ]
@@ -93,10 +93,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Flat', 'start': '2025-03-31', 'end': '2025-04-10'}, 
             {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-04'}, 
@@ -119,10 +119,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Down', 'start': '2025-03-16', 'end': '2025-03-30'}, 
             {'direction': 'Up', 'start': '2025-04-03', 'end': '2025-05-04'}, 
@@ -146,10 +146,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_4',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-06'}, 
             {'direction': 'Down', 'start': '2025-05-07', 'end': '2025-06-12'}, 
@@ -172,10 +172,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_5',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-04-29'}, 
             {'direction': 'Flat', 'start': '2025-04-30', 'end': '2025-05-17'}, 
@@ -199,10 +199,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_6',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Up', 'start': '2025-04-12', 'end': '2025-05-08'}, 
             {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'}, 
@@ -226,10 +226,10 @@ class TestNoiseCrashes:
             date_col='date',
             value_col='noisy_crash_7',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
-        # Expected segments to find a subset of based on current behavior
+        # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Up', 'start': '2025-03-31', 'end': '2025-05-09'}, #TODO: may expect some change if noise disabled
             {'direction': 'Down', 'start': '2025-05-14', 'end': '2025-06-04'}, 

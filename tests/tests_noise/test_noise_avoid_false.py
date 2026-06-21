@@ -81,8 +81,9 @@ class TestNoiseAvoidFalse:
             date_col='date',
             value_col='abrupt',
             plot=False,
-            method_params=dict(is_abrupt_padded=True
-                               , avoid_noise=False # main parameter tested
+            method_params=dict(
+                                abrupt_padding=28
+                                , avoid_noise=False # main parameter tested
                             )
         )
         expected_segments = [ # noise segments should be ignored, and no longer block precise trend detect for dummy "new market"

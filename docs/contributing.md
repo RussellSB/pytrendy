@@ -136,6 +136,22 @@ feat!: remove deprecated API endpoint
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 ```
 
+#### Deprecations
+
+When deprecating a parameter or behaviour on a **core public API method** (such as `detect_trends()`), use `feat:` — not `refactor:` — even if the underlying code change is a rename or internal restructure:
+
+```
+feat: deprecate is_abrupt_padded parameter in detect_trends()
+```
+
+**Why `feat:` and not `refactor:`?** Deprecating a public parameter is a user-facing signal: it tells callers to update their code and documents intent to remove the parameter in a future major release. That makes it an intentional API evolution, which belongs in the minor-bump category, not as a silent refactor.
+
+| Situation | Type | Bump |
+|---|---|---|
+| Parameter still works but is deprecated (soft) | `feat:` | minor |
+| Parameter or behaviour removed entirely (hard) | `feat!:` or `BREAKING CHANGE:` | major |
+| Internal restructuring, zero public API impact | `refactor:` | none |
+
 ---
 
 ## 4. Submitting a Pull Request

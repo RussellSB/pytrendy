@@ -31,3 +31,42 @@ class TestUncommonValues:
             {'direction': 'Down', 'start': '2000-01-19', 'end': '2000-03-17'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
+
+    def test_zero_baseline_market_entry_no_padding(self):
+        """Test that a new-market series (long zero baseline, abrupt activation) detects a short
+        Up trend when abrupt_padding=0."""
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_market_entry_1',
+            plot=False,
+            method_params=dict(abrupt_padding=0)
+        )
+
+        expected_segments = [
+            {'direction': 'Up', 'start': '2026-03-21', 'end': '2026-03-23'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
+
+    def test_zero_baseline_market_entry_with_padding(self):
+        """Test that a new-market series with abrupt_padding=28 correctly extends the Up segment
+        rather than collapsing the entire window to Flat.
+
+        Expected: the padded Up segment should extend to 2026-04-20 (28 days after activation)
+        and the trailing Flat should cover 2026-04-21 to 2026-05-15.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_market_entry_1',
+            plot=False,
+            method_params=dict(abrupt_padding=28)
+        )
+
+        # Desired: at minimum an Up segment survives and is extended by padding.
+        expected_segments = [
+            {'direction': 'Up', 'start': '2026-03-21', 'end': '2026-04-20'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)

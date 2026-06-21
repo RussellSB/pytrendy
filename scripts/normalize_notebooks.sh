@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Normalize notebook text outputs from list-of-strings to a single joined string.
+# Normalise notebook text outputs from list-of-strings to a single joined string.
 #
 # JupyterLite has a bug where list-form `text` fields (older nbformat style) are
 # rendered with commas instead of newlines on initial load.  Running this script
@@ -41,7 +41,7 @@ for nb_path in sorted(glob.glob(f"{target}/**/*.ipynb", recursive=True)):
         with open(nb_path, "w") as f:
             json.dump(nb, f, indent=1, ensure_ascii=False)
             f.write("\n")
-        print(f"Normalized: {nb_path}")
+        print(f"Normalised: {nb_path}")
     else:
         print(f"No change:  {nb_path}")
 EOF

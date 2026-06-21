@@ -1,6 +1,6 @@
 [project]
 name = "pytrendy"
-version = "1.1.11"
+version = "1.2.0.dev4"
 description = "Trend Detection in Python. Applicable for real-world industry use cases in time series."
 authors = [
     { name = "Russell Sammut Bonnici", email = "r.sammutbonnici@gmail.com" },
@@ -17,7 +17,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
-    "matplotlib"
+    "matplotlib==3.10.8"
 ]
 
 [project.optional-dependencies]

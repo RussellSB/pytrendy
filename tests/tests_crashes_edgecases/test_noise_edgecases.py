@@ -16,7 +16,7 @@ from conftest import assert_segments_in_a_haystack
 
 
 class TestNoiseEdgeCases:
-    """Test cases for noise scenarios that cause edge case behavior in trend detection."""
+    """Test cases for noise scenarios that cause edge case behaviour in trend detection."""
 
     def test_noisy_edgecase_1_scenario(self):
         """Test that algorithm handles noisy_edgecase_1 scenario reasonably."""
@@ -26,7 +26,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_1',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -43,7 +43,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -60,7 +60,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_3',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -77,7 +77,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_4',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -95,7 +95,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_5',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -111,7 +111,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_6',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -126,8 +126,7 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_7',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
@@ -142,8 +141,7 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_8',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
@@ -159,8 +157,7 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_9',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
@@ -178,7 +175,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_10',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -200,7 +197,7 @@ class TestNoiseEdgeCases:
                 date_col='date',
                 value_col='noisy_edgecase_11',
                 plot=False,
-                method_params=dict(is_abrupt_padded=True)
+                method_params=dict(abrupt_padding=28)
             )
 
             expected_segments = [ 

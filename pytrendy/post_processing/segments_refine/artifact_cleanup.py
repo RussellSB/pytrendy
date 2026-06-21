@@ -16,10 +16,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
     Args:
         segments_refined (list): List of segment dictionaries potentially with artifacts from post-processing.
-        method_params (dict): Optional parameters for cleanup behavior. Supported keys:
+        method_params (dict): Optional parameters for cleanup behaviour. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): If `True`, skips neighboring-noise checks around abrupt segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Padding window in days used by abrupt refinement; included for pipeline consistency. Defaults to `28`.
+            - **abrupt_padding** (`int`): Padding window in days used by abrupt refinement; included for pipeline consistency. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
