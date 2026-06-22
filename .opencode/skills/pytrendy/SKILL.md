@@ -9,7 +9,7 @@ description: Use when modifying the trend detection pipeline, adding/renaming mo
 
 `pytrendy/detect_trends.py` — the only entrypoint that matters. `detect_trends(df, date_col, value_col, plot=True, method_params=None, debug=False)` runs:
 
-```
+```text
 df → process_signals → get_segments → refine_segments → analyse_segments → [plot_pytrendy] → PyTrendyResults
 ```
 
@@ -17,7 +17,7 @@ Stages mutate a copy of the input DataFrame and a list of segment dicts. The fin
 
 ## Module map
 
-```
+```text
 pytrendy/
 ├── __init__.py            # public exports: detect_trends, load_data, plot_pytrendy, dtw
 ├── detect_trends.py       # pipeline orchestrator (85 lines — read it first)

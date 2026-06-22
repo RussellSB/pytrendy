@@ -27,6 +27,7 @@ pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs 
 ```
 
 **Verify before push** — CI runs core first, then non-core with `--cov-append`:
+
 ```bash
 pytest tests/ -m core                       # essential, must pass
 pytest tests/ -m "not core" --cov-append    # the rest
@@ -51,7 +52,8 @@ pytest tests/ -m "not core" --cov-append    # the rest
 
 ## Skills (deeper, trigger-loaded)
 
-- `test` — pytest-mpl baseline workflow, markers, conftest helpers, scratch file convention.
+- `test` — pytest-mpl baseline workflow, markers, conftest helpers, CSV data conventions, regression-test migration.
 - `cicd` — full release pipeline, docs deploy gating, whats-new agentic flow, branch-channel mapping.
 - `maintenance` — public API surface, deprecation policy, diff/code conventions (the #141 design principles).
 - `pytrendy` — 5-stage pipeline architecture, module map, datasets, `PyTrendyResults` API.
+- `debug` — two-phase debug workflow (`process_signals` diagnostic plots, `segments_refine` stage bisect), `tests/test.py` sandbox, regression handoff.

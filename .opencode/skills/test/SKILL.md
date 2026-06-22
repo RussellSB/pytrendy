@@ -32,9 +32,11 @@ Plot tests use `@pytest.mark.mpl_image_compare(baseline_dir='./', filename='test
 **matplotlib is pinned to 3.10.8** in `pyproject.toml`. Baselines are only valid for that version — different matplotlib renders differently and tests fail on pixel diff. Don't regenerate on another version.
 
 Regenerate baselines after an *intentional* plot change:
+
 ```bash
 pytest tests/tests_plotting/core/test_plot_pytrendy_core.py --mpl-generate-path=tests/tests_plotting/core/
 ```
+
 Commit the new PNGs. Verify the diff is what you intended — pytest-mpl can't tell a bug from a deliberate restyle.
 
 ## conftest helpers (`tests/conftest.py`)

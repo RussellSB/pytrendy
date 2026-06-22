@@ -96,6 +96,7 @@ for name, fn in [
     ('classify_trends#2', lambda s: classify_trends(df, value_col, s)),
     ('fill_in_flats', lambda s: fill_in_flats(df, s)),
     ('group_segments#3', lambda s: group_segments(s)),
+    ('clean_artifacts#3', lambda s: clean_artifacts(df, value_col, s, method_params, inverse_only=True)),
 ]:
     segs = fn(segs)
     print(name, len(segs), [(s['direction'], str(s['start']), str(s['end'])) for s in segs])
