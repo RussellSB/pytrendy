@@ -52,7 +52,7 @@ Triggers on PR open/sync/reopen/close touching `docs/**`, `mkdocs.yml`, or `pytr
 Triggers: on release publish, on Release workflow completion (main/develop), or manual dispatch.
 
 1. Resolves release metadata (tag, name, body, prerelease flag, branch) from the event payload, falling back to the GitHub Releases API by tag, then `CHANGELOG.md`.
-2. Checks out the release branch, installs the **OpenCode CLI** (`curl -fsSL https://opencode.ai/install | bash`).
+2. Checks out the release branch, installs the **OpenCode CLI** (see `whats-new.yaml` for the exact install step).
 3. Runs `python scripts/generate_whats_new.py` with `OPENCODE_MODEL` (default `opencode-go/kimi-k2.7-code`) and a **deny-all permission block** (`bash/edit/webfetch/websearch/external_directory/task` all `deny`) — the agent can only read and write the whats-new file via the script.
 4. The script prepends a user-friendly entry into `docs/whats-new.md` **between sentinel comments** `<!-- WHATS_NEW_CONTENT_START -->` / `<!-- WHATS_NEW_CONTENT_END -->`. Don't edit content inside those markers by hand — it gets regenerated.
 5. Opens a PR (`docs/whats-new-<tag>`) back to the release branch via `peter-evans/create-pull-request@v7` using `DOCS_PREVIEW_PAT`. The PR's `base` is the release branch (develop or main) — these are the *only* PRs allowed to target `main` from a non-`develop` head (`check-base-branch.yml` whitelists `docs/whats-new-*`).
