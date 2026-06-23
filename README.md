@@ -86,3 +86,5 @@ results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 
 `filter_segments` ranks segments by magnitude (`change_rank`). For the full per-segment metrics table, use `results.df`.
 
+More information on how you can interpret the trend detection results is available in the [Example Gallery](https://russellsb.github.io/pytrendy/main/examples/).
+
