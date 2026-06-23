@@ -21,15 +21,15 @@ It is a thoughtful algorithm with a focus on signal processing and post-processi
 
 ## Why PyTrendy?
 
-Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **labelled segment analysis** — answering *what trends existed, how strong were they, and when did they start and end?*
+Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **labelled segment analysis**, answering *what trends existed, how strong were they, and when did they start and end?*
 
 Trend detection has several use cases, such as analysing stock prices, identifying demand patterns in seasonality, and scanning Google Trends at scale for emerging movements. PyTrendy improves on existing methods in three ways:
 
-- **Beyond step changes** — `ruptures` is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes: the kind often seen in digital marketing activity, stock trends, and energy time series. PyTrendy detects both gradual and abrupt trends in a single run.
-- **The flat/noise problem** — the closest peers (`pytrendseries`, `trendet`, `tstrends`) tend to over-fit trends on flat or noisy periods, leaving users to build labour-intensive workarounds. PyTrendy uses signal processing and post-processing under the hood so trends are only detected when they are precise and valid.
-- **Strategic value** — in a complex ecosystem where dozens of time series interact, knowing exactly how they align or confound each other at specific points in time is invaluable. Without accurately labelling the "before and after" of historical data, experiments can fly blind and generate misleading indications.
+- **Beyond step changes** - `ruptures` is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes: the kind often seen in digital marketing activity, stock trends, and energy time series. PyTrendy detects both gradual and abrupt trends in a single run.
+- **The flat/noise problem** - the closest peers (`pytrendseries`, `trendet`, `tstrends`) tend to over-fit trends on flat or noisy periods, leaving users to build labour-intensive workarounds. PyTrendy uses signal processing and post-processing under the hood so trends are only detected when they are precise and valid.
+- **Strategic value** - in a complex ecosystem where dozens of time series interact, knowing exactly how they align or confound each other at specific points in time is invaluable. Without accurately labelling the "before and after" of historical data, experiments can fly blind and generate misleading indications.
 
-A main use case is identifying different periods of marketing activity at scale — to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.
+A main use case is identifying different periods of marketing activity at scale, to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.
 
 ---
 
