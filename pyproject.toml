@@ -19,6 +19,31 @@ dependencies = [
     "scipy",
     "matplotlib==3.10.8"
 ]
+keywords = [
+    "trend detection",
+    "time series",
+    "time series analysis",
+    "signal processing",
+    "uptrend",
+    "downtrend",
+    "changepoint detection",
+    "trend classification",
+    "stock analysis",
+    "marketing analytics",
+    "causal inference"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Office/Business :: Financial",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent"
+]
 
 [project.optional-dependencies]
 dev = [
@@ -37,7 +62,9 @@ docs = [
 ]
 
 [project.urls]
-repository = "https://github.com/RussellSB/pytrendy"
+Homepage = "https://russellsb.github.io/pytrendy/main/"
+Documentation = "https://russellsb.github.io/pytrendy/main/"
+Repository = "https://github.com/RussellSB/pytrendy"
 
 [tool.setuptools.packages.find]
 where = ["."]
