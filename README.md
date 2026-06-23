@@ -84,7 +84,7 @@ results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 | 4 | Up | 2025-02-10 | 2025-03-14 | gradual | 24.63 | 169.22% | 32 | 24.63 | 18.87 | 3 |
 | 1 | Up | 2025-01-02 | 2025-01-24 | gradual | 14.01 | 104.41% | 22 | 14.01 | 22.21 | 5 |
 
-`filter_segments` ranks segments by magnitude (`change_rank`). For the full per-segment metrics table, use `results.df`.
+`filter_segments` ranks segments by magnitude (`change_rank`). For the full per-segment metrics table, use `results.df`. See the [API reference](https://russellsb.github.io/pytrendy/main/reference/pytrendy/io/results_pytrendy/#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments) for all filter and sort options.
 
-More information on how you can interpret the trend detection results is available in the [Example Gallery](https://russellsb.github.io/pytrendy/main/examples/).
+For use-case examples on interpreting the results, see [Gradual trend fundamentals](https://russellsb.github.io/pytrendy/main/examples/fundamentals/gradual/).
 
