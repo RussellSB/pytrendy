@@ -24,7 +24,7 @@ Most time series tools give you either a "trend component" (via decomposition) o
 
 - **Beyond step changes** - `ruptures` is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes (digital marketing, stocks, energy). PyTrendy detects both in a single run.
 - **The flat/noise problem** - closest peers (`pytrendseries`, `trendet`, `tstrends`) over-fit trends on flat or noisy periods. PyTrendy's signal-processing and post-processing logic ensures trends are only detected when they are precise and valid.
-- **Strategic value** - where dozens of time series interact, knowing how they align or confound at specific points in time is invaluable for experiment design.
+- **Strategic value** - where dozens of time series interact, knowing how they align or confound at specific times is invaluable for experiment design.
 
 ## Features
 
