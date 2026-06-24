@@ -374,10 +374,10 @@ synth_p2 = pd.DataFrame({'event_date': dates, 'value': values2})
 # Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
 results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True
 
 # %%
 # Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
 results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True

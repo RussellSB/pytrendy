@@ -66,7 +66,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     
     # 1.3 Handle zero baseline edgecase: centred rolling mean sees abrupt jump before value moves, producing producing signal≈noise and a false low SNR
     # ponytail: subjectively decided not to flag it when running inside a run of zeros (not on the very first zero)
-    df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
+    # df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
     
     # 1.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
