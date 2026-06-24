@@ -7,6 +7,7 @@ we wouldn't typically expect.
 Reference: tests/tests_crashes_edgecases/data/TESTDATA.md
 """
 
+import pytest
 import pandas as pd
 import pytrendy as pt
 from conftest import assert_segments_in_a_haystack
@@ -70,3 +71,53 @@ class TestUncommonValues:
             {'direction': 'Up', 'start': '2026-03-21', 'end': '2026-04-20'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
+
+    @pytest.mark.core
+    def test_zero_baseline_no_noise_segment(self):
+        """Test that zero-baseline leading edge does not produce a Noise segment.
+
+        The centred rolling mean in noise detection looks ahead at an abrupt transition,
+        producing signal≈noise and a false low SNR on the last few zero days. This was
+        fixed by suppressing noise_flag when value=0, previous=0, and signal!=0.
+
+        Reference: issue #163, Problem 1
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_market_entry_2',
+            plot=False,
+            method_params=dict(abrupt_padding=28)
+        )
+
+        # No Noise segment should appear anywhere
+        noise_segments = results.filter_segments(direction='Noise', format='dict')
+        assert len(noise_segments) == 0, (
+            f'Expected no Noise segment on zero-baseline leading edge, got {len(noise_segments)}'
+        )
+
+    @pytest.mark.core
+    def test_zero_baseline_up_detected(self):
+        """Test that the Up trend is detected on a zero-baseline market entry.
+
+        After the noise artifact is suppressed, the Flat (zero baseline) should
+        transition directly into an Up segment covering the abrupt activation.
+
+        Reference: issue #163, Problem 1
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_market_entry_2',
+            plot=False,
+            method_params=dict(abrupt_padding=28)
+        )
+
+        # Up segment should cover at least May 6 (activation start)
+        up_segments = results.filter_segments(direction='Up', format='dict')
+        assert len(up_segments) >= 1, 'Expected at least one Up segment on zero-baseline entry'
+        assert up_segments[0]['start'] == '2026-05-06', (
+            f'Up should start on activation day 2026-05-06, got {up_segments[0]["start"]}'
+        )

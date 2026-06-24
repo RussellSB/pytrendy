@@ -337,11 +337,10 @@ results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plo
 # abrupt_padding=28: currently broken - collapses to Flat only
 results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=28))
 
-# ---------- Issue #163 Reproduction: zero-baseline noise artifact
-# Bug: avoid_noise=False should skip noise detection entirely, but noise is still
-# flagged and influences downstream segments.
-# Also: avoid_noise=True (default) is over-sensitive to noise on a zero-baseline
-# leading edge, wrongly flagging the last few flat days before an abrupt uptrend.
+# ---------- Issue #163 Reproduction: zero-baseline noise artifact (TODONE)
+# Fixed in PR #164: suppressed false noise flag on leading edge of abrupt transitions,
+# and skip noise detection entirely when avoid_noise=False.
+# See tests/tests_crashes_edgecases/test_uncommon_values.py for formal regression tests.
 
 # %%
 import numpy as np
@@ -371,13 +370,16 @@ values2[idx_may6:idx_may10+1] = np.linspace(10, 125, int(idx_may10 - idx_may6 + 
 synth_p2 = pd.DataFrame({'event_date': dates, 'value': values2})
 
 # %%
-# Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
+# TODONE: Problem 1 resolved — no Noise segment on zero-baseline with avoid_noise=True
 results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
 
 # %%
-# Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
+# TODONE: Problem 2 — noise artifact resolved, but Up still lost due to expand_contract
+# (separate issue: requires gradual_padding feature, ref #112)
 results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
+
+# %%
