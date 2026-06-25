@@ -64,14 +64,14 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE), 'noise_flag'] = 1
 
-    # ponytail: when avoid_noise=False, zero the flag now so the rest of the pipeline
-    # (refinement, value_cleaned, flat/trend detection) never sees noise.
+    # Skip noise detection when user opts out.
     if not method_params['avoid_noise']:
         df['noise_flag'] = 0
 
-    # 1.3 Handle zero baseline edgecase: centred rolling mean sees abrupt jump before value moves,
-    # producing signal≈noise and a false low SNR. Don't flag it when we're inside a run of zeros
-    # (not on the very first zero) - that is the leading edge of an imminent abrupt change.
+    # Suppress false noise on zero-baseline leading edge: the centred rolling mean
+    # sees the abrupt jump before the value moves, producing signal≈noise. When
+    # value=0 and previous=0, we are inside a run of zeros — not noise.
+    df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
     df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
 
     # 1.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
