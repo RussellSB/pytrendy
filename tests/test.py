@@ -353,16 +353,27 @@ df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.c
 
 # %%
 # Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
-results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_2',
-                                     plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_2', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
 
 # %%
 # Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
 # NOTE: Up is not yet detected — the smaller ramp (10→125) is lost due to an
 # off-by-one in get_segments. Tracked in issue #171.
-results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_3',
-                                     plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_3', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28})
+
+# %%
+# Extra Check Problem 1: make sure after bandaid edge case fix, that spikes can still be detected on true non zero baseline signal
+df['zero_baseline_spikes'] = 0.0
+df['date'] = pd.to_datetime(df['date'])
+df = df.set_index('date')
+df.loc['2026-02-07', 'zero_baseline_spikes'] = 400.0
+df.loc['2026-03-01', 'zero_baseline_spikes'] = 500.0
+df.loc['2026-04-01', 'zero_baseline_spikes'] = 200.0
+df.loc['2026-04-20', 'zero_baseline_spikes'] = 700.0
+df.loc['2026-05-12', 'zero_baseline_spikes'] = 700.0
+df.loc['2026-05-27', 'zero_baseline_spikes'] = 50.0
+df = df.reset_index()
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_spikes', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE
+
 
 # %%
