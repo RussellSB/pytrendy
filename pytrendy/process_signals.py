@@ -72,7 +72,6 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     # sees the abrupt jump before the value moves, producing signal≈noise. When
     # value=0 and previous=0, we are inside a run of zeros — not noise.
     df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
-    df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
 
     # 1.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
