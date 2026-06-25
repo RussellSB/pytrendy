@@ -361,8 +361,10 @@ results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
 
 # %%
 # Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
+# NOTE: Up is not yet detected — the smaller ramp (10→125) is lost due to an
+# off-by-one in get_segments. Tracked in issue #171.
 results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: detect up correctly from May 6th
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
 
 # %%
