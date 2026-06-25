@@ -2,8 +2,9 @@
   "jupyter-config-data": {
     "appName": "JupyterLite",
     "appUrl": "./lab",
-    "appVersion": "0.7.6",
+    "appVersion": "0.8.0",
     "baseUrl": "./",
+    "contentsAllJsonFile": "all.json",
     "contentsStorageDrivers": [
       "memoryStorageDriver"
     ],
@@ -13,7 +14,7 @@
     "federated_extensions": [
       {
         "extension": "./extension",
-        "load": "static/remoteEntry.75ddd7589fd94926c419.js",
+        "load": "static/remoteEntry.c6732262d69c5d22.js",
         "name": "@jupyterlite/pyodide-kernel-extension"
       },
       {
@@ -402,13 +403,23 @@
     "litePluginSettings": {
       "@jupyterlite/pyodide-kernel-extension:kernel": {
         "pipliteUrls": [
-          "./extensions/@jupyterlite/pyodide-kernel-extension/static/pypi/all.json?sha256=d4147101a35e1f311a860b1b8976d601b6afcad0e777ffb7946bd9ca3fdefbd6"
+          "./extensions/@jupyterlite/pyodide-kernel-extension/static/pypi/all.json?sha256=270efd720a4f0f7517ed218e7bc8e40e17eef53d1e50e2b6770303571df3711a"
         ]
       }
     },
     "settingsStorageDrivers": [
       "memoryStorageDriver"
-    ]
+    ],
+    "versionInfo": {
+      "@jupyter-notebook/application": {
+        "label": "Jupyter Notebook",
+        "version": "7.6.0"
+      },
+      "@jupyterlab/application": {
+        "label": "JupyterLab",
+        "version": "4.6.0"
+      }
+    }
   },
   "jupyter-lite-schema-version": 0
 }
