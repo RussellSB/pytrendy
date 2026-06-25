@@ -334,7 +334,7 @@ temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edg
 results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=0))
 
 # %%
-# abrupt_padding=28: currently broken - collapses to Flat only
+# abrupt_padding=28: # TODONE: currently broken - collapses to Flat only
 results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=28))
 
 # ---------- Issue #163 Reproduction: zero-baseline noise artifact (TODONE)
@@ -347,9 +347,8 @@ results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plo
 # Scratch reproduction below reads from the CSV fixture.
 import pandas as pd
 
-synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
 synth_p2 = synth_p1.copy()  # same fixture, different column
-
 # %%
 # TODONE: Problem 1 resolved — no Noise segment on zero-baseline with avoid_noise=True
 results = pt.detect_trends(synth_p1, date_col='date', value_col='zero_baseline_market_entry_2',

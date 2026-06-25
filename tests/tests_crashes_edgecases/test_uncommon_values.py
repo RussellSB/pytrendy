@@ -83,7 +83,7 @@ class TestUncommonValues:
 
         Reference: issue #163, Problem 1
         """
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -108,7 +108,7 @@ class TestUncommonValues:
 
         Reference: issue #163, Problem 1
         """
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
