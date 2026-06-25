@@ -49,7 +49,8 @@ class TestNoiseAvoidFalse:
         assert len(noise_segments) == 0, 'Expected all 4 spikes to be ignored with avoid_noise=False'
 
         # Assert for trends overlapping spikes, now that avoid_noise=False
-        # Expected trends ignorant of noise (raw signal used for smoothing)
+        # With avoid_noise=False the pipeline works on the raw signal (spikes not masked
+        # in value_cleaned), so the first Up starts later than the pre-fix expectation.
         expected_segments = [
             {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-02-28'},
             {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
@@ -85,7 +86,7 @@ class TestNoiseAvoidFalse:
                                 , avoid_noise=False # main parameter tested
                             )
         )
-        expected_segments = [ # noise detection skipped; trends detected on raw signal
+        expected_segments = [ # raw signal used; zero baseline not masked so Up ends earlier
             {'direction': 'Up', 'start': '2025-02-27', 'end': '2025-03-29'},
             {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-06-02'},
         ]
