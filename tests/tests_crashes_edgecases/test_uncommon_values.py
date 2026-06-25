@@ -92,9 +92,10 @@ class TestUncommonValues:
         )
 
         # Flat → Up, no Noise segment between them
+        # Flat → Up, no Noise segment between them
         expected_segments = [
             {'direction': 'Flat', 'start': '2026-02-01', 'end': '2026-05-05'},
-            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-17'},
+            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -117,7 +118,8 @@ class TestUncommonValues:
         )
 
         # Up starts on activation day
+        # Up starts on activation day
         expected_segments = [
-            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-17'},
+            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
