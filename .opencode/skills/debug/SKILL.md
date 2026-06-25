@@ -18,7 +18,9 @@ description: Use when debugging a pytrendy bug, reproducing a regression, or ins
 ### When adding a section
 
 - `# ---------- <bug summary>` header (matches existing convention — see line 325 "New Reproduction: abrupt padding all-flat fallback on zero-baseline market entry").
-- `# %%` cell loading the specific fixture / building the specific synth scenario.
+- `# %%` cell loading the data source **once**. Do not copy or rename the DataFrame per cell.
+  - **CSV fixture**: load via `pd.read_csv(...)`. Keep columns as-is; pass the actual column name to `value_col` in each `detect_trends()` call (e.g. `value_col='zero_baseline_market_entry_2'`).
+  - **pytrendy built-in data** (`pt.load_data(...)`) or inline synth: load once and reuse the reference across cells. Only reload if the scenario genuinely requires different data modifications.
 - `# %%` cell calling `detect_trends(...)` — with `debug=True` for phase-1 bugs, plain for phase-2 bugs.
 - `# TODONE:` note on the cell once the bug is fixed (matches the file's tracking convention).
 - Cell stays in place after migration to formal tests — not deleted.
