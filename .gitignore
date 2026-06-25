@@ -12,3 +12,4 @@ tests/testtemp.py
 site/
 poetry.lock
 temp.csv
+.env
