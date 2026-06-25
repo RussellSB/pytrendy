@@ -73,6 +73,7 @@ class TestUncommonValues:
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
     @pytest.mark.core
+    @pytest.mark.core
     def test_zero_baseline_no_noise_segment(self):
         """Test that zero-baseline leading edge does not produce a Noise segment.
 
@@ -91,11 +92,12 @@ class TestUncommonValues:
             method_params=dict(abrupt_padding=28)
         )
 
-        # No Noise segment should appear anywhere
-        noise_segments = results.filter_segments(direction='Noise', format='dict')
-        assert len(noise_segments) == 0, (
-            f'Expected no Noise segment on zero-baseline leading edge, got {len(noise_segments)}'
-        )
+        # Flat → Up, no Noise segment between them
+        expected_segments = [
+            {'direction': 'Flat', 'start': '2026-02-01', 'end': '2026-05-05'},
+            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-17'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_zero_baseline_up_detected(self):
@@ -115,9 +117,8 @@ class TestUncommonValues:
             method_params=dict(abrupt_padding=28)
         )
 
-        # Up segment should cover at least May 6 (activation start)
-        up_segments = results.filter_segments(direction='Up', format='dict')
-        assert len(up_segments) >= 1, 'Expected at least one Up segment on zero-baseline entry'
-        assert up_segments[0]['start'] == '2026-05-06', (
-            f'Up should start on activation day 2026-05-06, got {up_segments[0]["start"]}'
-        )
+        # Up starts on activation day
+        expected_segments = [
+            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-17'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
