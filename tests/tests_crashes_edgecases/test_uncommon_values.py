@@ -92,7 +92,6 @@ class TestUncommonValues:
         )
 
         # Flat → Up, no Noise segment between them
-        # Flat → Up, no Noise segment between them
         expected_segments = [
             {'direction': 'Flat', 'start': '2026-02-01', 'end': '2026-05-05'},
             {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
@@ -106,18 +105,17 @@ class TestUncommonValues:
         After the noise artifact is suppressed, the Flat (zero baseline) should
         transition directly into an Up segment covering the abrupt activation.
 
-        Reference: issue #163, Problem 1
+        Reference: issue #163, Problem 2
         """
         df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
-            value_col='zero_baseline_market_entry_2',
+            value_col='zero_baseline_market_entry_3',
             plot=False,
             method_params=dict(abrupt_padding=28)
         )
 
-        # Up starts on activation day
         # Up starts on activation day
         expected_segments = [
             {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
