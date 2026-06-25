@@ -73,7 +73,6 @@ class TestUncommonValues:
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
     @pytest.mark.core
-    @pytest.mark.core
     def test_zero_baseline_no_noise_segment(self):
         """Test that zero-baseline leading edge does not produce a Noise segment.
 
