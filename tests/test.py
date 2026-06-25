@@ -349,13 +349,11 @@ import pandas as pd
 import numpy as np
 
 # Read from CSV fixture instead of generating synthetic data
-_csv = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
-synth_p1 = pd.DataFrame({'event_date': _csv['date'], 'value': _csv['zero_baseline_market_entry_2']})
-synth_p2 = pd.DataFrame({'event_date': _csv['date'], 'value': _csv['zero_baseline_market_entry_3']})
+df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
 
 # %%
 # Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
-results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_2',
                                      plot=True,
                                      method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
 
@@ -363,7 +361,7 @@ results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
 # Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
 # NOTE: Up is not yet detected — the smaller ramp (10→125) is lost due to an
 # off-by-one in get_segments. Tracked in issue #171.
-results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_3',
                                      plot=True,
                                      method_params={'avoid_noise': True, 'abrupt_padding': 28})
 
