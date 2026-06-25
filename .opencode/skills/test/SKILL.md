@@ -52,7 +52,7 @@ When a bug is fixed and reproduced in `tests/test.py` (see the `debug` skill), m
 
 1. **Pick the fixture**: if the `tests/test.py` cell loads from `tests/tests_crashes_edgecases/data/*.csv`, reuse that CSV. If it builds synth data inline, consider persisting it as a CSV in the same `data/` dir for reuse.
 2. **Add a test class** to the appropriate file in `tests/tests_crashes_edgecases/test_*.py` (or `tests/tests_noise/` for noise-specific bugs). Mark `@pytest.mark.core` — regression tests for fixed bugs are essential.
-3. **Call `detect_trends(...)`** with the same params that reproduced the bug. Assert on the segment list with `assert_segments_match` (strict) or `assert_segments_in_a_haystack` (subset — use when the pipeline legitimately detects more than the test cares about).
+3. **Call `detect_trends(...)`** with the same params that reproduced the bug. Assert on the segment list with `assert_segments_match` (strict) or `assert_segments_in_a_haystack` (subset — use when the pipeline legitimately detects more than the test cares about). **Always** use these helpers for segment assertions — do not use raw list comprehensions, set operations, or manual counting, as those patterns miss segment boundaries and drift out of sync with the rest of the test suite.
 4. **Leave the `tests/test.py` reproduction cell in place** — it's not deleted when the formal test is added.
 
 ## Test layout
