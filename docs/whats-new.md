@@ -102,7 +102,7 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
     ([`whats-new.yaml`](https://github.com/RussellSB/pytrendy/blob/main/.github/workflows/whats-new.yaml))
     fires automatically whenever a GitHub Release is published. It invokes
     [`scripts/generate_whats_new.py`](https://github.com/RussellSB/pytrendy/blob/main/scripts/generate_whats_new.py),
-    which calls **OpenCode** (`opencode-go/kimi-k2.7-code`) to write a user-friendly What's New entry
+    which calls **OpenCode** (`opencode-go/deepseek-flash-v4`) to write a user-friendly What's New entry
     from the release notes, then opens a pull request for review. (Previously powered by the
     GitHub Models API / GPT-4.1.)
     Introduced: [#120](https://github.com/RussellSB/pytrendy/pull/120)

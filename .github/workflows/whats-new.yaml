@@ -10,7 +10,7 @@ name: What's New Generator
 # ─────────────────────────────────────────────────────────────────────────────
 # • Resolve release metadata from release events, dispatch inputs, or the Release workflow run.
 # • Parse release notes (or fall back to CHANGELOG.md).
-# • Call OpenCode (opencode-go/kimi-k2.7-code) to generate a user-friendly entry.
+# • Call OpenCode (opencode-go/deepseek-flash-v4) to generate a user-friendly entry.
 # • Prepend the new entry into docs/whats-new.md.
 # • Open a PR back to the release branch (develop or main) for review.
 # • On main: also open a follow-up PR to sync the page back to develop.
@@ -156,7 +156,7 @@ jobs:
         if: steps.meta.outputs.skip != 'true'
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/kimi-k2.7-code' }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-flash-v4' }}
           OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
@@ -186,7 +186,7 @@ jobs:
 
             ### What changed
             - A new entry was prepended to `docs/whats-new.md` using **OpenCode**
-              (`opencode-go/kimi-k2.7-code`) to summarise the release notes in a user-friendly way.
+              (`opencode-go/deepseek-flash-v4`) to summarise the release notes in a user-friendly way.
 
             ### Review checklist
             - [ ] The generated content is accurate and user-friendly.
@@ -237,7 +237,7 @@ jobs:
       - name: Re-generate What's New for develop (reframe as stable)
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/kimi-k2.7-code' }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-flash-v4' }}
           OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.generate-whats-new.outputs.tag }}
