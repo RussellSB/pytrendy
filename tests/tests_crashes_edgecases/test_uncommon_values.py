@@ -36,7 +36,7 @@ class TestUncommonValues:
     def test_zero_baseline_market_entry_no_padding(self):
         """Test that a new-market series (long zero baseline, abrupt activation) detects a short
         Up trend when abrupt_padding=0."""
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_1.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -57,7 +57,7 @@ class TestUncommonValues:
         Expected: the padded Up segment should extend to 2026-04-20 (28 days after activation)
         and the trailing Flat should cover 2026-04-21 to 2026-05-15.
         """
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_1.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -83,7 +83,7 @@ class TestUncommonValues:
 
         Reference: issue #163, Problem 1
         """
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -108,7 +108,7 @@ class TestUncommonValues:
 
         Reference: issue #163, Problem 1
         """
-        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
         results = pt.detect_trends(
             df,
             date_col='date',

@@ -327,7 +327,7 @@ results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, m
 
 # %%
 # Load zero-baseline market entry fixture (backed up from synthetic inline recreation)
-temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
+temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_1.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
 
 # %%
 # abrupt_padding=0: expects Flat / Up / Flat
@@ -347,7 +347,7 @@ results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plo
 # Scratch reproduction below reads from the CSV fixture.
 import pandas as pd
 
-synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv')
+synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
 synth_p2 = synth_p1.copy()  # same fixture, different column
 # %%
 # TODONE: Problem 1 resolved — no Noise segment on zero-baseline with avoid_noise=True
