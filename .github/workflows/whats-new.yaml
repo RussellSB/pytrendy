@@ -148,6 +148,7 @@ jobs:
         if: steps.meta.outputs.skip != 'true'
         run: |
           curl -fsSL https://opencode.ai/install | bash
+          export PATH="$HOME/.opencode/bin:$PATH"
           opencode --version
 
       # ── 5. Run the agentic generator ────────────────────────────────────────
@@ -230,6 +231,7 @@ jobs:
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
+          export PATH="$HOME/.opencode/bin:$PATH"
           opencode --version
 
       - name: Re-generate What's New for develop (reframe as stable)
