@@ -346,20 +346,23 @@ results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plo
 # TODONE: Issue #163 — see tests/tests_crashes_edgecases/test_uncommon_values.py for regression tests.
 # Scratch reproduction below reads from the CSV fixture.
 import pandas as pd
+import numpy as np
 
-synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
-synth_p2 = synth_p1.copy()  # same fixture, different column
-# %%
-# TODONE: Problem 1 resolved — no Noise segment on zero-baseline with avoid_noise=True
-results = pt.detect_trends(synth_p1, date_col='date', value_col='zero_baseline_market_entry_2',
-                                     plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
+# Read from CSV fixture instead of generating synthetic data
+_csv = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
+synth_p1 = pd.DataFrame({'event_date': _csv['date'], 'value': _csv['zero_baseline_market_entry_2']})
+synth_p2 = pd.DataFrame({'event_date': _csv['date'], 'value': _csv['zero_baseline_market_entry_3']})
 
 # %%
-# TODONE: Problem 2 — noise artifact resolved, but Up still lost due to expand_contract
-# (separate issue: requires gradual_padding feature, ref #112)
-results = pt.detect_trends(synth_p2, date_col='date', value_col='zero_baseline_market_entry_3',
+# Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
+results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
                                      plot=True,
-                                     method_params={'avoid_noise': True, 'abrupt_padding': 28})
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True
+
+# %%
+# Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
+results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
+                                     plot=True,
+                                     method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODO: dont overfit noise when avoid_noise=True
 
 # %%
