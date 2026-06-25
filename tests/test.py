@@ -343,42 +343,23 @@ results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plo
 # See tests/tests_crashes_edgecases/test_uncommon_values.py for formal regression tests.
 
 # %%
-import numpy as np
+# TODONE: Issue #163 — see tests/tests_crashes_edgecases/test_uncommon_values.py for regression tests.
+# Scratch reproduction below reads from the CSV fixture.
+import pandas as pd
 
-# Create synth example p1
-np.random.seed(42)
-dates = pd.date_range('2026-02-01', '2026-06-07', freq='D')
-n = len(dates)
-values = np.zeros(n, dtype=float)
-idx_may6 = (pd.Timestamp('2026-05-06') - pd.Timestamp('2026-02-01')).days
-idx_may10 = (pd.Timestamp('2026-05-10') - pd.Timestamp('2026-02-01')).days
-idx_may11 = (pd.Timestamp('2026-05-11') - pd.Timestamp('2026-02-01')).days
-values[idx_may6:idx_may10+1] = np.linspace(20, 195, int(idx_may10 - idx_may6 + 1))
-flat_n = n - idx_may11
-t = np.arange(flat_n)
-base = 230
-signal = (base
-          + 40 * np.sin(2 * np.pi * t / 7)
-          + 25 * np.cos(2 * np.pi * t / 12)
-          + np.random.normal(0, 12, int(flat_n)))
-values[idx_may11:] = signal
-synth_p1 = pd.DataFrame({'event_date': dates, 'value': values})
-
-# Create synth example p2
-values2 = values.copy()
-values2[idx_may6:idx_may10+1] = np.linspace(10, 125, int(idx_may10 - idx_may6 + 1))
-synth_p2 = pd.DataFrame({'event_date': dates, 'value': values2})
+synth_p1 = pd.read_csv('tests/tests_crashes_edgecases/data/issue_163_zero_baseline_edgecases.csv')
+synth_p2 = synth_p1.copy()  # same fixture, different column
 
 # %%
 # TODONE: Problem 1 resolved — no Noise segment on zero-baseline with avoid_noise=True
-results = pt.detect_trends(synth_p1, date_col='event_date', value_col='value',
+results = pt.detect_trends(synth_p1, date_col='date', value_col='zero_baseline_market_entry_2',
                                      plot=True,
                                      method_params={'avoid_noise': True, 'abrupt_padding': 28})
 
 # %%
 # TODONE: Problem 2 — noise artifact resolved, but Up still lost due to expand_contract
 # (separate issue: requires gradual_padding feature, ref #112)
-results = pt.detect_trends(synth_p2, date_col='event_date', value_col='value',
+results = pt.detect_trends(synth_p2, date_col='date', value_col='zero_baseline_market_entry_3',
                                      plot=True,
                                      method_params={'avoid_noise': True, 'abrupt_padding': 28})
 
