@@ -122,3 +122,29 @@ class TestUncommonValues:
     #         {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
     #     ]
     #     assert_segments_in_a_haystack(results.segments, expected_segments)
+
+    @pytest.mark.core
+    def test_zero_baseline_spikes_detected_as_noise(self):
+        """Spikes on a zero baseline are detected as Noise, not trends.
+
+        Reference: issue #163 extension — zero-baseline with scattered spikes.
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_spikes',
+            plot=False,
+            method_params=dict(abrupt_padding=28)
+        )
+
+        # Each spike produces a Noise segment (spike date is inside the window)
+        expected_noise = [
+            {'direction': 'Noise', 'start': '2026-02-06', 'end': '2026-02-08'},
+            {'direction': 'Noise', 'start': '2026-02-28', 'end': '2026-03-02'},
+            {'direction': 'Noise', 'start': '2026-03-31', 'end': '2026-04-02'},
+            {'direction': 'Noise', 'start': '2026-04-19', 'end': '2026-04-21'},
+            {'direction': 'Noise', 'start': '2026-05-11', 'end': '2026-05-13'},
+            {'direction': 'Noise', 'start': '2026-05-26', 'end': '2026-05-28'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_noise)
