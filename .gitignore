@@ -13,3 +13,5 @@ site/
 poetry.lock
 temp.csv
 .env
+.cortexkit/
+/temp/
