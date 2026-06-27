@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using OpenCode (opencode-go/deepseek-flash-v4).
+"""Generate or update docs/whats-new.md using OpenCode (opencode-go/deepseek-v4-flash).
 
 The script:
   1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
      tag, then CHANGELOG.md).
-  2. Calls OpenCode (opencode-go/deepseek-flash-v4) to produce a user-friendly
+  2. Calls OpenCode (opencode-go/deepseek-v4-flash) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -29,7 +29,7 @@ Environment variables
 ---------------------
 OPENCODE_API_KEY – required; authenticates against the OpenCode API.
 OPENCODE_MODEL   – optional; model ID passed to `opencode run` (default:
-                   "opencode-go/deepseek-flash-v4").
+                   "opencode-go/deepseek-v4-flash").
 GITHUB_TOKEN     – required; used for the GitHub Releases API fallback and by the
                    workflow to open pull requests.
 RELEASE_TAG      – the semantic-release tag (e.g. "v1.2.0" or "v1.2.0-dev.1").
@@ -67,7 +67,7 @@ CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
 NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
 
-DEFAULT_OPENCODE_MODEL = "opencode-go/deepseek-flash-v4"
+DEFAULT_OPENCODE_MODEL = "opencode-go/deepseek-v4-flash"
 
 # ---------------------------------------------------------------------------
 # Helpers
