@@ -57,3 +57,4 @@ pytest tests/ -m "not core" --cov-append    # the rest
 - `maintenance` — public API surface, deprecation policy, diff/code conventions (the #141 design principles).
 - `pytrendy` — 5-stage pipeline architecture, module map, datasets, `PyTrendyResults` API.
 - `debug` — two-phase debug workflow (`process_signals` diagnostic plots, `segments_refine` stage bisect), `tests/test.py` sandbox, regression handoff.
+- `pr-plots` — before/after plot generation for fix/feature PR bodies, guard rail plots, human-in-the-loop image upload, zero-commit cleanup.
