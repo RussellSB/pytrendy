@@ -60,6 +60,8 @@ Triggers: on release publish, on Release workflow completion (main/develop), or 
 
 Script-level agent instructions are in `scripts/generate_whats_new.py` docstring: verify CSV URLs resolve (use develop-branch raw URLs for pre-releases, main for stable), derive before/after plot scenarios from `tests/tests_crashes_edgecases/` not synthetic data, and keep figsize/grid/legend/colors identical between before/after images by routing through the same `detect_trends()` + `plot_pytrendy()` pipeline.
 
+For manual before/after plot generation in PR bodies (fix/feature PRs), see the `pr-plots` skill.
+
 ## Secrets the workflows expect
 
 `CODECOV_TOKEN`, `RELEASE_SSH_KEY`, `OPENCODE_API_KEY`, `DOCS_PREVIEW_PAT`, plus `GITHUB_TOKEN`. `OPENCODE_MODEL` is a repo **variable** (vars context), not a secret. PyPI publish uses OIDC trusted publishing (no token).
