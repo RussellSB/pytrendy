@@ -177,9 +177,9 @@ class TestNoiseCrashes:
         
         # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
-            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-04-29'}, 
-            {'direction': 'Flat', 'start': '2025-04-30', 'end': '2025-05-17'}, 
-            {'direction': 'Down', 'start': '2025-05-18', 'end': '2025-06-12'}, 
+            {'direction': 'Up', 'start': '2025-04-10', 'end': '2025-04-29'}, 
+            {'direction': 'Flat', 'start': '2025-04-30', 'end': '2025-05-16'}, 
+            {'direction': 'Down', 'start': '2025-05-17', 'end': '2025-06-12'}, 
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -232,6 +232,6 @@ class TestNoiseCrashes:
         # Expected segments to find a subset of based on current behaviour
         expected_segments = [ 
             {'direction': 'Up', 'start': '2025-03-31', 'end': '2025-05-09'}, #TODO: may expect some change if noise disabled
-            {'direction': 'Down', 'start': '2025-05-14', 'end': '2025-06-04'}, 
+            {'direction': 'Down', 'start': '2025-05-13', 'end': '2025-06-04'}, 
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)

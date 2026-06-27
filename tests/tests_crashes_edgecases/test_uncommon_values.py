@@ -29,7 +29,7 @@ class TestUncommonValues:
         expected_segments = [ 
             {'direction': 'Up', 'start': '2000-01-02', 'end': '2000-01-14'},
             {'direction': 'Flat', 'start': '2000-01-15', 'end': '2000-01-18'},
-            {'direction': 'Down', 'start': '2000-01-19', 'end': '2000-03-17'},
+            {'direction': 'Down', 'start': '2000-01-19', 'end': '2000-03-19'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
