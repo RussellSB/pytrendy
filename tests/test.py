@@ -327,14 +327,53 @@ results = pt.detect_trends(df, date_col='date', value_col='abrupt', plot=True, m
 
 # %%
 # Load zero-baseline market entry fixture (backed up from synthetic inline recreation)
-temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
+temp_like_df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_1.csv').rename(columns={'zero_baseline_market_entry_1': 'value'})
 
 # %%
 # abrupt_padding=0: expects Flat / Up / Flat
 results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=0))
 
 # %%
-# abrupt_padding=28: currently broken - collapses to Flat only
+# abrupt_padding=28: # TODONE: currently broken - collapses to Flat only
 results = pt.detect_trends(temp_like_df, date_col='date', value_col='value', plot=True, method_params=dict(abrupt_padding=28))
+
+# ---------- Issue #163 Reproduction: zero-baseline noise artifact (TODONE)
+# Fixed in PR #164: suppressed false noise flag on leading edge of abrupt transitions,
+# and skip noise detection entirely when avoid_noise=False.
+# See tests/tests_crashes_edgecases/test_uncommon_values.py for formal regression tests.
+
+# %%
+# TODONE: Issue #163 — see tests/tests_crashes_edgecases/test_uncommon_values.py for regression tests.
+# Scratch reproduction below reads from the CSV fixture.
+import pandas as pd
+import numpy as np
+
+# Read from CSV fixture instead of generating synthetic data
+df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
+
+# %%
+# Problem 1: avoid_noise=True (default) — expected: no Noise segment on the zero-baseline
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_2', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE: dont overfit noise when avoid_noise=True
+
+# %%
+# Problem 2: avoid_noise=True — expected: no Noise segment on zero-baseline and Up trend around May 6-10
+# NOTE: Up is not yet detected — the smaller ramp (10→125) is lost due to an
+# off-by-one in get_segments. Tracked in issue #171.
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_market_entry_3', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28})
+
+# %%
+# Extra Check Problem 1: make sure after bandaid edge case fix, that spikes can still be detected on true non zero baseline signal
+df['zero_baseline_spikes'] = 0.0
+df['date'] = pd.to_datetime(df['date'])
+df = df.set_index('date')
+df.loc['2026-02-07', 'zero_baseline_spikes'] = 400.0
+df.loc['2026-03-01', 'zero_baseline_spikes'] = 500.0
+df.loc['2026-04-01', 'zero_baseline_spikes'] = 200.0
+df.loc['2026-04-20', 'zero_baseline_spikes'] = 700.0
+df.loc['2026-05-12', 'zero_baseline_spikes'] = 700.0
+df.loc['2026-05-27', 'zero_baseline_spikes'] = 50.0
+df = df.reset_index()
+results = pt.detect_trends(df, date_col='date', value_col='zero_baseline_spikes', plot=True, method_params={'avoid_noise': True, 'abrupt_padding': 28}) # TODONE
+
 
 # %%

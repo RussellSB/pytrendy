@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""Generate or update docs/whats-new.md using the GitHub Models API (GPT-5).
+"""Generate or update docs/whats-new.md using OpenCode (opencode-go/deepseek-v4-flash).
 
 The script:
   1. Reads the latest release notes (from RELEASE_BODY, then GitHub Releases API by
      tag, then CHANGELOG.md).
-  3. Calls the GitHub Models API (openai/gpt-4.1) to produce a user-friendly
+  2. Calls OpenCode (opencode-go/deepseek-v4-flash) to produce a user-friendly
      What's New section in MkDocs-compatible Markdown.
   3. Prepends the new section into docs/whats-new.md between the sentinel
      comment markers, preserving the rest of the file.
@@ -27,8 +27,12 @@ Agent instructions (run before each refresh):
 
 Environment variables
 ---------------------
-GITHUB_TOKEN   – required; used to authenticate against the GitHub Models API.
-RELEASE_TAG    – the semantic-release tag (e.g. "v1.2.0" or "v1.2.0-dev.1").
+OPENCODE_API_KEY – required; authenticates against the OpenCode API.
+OPENCODE_MODEL   – optional; model ID passed to `opencode run` (default:
+                   "opencode-go/deepseek-v4-flash").
+GITHUB_TOKEN     – required; used for the GitHub Releases API fallback and by the
+                   workflow to open pull requests.
+RELEASE_TAG      – the semantic-release tag (e.g. "v1.2.0" or "v1.2.0-dev.1").
 RELEASE_NAME   – human-readable release title.
 RELEASE_BODY   – raw Markdown body of the GitHub Release (release notes).
 IS_PRERELEASE  – "true" / "false"; controls the "Coming in…" vs "Released in…" framing.
@@ -40,6 +44,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import sys
 import textwrap
 import urllib.error
@@ -62,8 +67,7 @@ CONTENT_END = "<!-- WHATS_NEW_CONTENT_END -->"
 NOTE_START = "<!-- WHATS_NEW_NOTE_START -->"
 NOTE_END = "<!-- WHATS_NEW_NOTE_END -->"
 
-GITHUB_MODELS_URL = "https://models.github.ai/inference/chat/completions"
-MODEL = "openai/gpt-4.1"
+DEFAULT_OPENCODE_MODEL = "opencode-go/deepseek-v4-flash"
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -71,6 +75,7 @@ MODEL = "openai/gpt-4.1"
 
 
 def _env(key: str, default: str = "") -> str:
+    """Return the value of environment variable ``key``, stripped, or ``default``."""
     return os.environ.get(key, default).strip()
 
 
@@ -99,6 +104,7 @@ def _target_prerelease_version(tag: str) -> str:
 
 
 def _major_minor(version: str) -> str:
+    """Return the ``major.minor`` prefix of a dotted version string."""
     parts = version.split(".")
     return ".".join(parts[:2]) if len(parts) >= 2 else version
 
@@ -156,8 +162,8 @@ def _resolve_raw_notes(tag: str, release_body: str, token: str) -> str:
     return _fetch_release_body_from_github(tag, token) or _read_changelog_section(tag)
 
 
-def _call_github_models(prompt: str, token: str) -> str | None:
-    """Call the GitHub Models API (Claude Sonnet 4.6) and return the generated text, or None on failure."""
+def _call_opencode(prompt: str, model: str) -> str | None:
+    """Call the OpenCode CLI and return the generated text, or None on failure."""
     system = textwrap.dedent("""\
         You are a technical writer for PyTrendy, a Python library for time-series trend
         detection. Your task is to turn raw CHANGELOG / release-note Markdown into a
@@ -183,7 +189,7 @@ def _call_github_models(prompt: str, token: str) -> str | None:
           For bug fixes, always label with version numbers: `Before — vX.Y.Z` (the last
           stable release before the fix) and `After — vX.Y.Z` (the release introducing
           the fix). For feature toggles or configuration comparisons, a short descriptive
-          label (e.g. `Before — \`avoid_noise=True\` (default)`) is acceptable instead.
+          label (e.g. `Before — \\`avoid_noise=True\\` (default)`) is acceptable instead.
         - Group small patch releases (1–2 minor fixes each) into a single combined section
           rather than giving each its own heading.
         - Reference issue or PR numbers from the CHANGELOG where available (e.g. `[#12](url)`).
@@ -262,34 +268,35 @@ def _call_github_models(prompt: str, token: str) -> str | None:
         ---
     """)
 
-    payload = {
-        "model": MODEL,
-        "messages": [
-            {"role": "system", "content": system},
-            {"role": "user", "content": prompt},
-        ],
-        "max_tokens": 4000,
-        "temperature": 0.5,
-    }
-
-    req = urllib.request.Request(
-        GITHUB_MODELS_URL,
-        data=json.dumps(payload).encode("utf-8"),
-        headers={
-            "Content-Type": "application/json",
-            "Accept": "application/vnd.github+json",
-            "Authorization": f"Bearer {token}",
-            "X-GitHub-Api-Version": "2026-03-10",
-        },
-        method="POST",
+    env = os.environ.copy()
+    env.setdefault(
+        "OPENCODE_PERMISSION",
+        '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", '
+        '"external_directory": "deny", "task": "deny"}',
     )
 
+    full_prompt = system + "\n\n" + prompt
+
     try:
-        with urllib.request.urlopen(req, timeout=90) as resp:
-            data = json.loads(resp.read().decode("utf-8"))
-            return data["choices"][0]["message"]["content"].strip()
-    except (urllib.error.URLError, KeyError, json.JSONDecodeError, TimeoutError) as exc:
-        print(f"[whats-new] GitHub Models API unavailable: {exc}", file=sys.stderr)
+        result = subprocess.run(
+            ["opencode", "run", "-m", model],
+            input=full_prompt,
+            capture_output=True,
+            text=True,
+            timeout=300,
+            env=env,
+            check=False,
+        )
+        if result.returncode != 0:
+            print(
+                f"[whats-new] OpenCode CLI failed (exit {result.returncode}):",
+                file=sys.stderr,
+            )
+            print(result.stderr, file=sys.stderr)
+            return None
+        return result.stdout.strip()
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        print(f"[whats-new] OpenCode CLI unavailable: {exc}", file=sys.stderr)
         return None
 
 
@@ -350,15 +357,17 @@ def _build_section(
     tag: str,
     raw_notes: str,
     is_prerelease: bool,
-    token: str,
 ) -> str:
     """Return the full Markdown block for one release (without top-level heading)."""
-    if not token:
+    api_key = _env("OPENCODE_API_KEY")
+    if not api_key:
         print(
-            "[whats-new] Error: GITHUB_TOKEN is not set. Cannot call the GitHub Models API.",
+            "[whats-new] Error: OPENCODE_API_KEY is not set. Cannot call OpenCode.",
             file=sys.stderr,
         )
         sys.exit(1)
+
+    model = _env("OPENCODE_MODEL", DEFAULT_OPENCODE_MODEL)
 
     prompt = textwrap.dedent(f"""\
         PyTrendy release {tag} ({'pre-release / develop' if is_prerelease else 'stable'}).
@@ -372,10 +381,10 @@ def _build_section(
         Omit the top-level ## heading — I will add it myself.
     """)
 
-    ai_content = _call_github_models(prompt, token)
+    ai_content = _call_opencode(prompt, model)
     if ai_content is None:
         print(
-            "[whats-new] Error: GitHub Models API call failed. See above for details. "
+            "[whats-new] Error: OpenCode call failed. See above for details. "
             "Failing the workflow rather than writing a low-quality fallback entry.",
             file=sys.stderr,
         )
@@ -384,6 +393,7 @@ def _build_section(
 
 
 def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
+    """Return the top-level Markdown heading for a release section."""
     base = _base_version(tag)
     if is_prerelease:
         target = _target_prerelease_version(tag)
@@ -620,6 +630,7 @@ def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str)
 
 
 def main() -> None:
+    """Generate or update the What's New documentation entry."""
     token = _env("GITHUB_TOKEN")
     tag = _env("RELEASE_TAG") or "v0.0.0"
     release_body = _env("RELEASE_BODY")
@@ -644,7 +655,7 @@ def main() -> None:
     if not is_prerelease:
         _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, _base_version(tag))
 
-    body = _build_section(tag, raw_notes, is_prerelease, token)
+    body = _build_section(tag, raw_notes, is_prerelease)
     heading = _make_heading(tag, is_prerelease, date_str)
     new_block = heading + "\n\n" + body
 

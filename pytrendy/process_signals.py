@@ -54,7 +54,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
     THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
 
-    # 1. Noise detection via SNR. 
+    # 1. Noise detection via SNR.
     # 1.1 Compute the SNR
     df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()
     df['noise'] = df[value_col] - df['signal']
@@ -63,13 +63,22 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     # 1.2 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
     df.loc[(df['snr'] <= THRESHOLD_NOISE), 'noise_flag'] = 1
-    
-    # 1.3 Double check & refresh noise flag. Distinguish noise from abrupt change.
+
+    # Skip noise detection when user opts out.
+    if not method_params['avoid_noise']:
+        df['noise_flag'] = 0
+
+    # Suppress false noise on zero-baseline leading edge: the centred rolling mean
+    # sees the abrupt jump before the value moves, producing signal≈noise. When
+    # value=0 and previous=0, we are inside a run of zeros — not noise.
+    df.loc[(df[value_col] == 0) & (df[value_col].shift(1) == 0) & (df['signal'] != 0), 'noise_flag'] = 0
+
+    # 1.4 Double check & refresh noise flag. Distinguish noise from abrupt change.
     df['noise_flag_diff'] = df['noise_flag'].diff()
     noise_starts = df.loc[df['noise_flag_diff'] == 1].index
     noise_ends = df.loc[df['noise_flag_diff'] == -1].index
-    
-    # 1.3.1 Construct noise segments list based on flag_diff
+
+    # 1.4.1 Construct noise segments list based on flag_diff
     noise_segments = []
     for noise_start in noise_starts: # Loops from first start onwards
         after_ends = [end for end in noise_ends if end > noise_start]
@@ -86,8 +95,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
             noise_segments.insert(0, dict(start=noise_start, end=noise_end))
 
-    # 1.3.2 Group noise segments if within a close enough distance of each other
-    if len(noise_segments) <= 1: 
+    # 1.4.2 Group noise segments if within a close enough distance of each other
+    if len(noise_segments) <= 1:
         noise_segments_grouped = noise_segments
     else: # only try group logic if > 1 segments to group
         noise_segments_grouped = []
@@ -103,13 +112,13 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
                     noise_segments_grouped.append(seg)
             prev_seg = seg.copy()
 
-    # 1.3.3 Update noise flag to larger groupings, so segments continuous to then refine
+    # 1.4.3 Update noise flag to larger groupings, so segments continuous to then refine
     if noise_segments_grouped != noise_segments:
         df.loc[:, 'noise_flag'] = 0
         for seg in noise_segments_grouped:
             df.loc[seg['start']:seg['end'], 'noise_flag'] = 1
-        
-    # 1.3.4 Refine the noise segments early
+
+    # 1.4.4 Refine the noise segments early
     for segment in noise_segments_grouped:
 
         width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
@@ -137,7 +146,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
         # Define center as 30% - 70% of window.
-        center_start = (start + (0.3 * width_padded)).floor('D') 
+        center_start = (start + (0.3 * width_padded)).floor('D')
         center_end   = (start + (0.7 * width_padded)).floor('D')
         is_central = ts_max >= center_start and ts_max <= center_end
 
@@ -146,7 +155,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             df_left = df.loc[:ts_max+pd.Timedelta(days=1)].copy()
             df_left['diff'] = df_left[value_col].diff(periods=-1).shift(-2)
             lowers = df_left.loc[df_left['diff'] > 0]
-            if len(lowers) > 0: 
+            if len(lowers) > 0:
                 noise_start = lowers.index[-1]
                 df.loc[start:noise_start, 'noise_flag'] = 0
 
