@@ -1757,8 +1757,9 @@ Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/117">#117</a></p
 (<a href="https://github.com/RussellSB/pytrendy/blob/main/.github/workflows/whats-new.yaml"><code>whats-new.yaml</code></a>)
 fires automatically whenever a GitHub Release is published. It invokes
 <a href="https://github.com/RussellSB/pytrendy/blob/main/scripts/generate_whats_new.py"><code>scripts/generate_whats_new.py</code></a>,
-which calls the <strong>GitHub Models API</strong> (GPT-4.1) to write a user-friendly What's New entry
-from the release notes, then opens a pull request for review.
+which calls <strong>OpenCode</strong> (<code>opencode-go/deepseek-flash-v4</code>) to write a user-friendly What's New entry
+from the release notes, then opens a pull request for review. (Previously powered by the
+GitHub Models API / GPT-4.1.)
 Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/120">#120</a></p>
 <p>Key behaviours:</p>
 <ul>
