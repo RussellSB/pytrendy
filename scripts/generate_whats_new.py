@@ -581,7 +581,7 @@ def _convert_prerelease_to_stable(
     2. Adds the release date line
     3. Removes the pre-release framing (staged note + pip install)
     4. Inserts a summary paragraph right after the date line
-    5. Preserves all ``??? note`` blocks unchanged
+    5. Preserves **all** content after the first ``??? note`` block unchanged
 
     Returns ``True`` if converted, ``False`` if no pre-release section was found.
     """
@@ -619,16 +619,22 @@ def _convert_prerelease_to_stable(
 
     old_section = content[sec_start:sec_end]
 
-    # Extract the ??? note blocks inside the pre-release section
-    notes = _note_blocks(old_section)
-    notes_text = "\n\n".join(block for _, block in notes)
+    # Split the pre-release section into:
+    #   (a) framing — everything before the first ??? note block
+    #   (b) rest    — from the first ??? note to the section end
+    notes_start_pat = re.compile(r"^\?\?\? note ", re.MULTILINE)
+    notes_start_m = notes_start_pat.search(old_section)
+    if notes_start_m:
+        notes_to_end = old_section[notes_start_m.start():]
+    else:
+        notes_to_end = ""
 
-    # Build the stable release section
+    # Build the stable release section: new heading + date + summary + preserved content
     new_section = (
         f"## Released in v{base}\n\n"
         f"> Released {date_str}\n\n"
         f"{summary}\n\n"
-        f"{notes_text}"
+        f"{notes_to_end}"
     ).strip()
 
     # Rebuild content: before section + new section + after section
