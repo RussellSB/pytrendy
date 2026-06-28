@@ -13,13 +13,53 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.2.4 <span class="version-prerelease">pre-release</span>
+## Coming in v1.2.6 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
 
 ```bash
 pip install --pre pytrendy
 ```
+
+??? note "Zero-baseline market entry Up detection"
+    One fix in v1.2.0-dev.6: corrects an off-by-one in segment extraction that suppressed short Up trends on zero-baseline market entries, and preserves Down `total_change` metadata.
+
+    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on new-market or quasi-experimental series.
+    [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/issues/177)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.2.0-dev.5</span>
+
+    ![Before: Up segment missing on zero-baseline smaller ramp](img/whats-new/pre-release/whats_new_zero_baseline_up_before_dev6.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.2.0-dev.6</span>
+
+    ![After: Up segment correctly detected on zero-baseline smaller ramp](img/whats-new/pre-release/whats_new_zero_baseline_up_after_dev6.png)
+
+    </div>
+    </div>
+
+    The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        df = pd.read_csv(
+            "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"
+            "tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv"
+        )
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="zero_baseline_market_entry_3",
+            method_params=dict(abrupt_padding=28)
+        )
+        print(result.df[["direction", "start", "end", "total_change"]])
+        ```
 
 ??? note "Abrupt padding fix for zero baseline series"
     When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat.
