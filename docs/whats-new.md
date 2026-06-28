@@ -42,7 +42,7 @@ pip install --pre pytrendy
     </div>
     </div>
 
-    The same fix also preserves `total_change` values for Down segments — the cleanup stage no longer discards Down trends whose net change rounds to zero over the segment window.
+    The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
 
     ??? example "Code"
         ```python
