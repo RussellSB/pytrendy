@@ -1684,7 +1684,7 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <p><img alt="After: Up segment correctly detected on zero-baseline smaller ramp" src="../img/whats-new/pre-release/whats_new_zero_baseline_up_after_dev6.png" /></p>
 <p></div>
 </div></p>
-<p>The same fix also preserves <code>total_change</code> values for Down segments — the cleanup stage no longer discards Down trends whose net change rounds to zero over the segment window.</p>
+<p>The same fix also preserves <code>total_change</code> values for Down segments — the <code>expand_contract</code> step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.</p>
 <details class="example">
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
