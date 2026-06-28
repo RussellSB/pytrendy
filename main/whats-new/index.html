@@ -1354,15 +1354,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v130-pre-release" class="md-nav__link">
+  <a href="#released-in-v130" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coming in v1.3.0 pre-release
+        Released in v1.3.0
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Coming in v1.3.0 pre-release">
+    <nav class="md-nav" aria-label="Released in v1.3.0">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1549,15 +1549,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v130-pre-release" class="md-nav__link">
+  <a href="#released-in-v130" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coming in v1.3.0 pre-release
+        Released in v1.3.0
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Coming in v1.3.0 pre-release">
+    <nav class="md-nav" aria-label="Released in v1.3.0">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1732,21 +1732,21 @@
 <h1 id="whats-new">What's New</h1>
 <p>Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.</p>
 <!-- WHATS_NEW_NOTE_START -->
-<div class="admonition note">
-<p class="admonition-title">Pre-release documentation</p>
-<p>You are viewing the <strong>develop</strong> (pre-release) build.<br />
-The section at the top reflects changes staged for the next stable release.<br />
-Switch to the <strong>main</strong> docs via the badge in the header to see only stable content.</p>
-</div>
+<!--
+!!! note "Develop build"
+    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
+    Switch to the **main** docs via the badge in the header to see the stable documentation.
+-->
 <!-- WHATS_NEW_NOTE_END -->
 
 <hr />
 <!-- WHATS_NEW_CONTENT_START -->
 
-<h2 id="coming-in-v130-pre-release">Coming in v1.3.0 <span class="version-prerelease">pre-release</span></h2>
-<p><em>Staged on the <code>develop</code> branch — will land in the next stable release. Currently available as the latest pre-release:</em></p>
-<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
-</code></pre></div>
+<h2 id="released-in-v130">Released in v1.3.0</h2>
+<blockquote>
+<p>Released 2026-06-28</p>
+</blockquote>
+<p>v1.3.0 deprecates the <code>is_abrupt_padded</code> parameter and fixes three zero-baseline edgecases that produced incorrect trend direction or total_change values. The <code>avoid_noise=False</code> option now handles flat zero baselines without introducing false noise segments. Up-trend detection and <code>total_change</code> preservation on zero-baseline market entries have also been corrected.</p>
 <details class="note">
 <summary>Zero-baseline market entry — detection improvements</summary>
 <p>Multiple fixes since v1.2.0 have improved trend detection on zero-baseline and new-market entry series. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.</p>
