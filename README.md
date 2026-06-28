@@ -88,5 +88,5 @@ results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 
 For the full per-segment metrics table, use `results.df`.
 
-For more examples on interpreting the results, see [Gradual trend fundamentals](https://russellsb.github.io/pytrendy/main/examples/fundamentals/gradual/).
+For more examples on interpreting the results, see [Detect Gradual Trends](https://russellsb.github.io/pytrendy/main/examples/fundamentals/gradual/).
 
