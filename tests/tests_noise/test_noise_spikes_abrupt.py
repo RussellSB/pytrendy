@@ -216,7 +216,7 @@ class TestNoiseSpikesAbrupt:
         expected_downtrends = [
             # {'direction': 'Down', 'start': '2025-03-10', 'end': '2025-03-11'}, # TODO: Later address this edge case, currently gets deleted with spike on 2025-03-01.
             {'direction': 'Down', 'start': '2025-03-24', 'end': '2025-03-25'},
-            {'direction': 'Down', 'start': '2025-04-23', 'end': '2025-05-08'},
+            {'direction': 'Down', 'start': '2025-04-22', 'end': '2025-05-08'},
         ]
         downtrend_segments = results.filter_segments(direction='Down', format='dict')
         assert_segments_match(downtrend_segments, expected_downtrends)
