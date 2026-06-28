@@ -13,20 +13,23 @@
 
 ## Welcome
 
-PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it detects uptrends and downtrends in a way that they are not falsely detected over periods of flat or noise segments. 
+PyTrendy is a robust solution for identifying and analysing trends in time series. Unlike other packages, it detects uptrends and downtrends without falsely detecting them over flat or noisy periods.
 
-It is a thoughtful algorithm with a focus on signal processing and post-processing. It aims to be the best package for trend detection in Python. 
+It is a thoughtful algorithm with a focus on signal processing and post-processing, aiming to be the best package for trend detection in Python.
 
 ---
 
 ## Why PyTrendy?
 
-Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. 
+Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **labelled segment analysis**, answering *what trends existed, how strong were they, and when did they start and end?*
 
-However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.
- 
-- By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) & placebo (flat) periods for observational causal inference. 
-- By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) to mitigate the risks of misleading indications.
+PyTrendy improves on existing methods in three ways:
+
+- **Beyond step changes** - `ruptures` is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes: the kind often seen in digital marketing activity, stock trends, and energy time series. PyTrendy detects both gradual and abrupt trends in a single run.
+- **The flat/noise problem** - the closest peers (`pytrendseries`, `trendet`, `tstrends`) tend to over-fit trends on flat or noisy periods, leaving users to build labour-intensive workarounds. PyTrendy uses signal processing and post-processing under the hood so trends are only detected when they are precise and valid.
+- **Strategic value** - in a complex ecosystem where dozens of time series interact, knowing exactly how they align or confound each other at specific times is invaluable. Without accurately labelling the "before and after" of historical data, experiments can fly blind and generate misleading indications.
+
+Trend detection has several use cases, such as analysing stock prices, identifying demand patterns in seasonality, and scanning Google Trends at scale for emerging movements. A main use case is identifying different periods of marketing activity at scale, to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.
 
 ---
 
@@ -90,7 +93,22 @@ time_index
 ```
 </div>
 
-More information on how you can interpret the trend detection results are available in the [Example Gallery](examples/index.md).
+Explore the strongest uptrends:
+```py
+results.filter_segments(direction='Up', sort_by='change_rank')[:3]
+```
+
+| time_index | direction | start | end | trend_class | change | pct_change | days | total_change | SNR | change_rank |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 7 | Up | 2025-04-02 | 2025-05-08 | gradual | 72.61 | 367.50% | 36 | 72.61 | 21.70 | 2 |
+| 4 | Up | 2025-02-10 | 2025-03-14 | gradual | 24.63 | 169.22% | 32 | 24.63 | 18.87 | 3 |
+| 1 | Up | 2025-01-02 | 2025-01-24 | gradual | 14.01 | 104.41% | 22 | 14.01 | 22.21 | 5 |
+
+`filter_segments` ranks segments by magnitude (`change_rank`). See the [API reference](reference/pytrendy/io/results_pytrendy/#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments) for all filter and sort options.
+
+For the full per-segment metrics table, use `results.df`.
+
+For more examples on interpreting the results, see [Detect Gradual Trends](examples/fundamentals/gradual/).
 
 </br>
 </br>

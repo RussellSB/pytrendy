@@ -10,6 +10,10 @@ on:
       - main
       - develop
 
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run Tests

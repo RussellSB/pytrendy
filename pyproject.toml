@@ -1,6 +1,6 @@
 [project]
 name = "pytrendy"
-version = "1.2.0"
+version = "1.3.0.dev1"
 description = "Trend Detection in Python. Applicable for real-world industry use cases in time series."
 authors = [
     { name = "Russell Sammut Bonnici", email = "r.sammutbonnici@gmail.com" },
@@ -17,7 +17,32 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
-    "matplotlib"
+    "matplotlib==3.10.8"
+]
+keywords = [
+    "trend detection",
+    "time series",
+    "time series analysis",
+    "signal processing",
+    "uptrend",
+    "downtrend",
+    "changepoint detection",
+    "trend classification",
+    "stock analysis",
+    "marketing analytics",
+    "causal inference"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+    "Topic :: Office/Business :: Financial",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent"
 ]
 
 [project.optional-dependencies]
@@ -37,7 +62,9 @@ docs = [
 ]
 
 [project.urls]
-repository = "https://github.com/RussellSB/pytrendy"
+Homepage = "https://russellsb.github.io/pytrendy/main/"
+Documentation = "https://russellsb.github.io/pytrendy/main/"
+Repository = "https://github.com/RussellSB/pytrendy"
 
 [tool.setuptools.packages.find]
 where = ["."]

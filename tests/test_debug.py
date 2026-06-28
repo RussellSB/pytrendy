@@ -31,7 +31,6 @@ class TestDebug:
             date_col='date',
             value_col='gradual',
             plot=False,
-            debug=True,
-            method_params=dict(is_abrupt_padded=False)
+            debug=True
         )
         assert len(show_calls) == 7
