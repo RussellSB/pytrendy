@@ -13,7 +13,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.2.6 <span class="version-prerelease">pre-release</span>
+## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
 
@@ -21,11 +21,12 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-??? note "Zero-baseline market entry Up detection"
-    One fix in v1.2.0-dev.6: corrects an off-by-one in segment extraction that suppressed short Up trends on zero-baseline market entries, and preserves Down `total_change` metadata.
+??? note "Zero-baseline market entry — detection improvements"
+    Multiple fixes since v1.2.0 have improved trend detection on zero-baseline and new-market entry series. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
 
-    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on new-market or quasi-experimental series.
-    [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/issues/177)
+    #### Up trend detection on smaller ramps
+    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on new-market or quasi-experimental series. The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
+    [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/pull/177)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
@@ -41,8 +42,6 @@ pip install --pre pytrendy
 
     </div>
     </div>
-
-    The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
 
     ??? example "Code"
         ```python
@@ -61,11 +60,28 @@ pip install --pre pytrendy
         print(result.df[["direction", "start", "end", "total_change"]])
         ```
 
-??? note "Abrupt padding fix for zero baseline series"
-    When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat.
-    Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
+    #### False noise suppression on zero-baseline leading edge
+    The centred rolling mean in noise detection looks ahead at abrupt transitions, producing `signal ≈ noise` and a false low SNR on the last few zero days before the jump. This created a spurious Noise segment at the leading edge of the transition. A guard now suppresses `noise_flag` when `value=0`, `previous value=0`, and `signal!=0` — the signature of an imminent abrupt change inside a run of zeros.
+    [#163](https://github.com/RussellSB/pytrendy/issues/163) [#170](https://github.com/RussellSB/pytrendy/pull/170)
 
-    The example below uses a new-market entry scenario: the series starts at zero, activates abruptly on 2026-03-21, then levels off. With `abrupt_padding=28`, the padded Up segment should extend to 2026-04-20. Before the fix, the entire series was misclassified as Flat.
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.2.0-dev.4</span>
+
+    ![Before: false Noise segment at leading edge of zero-baseline transition](img/whats-new/pre-release/whats_new_zero_baseline_noise_before_pr170.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.2.0-dev.5</span>
+
+    ![After: Noise suppressed, Flat runs directly into Up](img/whats-new/pre-release/whats_new_zero_baseline_noise_after_pr170.png)
+
+    </div>
+    </div>
+
+    #### Abrupt padding fix
+    When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat. Before the fix, the entire series was misclassified as Flat.
+    Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
@@ -101,7 +117,7 @@ pip install --pre pytrendy
         # Flat       2026-04-21  2026-05-15
         ```
 
-??? note "Deprecation: `is_abrupt_padded` replaced by `abrupt_padding`"
+??? note "API deprecation: `is_abrupt_padded` → `abrupt_padding`"
     `is_abrupt_padded` in `method_params` is deprecated; use integer `abrupt_padding` for direct control over padded days.
     The boolean `is_abrupt_padded` flag has been deprecated in favour of the integer `abrupt_padding` parameter. Rather than toggling padding on or off, you now specify the number of days to pad around abrupt transitions directly. The default is `0` (no padding), matching the previous `is_abrupt_padded=False` behaviour.
 
@@ -128,6 +144,38 @@ pip install --pre pytrendy
                                   method_params=dict(abrupt_padding=28))
         print(result.df[["direction", "start", "end"]])
         ```
+
+??? note "Agentic docs & workflow improvements"
+    The What's New page and CI/CD automation have been significantly improved through agentic AI integration and developer workflow enhancements.
+
+    - **Whats-new generator migration** — the automated docs generator was migrated from GitHub Models API to OpenCode with Kimi K2.7-code, then to deepseek-flash-v4 with a 5-minute timeout. Path handling and access tokens were refined across multiple iterations.
+      [#165](https://github.com/RussellSB/pytrendy/pull/165) [#174](https://github.com/RussellSB/pytrendy/pull/174) [#175](https://github.com/RussellSB/pytrendy/pull/175) [#172](https://github.com/RussellSB/pytrendy/pull/172)
+    - **PR plot generation skill** — a new `pr-plots` agent skill automates before/after plot generation for fix/feature PRs, with human-in-the-loop image upload to GitHub.
+      [#176](https://github.com/RussellSB/pytrendy/pull/176)
+    - **Agent skill tree & copilot migration** — consolidated agent context into `AGENTS.md` plus trigger-loaded skills under `.opencode/skills/`, migrating from Copilot instructions.
+      [#167](https://github.com/RussellSB/pytrendy/pull/167)
+
+??? note "CI/CD pipeline improvements"
+    Release automation, permissions, and whats-new trigger reliability were hardened across multiple PRs.
+
+    - Release workflow permissions configured for semantic-release and docs deploy
+      [#147](https://github.com/RussellSB/pytrendy/pull/147) [#155](https://github.com/RussellSB/pytrendy/pull/155)
+    - Whats-new trigger fixes: semantic-release tag lookup, multi-maintainer hardening, silent-failure removal
+      [#144](https://github.com/RussellSB/pytrendy/pull/144) [#148](https://github.com/RussellSB/pytrendy/pull/148) [#154](https://github.com/RussellSB/pytrendy/pull/154) [#152](https://github.com/RussellSB/pytrendy/pull/152)
+    - Manual develop pre-release version workaround removed
+      [#145](https://github.com/RussellSB/pytrendy/pull/145)
+    - Skip-ci flag cleanup
+      [#159](https://github.com/RussellSB/pytrendy/pull/159)
+
+??? note "Documentation improvements"
+    - SEO positioning, improved intro, and `filter_segments` example added
+      [#169](https://github.com/RussellSB/pytrendy/pull/169)
+    - American English phrasing replaced throughout
+      [#138](https://github.com/RussellSB/pytrendy/pull/138)
+    - v1.2.0 What's New converted from pre-release to stable; pipeline promotion logic fixed
+      [#129](https://github.com/RussellSB/pytrendy/pull/129)
+    - matplotlib pinned to 3.10.8 for consistent plot baselines
+      [#164](https://github.com/RussellSB/pytrendy/pull/164)
 
 ---
 
