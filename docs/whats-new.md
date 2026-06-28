@@ -3,23 +3,22 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-!!! note "Pre-release documentation"
-    You are viewing the **develop** (pre-release) build.  
-    The section at the top reflects changes staged for the next stable release.  
-    Switch to the **main** docs via the badge in the header to see only stable content.
+<!--
+!!! note "Develop build"
+    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
+    Switch to the **main** docs via the badge in the header to see the stable documentation.
+-->
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.3.0 <span class="version-prerelease">pre-release</span>
+## Released in v1.3.0
 
-*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+> Released 2026-06-28
 
-```bash
-pip install --pre pytrendy
-```
+v1.3.0 deprecates the `is_abrupt_padded` parameter and fixes three zero-baseline edgecases that produced incorrect trend direction or total_change values. The `avoid_noise=False` option now handles flat zero baselines without introducing false noise segments. Up-trend detection and `total_change` preservation on zero-baseline market entries have also been corrected.
 
 ??? note "Zero-baseline market entry — detection improvements"
     Multiple fixes since v1.2.0 have improved trend detection on zero-baseline and new-market entry series. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
