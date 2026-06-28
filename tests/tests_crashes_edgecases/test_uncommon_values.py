@@ -98,30 +98,24 @@ class TestUncommonValues:
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
-    # def test_zero_baseline_up_detected(self):
-    #     """Regression test for Up detection on zero-baseline market entry (Problem 2 / smaller ramp).
-    # 
-    #     COMMENTED OUT: The smaller ramp (10→125) is not detected as an Up due to a
-    #     segment-length off-by-one in get_segments. This is tracked in issue #171.
-    #     Re-enable once that issue is resolved.
-    # 
-    #     Reference: issue #163, Problem 2
-    #     """
-    #     df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
-    #     results = pt.detect_trends(
-    #         df,
-    #         date_col='date',
-    #         value_col='zero_baseline_market_entry_3',
-    #         plot=False,
-    #         method_params=dict(abrupt_padding=28)
-    #     )
-    #     # Expect both: no Noise on the leading edge AND an Up covering May 6-13
-    #     noise_segments = [s for s in results.segments if s['direction'] == 'Noise']
-    #     assert len(noise_segments) == 0
-    #     expected_segments = [
-    #         {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
-    #     ]
-    #     assert_segments_in_a_haystack(results.segments, expected_segments)
+    @pytest.mark.core
+    def test_zero_baseline_up_detected(self):
+        """Regression test for Up detection on zero-baseline market entry (Problem 2 / smaller ramp).
+
+        Reference: issue #163, Problem 2
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='zero_baseline_market_entry_3',
+            plot=False,
+            method_params=dict(abrupt_padding=28)
+        )
+        expected_segments = [
+            {'direction': 'Up', 'start': '2026-05-06', 'end': '2026-05-13'},
+        ]
+        assert_segments_in_a_haystack(results.segments, expected_segments)
 
     @pytest.mark.core
     def test_zero_baseline_spikes_detected_as_noise(self):
