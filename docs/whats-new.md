@@ -21,9 +21,9 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-One fix in v1.2.0-dev.6: corrects an off-by-one in segment extraction that suppressed short Up trends on zero-baseline market entries, and preserves Down `total_change` metadata.
-
 ??? note "Zero-baseline market entry Up detection"
+    One fix in v1.2.0-dev.6: corrects an off-by-one in segment extraction that suppressed short Up trends on zero-baseline market entries, and preserves Down `total_change` metadata.
+
     Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on new-market or quasi-experimental series.
     [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/issues/177)
 
