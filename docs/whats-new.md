@@ -18,13 +18,13 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 > Released 2026-06-28
 
-v1.3.0 deprecates the `is_abrupt_padded` parameter and fixes three zero-baseline edgecases that produced incorrect trend direction or total_change values. The `avoid_noise=False` option now handles flat zero baselines without introducing false noise segments. Up-trend detection and `total_change` preservation on zero-baseline market entries have also been corrected.
+v1.3.0 fixes several edge cases in zero-baseline trend detection, including a false noise toggle triggered by flat zero signals and a missed Up direction on zero baseline edgecases, while also deprecating the `is_abrupt_padded` parameter in favor of the new `avoid_noise` workflow introduced in v1.2.0. Internal CI housekeeping rounds out the release.
 
-??? note "Zero-baseline market entry — detection improvements"
-    Multiple fixes since v1.2.0 have improved trend detection on zero-baseline and new-market entry series. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
+??? note "Bug Fixes - Zero Baseline Edgecases"
+    Multiple fixes since v1.2.0 have improved trend detection on zero baseline edgecases. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
 
     #### Up trend detection on smaller ramps
-    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on new-market or quasi-experimental series. The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
+    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on zero baseline edgecase series. The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
     [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/pull/177)
 
     <div class="before-after-grid" markdown>
@@ -86,13 +86,13 @@ v1.3.0 deprecates the `is_abrupt_padded` parameter and fixes three zero-baseline
     <div class="before-after-panel" markdown>
     <span class="before-after-label before-label">Before — v1.2.0</span>
 
-    ![Zero-baseline market entry — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
+    ![Zero baseline edgecase — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
 
     </div>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — v1.2.4</span>
 
-    ![Zero-baseline market entry — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
+    ![Zero baseline edgecase — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
 
     </div>
     </div>
