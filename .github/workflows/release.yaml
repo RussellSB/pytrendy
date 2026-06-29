@@ -45,6 +45,8 @@ jobs:
     permissions:
       contents: write
       id-token: write
+      issues: write
+      pull-requests: write
     outputs:
       released: ${{ steps.release.outputs.released }}
     steps:
