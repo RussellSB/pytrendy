@@ -6,7 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/test.yaml)
 [![Release](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml/badge.svg)](https://github.com/RussellSB/pytrendy/actions/workflows/release.yaml)
-[![codecov](https://codecov.io/gh/RussellSB/pytrendy/branch/develop/graph/badge.svg)](https://codecov.io/gh/RussellSB/pytrendy)
+[![codecov](https://codecov.io/gh/RussellSB/pytrendy/branch/main/graph/badge.svg)](https://codecov.io/gh/RussellSB/pytrendy)
 [![Downloads](https://static.pepy.tech/badge/pytrendy)](https://pepy.tech/project/pytrendy)
 
 ---
@@ -35,10 +35,10 @@ Trend detection has several use cases, such as analysing stock prices, identifyi
 
 ## Features
 
-![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
-![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif)
-![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif)
-![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif)
+![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif)
+![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif)
+![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif)
+![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif)
 
 ---
 
@@ -65,7 +65,7 @@ df = pt.load_data('series_synthetic')
 results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=True)
 results.print_summary()
 ```
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual.png)
 <div class='transparent'>
 ```
 Detected: 
