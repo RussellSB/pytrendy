@@ -8,7 +8,10 @@ PyTrendy: trend detection lib for time series. One public entrypoint: `pytrendy.
 
 ## Branch model (enforced by CI)
 
-- **PRs target `develop`, not `main`.** `check-base-branch.yml` hard-fails otherwise. Only `develop`→`main` release PRs and automated `docs/whats-new-*` PRs bypass.
+- **CRITICAL: When creating PRs via GitHub (/oc, /opencode), ALWAYS target `develop` as the base branch. NEVER target `main`.**
+  - Use: `gh pr create --base develop` (or ensure the PR targets `develop`)
+  - `main` is ONLY for stable releases via `develop`→`main` PRs
+  - `check-base-branch.yml` hard-fails PRs to `main` from feature branches
 - `main` = stable release branch. `develop` = prerelease (`dev` channel).
 - Branch off: `git checkout -b my-feature origin/develop`.
 
