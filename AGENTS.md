@@ -17,7 +17,11 @@ PyTrendy: trend detection lib for time series. One public entrypoint: `pytrendy.
 
 ## Commits & PR titles (Conventional Commits, enforced)
 
-- `lint-pr-title.yml` rejects titles not matching `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`.
+- **CRITICAL: PR titles MUST match `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+` or CI rejects them.**
+  - Example: `docs: update tagline in README.md & docs/index.md`
+  - NOT: `Updated tagline in README.md & docs/index.md` (past tense, no prefix)
+- Before creating any PR, load the `maintenance` skill — it covers public API surface, deprecation policy, and naming conventions.
+- Before committing, run `pytest tests/ -m core` to verify nothing is broken.
 - semantic-release maps: `feat`→minor, `fix`→patch, `!`/`BREAKING CHANGE:`→major, others→no bump.
 - Deprecating a public API param = `feat:` (minor), *not* `refactor:`. See `maintenance` skill.
 - Imperative, lowercase, <72 chars, no trailing period.
@@ -55,9 +59,10 @@ pytest tests/ -m "not core" --cov-append    # the rest
 
 ## Skills (deeper, trigger-loaded)
 
+- **Always load relevant skills before making changes.** Use the skill tool to inject instructions.
 - `test` — pytest-mpl baseline workflow, markers, conftest helpers, CSV data conventions, regression-test migration.
 - `cicd` — full release pipeline, docs deploy gating, whats-new agentic flow, branch-channel mapping.
-- `maintenance` — public API surface, deprecation policy, diff/code conventions (the #141 design principles).
+- `maintenance` — public API surface, deprecation policy, diff/code conventions (the #141 design principles). **Load before any PR.**
 - `pytrendy` — 5-stage pipeline architecture, module map, datasets, `PyTrendyResults` API.
 - `debug` — two-phase debug workflow (`process_signals` diagnostic plots, `segments_refine` stage bisect), `tests/test.py` sandbox, regression handoff.
 - `pr-plots` — before/after plot generation for fix/feature PR bodies, guard rail plots, human-in-the-loop image upload, zero-commit cleanup.
