@@ -21,7 +21,7 @@ It is a thoughtful algorithm with a focus on signal processing and post-processi
 
 ## Why PyTrendy?
 
-Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **labelled segment analysis**, answering *what trends existed, how strong were they, and when did they start and end?*
+Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **automated trend detection**, answering *what trends existed, how strong were they, and when did they start and end?*
 
 PyTrendy improves on existing methods in three ways:
 
