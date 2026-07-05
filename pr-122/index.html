@@ -1385,6 +1385,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="whats-new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1496,16 +1523,18 @@
 <a href="https://pepy.tech/project/pytrendy"><img alt="Downloads" src="https://static.pepy.tech/badge/pytrendy" /></a></p>
 <hr />
 <h2 id="welcome">Welcome</h2>
-<p>PyTrendy is a robust solution for identifying and analyzing trends in time series. Unlike other packages, it detects uptrends and downtrends in a way that they are not falsely detected over periods of flat or noise segments. </p>
-<p>It is a thoughtful algorithm with a focus on signal processing and post-processing. It aims to be the best package for trend detection in Python. </p>
+<p>PyTrendy is a robust solution for identifying and analysing trends in time series. Unlike other packages, it detects uptrends and downtrends without falsely detecting them over flat or noisy periods.</p>
+<p>It is a thoughtful algorithm with a focus on signal processing and post-processing, aiming to be the best package for trend detection in Python.</p>
 <hr />
 <h2 id="why-pytrendy">Why PyTrendy?</h2>
-<p>Trend detection has several use cases, such as analysing stock prices for investing, identifying demand trends in seasonality patterns to optimise inventory management, analysing google trends at scale for emerging movements in industries, and more. </p>
-<p>However, one main use case is for identifying different periods of marketing activity at scale - to help with observationally measuring the effectiveness of digital marketing.</p>
+<p>Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for <strong>automated trend detection</strong>, answering <em>what trends existed, how strong were they, and when did they start and end?</em></p>
+<p>PyTrendy improves on existing methods in three ways:</p>
 <ul>
-<li>By applying it to digital marketing spend by day (treatment), it can identify valid treatment (uptrends/downtrends) &amp; placebo (flat) periods for observational causal inference. </li>
-<li>By applying to the response of an experiment design, it can also be used to identify periods of noise (such as sales promotions) to mitigate the risks of misleading indications.</li>
+<li><strong>Beyond step changes</strong> - <code>ruptures</code> is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes: the kind often seen in digital marketing activity, stock trends, and energy time series. PyTrendy detects both gradual and abrupt trends in a single run.</li>
+<li><strong>The flat/noise problem</strong> - the closest peers (<code>pytrendseries</code>, <code>trendet</code>, <code>tstrends</code>) tend to over-fit trends on flat or noisy periods, leaving users to build labour-intensive workarounds. PyTrendy uses signal processing and post-processing under the hood so trends are only detected when they are precise and valid.</li>
+<li><strong>Strategic value</strong> - in a complex ecosystem where dozens of time series interact, knowing exactly how they align or confound each other at specific times is invaluable. Without accurately labelling the "before and after" of historical data, experiments can fly blind and generate misleading indications.</li>
 </ul>
+<p>Trend detection has several use cases, such as analysing stock prices, identifying demand patterns in seasonality, and scanning Google Trends at scale for emerging movements. A main use case is identifying different periods of marketing activity at scale, to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.</p>
 <hr />
 <h2 id="features">Features</h2>
 <p><img alt="Gradual Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" />
@@ -1555,7 +1584,70 @@ time_index
 </code></pre></div>
 </div>
 
-<p>More information on how you can interpret the trend detection results are available in the <a href="examples/">Example Gallery</a>.</p>
+<p>Explore the strongest uptrends:
+<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+</code></pre></div></p>
+<table>
+<thead>
+<tr>
+<th>time_index</th>
+<th>direction</th>
+<th>start</th>
+<th>end</th>
+<th>trend_class</th>
+<th>change</th>
+<th>pct_change</th>
+<th>days</th>
+<th>total_change</th>
+<th>SNR</th>
+<th>change_rank</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>7</td>
+<td>Up</td>
+<td>2025-04-02</td>
+<td>2025-05-08</td>
+<td>gradual</td>
+<td>72.61</td>
+<td>367.50%</td>
+<td>36</td>
+<td>72.61</td>
+<td>21.70</td>
+<td>2</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Up</td>
+<td>2025-02-10</td>
+<td>2025-03-14</td>
+<td>gradual</td>
+<td>24.63</td>
+<td>169.22%</td>
+<td>32</td>
+<td>24.63</td>
+<td>18.87</td>
+<td>3</td>
+</tr>
+<tr>
+<td>1</td>
+<td>Up</td>
+<td>2025-01-02</td>
+<td>2025-01-24</td>
+<td>gradual</td>
+<td>14.01</td>
+<td>104.41%</td>
+<td>22</td>
+<td>14.01</td>
+<td>22.21</td>
+<td>5</td>
+</tr>
+</tbody>
+</table>
+<p><code>filter_segments</code> ranks segments by magnitude (<code>change_rank</code>). See the <a href="reference/pytrendy/io/results_pytrendy/#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments">API reference</a> for all filter and sort options.</p>
+<p>For the full per-segment metrics table, use <code>results.df</code>.</p>
+<p>For more examples on interpreting the results, see <a href="examples/fundamentals/gradual/">Detect Gradual Trends</a>.</p>
 <p></br>
 </br></p>
 

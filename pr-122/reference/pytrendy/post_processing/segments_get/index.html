@@ -1370,6 +1370,33 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../whats-new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1614,7 +1641,9 @@ constraints to ensure meaningful segments are retained.</p>
 <span class="normal">76</span>
 <span class="normal">77</span>
 <span class="normal">78</span>
-<span class="normal">79</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">79</span>
+<span class="normal">80</span>
+<span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Extracts contiguous segments from a flagged time series.</span>
 
@@ -1684,6 +1713,8 @@ constraints to ensure meaningful segments are retained.</p>
                     <span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
                 <span class="p">})</span>
                 <span class="n">segment_length</span><span class="o">=</span><span class="mi">0</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">segment_length</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Reset on fail: prevent length bleed into next segment</span>
 
         <span class="n">direction_prev</span> <span class="o">=</span> <span class="n">direction</span>
         <span class="n">segment_length_prev</span> <span class="o">=</span> <span class="n">segment_length</span>

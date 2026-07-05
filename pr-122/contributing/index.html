@@ -14,6 +14,8 @@
         <link rel="prev" href="../reference/pytrendy/simpledtw/">
       
       
+        <link rel="next" href="../whats-new/">
+      
       
         
       
@@ -1455,6 +1457,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#deprecations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecations
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1591,6 +1604,33 @@
   
 </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../whats-new/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    What's New
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1744,6 +1784,17 @@
     <span class="md-ellipsis">
       
         Breaking Changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deprecations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deprecations
       
     </span>
   </a>
@@ -2104,6 +2155,37 @@ test: add unit tests for detect_trends function
 
 BREAKING CHANGE: The /old-api endpoint has been removed. Use /new-api instead.
 </code></pre></div>
+<h4 id="deprecations">Deprecations</h4>
+<p>When deprecating a parameter or behaviour on a <strong>core public API method</strong> (such as <code>detect_trends()</code>), use <code>feat:</code> — not <code>refactor:</code> — even if the underlying code change is a rename or internal restructure:</p>
+<div class="language-text highlight"><pre><span></span><code>feat: deprecate is_abrupt_padded parameter in detect_trends()
+</code></pre></div>
+<p><strong>Why <code>feat:</code> and not <code>refactor:</code>?</strong> Deprecating a public parameter is a user-facing signal: it tells callers to update their code and documents intent to remove the parameter in a future major release. That makes it an intentional API evolution, which belongs in the minor-bump category, not as a silent refactor.</p>
+<table>
+<thead>
+<tr>
+<th>Situation</th>
+<th>Type</th>
+<th>Bump</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parameter still works but is deprecated (soft)</td>
+<td><code>feat:</code></td>
+<td>minor</td>
+</tr>
+<tr>
+<td>Parameter or behaviour removed entirely (hard)</td>
+<td><code>feat!:</code> or <code>BREAKING CHANGE:</code></td>
+<td>major</td>
+</tr>
+<tr>
+<td>Internal restructuring, zero public API impact</td>
+<td><code>refactor:</code></td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="4-submitting-a-pull-request">4. Submitting a Pull Request</h2>
 <h3 id="pr-title">PR Title</h3>
