@@ -22,9 +22,16 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
         plot_params (dict, optional):
-            Dictionary of plotting parameters to customise the figure. 
-            Supported keys are 'figsize' (tuple), 'title' (str), 'xlabel' (str), 'ylabel' (str), 'colors' (dict of direction to color), 'alpha' (float), 'grid' (dict), 'legend_loc' (str), 'legend_bbox_to_anchor' (tuple), 'legend_ncol' (int). 
-            Defaults to None (uses internal defaults).
+            Optional dict to customise plot appearance. Supported keys:
+            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
+            - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
+            - **xlabel** (`str`): X-axis label. Defaults to "Date".
+            - **ylabel** (`str`): Y-axis label. Defaults to "Value".
+            - **colors** (`dict`): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.
+            - **grid** (`dict`): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+            - **legend_loc** (`str`): Legend location. Defaults to "upper right".
+            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).
 
     Returns:
         matplotlib.figure.Figure:
@@ -46,8 +53,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         'alpha': 0.4,
         'grid': {'visible': True, 'which': 'major', 'color': 'gray', 'alpha': 0.3},
         'legend_loc': 'upper right',
-        'legend_bbox_to_anchor': (1, 1.15),
-        'legend_ncol': 4,
+        'legend_bbox_to_anchor': (1, 1.15)
     }
     if plot_params:
         custom_colors = plot_params.pop('colors', None)
@@ -163,7 +169,6 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
 
     # Optional: show grid lines for both
-    ax.grid(True, which='major', color='gray', alpha=0.3)
     ax.grid(default_params['grid']['visible'], **{k: v for k, v in default_params['grid'].items() if k != 'visible'})
 
     ax.set_title(default_params['title'], fontsize=20)
@@ -178,7 +183,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         mpatches.Patch(color=default_params['colors']['Noise'], alpha=default_params['alpha'], label='Noise'), 
     ]
     ax.legend(handles=legend_handles, loc=default_params['legend_loc'], 
-            bbox_to_anchor=default_params['legend_bbox_to_anchor'], ncol=default_params['legend_ncol'], frameon=True)
+            bbox_to_anchor=default_params['legend_bbox_to_anchor'], ncol=4, frameon=True)
 
     plt.tight_layout()
     if not suppress_show:
