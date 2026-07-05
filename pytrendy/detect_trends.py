@@ -1,5 +1,6 @@
 """**End-to-End Trend Detection**"""
 
+import warnings
 import pandas as pd
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
@@ -32,15 +33,14 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
         date_col (str):
             Name of the column representing timestamps. This column is converted to datetime and set as the index.
         value_col (str):
-            Name of the column containing the primary signal to analyze for trend detection.
+            Name of the column containing the primary signal to analyse for trend detection.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
         method_params (dict, optional):
             Optional parameters to customize detection heuristics. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
+            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
@@ -66,14 +66,22 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
     df[date_col] = pd.to_datetime(df[date_col])
     df.set_index(date_col, inplace=True)
     df = df[[value_col]]
+    
+    if method_params is None:
+        method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
+
+    # Trigger deprecation warning if old parameter is used    
+    if 'is_abrupt_padded' in method_params:
+        warnings.warn(
+            "'is_abrupt_padded' in method_params is deprecated. "
+            "Use 'abrupt_padding' only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     # Configures trend detection heuristics
-    # Avoid mutable default argument by accepting None and constructing a new dict here
-    if method_params is None:
-        method_params = {}
     method_params = {
-        'is_abrupt_padded': method_params.get('is_abrupt_padded', False),
-        'abrupt_padding': method_params.get('abrupt_padding', 28),
+        'abrupt_padding': method_params.get('abrupt_padding', 0),
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 

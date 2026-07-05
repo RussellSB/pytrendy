@@ -1,0 +1,269 @@
+name: What's New Generator
+
+# Triggers
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. Automatically when a GitHub Release is published.
+# 2. Automatically when the Release workflow completes successfully on main/develop.
+# 3. Manually via workflow_dispatch for ad-hoc regeneration.
+#
+# Flow
+# ─────────────────────────────────────────────────────────────────────────────
+# • Resolve release metadata from release events, dispatch inputs, or the Release workflow run.
+# • Parse release notes (or fall back to CHANGELOG.md).
+# • Call OpenCode (opencode-go/deepseek-v4-flash) to generate a user-friendly entry.
+# • Prepend the new entry into docs/whats-new.md.
+# • Open a PR back to the release branch (develop or main) for review.
+# • On main: also open a follow-up PR to sync the page back to develop.
+
+on:
+  release:
+    types: [published]
+  workflow_run:
+    workflows: ["Release"]
+    types: [completed]
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag to generate entry for (e.g. v1.2.0)'
+        required: false
+        default: ''
+      target_branch:
+        description: 'Branch to open the PR against'
+        required: false
+        default: 'develop'
+
+jobs:
+  generate-whats-new:
+    name: Generate What's New entry
+    if: |
+      github.event_name == 'release' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    concurrency:
+      group: whats-new-${{ github.event.release.tag_name || github.event.workflow_run.head_branch || github.run_id }}
+      cancel-in-progress: false
+    outputs:
+      skip: ${{ steps.meta.outputs.skip }}
+      tag: ${{ steps.meta.outputs.tag }}
+      name: ${{ steps.meta.outputs.name }}
+      prerelease: ${{ steps.meta.outputs.prerelease }}
+      branch: ${{ steps.meta.outputs.branch }}
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      # ── 1. Resolve metadata ─────────────────────────────────────────────────
+      - name: Resolve release metadata
+        id: meta
+        env:
+          RELEASE_BODY_INPUT: ${{ github.event.release.body }}
+        run: |
+          if [ "${{ github.event_name }}" = "release" ]; then
+            echo "skip=false"                                                >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.event.release.tag_name }}"                  >> "$GITHUB_OUTPUT"
+            echo "name=${{ github.event.release.name }}"                     >> "$GITHUB_OUTPUT"
+            BODY_DELIM=$(openssl rand -hex 8)
+            {
+              echo "body<<${BODY_DELIM}"
+              echo "${RELEASE_BODY_INPUT}"
+              echo "${BODY_DELIM}"
+            } >> "$GITHUB_OUTPUT"
+            echo "prerelease=${{ github.event.release.prerelease }}"         >> "$GITHUB_OUTPUT"
+            echo "branch=${{ github.event.release.target_commitish }}"       >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+            BRANCH="${{ github.event.inputs.target_branch }}"
+            echo "skip=false"                                                >> "$GITHUB_OUTPUT"
+            echo "tag=${TAG:-HEAD}"                                          >> "$GITHUB_OUTPUT"
+            echo "name=Manual dispatch"                                      >> "$GITHUB_OUTPUT"
+            # Body is not available for workflow_dispatch; the generator
+            # script will fall back to reading the relevant CHANGELOG.md entry.
+            echo "body="                                                     >> "$GITHUB_OUTPUT"
+            # Treat as pre-release when targeting develop
+            if [ "${BRANCH}" = "main" ]; then
+              echo "prerelease=false"                                        >> "$GITHUB_OUTPUT"
+            else
+              echo "prerelease=true"                                         >> "$GITHUB_OUTPUT"
+            fi
+            echo "branch=${BRANCH:-develop}"                                 >> "$GITHUB_OUTPUT"
+          else
+            # Support workflow_run trigger so docs generation still runs when
+            # release events are not emitted by workflows using GITHUB_TOKEN.
+            BRANCH="${{ github.event.workflow_run.head_branch }}"
+
+            # Find the most recent release targeting this branch that was
+            # published after the triggering workflow run started.
+            RELEASE=$(curl -sf \
+              -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/${{ github.repository }}/releases?per_page=5" | \
+              jq -r --arg branch "${BRANCH}" \
+                    --arg since "${{ github.event.workflow_run.created_at }}" \
+                '[.[] | select(.target_commitish == $branch and .published_at >= $since)] | if length > 0 then .[0] | @json else "" end')
+
+            if [ -z "${RELEASE}" ] || [ "${RELEASE}" = "null" ]; then
+              echo "skip=true"                                               >> "$GITHUB_OUTPUT"
+              echo "branch=${BRANCH}"                                        >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            TAG=$(echo "${RELEASE}" | jq -r '.tag_name')
+            NAME=$(echo "${RELEASE}" | jq -r '.name // ""')
+            PRERELEASE=$(echo "${RELEASE}" | jq -r '.prerelease | tostring')
+            BODY_RAW=$(echo "${RELEASE}" | jq -r '.body // ""')
+
+            echo "skip=false"                                                >> "$GITHUB_OUTPUT"
+            echo "tag=${TAG}"                                                >> "$GITHUB_OUTPUT"
+            echo "name=${NAME}"                                              >> "$GITHUB_OUTPUT"
+            BODY_DELIM=$(openssl rand -hex 8)
+            {
+              echo "body<<${BODY_DELIM}"
+              echo "${BODY_RAW}"
+              echo "${BODY_DELIM}"
+            } >> "$GITHUB_OUTPUT"
+            echo "prerelease=${PRERELEASE}"                                  >> "$GITHUB_OUTPUT"
+            echo "branch=${BRANCH}"                                          >> "$GITHUB_OUTPUT"
+          fi
+
+      # ── 2. Checkout the release branch ──────────────────────────────────────
+      - name: Checkout
+        if: steps.meta.outputs.skip != 'true'
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.meta.outputs.branch }}
+          fetch-depth: 0
+
+      # ── 3. Setup Python ─────────────────────────────────────────────────────
+      - name: Setup Python
+        if: steps.meta.outputs.skip != 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # ── 4. Install OpenCode CLI ─────────────────────────────────────────────
+      - name: Install OpenCode CLI
+        if: steps.meta.outputs.skip != 'true'
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          export PATH="$HOME/.opencode/bin:$PATH"
+          opencode --version
+
+      # ── 5. Run the agentic generator ────────────────────────────────────────
+      - name: Generate What's New entry
+        if: steps.meta.outputs.skip != 'true'
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
+          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.meta.outputs.tag }}
+          RELEASE_NAME: ${{ steps.meta.outputs.name }}
+          RELEASE_BODY: ${{ steps.meta.outputs.body }}
+          IS_PRERELEASE: ${{ steps.meta.outputs.prerelease }}
+          BRANCH: ${{ steps.meta.outputs.branch }}
+        run: python scripts/generate_whats_new.py
+
+      # ── 5. Open a PR ────────────────────────────────────────────────────────
+      - name: Create Pull Request to release branch
+        id: pr
+        if: steps.meta.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.DOCS_PREVIEW_PAT }}
+          # Do not use [skip ci] here: these commits back PR branches and must run PR checks.
+          commit-message: "docs(whats-new): add entry for ${{ steps.meta.outputs.tag }}"
+          branch: "docs/whats-new-${{ steps.meta.outputs.tag }}"
+          base: ${{ steps.meta.outputs.branch }}
+          title: "docs(whats-new): add what's new entry for ${{ steps.meta.outputs.tag }}"
+          body: |
+            ## 📚 Automated What's New update
+
+            This PR was generated automatically by the **What's New Generator** workflow
+            after the `${{ steps.meta.outputs.tag }}` release was published.
+
+            ### What changed
+            - A new entry was prepended to `docs/whats-new.md` using **OpenCode**
+              (`opencode-go/deepseek-v4-flash`) to summarise the release notes in a user-friendly way.
+
+            ### Review checklist
+            - [ ] The generated content is accurate and user-friendly.
+            - [ ] Code examples (if any) are correct.
+            - [ ] No sensitive information was accidentally included.
+
+            > **Auto-generated** · [What's New Generator workflow](../actions/workflows/whats-new.yaml)
+          labels: "documentation,automated"
+          delete-branch: true
+
+      - name: Print PR URL
+        if: steps.meta.outputs.skip != 'true' && steps.pr.outputs.pull-request-url != ''
+        run: echo "PR created → ${{ steps.pr.outputs.pull-request-url }}"
+
+  # ── Sync back to develop when a stable release lands on main ─────────────
+  sync-to-develop:
+    name: Sync What's New back to develop
+    needs: generate-whats-new
+    if: |
+      (github.event_name == 'release' || github.event_name == 'workflow_run') &&
+      needs.generate-whats-new.outputs.prerelease == 'false' &&
+      needs.generate-whats-new.outputs.branch == 'main' &&
+      needs.generate-whats-new.outputs.skip != 'true' &&
+      needs.generate-whats-new.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout develop
+        uses: actions/checkout@v4
+        with:
+          ref: develop
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install OpenCode CLI
+        run: |
+          curl -fsSL https://opencode.ai/install | bash
+          export PATH="$HOME/.opencode/bin:$PATH"
+          opencode --version
+
+      - name: Re-generate What's New for develop (reframe as stable)
+        env:
+          OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
+          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ needs.generate-whats-new.outputs.tag }}
+          RELEASE_NAME: ${{ needs.generate-whats-new.outputs.name }}
+          # Leave RELEASE_BODY empty; the generator falls back to the GitHub API by tag.
+          RELEASE_BODY: ""
+          IS_PRERELEASE: "false"
+          BRANCH: develop
+        run: python scripts/generate_whats_new.py
+
+      - name: Create sync PR to develop
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.DOCS_PREVIEW_PAT }}
+          # Do not use [skip ci] here: these commits back PR branches and must run PR checks.
+          commit-message: "docs(whats-new): sync stable entry for ${{ needs.generate-whats-new.outputs.tag }} to develop"
+          branch: "docs/whats-new-sync-${{ needs.generate-whats-new.outputs.tag }}"
+          base: develop
+          title: "docs(whats-new): sync what's new entry for ${{ needs.generate-whats-new.outputs.tag }} to develop"
+          body: |
+            ## 🔄 Automated What's New sync
+
+            This PR was generated automatically to keep the `develop` branch in sync
+            with the stable `${{ needs.generate-whats-new.outputs.tag }}` release notes that were
+            already merged to `main`.
+
+            > **Auto-generated** · [What's New Generator workflow](../actions/workflows/whats-new.yaml)
+          labels: "documentation,automated"
+          delete-branch: true

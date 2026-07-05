@@ -17,6 +17,10 @@ on:
       - 'mkdocs.yml'
       - 'pytrendy/**'
 
+concurrency:
+  group: docs-preview-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   deploy-preview:
     name: Build & Deploy Docs Preview (PR #${{ github.event.pull_request.number }})
@@ -43,7 +47,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[docs]"
 
-      - name: Normalize notebooks
+      - name: Normalise notebooks
         run: |
           chmod +x scripts/normalize_notebooks.sh
           bash scripts/normalize_notebooks.sh

@@ -13,6 +13,10 @@ on:
       - develop
   workflow_dispatch:
 
+concurrency:
+  group: docs-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   check-should-deploy:
     name: Check if docs should be deployed
@@ -115,7 +119,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[docs]"
 
-      - name: Normalize notebooks
+      - name: Normalise notebooks
         run: |
           chmod +x scripts/normalize_notebooks.sh
           bash scripts/normalize_notebooks.sh

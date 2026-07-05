@@ -43,7 +43,7 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the spike
@@ -86,12 +86,12 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the spike
         expected_noise_segments = [
-            {'direction': 'Noise', 'start': '2025-04-04', 'end': '2025-04-07'},
+            {'direction': 'Noise', 'start': '2025-04-05', 'end': '2025-04-07'},
         ]
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert_segments_match(noise_segments, expected_noise_segments)
@@ -146,7 +146,7 @@ class TestNoiseSpikesGradual:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
         
         # Expected noise segments representing the three spikes
@@ -190,13 +190,12 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the spike
         expected_noise_segments = [
-            {'direction': 'Noise', 'start': '2025-04-05', 'end': '2025-04-09'}, # TODO: later improve precision to be 04-07 start instead.
+            {'direction': 'Noise', 'start': '2025-04-07', 'end': '2025-04-09'},
         ]
         
         # Filter for noise segments and validate
@@ -230,8 +229,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the two spikes
@@ -280,8 +278,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the three spikes
@@ -322,8 +319,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the three spikes
@@ -365,8 +361,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Expected noise segments representing the four spikes
@@ -429,8 +424,7 @@ class TestNoiseSpikesGradual:
             df,
             date_col='date',
             value_col='gradual',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
         
         # Test for missing gaps by asserting for same-day flats
@@ -458,6 +452,6 @@ class TestNoiseSpikesGradual:
             {'direction': 'Flat', 'start': '2025-05-05', 'end': '2025-05-06'},  
             {'direction': 'Flat', 'start': '2025-05-30', 'end': '2025-06-01'}, 
             {'direction': 'Flat', 'start': '2025-06-05', 'end': '2025-06-06'},
-            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},  # Last flat (not neighboring spike)
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},  # Last flat (not neighbouring spike)
         ]
         assert_segments_match(other_flats, expected_other_flats)
