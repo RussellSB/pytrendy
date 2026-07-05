@@ -56,10 +56,14 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         'legend_bbox_to_anchor': (1, 1.15)
     }
     if plot_params:
+        plot_params = dict(plot_params)  # avoid mutating caller's dict
         custom_colors = plot_params.pop('colors', None)
+        custom_grid = plot_params.pop('grid', None)
         default_params.update(plot_params)
         if custom_colors:
             default_params['colors'].update(custom_colors)
+        if custom_grid:
+            default_params['grid'].update(custom_grid)
 
     # Define colors
     color_map = default_params['colors']
