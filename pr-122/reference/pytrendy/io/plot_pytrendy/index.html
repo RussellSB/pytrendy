@@ -1624,9 +1624,16 @@ It also annotates ranked segments and handles visual adjustments for abrupt tran
 )
           –
           <div class="doc-md-description">
-            <p>Dictionary of plotting parameters to customise the figure. 
-Supported keys are 'figsize' (tuple), 'title' (str), 'xlabel' (str), 'ylabel' (str), 'colors' (dict of direction to color), 'alpha' (float), 'grid' (dict), 'legend_loc' (str), 'legend_bbox_to_anchor' (tuple), 'legend_ncol' (int). 
-Defaults to None (uses internal defaults).</p>
+            <p>Optional dict to customise plot appearance. Supported keys:
+- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
+- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
+- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
+- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
+- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
+- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
+- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
           </div>
         </li>
     </ul>
@@ -1825,7 +1832,16 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="normal">183</span>
 <span class="normal">184</span>
 <span class="normal">185</span>
-<span class="normal">186</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualizes detected trend segments over the original time series signal.</span>
 
@@ -1842,9 +1858,16 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="sd">        suppress_show (bool, optional):</span>
 <span class="sd">            If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.</span>
 <span class="sd">        plot_params (dict, optional):</span>
-<span class="sd">            Dictionary of plotting parameters to customise the figure. </span>
-<span class="sd">            Supported keys are &#39;figsize&#39; (tuple), &#39;title&#39; (str), &#39;xlabel&#39; (str), &#39;ylabel&#39; (str), &#39;colors&#39; (dict of direction to color), &#39;alpha&#39; (float), &#39;grid&#39; (dict), &#39;legend_loc&#39; (str), &#39;legend_bbox_to_anchor&#39; (tuple), &#39;legend_ncol&#39; (int). </span>
-<span class="sd">            Defaults to None (uses internal defaults).</span>
+<span class="sd">            Optional dict to customise plot appearance. Supported keys:</span>
+<span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
+<span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
+<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
+<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to &quot;Value&quot;.</span>
+<span class="sd">            - **colors** (`dict`): Dictionary mapping direction (&#39;Up&#39;, &#39;Down&#39;, &#39;Flat&#39;, &#39;Noise&#39;) to matplotlib colors. Defaults to light variants.</span>
+<span class="sd">            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.</span>
+<span class="sd">            - **grid** (`dict`): Grid configuration with keys &#39;visible&#39; (bool), &#39;which&#39; (str), &#39;color&#39; (str), &#39;alpha&#39; (float).</span>
+<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to &quot;upper right&quot;.</span>
+<span class="sd">            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.figure.Figure:</span>
@@ -1866,14 +1889,17 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
         <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
         <span class="s1">&#39;grid&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;visible&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;which&#39;</span><span class="p">:</span> <span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
         <span class="s1">&#39;legend_loc&#39;</span><span class="p">:</span> <span class="s1">&#39;upper right&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">),</span>
-        <span class="s1">&#39;legend_ncol&#39;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+        <span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">)</span>
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">plot_params</span><span class="p">:</span>
+        <span class="n">plot_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>  <span class="c1"># avoid mutating caller&#39;s dict</span>
         <span class="n">custom_colors</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;colors&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">custom_grid</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">default_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">custom_colors</span><span class="p">:</span>
             <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_colors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">custom_grid</span><span class="p">:</span>
+            <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_grid</span><span class="p">)</span>
 
     <span class="c1"># Define colors</span>
     <span class="n">color_map</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span>
@@ -1983,7 +2009,6 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
     <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
 
     <span class="c1"># Optional: show grid lines for both</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">][</span><span class="s1">&#39;visible&#39;</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;visible&#39;</span><span class="p">})</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
@@ -1998,7 +2023,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
         <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">][</span><span class="s1">&#39;Noise&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Noise&#39;</span><span class="p">),</span> 
     <span class="p">]</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_loc&#39;</span><span class="p">],</span> 
-            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_ncol&#39;</span><span class="p">],</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_show</span><span class="p">:</span>
