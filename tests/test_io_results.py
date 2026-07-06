@@ -63,6 +63,37 @@ def zeros_signal():
 
 
 @pytest.fixture
+def integer_index_results():
+    """
+    Fixture to create results from gradual synthetic data using the implicit
+    integer index (no date_col supplied).
+    """
+    df = pt.load_data('series_synthetic')
+    results = pt.detect_trends(
+        df,
+        value_col='gradual',
+        plot=False
+    )
+    return results
+
+
+@pytest.fixture
+def string_index_results():
+    """
+    Fixture to create results from gradual synthetic data using a string-label index.
+    """
+    df = pt.load_data('series_synthetic')
+    df['label'] = [f"Step {i}" for i in range(len(df))]
+    results = pt.detect_trends(
+        df,
+        value_col='gradual',
+        date_col='label',
+        plot=False
+    )
+    return results
+
+
+@pytest.fixture
 def outlier_signal():
     """
     Fixture to create a signal with an extreme outlier.
@@ -401,6 +432,7 @@ class TestResultsFilterSegments:
     @pytest.mark.core
     def test_filter_segments_by_direction_noise(self, outlier_signal):
         """Test filtering segments by 'Noise' direction."""
+
         results = pt.detect_trends(
             outlier_signal,
             date_col='date',
@@ -415,8 +447,11 @@ class TestResultsFilterSegments:
         assert len(noise_segments) == 1
         
         # Expected Noise segment from outlier signal
-        expected_noise = [
-            {'direction': 'Noise', 'start': '2025-02-19', 'end': '2025-02-21'},
+        expected_noise = [{
+             'direction': 'Noise', 
+             'start': pd.to_datetime('2025-02-19'), 
+             'end': pd.to_datetime('2025-02-21')
+            },
         ]
         
         assert_segments_match(noise_segments, expected_noise)
@@ -712,7 +747,58 @@ class TestResultsDataStructures:
     def test_segments_have_required_fields(self, gradual_results):
         """Test that all segments have required fields."""
         required_fields = ['direction', 'start', 'end', 'time_index', 'days']
-        
+
         for i, segment in enumerate(gradual_results.segments):
             for field in required_fields:
                 assert field in segment, f"Segment {i} missing field: {field}"
+
+
+class TestResultsIndexTypeAwareness:
+    """Tests for PyTrendyResults handling of the new `index_type` parameter."""
+
+    @pytest.mark.core
+    def test_default_index_type_is_date(self):
+        """PyTrendyResults defaults to 'date' index_type when not specified."""
+        from pytrendy.io.results_pytrendy import PyTrendyResults
+        results = PyTrendyResults([])
+        assert results.index_type == 'date'
+
+    @pytest.mark.core
+    def test_index_type_stored_from_detect_trends(self, gradual_results, integer_index_results, string_index_results):
+        """detect_trends should populate index_type based on the resolved date_col dtype."""
+        assert gradual_results.index_type == 'date'
+        assert integer_index_results.index_type == 'integer'
+        assert string_index_results.index_type == 'string'
+
+    @pytest.mark.core
+    def test_summary_uses_days_for_date_index(self, gradual_results):
+        """Date-indexed results keep the 'days' column name in the summary."""
+        assert 'days' in gradual_results.df_summary.columns
+        assert 'index steps' not in gradual_results.df_summary.columns
+
+    @pytest.mark.core
+    def test_summary_uses_index_steps_for_integer_index(self, integer_index_results):
+        """Integer-indexed results rename the 'days' column to 'index steps' in the summary."""
+        assert 'index steps' in integer_index_results.df_summary.columns
+        assert 'days' not in integer_index_results.df_summary.columns
+
+    @pytest.mark.core
+    def test_print_summary_descriptor_for_date_index(self, gradual_results, capsys):
+        """print_summary describes the best segment using 'dates' for date-indexed results."""
+        gradual_results.print_summary()
+        captured = capsys.readouterr()
+        assert 'between dates' in captured.out
+
+    @pytest.mark.core
+    def test_print_summary_descriptor_for_integer_index(self, integer_index_results, capsys):
+        """print_summary describes the best segment using 'indexes' for integer-indexed results."""
+        integer_index_results.print_summary()
+        captured = capsys.readouterr()
+        assert 'between indexes' in captured.out
+
+    @pytest.mark.core
+    def test_print_summary_descriptor_for_string_index(self, string_index_results, capsys):
+        """print_summary describes the best segment using 'labels' for string-indexed results."""
+        string_index_results.print_summary()
+        captured = capsys.readouterr()
+        assert 'between labels' in captured.out
