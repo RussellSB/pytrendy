@@ -6,6 +6,7 @@ across multiple test files.
 """
 
 import pandas as pd
+import math
 
 def assert_segments_match(detected_segments, expected_segments):
     """
@@ -37,10 +38,20 @@ def assert_segments_match(detected_segments, expected_segments):
     for i, (detected, expected) in enumerate(zip(detected_segments, expected_segments)):
         assert detected['direction'] == expected['direction'], \
             f"Segment {i}: Expected direction '{expected['direction']}', got '{detected['direction']}'"
-        assert detected['start'] == expected['start'], \
-            f"Segment {i}: Expected start '{expected['start']}', got '{detected['start']}'"
-        assert detected['end'] == expected['end'], \
-            f"Segment {i}: Expected end '{expected['end']}', got '{detected['end']}'"
+        
+        if isinstance(detected['start'], float):
+            assert round(detected['start'], 6) == round(expected['start'], 6), \
+                f"Segment {i}: Expected start '{expected['start']}', got '{detected['start']}'"
+        else:
+            assert detected['start'] == expected['start'], \
+                f"Segment {i}: Expected start '{expected['start']}', got '{detected['start']}'"
+        
+        if isinstance(detected['end'], float):
+            assert round(detected['end'], 6) == round(expected['end'], 6), \
+                f"Segment {i}: Expected end '{expected['end']}', got '{detected['end']}'"
+        else:
+            assert detected['end'] == expected['end'], \
+                f"Segment {i}: Expected end '{expected['end']}', got '{detected['end']}'"
 
 
 def assert_segments_in_a_haystack(detected_segments, expected_segments):

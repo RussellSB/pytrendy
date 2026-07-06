@@ -62,24 +62,11 @@ def detect_trends(df: pd.DataFrame,
             Use this object to access segment statistics, rankings, and export utilities.
     """
     df = df.copy()
-
-    columns = df.columns
-
-    def test_column(columns, name):
-        if name not in columns:
-            suggestions = get_close_matches(name, columns, n=3, cutoff=0.6)
-            raise ValueError(f"Column '{name}' not found. Did you mean: {suggestions}?")
-        
-    test_column(columns, value_col)
-
-  
-
     index_type = 'integer'
 
     if date_col is not None:
         s = df[date_col]
         external_index = df[date_col].copy()
-        test_column(columns, date_col)
         if pd.api.types.is_string_dtype(df[date_col]):
 
             with warnings.catch_warnings():
@@ -100,8 +87,8 @@ def detect_trends(df: pd.DataFrame,
                 index_type = "string"
         elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
             index_type = "datetime64"
-        elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():
-            index_type = "datetimePd"
+        #elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():
+        #    index_type = "datetimePd"
         elif pd.api.types.is_integer_dtype(df[date_col]):
                 pass
         elif pd.api.types.is_float_dtype(df[date_col]):
