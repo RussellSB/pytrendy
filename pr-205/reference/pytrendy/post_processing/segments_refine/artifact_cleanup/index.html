@@ -2363,7 +2363,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">segments</span><span class="p">:</span> <span class="c1"># if refinement produced no segments, cover full range as Flat and avoid index access errors below.</span>
         <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
-        <span class="k">return</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">end</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span><span class="p">)]</span>
+        <span class="k">return</span> <span class="p">[{</span><span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="p">,</span> <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;Flat&#39;</span><span class="p">}]</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">segments</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
@@ -2373,11 +2373,11 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
     <span class="k">if</span> <span class="n">data_start</span> <span class="o">&lt;</span> <span class="n">first_start</span><span class="p">:</span>
         <span class="n">lead_end</span> <span class="o">=</span> <span class="n">first_start</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">lead_end</span> <span class="o">&gt;=</span> <span class="n">data_start</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="n">start</span><span class="o">=</span><span class="n">data_start</span><span class="p">,</span>
-                <span class="n">end</span><span class="o">=</span><span class="n">lead_end</span><span class="p">,</span>
-                <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span>
-            <span class="p">))</span>
+            <span class="n">segments_refined</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">data_start</span><span class="p">,</span>
+                <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">lead_end</span><span class="p">,</span>
+                <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;Flat&#39;</span>
+            <span class="p">})</span>
 
     <span class="c1"># Internal gaps (work on snapshot to avoid index shift confusion)</span>
     <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
@@ -2392,11 +2392,11 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
         <span class="n">gap_end</span> <span class="o">=</span> <span class="n">next_seg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
         <span class="k">if</span> <span class="n">gap_end</span> <span class="o">&gt;=</span> <span class="n">gap_start</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">mapped</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span>
-                <span class="n">start</span><span class="o">=</span><span class="n">gap_start</span><span class="p">,</span>
-                <span class="n">end</span><span class="o">=</span><span class="n">gap_end</span><span class="p">,</span>
-                <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span>
-            <span class="p">))</span>
+            <span class="n">segments_refined</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">mapped</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span>
+                <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">gap_start</span><span class="p">,</span>
+                <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">gap_end</span><span class="p">,</span>
+                <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;Flat&#39;</span>
+            <span class="p">})</span>
             <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="c1"># Trailing gap</span>
@@ -2405,11 +2405,11 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
     <span class="k">if</span> <span class="n">data_end</span> <span class="o">&gt;</span> <span class="n">last_end</span><span class="p">:</span>
         <span class="n">trail_start</span> <span class="o">=</span> <span class="n">last_end</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">data_end</span> <span class="o">&gt;=</span> <span class="n">trail_start</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span>
-                <span class="n">start</span><span class="o">=</span><span class="n">trail_start</span><span class="p">,</span>
-                <span class="n">end</span><span class="o">=</span><span class="n">data_end</span><span class="p">,</span>
-                <span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span>
-            <span class="p">))</span>
+            <span class="n">segments_refined</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">trail_start</span><span class="p">,</span>
+                <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">data_end</span><span class="p">,</span>
+                <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="s1">&#39;Flat&#39;</span>
+            <span class="p">})</span>
 
     <span class="k">return</span> <span class="n">segments_refined</span>
 </code></pre></div></td></tr></table></div>
