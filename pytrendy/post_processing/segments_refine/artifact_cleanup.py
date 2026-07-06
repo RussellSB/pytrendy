@@ -336,7 +336,7 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     """
     if not segments: # if refinement produced no segments, cover full range as Flat and avoid index access errors below.
         start, end = df.index.min(), df.index.max()
-        return [dict(start=start, end=end, direction='Flat')]
+        return [{'start': start, 'end': end, 'direction': 'Flat'}]
 
     segments_refined = segments.copy()
 
@@ -346,11 +346,11 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     if data_start < first_start:
         lead_end = first_start - 1
         if lead_end >= data_start:
-            segments_refined.insert(0, dict(
-                start=data_start,
-                end=lead_end,
-                direction='Flat'
-            ))
+            segments_refined.insert(0, {
+                'start': data_start,
+                'end': lead_end,
+                'direction': 'Flat'
+            })
 
     # Internal gaps (work on snapshot to avoid index shift confusion)
     j = 0
@@ -365,11 +365,11 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
         gap_end = next_seg['start'] - 1
 
         if gap_end >= gap_start:
-            segments_refined.insert(mapped + 1, dict(
-                start=gap_start,
-                end=gap_end,
-                direction='Flat'
-            ))
+            segments_refined.insert(mapped + 1, {
+                'start': gap_start,
+                'end': gap_end,
+                'direction': 'Flat'
+            })
             j += 1
 
     # Trailing gap
@@ -378,10 +378,10 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     if data_end > last_end:
         trail_start = last_end + 1
         if data_end >= trail_start:
-            segments_refined.append(dict(
-                start=trail_start,
-                end=data_end,
-                direction='Flat'
-            ))
+            segments_refined.append({
+                'start': trail_start,
+                'end': data_end,
+                'direction': 'Flat'
+            })
 
     return segments_refined

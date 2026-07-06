@@ -39,8 +39,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     }
 
     accepted_index_types = ['date', 'integer', 'float', 'string']
-    print(f"internal index type {index_type}")
-    if not (index_type in accepted_index_types):
+    if index_type not in accepted_index_types:
         raise NotImplementedError(f"Index Type {index_type} not yet implemented.")
 
     fig, ax = plt.subplots(figsize=(20, 5))
@@ -83,7 +82,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         if index_type == 'date':
             next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
         elif index_type == 'string':
-            next_neighbouring = next_seg and (next_seg['start'] == df.index[df.index.get_loc(start) + 1])
+            next_neighbouring = next_seg and (next_seg['start'] == df.index[df.index.get_loc(end) + 1])
         else:
             next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
         
@@ -92,7 +91,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Adjust starts when appropriate
         if is_abrupt or is_noise: 
-            start = start # Conditional logic for making abrupt visually tighter
+            pass  # Keep start as-is for abrupt/noise segments
         else: 
             if index_type == 'date':
                 new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
@@ -116,6 +115,9 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                     if index_type == 'date':
                         prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
                         prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    elif index_type == 'string':
+                        prev_end = segments_enhanced[i-1]['end']
+                        prev_new_end = df.index[df.index.get_loc(prev_end) + 1]
                     else:
                         prev_end = segments_enhanced[i-1]['end']
                         prev_new_end = prev_end + 1
@@ -127,6 +129,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
             if index_type == 'date':
                 new_end = end + pd.Timedelta(days=1)
+            elif index_type == 'string':
+                new_end = df.index[df.index.get_loc(end) + 1]
             else:
                 new_end = end + 1
             
@@ -144,10 +148,12 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 if next_seg_noise and next_neighbouring: 
                     if index_type == 'date':
                         segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    elif index_type == 'string':
+                        segments_enhanced[i+1]['start'] = df.index[df.index.get_loc(segments_enhanced[i+1]['start']) - 1]
                     else:
                         segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
         else: 
-            end = end
+            pass  # Keep end as-is
 
         if index_type == 'string':
             mask = (np.arange(len(df)) >= df.index.get_loc(start)) & (np.arange(len(df)) <= df.index.get_loc(end))
@@ -168,7 +174,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
             
             y_pos = ymax - (ymax - ymin) * 0.05
-            if not index_type in ['string']:
+            if index_type not in ['string']:
                 ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                         fontweight='bold', ha='center', va='top',
                         color=color[5:])

@@ -74,9 +74,12 @@ class PyTrendyResults:
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
 
-        unit_descriptor = 'days'
-        if self.index_type == 'integer':
-            unit_descriptor = 'index steps'
+        unit_descriptor = {
+            'date': 'days',
+            'integer': 'index steps',
+            'float': 'index steps',
+            'string': 'index steps',
+        }.get(self.index_type, 'days')
 
         df = df.rename({'days' : unit_descriptor}, axis = 1)
 
@@ -105,7 +108,7 @@ class PyTrendyResults:
         print(f'Detected: \n- {uptrends} Uptrends. \n- {downtrends} Downtrends.\n- {flats} Flats.\n- {noise} Noise.\n')
 
         descriptor = 'dates'
-        if self.index_type == 'integer':
+        if self.index_type in ['integer', 'float']:
             descriptor = 'indexes'
         elif self.index_type in ['string']:
             descriptor = 'labels'

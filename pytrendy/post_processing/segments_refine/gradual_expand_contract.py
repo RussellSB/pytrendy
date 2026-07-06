@@ -80,9 +80,9 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         prev_seg = segments_refined[i - 1] if i > 0 else None
         prev_is_noise = prev_seg is not None and prev_seg.get('direction') == 'Noise'
         if segment['direction'] in ('Up', 'Down') and i > 0:
-            prev_end = pd.to_datetime(segments_refined[i - 1]['end'])
-            extremum = pd.to_datetime(new_start) - pd.Timedelta(days=1)
-            distance = (extremum - prev_end).days
+            prev_end = segments_refined[i - 1]['end']
+            extremum = new_start - 1
+            distance = extremum - prev_end
             # Skip orphan check when previous segment is Noise AND the Noise
             # is close (within 3 days) to the extremum — noise boundaries are
             # deliberately fuzzy in that case.  When Noise is far away, the
@@ -96,7 +96,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
                     start_val = df.loc[new_start, value_col]
                     max_abs = df[value_col].abs().max()
                     if max_abs > 0 and abs(extremum_val - start_val) > 0.2 * max_abs:
-                        new_start -= pd.Timedelta(days=1)
+                        new_start -= 1
 
         # Check for any inversions
         start_inverted = (new_start >= segment['end'])

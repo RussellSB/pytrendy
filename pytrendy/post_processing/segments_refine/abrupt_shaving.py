@@ -74,14 +74,14 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
             else:
                 continue # neither if not connected
 
-            abrupt_subsegs.append(dict(start=abrupt_start, end=abrupt_end))
+            abrupt_subsegs.append({'start': abrupt_start, 'end': abrupt_end})
 
         if len(abrupt_ends) > 0: # Adds abrupt end with no start if at beginning
             abrupt_end = abrupt_ends[0]
             early_starts = [start for start in abrupt_starts if start < abrupt_end]
             if len(early_starts) == 0:
                 abrupt_start = max(abrupt_end - 1, df.index[0])
-                abrupt_subsegs.insert(0, dict(start=abrupt_start, end=abrupt_end))
+                abrupt_subsegs.insert(0, {'start': abrupt_start, 'end': abrupt_end})
 
         # If in right direction shave out abrupt subsegs from abrupt segment & adjust neighbours.
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
@@ -126,8 +126,6 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
     if method_params.get('abrupt_padding', 0) > 0:
 
         meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by easily
-        meta_df['start'] = meta_df['start']
-        meta_df['end'] = meta_df['end']
 
         for i, segment in enumerate(segments_refined):
 

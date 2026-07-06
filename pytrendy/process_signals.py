@@ -89,7 +89,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             noise_end = after_ends[0]
         else:
             noise_end = min(noise_start + 1, df.index[-1])
-        noise_segments.append(dict(start=noise_start, end=noise_end))
+        noise_segments.append({'start': noise_start, 'end': noise_end})
 
 
     if len(noise_ends) > 0: # Adds noise end with no start if at beginning
@@ -97,7 +97,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         early_starts = [start for start in noise_starts if start < noise_end]
         if len(early_starts) == 0:
             noise_start = max(noise_end - 1, df.index[0])
-            noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+            noise_segments.insert(0, {'start': noise_start, 'end': noise_end})
 
     # 1.4.2 Group noise segments if within a close enough distance of each other
     if len(noise_segments) <= 1:

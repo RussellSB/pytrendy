@@ -21,7 +21,8 @@ def update_prev_segment(i: int, new_start: int, segments: list[dict], segments_r
         segments_refined (list): Refined segment list being modified.
     """
 
-    if (i == 0): return
+    if (i == 0):
+        return
     old_start = segments[i]['start']
     prev_segments = reversed(segments_refined[:i])
 
@@ -65,7 +66,8 @@ def update_next_segment(i: int, new_end: int, segments: list[dict], segments_ref
         segments (list): Original segment list.
         segments_refined (list): Refined segment list being modified.
     """
-    if (i == len(segments) - 1): return
+    if (i == len(segments) - 1):
+        return
     old_end = segments[i]['end']
     next_segments = segments_refined[i+1:]
 

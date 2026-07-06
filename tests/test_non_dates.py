@@ -19,7 +19,7 @@ class TestNonDateCases:
             df,
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            method_params={'is_abrupt_padded': False}
         )
         
         # Expected segments based on current behavior
@@ -47,7 +47,7 @@ class TestNonDateCases:
             value_col='gradual',
             date_col='float_lookup',
             plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            method_params={'is_abrupt_padded': False}
         )
         
         # Expected segments based on current behavior
@@ -75,7 +75,7 @@ class TestNonDateCases:
             value_col='gradual',
             date_col='string_lookup',
             plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            method_params={'is_abrupt_padded': False}
         )
         
         # Expected segments based on current behavior

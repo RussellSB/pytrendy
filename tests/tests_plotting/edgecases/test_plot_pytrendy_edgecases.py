@@ -76,7 +76,7 @@ class TestPlotPytrendyEdgeCases:
         df[date_col] = internal_index
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
-        method_params = dict(is_abrupt_padded=False, abrupt_padding=28, avoid_noise=True)
+        method_params = {'is_abrupt_padded': False, 'abrupt_padding': 28, 'avoid_noise': True}
 
         df = process_signals(df, value_col, method_params)
         segments = get_segments(df)
