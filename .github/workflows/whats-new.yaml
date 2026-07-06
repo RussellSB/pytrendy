@@ -131,7 +131,7 @@ jobs:
       # ── 2. Checkout the release branch ──────────────────────────────────────
       - name: Checkout
         if: steps.meta.outputs.skip != 'true'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ steps.meta.outputs.branch }}
           fetch-depth: 0
@@ -218,7 +218,7 @@ jobs:
 
     steps:
       - name: Checkout develop
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: develop
           fetch-depth: 0
