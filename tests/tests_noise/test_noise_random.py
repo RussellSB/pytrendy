@@ -24,7 +24,7 @@ class TestNoiseRandom:
         total_noise_lengths = []
         
         for noise_std in noise_levels:
-            np.random.seed(42)  # Deterministic behavior
+            np.random.seed(42)  # Deterministic behaviour
             df = pt.load_data('series_synthetic')
             df['value_noisy'] = df['gradual'] + np.random.normal(0, noise_std, size=len(df))
             results = pt.detect_trends(df, date_col='date', value_col='value_noisy', plot=False)
@@ -58,7 +58,7 @@ class TestNoiseRandom:
     @pytest.mark.core
     def test_high_noise_mostly_noise(self):
         """Test that high noise level (std=50) detects mostly noise segments."""
-        np.random.seed(42)  # Deterministic behavior
+        np.random.seed(42)  # Deterministic behaviour
         df = pt.load_data('series_synthetic')
         df['value_noisy'] = df['gradual'] + np.random.normal(0, 50, size=len(df))
         results = pt.detect_trends(df, date_col='date', value_col='value_noisy', plot=False)

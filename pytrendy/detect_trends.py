@@ -1,5 +1,6 @@
 """**End-to-End Trend Detection**"""
 
+import warnings
 import pandas as pd
 import numpy as np
 import warnings
@@ -40,7 +41,7 @@ def detect_trends(df: pd.DataFrame,
             Input time series data containing at least the specified `date_col` and `value_col`.
             The `date_col` must contain datetime-like values (daily frequency recommended).
         value_col (str):
-            Name of the column containing the primary signal to analyze for trend detection.
+            Name of the column containing the primary signal to analyse for trend detection.
         date_col (str|None):
             Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
         plot (bool, optional):
@@ -49,8 +50,7 @@ def detect_trends(df: pd.DataFrame,
         method_params (dict, optional):
             Optional parameters to customize detection heuristics. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
+            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.
@@ -104,14 +104,22 @@ def detect_trends(df: pd.DataFrame,
     df[date_col] = internal_index.copy()
     df.set_index(date_col, inplace=True)
     df = df[[value_col]]
+    
+    if method_params is None:
+        method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
+
+    # Trigger deprecation warning if old parameter is used    
+    if 'is_abrupt_padded' in method_params:
+        warnings.warn(
+            "'is_abrupt_padded' in method_params is deprecated. "
+            "Use 'abrupt_padding' only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
 
     # Configures trend detection heuristics
-    # Avoid mutable default argument by accepting None and constructing a new dict here
-    if method_params is None:
-        method_params = {}
     method_params = {
-        'is_abrupt_padded': method_params.get('is_abrupt_padded', False),
-        'abrupt_padding': method_params.get('abrupt_padding', 28),
+        'abrupt_padding': method_params.get('abrupt_padding', 0),
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 

@@ -22,8 +22,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         segments (list): List of segment dictionaries with `'trend_class': 'abrupt'`.
         method_params (dict): Optional parameters for padding and control. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `28`.
+            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.
 
     Returns:
         list: Refined segment list with adjusted abrupt boundaries.
@@ -124,7 +123,7 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
 
     # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
-    if method_params.get('is_abrupt_padded', False) == True:
+    if method_params.get('abrupt_padding', 0) > 0:
 
         meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by easily
         meta_df['start'] = meta_df['start']

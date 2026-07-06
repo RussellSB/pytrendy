@@ -29,8 +29,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
         segments (list): Initial segment list from detection.
         method_params (dict): Optional parameters for abrupt padding and control. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `28`.
+            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.
 
     Returns:
         list: Final refined segment list.

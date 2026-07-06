@@ -36,6 +36,11 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
         if segment['direction'] not in ['Up', 'Down']: 
             continue
 
+        # Skip reclassification for padded segments — their length is artificially inflated
+        # by abrupt_padding, so DTW would wrongly classify them as gradual
+        if segment.get('padded', False):
+            continue
+
         # Assume some padding for abrupt cases
         start = segment['start'] - 2
         end = segment['end'] + 2

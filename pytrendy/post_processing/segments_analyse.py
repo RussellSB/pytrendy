@@ -7,7 +7,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
     """
     Enhances trend segments with quantitative metrics and rankings.
 
-    This function compares signal behavior before and after each trend period to characterize
+    This function compares signal behaviour before and after each trend period to characterize
     the magnitude and clarity of change. 
 
     It computes descriptors that reflect how the signal
@@ -32,7 +32,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         df (pd.DataFrame): 
             Time series DataFrame containing signal, noise, and smoothed columns.
         value_col (str): 
-            Name of the column containing the signal to analyze.
+            Name of the column containing the signal to analyse.
         segments (list): 
             List of segment dictionaries with `'start'`, `'end'`, and `'direction'`.
 

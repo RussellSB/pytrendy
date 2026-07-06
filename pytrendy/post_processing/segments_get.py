@@ -72,6 +72,8 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
                     , 'end': end
                 })
                 segment_length=0
+            else:
+                segment_length = 0  # Reset on fail: prevent length bleed into next segment
 
         direction_prev = direction
         segment_length_prev = segment_length

@@ -16,7 +16,7 @@ from conftest import assert_segments_in_a_haystack
 
 
 class TestNoiseEdgeCases:
-    """Test cases for noise scenarios that cause edge case behavior in trend detection."""
+    """Test cases for noise scenarios that cause edge case behaviour in trend detection."""
 
     def test_noisy_edgecase_1_scenario(self):
         """Test that algorithm handles noisy_edgecase_1 scenario reasonably."""
@@ -26,12 +26,12 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_1',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
             {'direction': 'Flat', 'start': '2025-04-29', 'end': '2025-05-03'},
-            {'direction': 'Noise', 'start': '2025-05-24', 'end': '2025-06-28'}, #TODO: double check, mock test.py shows 05-23 instead of 05-24
+            {'direction': 'Noise', 'start': '2025-05-24', 'end': '2025-06-25'}, #TODO: double check, mock test.py shows 05-23 instead of 05-24
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -43,7 +43,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_2',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -60,7 +60,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_3',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -77,7 +77,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_4',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -95,7 +95,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_5',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -111,7 +111,7 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_6',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
@@ -126,12 +126,11 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_7',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
-            {'direction': 'Noise', 'start': '2025-03-30', 'end': '2025-05-09'}
+            {'direction': 'Noise', 'start': '2025-03-31', 'end': '2025-05-09'}
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -142,8 +141,7 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_8',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
@@ -159,8 +157,7 @@ class TestNoiseEdgeCases:
             df,
             date_col='date',
             value_col='noisy_edgecase_9',
-            plot=False,
-            method_params=dict(is_abrupt_padded=False)
+            plot=False
         )
 
         expected_segments = [ 
@@ -178,13 +175,13 @@ class TestNoiseEdgeCases:
             date_col='date',
             value_col='noisy_edgecase_10',
             plot=False,
-            method_params=dict(is_abrupt_padded=True)
+            method_params=dict(abrupt_padding=28)
         )
 
         expected_segments = [ 
-            {'direction': 'Up', 'start': '2025-04-16', 'end': '2025-05-03'},
+            {'direction': 'Up', 'start': '2025-04-15', 'end': '2025-05-03'},
             {'direction': 'Down', 'start': '2025-05-04', 'end': '2025-05-26'},
-            {'direction': 'Noise', 'start': '2025-05-27', 'end': '2025-06-28'}
+            {'direction': 'Noise', 'start': '2025-05-27', 'end': '2025-06-12'}
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -200,7 +197,7 @@ class TestNoiseEdgeCases:
                 date_col='date',
                 value_col='noisy_edgecase_11',
                 plot=False,
-                method_params=dict(is_abrupt_padded=True)
+                method_params=dict(abrupt_padding=28)
             )
 
             expected_segments = [ 
