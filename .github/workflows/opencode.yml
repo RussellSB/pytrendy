@@ -9,16 +9,25 @@ on:
 jobs:
   opencode:
     if: |
-      contains(github.event.comment.body, ' /oc') ||
-      startsWith(github.event.comment.body, '/oc') ||
-      contains(github.event.comment.body, ' /opencode') ||
-      startsWith(github.event.comment.body, '/opencode')
+      (
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.author_association == 'OWNER'
+      ) && (
+        contains(github.event.comment.body, ' /oc') ||
+        startsWith(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, ' /opencode') ||
+        startsWith(github.event.comment.body, '/opencode')
+      )
     runs-on: ubuntu-latest
     permissions:
+      # OIDC token for OpenCode auth
       id-token: write
+      # read-only checkout of repository code
       contents: read
-      pull-requests: read
-      issues: read
+      # allows OpenCode to comment on / update PRs it's invoked from
+      pull-requests: write
+      # allows OpenCode to comment on / update issues it's invoked from
+      issues: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
