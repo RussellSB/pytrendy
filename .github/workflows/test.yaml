@@ -6,9 +6,7 @@ on:
       - main
       - develop
   pull_request:
-    branches:
-      - main
-      - develop
+    types: [opened, synchronize]
 
 concurrency:
   group: test-${{ github.ref }}
