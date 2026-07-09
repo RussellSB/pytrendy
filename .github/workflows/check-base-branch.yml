@@ -14,6 +14,12 @@ jobs:
           BASE="${{ github.base_ref }}"
           HEAD="${{ github.head_ref }}"
 
+          # Allow temp-to-temp branch flows (neither base nor head are main/develop)
+          if [ "$BASE" != "main" ] && [ "$BASE" != "develop" ] && [ "$HEAD" != "main" ] && [ "$HEAD" != "develop" ]; then
+            echo "Base branch check passed: allowing temporary branch flow from '$HEAD' to '$BASE'."
+            exit 0
+          fi
+
           if [ "$BASE" = "develop" ]; then
             echo "Base branch check passed: targeting 'develop'."
             exit 0
