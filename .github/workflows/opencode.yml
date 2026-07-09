@@ -40,3 +40,4 @@ jobs:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
         with:
           model: opencode-go/mimo-v2.5
+          use_github_token: true
