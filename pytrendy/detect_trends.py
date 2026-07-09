@@ -3,15 +3,12 @@
 import warnings
 import pandas as pd
 import numpy as np
-import warnings
-from difflib import get_close_matches
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
 from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
-from datetime import date
 
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
@@ -43,7 +40,7 @@ def detect_trends(df: pd.DataFrame,
         value_col (str):
             Name of the column containing the primary signal to analyse for trend detection.
         date_col (str|None):
-            Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
+            Historically, this represents the name of the column containing dates, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to identify segments.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
