@@ -17,7 +17,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
     Adds a `'trend_class'` key to each segment based on similarity to synthetic patterns.
 
     Args:
-        df (pd.DataFrame): Series DataFrame.
+        df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): List of segment dictionaries.
 

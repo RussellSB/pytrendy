@@ -43,7 +43,7 @@ def detect_trends(df: pd.DataFrame,
         value_col (str):
             Name of the column containing the primary signal to analyse for trend detection.
         date_col (str|None):
-            Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.
+            Historically, this represents the name of the column containing dates, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to identify segments.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.

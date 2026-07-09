@@ -16,7 +16,7 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
     Skips segments classified as 'abrupt' to preserve their precision.
 
     Args:
-        df (pd.DataFrame): Series DataFrame.
+        df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): List of segment dictionaries.
 

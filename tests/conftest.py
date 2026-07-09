@@ -13,22 +13,22 @@ def assert_segments_match(detected_segments, expected_segments):
     Helper function to validate that detected segments match expected segments.
     
     This function compares detected trend segments against expected segments,
-    validating that the direction, start date, and end date match for each segment.
+    validating that the direction, start time, and end time match for each segment.
     
     Args:
         detected_segments: List of dictionaries, each representing a detected segment.
             Each dictionary must have the following keys:
                 - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str or Timestamp, the start date of the segment
-                - 'end': str or Timestamp, the end date of the segment
+                - 'start': str, Timestamp, int, or float, the start time of the segment
+                - 'end': str, Timestamp, int, or float, the end time of the segment
         expected_segments: List of dictionaries with the same structure as detected_segments.
             Each dictionary must have the following keys:
                 - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str, the start date of the segment in 'YYYY-MM-DD' format
-                - 'end': str, the end date of the segment in 'YYYY-MM-DD' format
+                - 'start': str, Timestamp, int, or float, the start time of the segment
+                - 'end': str, Timestamp, int, or float, the end time of the segment
     
     Raises:
-        AssertionError: If the segments don't match in count, direction, or date boundaries.
+        AssertionError: If the segments don't match in count, direction, or time boundaries.
     """
     # Assert number of segments matches
     assert len(detected_segments) == len(expected_segments), \
