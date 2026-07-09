@@ -20,7 +20,7 @@ PyTrendy is a robust solution for identifying and analysing trends in time serie
 
 ## Why PyTrendy?
 
-Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **labelled segment analysis**, answering *what trends existed, how strong were they, and when did they start and end?*
+Most time series tools give you either a "trend component" (via decomposition) or "changepoints" (the moments of shift). PyTrendy is built for **automated trend detection**, answering *what trends existed, how strong were they, and when did they start and end?*
 
 - **Beyond step changes** - `ruptures` is the gold standard for abrupt shifts, but it doesn't handle gradual slope changes (digital marketing, stocks, energy). PyTrendy detects both in a single run.
 - **The flat/noise problem** - closest peers (`pytrendseries`, `trendet`, `tstrends`) over-fit trends on flat or noisy periods. PyTrendy's signal-processing and post-processing logic ensures trends are only detected when they are precise and valid.
@@ -88,5 +88,5 @@ results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 
 For the full per-segment metrics table, use `results.df`.
 
-For more examples on interpreting the results, see [Gradual trend fundamentals](https://russellsb.github.io/pytrendy/main/examples/fundamentals/gradual/).
+For more examples on interpreting the results, see [Detect Gradual Trends](https://russellsb.github.io/pytrendy/main/examples/fundamentals/gradual/).
 

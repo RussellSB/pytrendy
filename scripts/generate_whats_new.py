@@ -565,6 +565,91 @@ def _note_blocks(markdown: str) -> list[tuple[str, str]]:
     return [(m.group(2), m.group(1).strip()) for m in pattern.finditer(markdown)]
 
 
+def _convert_prerelease_to_stable(
+    file_path: Path,
+    tag: str,
+    date_str: str,
+    summary: str,
+) -> bool:
+    """Convert an existing pre-release section to a stable release section.
+
+    When a stable release is published and a pre-release section already exists
+    for the same base version (e.g. ``## Coming in v1.3.0``), this function
+    converts it in place rather than discarding the carefully structured content:
+
+    1. Changes the heading to ``## Released in vX.Y.Z``
+    2. Adds the release date line
+    3. Removes the pre-release framing (staged note + pip install)
+    4. Inserts a summary paragraph right after the date line
+    5. Preserves **all** content after the first ``??? note`` block unchanged
+
+    Returns ``True`` if converted, ``False`` if no pre-release section was found.
+    """
+    if not file_path.exists():
+        return False
+    text = file_path.read_text(encoding="utf-8")
+    start_idx = text.find(CONTENT_START)
+    end_idx = text.find(CONTENT_END)
+    if start_idx == -1 or end_idx == -1:
+        return False
+
+    after_start = start_idx + len(CONTENT_START)
+    content = text[after_start:end_idx]
+
+    base = _base_version(tag)
+    escaped = re.escape(base)
+    header_pat = re.compile(
+        rf"^## [^\n]*v{escaped}[^\n]*(?:pre-release|version-prerelease)[^\n]*$",
+        re.MULTILINE | re.IGNORECASE,
+    )
+    m = header_pat.search(content)
+    if not m:
+        print(
+            f"[whats-new] No pre-release section found for v{base}; nothing to convert.",
+            file=sys.stderr,
+        )
+        return False
+
+    # Find the full section boundaries (heading to next --- or ## or end)
+    sec_start = m.start()
+    rest = content[m.end():]
+    end_pat = re.compile(r"^(?:---\s*|##\s+)", re.MULTILINE)
+    end_m = end_pat.search(rest)
+    sec_end = m.end() + (end_m.start() if end_m else len(rest))
+
+    old_section = content[sec_start:sec_end]
+
+    # Split the pre-release section into:
+    #   (a) framing — everything before the first ??? note block
+    #   (b) rest    — from the first ??? note to the section end
+    notes_start_pat = re.compile(r"^\?\?\? note ", re.MULTILINE)
+    notes_start_m = notes_start_pat.search(old_section)
+    if notes_start_m:
+        notes_to_end = old_section[notes_start_m.start():]
+    else:
+        notes_to_end = ""
+
+    # Build the stable release section: new heading + date + summary + preserved content
+    new_section = (
+        f"## Released in v{base}\n\n"
+        f"> Released {date_str}\n\n"
+        f"{summary}\n\n"
+        f"{notes_to_end}"
+    ).strip()
+
+    # Rebuild content: before section + new section + after section
+    before_content = content[:sec_start].rstrip()
+    after_content = content[sec_end:].lstrip()
+    new_content = (
+        before_content + "\n\n" + new_section + "\n\n" + after_content
+    ).strip()
+
+    updated = text[:after_start] + "\n\n" + new_content + "\n\n" + text[end_idx:]
+    file_path.write_text(updated, encoding="utf-8")
+    print(f"[whats-new] Converted pre-release section for v{base} to stable.")
+    return True
+
+
 def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str) -> bool:
     """Merge into an existing pre-release stream section when one already exists.
 
@@ -629,6 +714,59 @@ def _upsert_prerelease_stream_section(file_path: Path, new_block: str, tag: str)
 # ---------------------------------------------------------------------------
 
 
+def _generate_summary_block(raw_notes: str, tag: str) -> str:
+    """Generate a concise 2-3 line summary paragraph from release notes.
+
+    Tries OpenCode first; falls back to a simple auto-generated summary.
+    """
+    api_key = _env("OPENCODE_API_KEY")
+    if api_key:
+        model = _env("OPENCODE_MODEL", DEFAULT_OPENCODE_MODEL)
+        prompt = textwrap.dedent(f"""\
+            PyTrendy release {tag}.
+
+            Raw release notes (Markdown):
+            ---
+            {raw_notes}
+            ---
+
+            Write a concise 2-3 sentence summary paragraph for this release.
+            Focus on the most important user-facing changes.
+            Do NOT include headings, bullet points, code blocks, or expandable sections.
+            Just a single plain paragraph of 2-3 sentences.
+        """)
+        result = _call_opencode(prompt, model)
+        if result:
+            return result.strip().strip('"').strip("'")
+        print(
+            "[whats-new] OpenCode summary call failed; using fallback.",
+            file=sys.stderr,
+        )
+
+    # Fallback: count fixes and features from the raw notes
+    fix_count = 0
+    feat_count = 0
+    for line in raw_notes.splitlines():
+        stripped = line.strip()
+        lower = stripped.lower()
+        if any(k in lower for k in ("fix", "bug", "resolv", "patch", "correct")):
+            fix_count += 1
+        elif any(k in lower for k in ("feat", "feature", "new", "add")):
+            feat_count += 1
+
+    parts = ["This release includes"]
+    if feat_count > 0:
+        parts.append(f"{feat_count} new feature{'s' if feat_count > 1 else ''}")
+    if feat_count > 0 and fix_count > 0:
+        parts.append("and")
+    if fix_count > 0:
+        parts.append(f"{fix_count} bug fix{'es' if fix_count > 1 else ''}")
+    if len(parts) == 1:
+        parts.append("several improvements")
+
+    return " ".join(parts) + ". See the detailed sections below."
+
+
 def main() -> None:
     """Generate or update the What's New documentation entry."""
     token = _env("GITHUB_TOKEN")
@@ -649,22 +787,39 @@ def main() -> None:
 
     print(f"[whats-new] Generating entry for {tag} (prerelease={is_prerelease})…")
 
-    # When a stable release is published, remove any existing pre-release section
-    # for the same base version to avoid duplication (dev branch has the pre-release
-    # entry; syncing the stable version should replace it, not duplicate it).
     if not is_prerelease:
-        _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, _base_version(tag))
-
-    body = _build_section(tag, raw_notes, is_prerelease)
-    heading = _make_heading(tag, is_prerelease, date_str)
-    new_block = heading + "\n\n" + body
-
-    if is_prerelease and _upsert_prerelease_stream_section(WHATS_NEW_PATH, new_block, tag):
-        pass
+        # Stable release: try to convert existing pre-release section first.
+        # This preserves the carefully structured content (zero-baseline
+        # grouping, agentic docs, CI/CD, etc.) rather than discarding it
+        # for an AI-generated replacement.
+        if _convert_prerelease_to_stable(
+            WHATS_NEW_PATH,
+            tag,
+            date_str,
+            _generate_summary_block(raw_notes, tag),
+        ):
+            print("[whats-new] Existing pre-release section converted to stable.")
+        else:
+            # No pre-release section exists — remove any stale one for this
+            # version and generate a full entry from scratch.
+            print(
+                "[whats-new] No pre-release section found; generating from scratch.",
+                file=sys.stderr,
+            )
+            _remove_prerelease_for_version_in_file(WHATS_NEW_PATH, _base_version(tag))
+            body = _build_section(tag, raw_notes, is_prerelease)
+            heading = _make_heading(tag, is_prerelease, date_str)
+            new_block = heading + "\n\n" + body
+            _inject_section(WHATS_NEW_PATH, new_block)
     else:
-        _inject_section(WHATS_NEW_PATH, new_block)
+        # Pre-release: generate or update existing stream section.
+        body = _build_section(tag, raw_notes, is_prerelease)
+        heading = _make_heading(tag, is_prerelease, date_str)
+        new_block = heading + "\n\n" + body
+        if not _upsert_prerelease_stream_section(WHATS_NEW_PATH, new_block, tag):
+            _inject_section(WHATS_NEW_PATH, new_block)
 
-    # Update the develop-branch note block (no-op when sentinels are absent, e.g. main).
+    # Update the develop-branch note block (no-op when sentinels absent, e.g. main).
     _update_develop_note(WHATS_NEW_PATH, is_prerelease, tag)
 
     print(f"[whats-new] Updated {WHATS_NEW_PATH}")
