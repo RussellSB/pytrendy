@@ -22,8 +22,8 @@ jobs:
     permissions:
       # OIDC token for OpenCode auth
       id-token: write
-      # read-only checkout of repository code
-      contents: read
+      # allows OpenCode to push branches, commits, and create PRs
+      contents: write
       # allows OpenCode to comment on / update PRs it's invoked from
       pull-requests: write
       # allows OpenCode to comment on / update issues it's invoked from
