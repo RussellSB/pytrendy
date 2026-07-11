@@ -18,8 +18,8 @@ on:
       - 'pytrendy/**'
 
 concurrency:
-  group: docs-preview-${{ github.event.pull_request.number }}
-  cancel-in-progress: true
+  group: gh-pages-deploy
+  cancel-in-progress: false
 
 jobs:
   deploy-preview:
