@@ -63,7 +63,7 @@ class TestPlotPytrendyCore:
             date_col='date',
             value_col='abrupt',
             plot=False,
-            method_params=dict(abrupt_padding=28)
+            method_params={'abrupt_padding': 28}
         )
         
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
@@ -79,3 +79,4 @@ class TestPlotPytrendyCore:
         fig = self._prepare_and_plot(df, 'gradual', results.segments, plot_params=custom_params)
         assert fig.get_size_inches()[0] == 10
         assert fig.axes[0].get_title() == 'Custom Title'
+        plt.close(fig)
