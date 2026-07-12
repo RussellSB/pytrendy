@@ -121,9 +121,9 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         update_next_segment(insert_index, pd.to_datetime(new_seg['end']), segments, segments_refined)
     segments_refined = sorted(segments_refined, key=lambda seg: pd.to_datetime(seg['start']))
 
-    # Pad segments only on first pass — second pass is for re-shaving reclassified segments
+    # Second pass to pad segments if specified
     segments_padded = deepcopy(segments_refined)
-    if not second_pass and method_params.get('abrupt_padding', 0) > 0:
+    if method_params.get('abrupt_padding', 0) > 0:
 
         meta_df = pd.DataFrame(segments_refined) # metadata df, to filter by datetime easily
         meta_df['start'] = pd.to_datetime(meta_df['start'])
@@ -132,6 +132,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         for i, segment in enumerate(segments_refined):
 
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
+                continue
+
+            # Skip segments already padded in first pass; .get returns False when key absent (unpadded segments)
+            if second_pass and segment.get('padded', False):
                 continue
 
             abrupt_start = pd.to_datetime(segment['start'])
