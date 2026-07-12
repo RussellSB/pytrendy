@@ -8,6 +8,7 @@ visualizations for different types of trends using pytest-mpl for image comparis
 import pytest
 import pandas as pd
 import pytrendy as pt
+import matplotlib.pyplot as plt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 
 
