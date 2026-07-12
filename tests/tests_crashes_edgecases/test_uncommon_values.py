@@ -142,3 +142,23 @@ class TestUncommonValues:
             {'direction': 'Noise', 'start': '2026-05-26', 'end': '2026-05-28'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_noise)
+
+    @pytest.mark.core
+    def test_gradual_ramp_90day_detected(self):
+        """A sustained 90-day gradual ramp is detected as a single uptrend,
+        both with default params and with abrupt_padding=28 + avoid_noise=False.
+
+        Regression test for issue #195: long gradual ramps were truncated because
+        the flat detection threshold was too aggressive during gradual ramps.
+
+        Reference: issue #195
+        """
+        df = pd.read_csv('tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv')
+        expected = [
+            {'direction': 'Up', 'start': '2026-03-27', 'end': '2026-06-29'},
+            {'direction': 'Down', 'start': '2026-09-27', 'end': '2026-11-23'},
+        ]
+
+        results = pt.detect_trends(df, date_col='date', value_col='gradual_ramp_90d', plot=False,
+                                   method_params=dict(abrupt_padding=28))
+        assert_segments_in_a_haystack(results.segments, expected)
