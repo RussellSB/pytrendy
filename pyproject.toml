@@ -56,7 +56,7 @@ docs = [
     "mkdocs>=1.6,<2",
     "mkdocs-material>=9.7,<10",
     "mkdocs-api-autonav==0.4.0",
-    "mkdocstrings>=0.28.3,<1",
+    "mkdocstrings>=0.28.3,<2",
     "mkdocstrings-python>=1.16,<2",
     "mkdocs-jupyterlite==0.4.1"
 ]
