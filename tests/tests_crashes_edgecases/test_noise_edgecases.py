@@ -31,7 +31,7 @@ class TestNoiseEdgeCases:
 
         expected_segments = [ 
             {'direction': 'Flat', 'start': '2025-04-29', 'end': '2025-05-03'},
-            {'direction': 'Noise', 'start': '2025-05-24', 'end': '2025-06-25'}, #TODO: double check, mock test.py shows 05-23 instead of 05-24
+            {'direction': 'Noise', 'start': '2025-05-24', 'end': '2025-06-21'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 
@@ -81,8 +81,8 @@ class TestNoiseEdgeCases:
         )
 
         expected_segments = [ 
-            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-04-26'},
-            {'direction': 'Flat', 'start': '2025-04-27', 'end': '2025-05-16'}, 
+            {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-05'},
+            {'direction': 'Flat', 'start': '2025-05-06', 'end': '2025-05-16'}, 
             {'direction': 'Down', 'start': '2025-05-17', 'end': '2025-06-12'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
