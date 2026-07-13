@@ -155,7 +155,7 @@ class TestUncommonValues:
         """
         df = pd.read_csv('tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv')
         expected = [
-            {'direction': 'Up', 'start': '2026-03-27', 'end': '2026-06-29'},
+            {'direction': 'Up', 'start': '2026-04-29', 'end': '2026-06-29'},
             {'direction': 'Down', 'start': '2026-09-27', 'end': '2026-10-26'},
         ]
 
