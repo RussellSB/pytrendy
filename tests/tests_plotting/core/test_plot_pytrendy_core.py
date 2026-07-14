@@ -8,17 +8,18 @@ visualizations for different types of trends using pytest-mpl for image comparis
 import pytest
 import pandas as pd
 import pytrendy as pt
+import matplotlib.pyplot as plt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 
 
 class TestPlotPytrendyCore:
     """Test core cases for plot visualization on synthetic data."""
 
-    def _prepare_and_plot(self, df, value_col, segments):
+    def _prepare_and_plot(self, df, value_col, segments, plot_params=None):
         """Helper to prepare dataframe and create plot."""
         df['date'] = pd.to_datetime(df['date'])
         df = df.set_index('date')[[value_col]]
-        return plot_pytrendy(df, value_col, segments, suppress_show=True)
+        return plot_pytrendy(df, value_col, segments, suppress_show=True, plot_params=plot_params)
 
     @pytest.mark.core
     @pytest.mark.plot
@@ -63,8 +64,21 @@ class TestPlotPytrendyCore:
             date_col='date',
             value_col='abrupt',
             plot=False,
-            method_params=dict(abrupt_padding=28)
+            method_params={'abrupt_padding': 28}
         )
         
         fig = self._prepare_and_plot(df, 'abrupt', results.segments)
         return fig
+
+    @pytest.mark.core
+    @pytest.mark.plot
+    def test_plot_with_custom_params(self):
+        """Test visualisation with custom plot_params."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        custom_params = {'figsize': (10, 4), 'title': 'Custom Title', 'colors': {'Up': 'lightpink'}, 'grid': {'visible': False, 'which': 'minor', 'color': 'red', 'alpha': 0.8}}
+        fig = self._prepare_and_plot(df, 'gradual', results.segments, plot_params=custom_params)
+        assert fig.get_size_inches()[0] == 10
+        assert fig.axes[0].get_title() == 'Custom Title'
+        assert fig.axes[0].xaxis.get_major_locator() is not None
+        plt.close(fig)
