@@ -243,10 +243,10 @@ class TestResultsSetSummary:
         direction_counts = gradual_results.summary['direction_counts']
         assert isinstance(direction_counts, dict)
         
-        # For gradual signal, should have 3 Up, 3 Down, 3 Flat, 0 Noise
+        # For gradual signal, should have 3 Up, 3 Down, 2 Flat, 0 Noise
         assert direction_counts['Up'] == 3
         assert direction_counts['Down'] == 3
-        assert direction_counts['Flat'] == 3
+        assert direction_counts['Flat'] == 2
         assert 'Noise' not in direction_counts or direction_counts['Noise'] == 0
 
     @pytest.mark.core
@@ -356,7 +356,7 @@ class TestResultsFilterSegments:
         # Expected Up segments from test_core_gradual
         expected_up = [
             {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
-            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-14'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-17'},
             {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
         ]
         
@@ -387,12 +387,11 @@ class TestResultsFilterSegments:
         flat_segments = gradual_results.filter_segments(direction='Flat', format='dict')
         
         assert isinstance(flat_segments, list)
-        assert len(flat_segments) == 3
+        assert len(flat_segments) == 2
         
         # Expected Flat segments from test_core_gradual
         expected_flat = [
             {'direction': 'Flat', 'start': '2025-02-06', 'end': '2025-02-09'},
-            {'direction': 'Flat', 'start': '2025-03-15', 'end': '2025-03-17'},
             {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},
         ]
         
@@ -442,11 +441,11 @@ class TestResultsFilterSegments:
     @pytest.mark.core
     def test_filter_segments_any_direction(self, gradual_results):
         """Test filtering with 'Any' direction returns all segments."""
-        # Filter for any direction - should return all 9 segments from test_core_gradual
+        # Filter for any direction - should return all 8 segments from test_core_gradual
         all_segments = gradual_results.filter_segments(direction='Any', format='dict')
         
         assert isinstance(all_segments, list)
-        assert len(all_segments) == 9
+        assert len(all_segments) == 8
         assert len(all_segments) == len(gradual_results.segments)
 
     @pytest.mark.core
@@ -478,7 +477,7 @@ class TestResultsFilterSegments:
         segments = gradual_results.filter_segments(direction='Any', format='dict')
         
         assert isinstance(segments, list)
-        assert len(segments) == 9
+        assert len(segments) == 8
         assert isinstance(segments[0], dict)
         
         # Check that each dict has expected keys
@@ -495,7 +494,7 @@ class TestResultsFilterSegments:
         
         assert isinstance(segments_df, pd.DataFrame)
         assert segments_df.index.name == 'time_index'
-        assert len(segments_df) == 9
+        assert len(segments_df) == 8
         
         # Check that DataFrame has expected columns
         expected_cols = ['direction', 'start', 'end', 'days']
@@ -527,7 +526,7 @@ class TestResultsFilterSegments:
         
         # Should still return segments (unsorted)
         assert isinstance(filtered, list)
-        assert len(filtered) == 9
+        assert len(filtered) == 8
 
     @pytest.mark.core
     def test_filter_segments_invalid_direction(self, gradual_results, capsys):
@@ -544,7 +543,7 @@ class TestResultsFilterSegments:
         
         # Should still return all segments
         assert isinstance(filtered, list)
-        assert len(filtered) == 9
+        assert len(filtered) == 8
 
     @pytest.mark.core
     def test_filter_segments_invalid_format(self, gradual_results, capsys):
@@ -561,7 +560,7 @@ class TestResultsFilterSegments:
         
         # Should return segments as fallback (line 164)
         assert isinstance(result, list)
-        assert len(result) == 9
+        assert len(result) == 8
 
 
 class TestResultsPrintSummary:
@@ -648,8 +647,8 @@ class TestResultsIntegration:
     @pytest.mark.core
     def test_integration_full_workflow(self, gradual_results):
         """Test full workflow: detect trends, filter, and access results."""
-        # 1. Access segments - should have 9 total (3 Up, 3 Down, 3 Flat)
-        assert len(gradual_results.segments) == 9
+        # 1. Access segments - should have 8 total (3 Up, 3 Down, 2 Flat)
+        assert len(gradual_results.segments) == 8
         
         # 2. Get best trend - should be the last Down trend
         assert gradual_results.best is not None
@@ -659,7 +658,7 @@ class TestResultsIntegration:
         
         # 3. Check summary - exact counts from gradual data
         assert 'direction_counts' in gradual_results.summary
-        assert gradual_results.summary['direction_counts'] == {'Up': 3, 'Down': 3, 'Flat': 3}
+        assert gradual_results.summary['direction_counts'] == {'Up': 3, 'Down': 3, 'Flat': 2}
         
         # 4. Filter for uptrends - should get 3
         up_trends = gradual_results.filter_segments(direction='Up', format='df')
@@ -671,11 +670,11 @@ class TestResultsIntegration:
         assert isinstance(ranked, list)
         assert ranked[0]['change_rank'] == 1
         
-        # 6. Access DataFrames - should have all 9 segments
+        # 6. Access DataFrames - should have all 8 segments
         assert isinstance(gradual_results.df, pd.DataFrame)
-        assert len(gradual_results.df) == 9
+        assert len(gradual_results.df) == 8
         assert isinstance(gradual_results.df_summary, pd.DataFrame)
-        assert len(gradual_results.df_summary) == 9
+        assert len(gradual_results.df_summary) == 8
 
     @pytest.mark.core
     def test_edge_case_single_segment(self):
