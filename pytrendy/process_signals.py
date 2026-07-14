@@ -191,7 +191,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     rolling_std = df['value_cleaned'].rolling(WINDOW_FLAT, center=True).std()
     min_nonzero_std = rolling_std[rolling_std > 0].min()
     derivative_near_zero = df['smoothed_deriv'].abs() <= derivative_limit
-    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * 0.9)
+    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * 0.835)
     df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0) & (derivative_near_zero | extremely_smooth), 'flat_flag'] = 1 
 
     # 4. Detect up/down trend.
