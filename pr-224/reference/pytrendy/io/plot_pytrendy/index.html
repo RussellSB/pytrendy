@@ -873,6 +873,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.plot_pytrendy.plot_pytrendy(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1512,6 +1523,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.plot_pytrendy.plot_pytrendy(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1576,7 +1598,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">,</span> <span class="n">suppress_show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">,</span> <span class="n">suppress_show</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1620,6 +1642,25 @@ It also annotates ranked segments and handles visual adjustments for abrupt tran
           –
           <div class="doc-md-description">
             <p>If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.plot_pytrendy.plot_pytrendy(plot_params)" class="doc doc-heading doc-heading-parameter">              <b><code>plot_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Optional dict to customise plot appearance. Supported keys:
+- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
+- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
+- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
+- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
+- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
+- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
+- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
           </div>
         </li>
     </ul>
@@ -1794,7 +1835,40 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="normal">159</span>
 <span class="normal">160</span>
 <span class="normal">161</span>
-<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualizes detected trend segments over the original time series signal.</span>
 
@@ -1810,21 +1884,54 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="sd">            List of segment dictionaries containing keys like `&#39;start&#39;`, `&#39;end&#39;`, `&#39;direction&#39;`, `&#39;trend_class&#39;`, and `&#39;change_rank&#39;`.</span>
 <span class="sd">        suppress_show (bool, optional):</span>
 <span class="sd">            If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.</span>
+<span class="sd">        plot_params (dict, optional):</span>
+<span class="sd">            Optional dict to customise plot appearance. Supported keys:</span>
+<span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
+<span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
+<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
+<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to &quot;Value&quot;.</span>
+<span class="sd">            - **colors** (`dict`): Dictionary mapping direction (&#39;Up&#39;, &#39;Down&#39;, &#39;Flat&#39;, &#39;Noise&#39;) to matplotlib colors. Defaults to light variants.</span>
+<span class="sd">            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.</span>
+<span class="sd">            - **grid** (`dict`): Grid configuration with keys &#39;visible&#39; (bool), &#39;which&#39; (str), &#39;color&#39; (str), &#39;alpha&#39; (float).</span>
+<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to &quot;upper right&quot;.</span>
+<span class="sd">            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        matplotlib.figure.Figure:</span>
 <span class="sd">            The figure object containing the plot. Can be displayed with `plt.show()` or saved.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="c1"># Define colours</span>
-    <span class="n">color_map</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;Up&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgreen&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Down&#39;</span><span class="p">:</span> <span class="s1">&#39;lightcoral&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Flat&#39;</span><span class="p">:</span> <span class="s1">&#39;lightblue&#39;</span><span class="p">,</span>
-        <span class="s1">&#39;Noise&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgray&#39;</span><span class="p">,</span>
+    <span class="c1"># Default plotting params</span>
+    <span class="n">default_params</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;figsize&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="s1">&#39;title&#39;</span><span class="p">:</span> <span class="s2">&quot;PyTrendy Detection&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;xlabel&#39;</span><span class="p">:</span> <span class="s2">&quot;Date&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;ylabel&#39;</span><span class="p">:</span> <span class="s2">&quot;Value&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;colors&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;Up&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgreen&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Down&#39;</span><span class="p">:</span> <span class="s1">&#39;lightcoral&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Flat&#39;</span><span class="p">:</span> <span class="s1">&#39;lightblue&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Noise&#39;</span><span class="p">:</span> <span class="s1">&#39;lightgray&#39;</span><span class="p">,</span>
+        <span class="p">},</span>
+        <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+        <span class="s1">&#39;grid&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;visible&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s1">&#39;which&#39;</span><span class="p">:</span> <span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">:</span> <span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">},</span>
+        <span class="s1">&#39;legend_loc&#39;</span><span class="p">:</span> <span class="s1">&#39;upper right&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">)</span>
     <span class="p">}</span>
+    <span class="k">if</span> <span class="n">plot_params</span><span class="p">:</span>
+        <span class="n">plot_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>  <span class="c1"># avoid mutating caller&#39;s dict</span>
+        <span class="n">custom_colors</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;colors&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">custom_grid</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">default_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">custom_colors</span><span class="p">:</span>
+            <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_colors</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">custom_grid</span><span class="p">:</span>
+            <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_grid</span><span class="p">)</span>
 
-    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+    <span class="c1"># Define colors</span>
+    <span class="n">color_map</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span>
+
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;figsize&#39;</span><span class="p">])</span>
 
     <span class="c1"># Plot the value line</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;black&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -1873,7 +1980,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
                     <span class="n">prev_new_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
                     <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">prev_end</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">prev_new_end</span><span class="p">)</span> 
                     <span class="n">prev_color</span> <span class="o">=</span> <span class="n">color_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;direction&#39;</span><span class="p">],</span> <span class="s1">&#39;gray&#39;</span><span class="p">)</span>
-                    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">prev_color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+                    <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">prev_color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">])</span>
 
 
         <span class="c1"># Adjust ends when appropriate</span>
@@ -1897,7 +2004,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
             <span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
 
         <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">start</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">)</span> 
-        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">mask</span><span class="p">],</span> <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">])</span>
 
         <span class="c1"># Add ranking if up/down trend</span>
         <span class="k">if</span> <span class="s1">&#39;change_rank&#39;</span> <span class="ow">in</span> <span class="n">seg</span> <span class="ow">and</span> <span class="n">seg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">]:</span>
@@ -1929,21 +2036,21 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
     <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
 
     <span class="c1"># Optional: show grid lines for both</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;major&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;gray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">][</span><span class="s1">&#39;visible&#39;</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;visible&#39;</span><span class="p">})</span>
 
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;PyTrendy Detection&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;Date&quot;</span><span class="p">)</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Value&quot;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;xlabel&#39;</span><span class="p">])</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;ylabel&#39;</span><span class="p">])</span>
 
     <span class="c1"># Create custom legend handles (colored boxes)</span>
     <span class="n">legend_handles</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightgreen&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">),</span>
-        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightcoral&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Down&#39;</span><span class="p">),</span>
-        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightblue&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span><span class="p">),</span>
-        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;lightgray&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Noise&#39;</span><span class="p">),</span> 
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">][</span><span class="s1">&#39;Up&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">),</span>
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">][</span><span class="s1">&#39;Down&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Down&#39;</span><span class="p">),</span>
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">][</span><span class="s1">&#39;Flat&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Flat&#39;</span><span class="p">),</span>
+        <span class="n">mpatches</span><span class="o">.</span><span class="n">Patch</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">][</span><span class="s1">&#39;Noise&#39;</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;alpha&#39;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Noise&#39;</span><span class="p">),</span> 
     <span class="p">]</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="s1">&#39;upper right&#39;</span><span class="p">,</span> 
-            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mf">1.15</span><span class="p">),</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">handles</span><span class="o">=</span><span class="n">legend_handles</span><span class="p">,</span> <span class="n">loc</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_loc&#39;</span><span class="p">],</span> 
+            <span class="n">bbox_to_anchor</span><span class="o">=</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">],</span> <span class="n">ncol</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">frameon</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">suppress_show</span><span class="p">:</span>
