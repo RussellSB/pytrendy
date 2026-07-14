@@ -759,6 +759,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(debug)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1544,6 +1555,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(debug)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1618,7 +1640,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1688,6 +1710,25 @@ Defaults to <code>True</code>.</p>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad around abrupt transitions. Defaults to <code>0</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
 </ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.detect_trends.detect_trends(plot_params)" class="doc doc-heading doc-heading-parameter">              <b><code>plot_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:
+- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
+- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
+- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
+- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
+- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
+- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
+- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1792,7 +1833,18 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">82</span>
 <span class="normal">83</span>
 <span class="normal">84</span>
-<span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the main function that runs trend detection end-to-end.</span>
 
@@ -1825,6 +1877,17 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
+<span class="sd">        plot_params (dict, optional):</span>
+<span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
+<span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
+<span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
+<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
+<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to &quot;Value&quot;.</span>
+<span class="sd">            - **colors** (`dict`): Dictionary mapping direction (&#39;Up&#39;, &#39;Down&#39;, &#39;Flat&#39;, &#39;Noise&#39;) to matplotlib colors. Defaults to light variants.</span>
+<span class="sd">            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.</span>
+<span class="sd">            - **grid** (`dict`): Grid configuration with keys &#39;visible&#39; (bool), &#39;which&#39; (str), &#39;color&#39; (str), &#39;alpha&#39; (float).</span>
+<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to &quot;upper right&quot;.</span>
+<span class="sd">            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).</span>
 <span class="sd">        debug (bool, optional):</span>
 <span class="sd">            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.</span>
 <span class="sd">            Defaults to `False`.</span>
@@ -1862,7 +1925,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="n">segments</span> <span class="o">=</span> <span class="n">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span> <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">plot</span><span class="p">:</span> <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="n">plot_params</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
