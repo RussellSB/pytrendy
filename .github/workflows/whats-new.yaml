@@ -170,7 +170,7 @@ jobs:
       - name: Create Pull Request to release branch
         id: pr
         if: steps.meta.outputs.skip != 'true'
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.DOCS_PREVIEW_PAT }}
           # Do not use [skip ci] here: these commits back PR branches and must run PR checks.
@@ -249,7 +249,7 @@ jobs:
         run: python scripts/generate_whats_new.py
 
       - name: Create sync PR to develop
-        uses: peter-evans/create-pull-request@v7
+        uses: peter-evans/create-pull-request@v8
         with:
           token: ${{ secrets.DOCS_PREVIEW_PAT }}
           # Do not use [skip ci] here: these commits back PR branches and must run PR checks.

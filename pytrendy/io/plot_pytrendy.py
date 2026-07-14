@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False) -> plt.Figure:
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -21,21 +21,54 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
+        plot_params (dict, optional):
+            Optional dict to customise plot appearance. Supported keys:
+            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
+            - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
+            - **xlabel** (`str`): X-axis label. Defaults to "Date".
+            - **ylabel** (`str`): Y-axis label. Defaults to "Value".
+            - **colors** (`dict`): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.
+            - **grid** (`dict`): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+            - **legend_loc** (`str`): Legend location. Defaults to "upper right".
+            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).
 
     Returns:
         matplotlib.figure.Figure:
             The figure object containing the plot. Can be displayed with `plt.show()` or saved.
     """
     
-    # Define colours
-    color_map = {
-        'Up': 'lightgreen',
-        'Down': 'lightcoral',
-        'Flat': 'lightblue',
-        'Noise': 'lightgray',
+    # Default plotting params
+    default_params = {
+        'figsize': (20, 5),
+        'title': "PyTrendy Detection",
+        'xlabel': "Date",
+        'ylabel': "Value",
+        'colors': {
+            'Up': 'lightgreen',
+            'Down': 'lightcoral',
+            'Flat': 'lightblue',
+            'Noise': 'lightgray',
+        },
+        'alpha': 0.4,
+        'grid': {'visible': True, 'which': 'major', 'color': 'gray', 'alpha': 0.3},
+        'legend_loc': 'upper right',
+        'legend_bbox_to_anchor': (1, 1.15)
     }
+    if plot_params:
+        plot_params = dict(plot_params)  # avoid mutating caller's dict
+        custom_colors = plot_params.pop('colors', None)
+        custom_grid = plot_params.pop('grid', None)
+        default_params.update(plot_params)
+        if custom_colors:
+            default_params['colors'].update(custom_colors)
+        if custom_grid:
+            default_params['grid'].update(custom_grid)
 
-    fig, ax = plt.subplots(figsize=(20, 5))
+    # Define colors
+    color_map = default_params['colors']
+
+    fig, ax = plt.subplots(figsize=default_params['figsize'])
 
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
@@ -84,7 +117,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                     prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
                     mask = (df.index >= prev_end) & (df.index <= prev_new_end) 
                     prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
-                    ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=0.4)
+                    ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=default_params['alpha'])
 
 
         # Adjust ends when appropriate
@@ -108,7 +141,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             end = end
 
         mask = (df.index >= start) & (df.index <= end) 
-        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
+        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=default_params['alpha'])
         
         # Add ranking if up/down trend
         if 'change_rank' in seg and seg['direction'] in ['Up', 'Down']:
@@ -140,21 +173,21 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
 
     # Optional: show grid lines for both
-    ax.grid(True, which='major', color='gray', alpha=0.3)
+    ax.grid(default_params['grid']['visible'], **{k: v for k, v in default_params['grid'].items() if k != 'visible'})
 
-    ax.set_title("PyTrendy Detection", fontsize=20)
-    ax.set_xlabel("Date")
-    ax.set_ylabel("Value")
+    ax.set_title(default_params['title'], fontsize=20)
+    ax.set_xlabel(default_params['xlabel'])
+    ax.set_ylabel(default_params['ylabel'])
 
     # Create custom legend handles (colored boxes)
     legend_handles = [
-        mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
-        mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
-        mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
+        mpatches.Patch(color=default_params['colors']['Up'], alpha=default_params['alpha'], label='Up'),
+        mpatches.Patch(color=default_params['colors']['Down'], alpha=default_params['alpha'], label='Down'),
+        mpatches.Patch(color=default_params['colors']['Flat'], alpha=default_params['alpha'], label='Flat'),
+        mpatches.Patch(color=default_params['colors']['Noise'], alpha=default_params['alpha'], label='Noise'), 
     ]
-    ax.legend(handles=legend_handles, loc='upper right', 
-            bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
+    ax.legend(handles=legend_handles, loc=default_params['legend_loc'], 
+            bbox_to_anchor=default_params['legend_bbox_to_anchor'], ncol=4, frameon=True)
 
     plt.tight_layout()
     if not suppress_show:
