@@ -6,7 +6,7 @@ Main orchestration function for the full post-processing pipeline to refine dete
 import pandas as pd
 from copy import deepcopy
 from .trend_classify import classify_trends
-from .gradual_expand_contract import expand_contract_segments
+from .gradual_expand_contract import expand_contract_segments, pad_gradual_trends
 from .abrupt_shaving import shave_abrupt_trends
 from .segment_grouping import group_segments
 from .artifact_cleanup import clean_artifacts, fill_in_flats
@@ -41,6 +41,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
     segments_refined = group_segments(segments_refined) # grouping 1st pass: sporadic flats & noises
 
     segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
+    segments_refined = pad_gradual_trends(df, value_col, segments_refined, method_params) # for gradual padding
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
     segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract

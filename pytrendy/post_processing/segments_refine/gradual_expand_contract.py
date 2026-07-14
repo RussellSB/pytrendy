@@ -88,3 +88,57 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
             update_next_segment(i, new_end, segments, segments_refined)
 
     return segments_refined
+
+
+def pad_gradual_trends(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
+    """
+    Extends gradual segment end dates by a specified number of days.
+
+    Mirrors the padding behaviour for abrupt segments: extends the end date forward,
+    truncating before any non-Flat segment that would be overlapped, and clamping
+    to the last index date. Sets a ``padded`` flag on modified segments.
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        value_col (str): Name of the signal column.
+        segments (list): List of segment dictionaries with ``'trend_class': 'gradual'``.
+        method_params (dict): Supported keys:
+
+            - **gradual_padding** (`int`): Number of days to pad. Defaults to ``0``.
+
+    Returns:
+        list: Segment list with padded gradual boundaries.
+    """
+
+    gradual_padding = method_params.get('gradual_padding', 0)
+    if gradual_padding <= 0:
+        return segments
+
+    segments_padded = deepcopy(segments)
+
+    meta_df = pd.DataFrame(segments)
+    meta_df['start'] = pd.to_datetime(meta_df['start'])
+    meta_df['end'] = pd.to_datetime(meta_df['end'])
+
+    for i, segment in enumerate(segments):
+
+        if segment['direction'] not in ['Up', 'Down'] or segment.get('trend_class') != 'gradual':
+            continue
+
+        gradual_end = pd.to_datetime(segment['end'])
+
+        new_end = gradual_end + pd.Timedelta(days=gradual_padding)
+        overlaps = meta_df.loc[(meta_df['start'] > gradual_end) & (meta_df['start'] <= new_end)]
+        overlaps_nonflats = overlaps[overlaps['direction'] != 'Flat']
+
+        if not overlaps_nonflats.empty:
+            first_notflat_overlap = overlaps_nonflats.iloc[0]
+            new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
+
+        new_end = min(new_end, df.index[-1])
+        segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
+        update_next_segment(i, new_end, segments, segments_padded)
+
+        segments_padded[i]['padded'] = True if new_end != gradual_end else False
+
+    return segments_padded
