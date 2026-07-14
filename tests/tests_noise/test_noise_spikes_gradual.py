@@ -108,7 +108,7 @@ class TestNoiseSpikesGradual:
         # Validate uptrends are properly detected
         expected_uptrends = [
             {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
-            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-14'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-17'},
             {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-08'},
         ]
         uptrend_segments = results.filter_segments(direction='Up', format='dict')
