@@ -53,6 +53,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
 
     THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
     THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
+    THRESHOLD_FLAT = 0.835 # Sensitivity to detecting flats as a fraction of min std (non-zero)
 
     # 1. Noise detection via SNR.
     # 1.1 Compute the SNR
@@ -192,7 +193,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     nonzero_std = rolling_std[rolling_std > 0]
     min_nonzero_std = nonzero_std.min() if not nonzero_std.empty else 0.0
     derivative_near_zero = df['smoothed_deriv'].abs() <= derivative_limit
-    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * 0.835)
+    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * THRESHOLD_FLAT)
     df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0) & (derivative_near_zero | extremely_smooth), 'flat_flag'] = 1 
 
     # 4. Detect up/down trend.
