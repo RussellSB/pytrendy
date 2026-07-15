@@ -145,8 +145,8 @@ class TestUncommonValues:
 
     @pytest.mark.core
     def test_gradual_ramp_90day_detected(self):
-        """A sustained 90-day gradual ramp is detected as a single uptrend,
-        both with default params and with abrupt_padding=28 + avoid_noise=False.
+        """A sustained 90-day gradual ramp is detected as a single uptrend
+        with abrupt_padding=28 and default avoid_noise=True.
 
         Regression test for issue #195: long gradual ramps were truncated because
         the flat detection threshold was too aggressive during gradual ramps.
