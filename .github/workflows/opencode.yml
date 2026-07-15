@@ -20,17 +20,11 @@ jobs:
       )
     runs-on: ubuntu-latest
     permissions:
-      # OIDC token for OpenCode auth
       id-token: write
-      # allows OpenCode to push branches, commits, and create PRs
-      contents: write
-      # allows OpenCode to comment on / update PRs it's invoked from
-      pull-requests: write
-      # allows OpenCode to comment on / update issues it's invoked from
-      issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        # TODO: upgrade to @v7 when opencode docs update
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
 
@@ -38,7 +32,5 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           model: opencode-go/mimo-v2.5
-          use_github_token: true
