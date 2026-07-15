@@ -5,7 +5,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 <!-- WHATS_NEW_NOTE_START -->
 <!--
 !!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
+    You are viewing the **develop** build, currently aligned with stable release **v1.3.1**.  
     Switch to the **main** docs via the badge in the header to see the stable documentation.
 -->
 <!-- WHATS_NEW_NOTE_END -->
@@ -13,6 +13,34 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Released in v1.3.1
+
+> Released 2026-07-15
+
+PyTrendy v1.3.1 is a maintenance-only patch with CI workflow fixes and no changes to the trend detection library itself.
+
+---
+
+## Released in v1.3.1
+
+> Released 2026-07-15
+
+A maintenance patch with CI workflow fixes only — no changes to the trend detection library.
+
+??? note "CI/CD workflow fixes"
+    Three CI fixes to align with updated GitHub Actions and OpenCode app authentication:
+
+    - Downgraded `actions/checkout` to v6 to match current documentation.
+      ([3509466](https://github.com/RussellSB/pytrendy/commit/35094666762a1286448ac82ef9a38b43399aeb2a))
+    - Removed `use_github_token` parameter to enable OpenCode app authentication.
+      ([1fe067e](https://github.com/RussellSB/pytrendy/commit/1fe067efaf1e970f823013536bb52d96f6dac60d))
+    - Trimmed workflow permissions to `id-token: write` only, following least-privilege best practice.
+      ([66fbab4](https://github.com/RussellSB/pytrendy/commit/66fbab4ca277ac431d04a95a34248f977261bc22))
+
+    No library behaviour changes — this release only affects CI and release automation.
+
+---
 
 ## Released in v1.3.0
 
