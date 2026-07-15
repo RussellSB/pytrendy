@@ -5,7 +5,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 <!-- WHATS_NEW_NOTE_START -->
 <!--
 !!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
+    You are viewing the **develop** build, currently aligned with stable release **v1.3.1**.  
     Switch to the **main** docs via the badge in the header to see the stable documentation.
 -->
 <!-- WHATS_NEW_NOTE_END -->
@@ -13,6 +13,31 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Released in v1.3.1
+
+> Released 2026-07-15
+
+Here is the What's New entry for v1.3.1:
+
+---
+
+## Released in v1.3.1
+
+> Released 2026-07-15
+
+v1.3.1 is a patch release with CI/CD housekeeping — no changes to the trend detection algorithm or public API.
+
+??? note "CI/CD hardening"
+    Three fixes to the release pipeline for OpenCode integration:
+
+    - Downgraded `actions/checkout` to v6 to align with OpenCode documentation requirements.
+    - Removed `use_github_token` flag to enable OpenCode app-based authentication.
+    - Trimmed workflow permissions to `id-token: write` only, following least-privilege best practices.
+
+<!-- WHATS_NEW_CONTENT_END -->
+
+---
 
 ## Released in v1.3.0
 
