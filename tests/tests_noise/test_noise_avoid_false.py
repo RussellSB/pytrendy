@@ -15,15 +15,15 @@ class TestNoiseAvoidFalse:
     def test_gradual_four_spikes_noise_avoid_false(self):
         """
         Test trends with four spikes distributed across the series,
-        in the setting that user doesnt care about noise for treatment signal
-        Verifies  that four spikes with varying values are correctly ignored and trends are detected over them.
+        in the setting that user doesnt care about noise for treatment signal.
+
+        With avoid_noise=False, the pipeline skips noise detection entirely and
+        works on the raw signal, so trends are detected over / through the spikes.
 
         Granted, a bit of a mad man example, not sure why anyone would reasonably want this.
-        But good to test that the worst case scenario is ignored as expected when specified.
-        
+        But good to test that the worst case scenario is handled as expected when specified.
+
         Reference: test.py spike test 1.7, Modified instance with avoid_noise=False
-        
-        This test 
         """
         # spike test 1.7 - add 4 spikes
         df = pt.load_data('series_synthetic')
@@ -33,7 +33,7 @@ class TestNoiseAvoidFalse:
         df.loc['2025-05-08':'2025-05-08', 'gradual'] = 300  # spike
         df.loc['2025-06-03':'2025-06-03', 'gradual'] = 320  # spike
         df = df.reset_index()
-        
+
         results = pt.detect_trends(
             df,
             date_col='date',
@@ -43,15 +43,16 @@ class TestNoiseAvoidFalse:
                                , avoid_noise=False # main parameter tested
                         )
         )
-        
+
         # Expect no noise segments representing the four spikes
         noise_segments = results.filter_segments(direction='Noise', format='dict')
         assert len(noise_segments) == 0, 'Expected all 4 spikes to be ignored with avoid_noise=False'
-        
+
         # Assert for trends overlapping spikes, now that avoid_noise=False
-        # Expected trends ignorant of noise
+        # With avoid_noise=False the pipeline works on the raw signal (spikes not masked
+        # in value_cleaned), so the first Up starts later than the pre-fix expectation.
         expected_segments = [
-            {'direction': 'Up', 'start': '2025-02-06', 'end': '2025-02-28'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-02-28'},
             {'direction': 'Up', 'start': '2025-04-02', 'end': '2025-05-08'},
             {'direction': 'Down', 'start': '2025-05-09', 'end': '2025-06-17'},
         ]
@@ -65,8 +66,7 @@ class TestNoiseAvoidFalse:
         This is the main scenario that `avoid_noise=False` solves.
 
         When treatment is 0 pre/post activation, sometimes undesired noise segments are detected over the initial changepoints.
-        This is probably due to noise refinement logic that needs further tweaking to avoid this (though this was already catered for).
-        Quick fix for now however, is just to let the user specifiy if they're happy with ignoring noise.
+        With avoid_noise=False, noise detection is skipped entirely so the pipeline works on the raw signal.
         """
         df = pt.load_data('series_synthetic')
 
@@ -86,8 +86,8 @@ class TestNoiseAvoidFalse:
                                 , avoid_noise=False # main parameter tested
                             )
         )
-        expected_segments = [ # noise segments should be ignored, and no longer block precise trend detect for dummy "new market"
-            {'direction': 'Up', 'start': '2025-02-27', 'end': '2025-04-26'},
+        expected_segments = [ # raw signal used; zero baseline not masked so Up ends earlier
+            {'direction': 'Up', 'start': '2025-02-27', 'end': '2025-03-29'},
             {'direction': 'Down', 'start': '2025-05-02', 'end': '2025-06-02'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)

@@ -13,6 +13,10 @@ on:
       - develop
   workflow_dispatch:
 
+concurrency:
+  group: gh-pages-deploy
+  cancel-in-progress: false
+
 jobs:
   check-should-deploy:
     name: Check if docs should be deployed
@@ -21,7 +25,7 @@ jobs:
       should_deploy: ${{ steps.check.outputs.should_deploy }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -101,12 +105,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12"
 
@@ -115,7 +119,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e ".[docs]"
 
-      - name: Normalize notebooks
+      - name: Normalise notebooks
         run: |
           chmod +x scripts/normalize_notebooks.sh
           bash scripts/normalize_notebooks.sh

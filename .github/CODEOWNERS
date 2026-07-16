@@ -1,0 +1,9 @@
+* @RussellSB
+
+/.releaserc* @RussellSB
+/.releaserc.dev.json @RussellSB
+/.github/workflows/release.yaml @RussellSB
+/pyproject.toml @RussellSB
+/.github/ @RussellSB
+/docs/ @RussellSB
+/mkdocs.yml @RussellSB

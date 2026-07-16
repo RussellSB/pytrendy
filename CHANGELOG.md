@@ -1,3 +1,18 @@
+# [1.3.0](https://github.com/RussellSB/pytrendy/compare/v1.2.0...v1.3.0) (2026-06-28)
+
+
+### Bug Fixes
+
+* avoid_noise=False produced unintended noise on flat zero baseline edgecase ([#170](https://github.com/RussellSB/pytrendy/issues/170)) ([c387cf3](https://github.com/RussellSB/pytrendy/commit/c387cf32d18b0dcb9a51df08b35f134b705cf81a)), closes [#163](https://github.com/RussellSB/pytrendy/issues/163) [#163](https://github.com/RussellSB/pytrendy/issues/163) [#163](https://github.com/RussellSB/pytrendy/issues/163) [#163](https://github.com/RussellSB/pytrendy/issues/163) [#163](https://github.com/RussellSB/pytrendy/issues/163) [#171](https://github.com/RussellSB/pytrendy/issues/171)
+* detect Up on zero-baseline market entry and preserve Down total_change ([#177](https://github.com/RussellSB/pytrendy/issues/177)) ([e01fdce](https://github.com/RussellSB/pytrendy/commit/e01fdce5bfdd37c9959ff98dedad2b2ccda5e314)), closes [#171](https://github.com/RussellSB/pytrendy/issues/171) [#171](https://github.com/RussellSB/pytrendy/issues/171)
+* remove manual develop pre-release version workaround ([#145](https://github.com/RussellSB/pytrendy/issues/145)) ([5c83e39](https://github.com/RussellSB/pytrendy/commit/5c83e3957a14d4f1fd77c2ca8c634dfa373f06d1))
+* zero baseline bug on missed abrupt padding ([#142](https://github.com/RussellSB/pytrendy/issues/142)) ([df4152b](https://github.com/RussellSB/pytrendy/commit/df4152bc23e7ca811d0b8bd3cc53a69cc186e581))
+
+
+### Features
+
+* deprecate is_abrupt_padded parameter in detect_trends() ([3e16b34](https://github.com/RussellSB/pytrendy/commit/3e16b3435983d914b6fbf5e2c1a7b97920160524)), closes [#117](https://github.com/RussellSB/pytrendy/issues/117) [#117](https://github.com/RussellSB/pytrendy/issues/117)
+
 # [1.2.0](https://github.com/RussellSB/pytrendy/compare/v1.1.11...v1.2.0) (2026-05-09)
 
 
