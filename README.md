@@ -52,7 +52,7 @@ results.print_summary()
 Detected: 
 - 3 Uptrends. 
 - 3 Downtrends.
-- 3 Flats.
+- 2 Flats.
 - 0 Noise.
 
 The best detected trend is Down between dates 2025-05-09 - 2025-06-17
@@ -63,13 +63,12 @@ Full Results:
 time_index                                                                               
 1                 Up  2025-01-02  2025-01-24    22     14.013348            5     gradual
 2               Down  2025-01-25  2025-02-05    11    -13.564214            6     gradual
-3               Flat  2025-02-06  2025-02-09     3     -1.168831            9         NaN
-4                 Up  2025-02-10  2025-03-14    32     24.632035            3     gradual
-5               Flat  2025-03-15  2025-03-17     2      5.660173            7         NaN
-6               Down  2025-03-18  2025-04-01    14    -22.721861            4     gradual
-7                 Up  2025-04-02  2025-05-08    36     72.611833            2     gradual
-8               Down  2025-05-09  2025-06-17    39    -73.253968            1     gradual
-9               Flat  2025-06-18  2025-06-30    12      3.910534            8     NaN 
+3               Flat  2025-02-06  2025-02-09     3     -1.168831            8         NaN
+4                 Up  2025-02-10  2025-03-17    35     26.190476            3     gradual
+5               Down  2025-03-18  2025-04-01    14    -22.721861            4     gradual
+6                 Up  2025-04-02  2025-05-08    36     72.611833            2     gradual
+7               Down  2025-05-09  2025-06-17    39    -73.253968            1     gradual
+8               Flat  2025-06-18  2025-06-30    12      3.910534            7         NaN
 -------------------------------------------------------------------------------
 ```
 
@@ -81,7 +80,7 @@ results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 | time_index | direction | start | end | trend_class | change | pct_change | days | total_change | SNR | change_rank |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 7 | Up | 2025-04-02 | 2025-05-08 | gradual | 72.61 | 367.50% | 36 | 72.61 | 21.70 | 2 |
-| 4 | Up | 2025-02-10 | 2025-03-14 | gradual | 24.63 | 169.22% | 32 | 24.63 | 18.87 | 3 |
+| 4 | Up | 2025-02-10 | 2025-03-17 | gradual | 26.19 | 179.93% | 35 | 26.19 | 18.61 | 3 |
 | 1 | Up | 2025-01-02 | 2025-01-24 | gradual | 14.01 | 104.41% | 22 | 14.01 | 22.21 | 5 |
 
 `filter_segments` ranks segments by magnitude (`change_rank`). See the [API reference](https://russellsb.github.io/pytrendy/main/reference/pytrendy/io/results_pytrendy/#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments) for all filter and sort options.
