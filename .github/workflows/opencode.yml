@@ -21,6 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
       - name: Checkout repository
         # TODO: upgrade to @v7 when opencode docs update
@@ -32,5 +35,6 @@ jobs:
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
+          PYTRENDY_CI: "true"
         with:
           model: opencode-go/mimo-v2.5

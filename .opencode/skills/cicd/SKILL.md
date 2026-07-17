@@ -65,3 +65,13 @@ For manual before/after plot generation in PR bodies (fix/feature PRs), see the 
 ## Secrets the workflows expect
 
 `CODECOV_TOKEN`, `RELEASE_SSH_KEY`, `OPENCODE_API_KEY`, `DOCS_PREVIEW_PAT`, plus `GITHUB_TOKEN`. `OPENCODE_MODEL` is a repo **variable** (vars context), not a secret. PyPI publish uses OIDC trusted publishing (no token).
+
+## OpenCode App installation scopes
+
+The OpenCode GitHub App (`opencode-agent`) requires specific repository permissions for commits, issues, and PRs. Verify in GitHub Settings → Integrations → OpenCode App → Installations:
+
+- **Contents:** read/write (for commits)
+- **Issues:** read/write (for creating and commenting on issues)
+- **Pull requests:** read/write (for creating and commenting on PRs)
+
+**Fallback (user awareness only — do not attempt to apply):** If App scopes cannot be fixed, the user can set `use_github_token: true` in `.github/workflows/opencode.yml` (backed by the widened workflow `permissions:` block). This requires changes to the workflow on `main`, so the agent should not attempt to work around it.
