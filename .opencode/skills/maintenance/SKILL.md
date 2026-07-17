@@ -1,6 +1,6 @@
 ---
 name: maintenance
-description: Use when making ANY code change to pytrendy. Covers commit format, branch model, deprecation policy, API surface, diff conventions, remote session behaviour, and things you must not touch. Load this FIRST before any code work.
+description: Use when making ANY code change to pytrendy, creating issues, or opening PRs. Covers commit format, PR title conventions, branch model, deprecation policy, API surface, diff conventions, remote session behaviour, and things you must not touch. Load this FIRST before any code work.
 ---
 
 # Maintenance & API evolution
