@@ -1,6 +1,6 @@
 ---
 name: pytrendy
-description: Use when modifying the trend detection pipeline, adding/renaming modules under pytrendy/, or working with datasets and results. Covers the 5-stage pipeline, module boundaries, built-in data, and the PyTrendyResults API.
+description: Use when working on pytrendy code, tests, or data. Covers the 5-stage pipeline, module map, install/verify, datasets, PyTrendyResults API, and docs tooling.
 ---
 
 # pytrendy package architecture
@@ -116,3 +116,28 @@ Tests exercise this heavily in `tests/test_io_results.py` (all `@pytest.mark.cor
 ```
 
 `detect_trends` reconstructs this dict from an allowlist — unknown keys are dropped. Adding a tunable = update the allowlist in `detect_trends.py:72` + the docstring + add a test.
+
+## Install & verify
+
+```bash
+pip install -e ".[dev]"           # dev: pytest, pytest-cov, pytest-mpl, pytest-timeout
+pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs work
+```
+
+**Verify before push** — CI runs core first, then non-core with `--cov-append`:
+
+```bash
+pytest tests/ -m core                       # essential, must pass
+pytest tests/ -m "not core" --cov-append    # the rest
+# or just: pytest  (pyproject addopts already set --mpl --cov=pytrendy)
+```
+
+- 15s per-test timeout (`pytest-timeout`).
+- Plot tests use **pytest-mpl** with baselines pinned to **matplotlib==3.10.8** (hard pin in `pyproject.toml`). Regenerating baselines on another version = false failures. See the `test` skill.
+- `coverage.xml` + `.coverage` are gitignored artifacts; don't commit.
+
+## Docs
+
+- MkDocs Material + mkdocstrings (Google-style). New page → register under `nav:` in `mkdocs.yml`.
+- `mkdocs serve` for local preview. PRs touching `docs/`, `mkdocs.yml`, or `pytrendy/` auto-deploy a preview at `russellsb.github.io/pytrendy/pr-<N>/` (bot comments the URL; removed on PR close; fork PRs skipped).
+- JupyterLite notebooks in `docs/examples/` — run `scripts/normalize_notebooks.sh` before building docs (works around a JupyterLite text-output rendering bug).

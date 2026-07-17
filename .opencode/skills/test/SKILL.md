@@ -1,6 +1,6 @@
 ---
 name: test
-description: Use when running, writing, or verifying pytrendy's automated test suite. Covers pytest-mpl baseline workflow, the core/plot markers, coverage-append ordering, conftest helpers, and migrating debug reproductions into formal regression tests.
+description: Use when running, writing, or verifying pytrendy's test suite. Also covers pytest configuration and install/verify commands.
 ---
 
 # Testing in pytrendy
