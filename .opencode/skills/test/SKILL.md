@@ -1,6 +1,6 @@
 ---
 name: test
-description: Use when running, writing, or verifying pytrendy's test suite. Also covers pytest configuration and install/verify commands.
+description: Use when running, writing, or verifying pytrendy's test suite. Also covers pytest configuration.
 ---
 
 # Testing in pytrendy
