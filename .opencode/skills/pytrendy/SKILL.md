@@ -119,6 +119,9 @@ Tests exercise this heavily in `tests/test_io_results.py` (all `@pytest.mark.cor
 
 ## Install & verify
 
+During development you can import `pytrendy` directly — no rebuild step needed.
+The commands below are primarily for end users or when setting up a fresh environment.
+
 ```bash
 pip install -e ".[dev]"           # dev: pytest, pytest-cov, pytest-mpl, pytest-timeout
 pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs work
