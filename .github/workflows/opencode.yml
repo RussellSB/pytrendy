@@ -31,6 +31,11 @@ jobs:
         with:
           persist-credentials: false
 
+      # Create a CI-specific global config instead of modifying the project's
+      # opencode.json to avoid conflicts with local dev setups. Plugins are
+      # deduplicated by package name, but the user's global config has a local
+      # ponytail plugin file that would coexist with the npm package — creating
+      # a CI-only config sidesteps this entirely.
       - name: Configure opencode for CI
         run: |
           mkdir -p ~/.config/opencode
