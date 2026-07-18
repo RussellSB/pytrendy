@@ -19,6 +19,7 @@ jobs:
         startsWith(github.event.comment.body, '/opencode')
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       id-token: write
       contents: write
@@ -44,6 +45,11 @@ jobs:
             "plugin": [
               "@dietrichgebert/ponytail"
             ],
+            "permission": {
+              "external_directory": {
+                "/tmp/*": "allow"
+              }
+            },
             "mcp": {
               "github": {
                 "type": "remote",
