@@ -32,7 +32,7 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
     - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
     - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
 
-    For the full list of supported keys, see the [`plot_params` reference](../reference/pytrendy/detect_trends.md#plot_params).
+    For the full list of supported keys, see the [`plot_params` reference](https://github.com/RussellSB/pytrendy/blob/develop/pytrendy/io/plot_pytrendy.py).
     Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
 
     <div class="before-after-grid" markdown>
@@ -45,7 +45,7 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — custom `plot_params`</span>
 
-    ![Custom plot with modified title, colours, grid, and legend](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
+    ![Custom plot with title, no grid, and legend in upper left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
 
     </div>
     </div>
@@ -63,11 +63,10 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
         pt.detect_trends(
             df, date_col="date", value_col="gradual",
             plot_params=dict(
-                figsize=(14, 4),
+                figsize=(20, 6),
                 title="Gradual Trend — Custom Visual",
-                colors={"Up": "mediumseagreen", "Down": "lightsalmon"},
                 grid={"visible": False},
-                legend_loc="lower left",
+                legend_loc="upper left",
             ),
         )
         ```
