@@ -32,7 +32,7 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
     - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
     - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
 
-    For the full list of supported keys, see the [`plot_params` reference](https://github.com/RussellSB/pytrendy/blob/develop/pytrendy/io/plot_pytrendy.py).
+    For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends).
     Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
 
     <div class="before-after-grid" markdown>
@@ -67,6 +67,7 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
                 title="Gradual Trend — Custom Visual",
                 grid={"visible": False},
                 legend_loc="upper left",
+                legend_bbox_to_anchor=(0, 0),
             ),
         )
         ```
