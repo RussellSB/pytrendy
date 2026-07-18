@@ -31,10 +31,44 @@ jobs:
         with:
           persist-credentials: false
 
+      - name: Configure opencode for CI
+        run: |
+          mkdir -p ~/.config/opencode
+          cat > ~/.config/opencode/opencode.jsonc << 'EOCONF'
+          {
+            "plugin": [
+              "@dietrichgebert/ponytail"
+            ],
+            "mcp": {
+              "github": {
+                "type": "remote",
+                "url": "https://api.githubcopilot.com/mcp/",
+                "headers": {
+                  "Authorization": "Bearer $GITHUB_PERSONAL_ACCESS_TOKEN"
+                }
+              },
+              "gh_grep": {
+                "type": "remote",
+                "url": "https://mcp.grep.app"
+              },
+              "context7": {
+                "type": "remote",
+                "url": "https://mcp.context7.com/mcp",
+                "headers": {
+                  "Authorization": "Bearer $CONTEXT7_API_KEY"
+                }
+              }
+            }
+          }
+          EOCONF
+
       - name: Run opencode
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           PYTRENDY_CI: "true"
+          PONYTAIL_DEFAULT_MODE: "ultra"
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
         with:
           model: opencode-go/mimo-v2.5
