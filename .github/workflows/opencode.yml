@@ -48,7 +48,9 @@ jobs:
             "permission": {
               "external_directory": {
                 "/tmp/*": "allow"
-              }
+              },
+              "question": "deny",
+              "doom_loop": "deny"
             },
             "mcp": {
               "github": {
