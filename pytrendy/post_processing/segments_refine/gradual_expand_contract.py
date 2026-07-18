@@ -166,6 +166,6 @@ def pad_gradual_trends(df: pd.DataFrame, value_col: str, segments: list[dict], m
         segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
         update_next_segment(i, new_end, segments, segments_padded)
 
-        segments_padded[i]['padded'] = True if new_end != gradual_end else False
+        segments_padded[i]['padded'] = new_end != gradual_end
 
     return segments_padded
