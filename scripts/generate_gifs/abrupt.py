@@ -23,6 +23,10 @@ from scripts.generate_gifs.utils import (
     REPO_ROOT, render_frame, save_gif
 )
 
+def _crossfade(bottom: Image.Image, top: Image.Image, alpha: float) -> Image.Image:
+    """Fade top image out to reveal bottom. alpha=0 shows top, alpha=1 shows bottom."""
+    return Image.blend(top.convert("RGBA"), bottom.convert("RGBA"), alpha)
+
 # ---------------------------------------------------------------------------
 # Constants
 # ---------------------------------------------------------------------------
@@ -87,6 +91,16 @@ def generate():
         a = max(0.0, 1.0 - (i + 1) / 10)
         R(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
 
+    # ── Crossfade: Phase 1 end → Phase 2 start ─────────────────────────
+    # Pre-render the two frames to crossfade between
+    phase1_end = render_frame(df, value_col, TITLE1, sweep_progress=1.0, segments=segs1)
+    phase2_start = render_frame(df, value_col, TITLE2)
+
+    for i in range(15):
+        alpha = (i + 1) / 15
+        frames.append(_crossfade(phase2_start, phase1_end, alpha))
+        hold(50)
+
     # ── Cycle 2: with padding ──────────────────────────────────────────
     print("Rendering Cycle 2 ...")
 
@@ -113,13 +127,14 @@ def generate():
         a = max(0.0, 1.0 - (i + 1) / 10)
         R(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
 
-    # 13. Segments fade out (alpha fade, no sweep)
-    for i in range(10):
-        a = max(0.0, 1.0 - (i + 1) / 10)
-        R(TITLE2, sweep=1.0, segs=segs2, sa=a * 0.4); hold(40)
+    # ── Crossfade: Phase 2 end → Phase 1 start (seamless loop) ────────
+    phase2_end = render_frame(df, value_col, TITLE2, sweep_progress=1.0, segments=segs2)
+    phase1_start = render_frame(df, value_col, TITLE1)
 
-    # 14. Brief pause on raw plot (matches frame 0 for seamless loop)
-    R(TITLE1); hold(300)
+    for i in range(15):
+        alpha = (i + 1) / 15
+        frames.append(_crossfade(phase1_start, phase2_end, alpha))
+        hold(50)
 
     # ── Save ───────────────────────────────────────────────────────────
     n = len(frames)
