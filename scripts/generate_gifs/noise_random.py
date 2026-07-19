@@ -2,7 +2,8 @@
 """Generate Noise-Random.gif programmatically.
 
 Recreates the animated GIF showing PyTrendy's trend detection
-in noisy data with random noise, in a single-cycle animation.
+in noisy data with random noise, showing how detection adapts
+as noise levels increase.
 
 Usage:
     python scripts/generate_gifs/noise_random.py
@@ -14,6 +15,7 @@ Output:
 import sys
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from PIL import Image
 
@@ -30,62 +32,96 @@ OUTPUT_PATH = REPO_ROOT / "plots" / "Noise-Random.gif"
 
 TITLE = "Detect Trends in Noisy Data"
 
+# Noise levels to cycle through (from notebook)
+NOISE_LEVELS = [0, 10, 20, 50]
+SEED = 10
+
+
+def _crossfade(bottom: Image.Image, top: Image.Image, alpha: float) -> Image.Image:
+    """Fade top image out to reveal bottom. alpha=0 shows top, alpha=1 shows bottom."""
+    return Image.blend(top.convert("RGBA"), bottom.convert("RGBA"), alpha)
+
 
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 def generate():
-    df = pt.load_data("series_synthetic")[["date", "gradual-noisy-20"]]
-    df["date"] = pd.to_datetime(df["date"])
-    df = df.set_index("date")
-    value_col = "gradual-noisy-20"
+    # Load gradual data (base signal)
+    df_base = pt.load_data("series_synthetic")[["date", "gradual"]]
+    df_base["date"] = pd.to_datetime(df_base["date"])
+    df_base = df_base.set_index("date")
 
-    print("Running detection ...")
-    res = pt.detect_trends(df.reset_index(), date_col="date", value_col=value_col, plot=False)
-    segs = res.segments
+    # Pre-generate noise for consistent random seed
+    rng = np.random.default_rng(seed=SEED)
+
+    # Run detection for each noise level
+    print("Running detection for each noise level ...")
+    noise_data = {}
+    for noise_std in NOISE_LEVELS:
+        df_noisy = df_base.copy()
+        if noise_std > 0:
+            df_noisy["gradual"] = df_noisy["gradual"] + rng.normal(0, noise_std, size=len(df_noisy))
+        res = pt.detect_trends(df_noisy.reset_index(), date_col="date", value_col="gradual", plot=False)
+        noise_data[noise_std] = {
+            "df": df_noisy,
+            "segs": res.segments
+        }
+        print(f"  Noise std={noise_std}: {len(res.segments)} segments detected")
+
+    # Pre-render the key frame for each noise level (signal + segments + ranks)
+    print("Pre-rendering key frames ...")
+    key_frames = {}
+    for noise_std in NOISE_LEVELS:
+        data = noise_data[noise_std]
+        title_with_info = f"{TITLE} (seed={SEED}, std={noise_std})"
+        key_frames[noise_std] = render_frame(
+            data["df"], "gradual", title_with_info,
+            sweep_progress=1.0, segments=data["segs"],
+            show_ranks=True, rank_alpha=1.0
+        )
+        print(f"  Noise std={noise_std}: rendered")
 
     frames: list[Image.Image] = []
     durations: list[int] = []
 
-    def R(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 12, sa))
-
     def hold(ms):
         durations.append(ms)
 
-    # ── Single cycle ───────────────────────────────────────────────────
+    # ── Animation ──────────────────────────────────────────────────────
     print("Rendering animation ...")
 
-    # 1. Raw plot (white background)
-    R(TITLE); hold(500)
+    crossfade_frames = 15  # frames for each crossfade
+    hold_ms = 50  # ms per frame during crossfade
+    result_hold_ms = 2000  # ms to hold each result
 
-    # 2. All segments sweep left to right (blue, green, blue, red, blue)
-    for i in range(30):
-        R(TITLE, sweep=(i + 1) / 30, segs=segs); hold(40)
+    for idx, noise_std in enumerate(NOISE_LEVELS):
+        print(f"  Phase {idx + 1}: Noise std={noise_std}")
 
-    # 3. Sweep complete hold (all segments visible)
-    R(TITLE, sweep=1.0, segs=segs); hold(500)
+        # Hold the result frame
+        frames.append(key_frames[noise_std])
+        hold(result_hold_ms)
 
-    # 4. Ranks fade in (larger, near top)
-    for i in range(10):
-        a = (i + 1) / 10
-        R(TITLE, sweep=1.0, segs=segs, ranks=True, ra=a); hold(40)
+        # Crossfade to next noise level: current fades out, next is background
+        if idx < len(NOISE_LEVELS) - 1:
+            next_std = NOISE_LEVELS[idx + 1]
 
-    # 5. Result hold
-    R(TITLE, sweep=1.0, segs=segs, ranks=True); hold(5000)
+            for i in range(crossfade_frames):
+                alpha = (i + 1) / crossfade_frames
+                # next image is background, current image fades out on top
+                blended = _crossfade(key_frames[next_std], key_frames[noise_std], alpha)
+                frames.append(blended)
+                hold(hold_ms)
 
-    # 6. Ranks fade out
-    for i in range(10):
-        a = max(0.0, 1.0 - (i + 1) / 10)
-        R(TITLE, sweep=1.0, segs=segs, ranks=True, ra=a); hold(40)
+    # Hold final state (high noise) longer
+    frames.append(key_frames[NOISE_LEVELS[-1]])
+    hold(3000)
 
-    # 7. Segments fade out (alpha fade, no sweep)
-    for i in range(10):
-        a = max(0.0, 1.0 - (i + 1) / 10)
-        R(TITLE, sweep=1.0, segs=segs, sa=a * 0.4); hold(40)
-
-    # 8. Brief pause on raw plot (matches frame 0 for seamless loop)
-    R(TITLE); hold(300)
+    # Fade from final state back to starting frame for seamless loop
+    for i in range(15):
+        alpha = (i + 1) / 15
+        blended = _crossfade(key_frames[NOISE_LEVELS[0]], key_frames[NOISE_LEVELS[-1]], alpha)
+        frames.append(blended)
+        hold(hold_ms)
 
     # ── Save ───────────────────────────────────────────────────────────
     n = len(frames)
