@@ -3,16 +3,104 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-<!--
-!!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
-    Switch to the **main** docs via the badge in the header to see the stable documentation.
--->
+!!! note "Pre-release documentation"
+    You are viewing the **develop** (pre-release) build.  
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Coming in v1.4.2 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+
+```bash
+pip install --pre pytrendy
+```
+
+I cannot generate the before/after images without bash access to run Python scripts. I'll write the docs entry with placeholder image references and provide the exact generation script.
+
+Here is the What's New entry:
+
+---
+
+A single fix in v1.4.0-dev.2: `plot_pytrendy` now correctly applies custom `grid` and legend parameters passed via `plot_params`.
+
+??? note "Plot now honors `grid` and legend parameters"
+    Custom grid and legend settings passed through `plot_params` are now applied to the chart.
+    Previously, `grid` visibility and styling as well as `legend_loc` and `legend_bbox_to_anchor` were silently ignored, so the default gray grid and upper-right legend always appeared regardless of user settings.
+    Fixed: [#250](https://github.com/RussellSB/pytrendy/issues/250) via [#255](https://github.com/RussellSB/pytrendy/pull/255)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.4.0-dev.1</span>
+
+    ![Grid visible and legend at upper right despite custom plot_params](img/whats-new/pre-release/whats_new_grid_legend_before_pr255.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.4.0-dev.2</span>
+
+    ![Grid hidden and legend repositioned to upper left per plot_params](img/whats-new/pre-release/whats_new_grid_legend_after_pr255.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        result = pt.detect_trends(df, date_col="date", value_col="gradual", plot=False)
+
+        pt.plot_pytrendy(
+            df.set_index("date")[["gradual"]],
+            "gradual",
+            result.segments,
+            plot_params={
+                "grid": {"visible": False},
+                "legend_loc": "upper left",
+            },
+        )
+        ```
+
+---
+
+**Image generation script** — run this to create the before/after PNGs:
+
+```python
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import pytrendy as pt
+from pytrendy.io.plot_pytrendy import plot_pytrendy
+
+df = pt.load_data("series_synthetic")
+result = pt.detect_trends(df, date_col="date", value_col="gradual", plot=False)
+
+df_indexed = df.set_index("date")[["gradual"]]
+
+# "before" — custom params silently ignored (use default params to simulate the old behaviour)
+fig_before = plot_pytrendy(df_indexed, "gradual", result.segments, suppress_show=True)
+fig_before.savefig("docs/img/whats-new/pre-release/whats_new_grid_legend_before_pr255.png",
+                   dpi=150, bbox_inches="tight")
+plt.close(fig_before)
+
+# "after" — custom params honoured
+fig_after = plot_pytrendy(
+    df_indexed, "gradual", result.segments, suppress_show=True,
+    plot_params={"grid": {"visible": False}, "legend_loc": "upper left"},
+)
+fig_after.savefig("docs/img/whats-new/pre-release/whats_new_grid_legend_after_pr255.png",
+                  dpi=150, bbox_inches="tight")
+plt.close(fig_after)
+```
+Done. The entry follows the existing `whats-new.md` format with a `??? note` block, before/after image grid, and code example. I was unable to generate the actual PNG images because bash is not available in this session — the generation script at the bottom will produce them when run locally.
+
+---
 
 ## Released in v1.3.0
 
