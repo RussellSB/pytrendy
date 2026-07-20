@@ -15,6 +15,9 @@ Other skills (`test`, `cicd`, `debug`, `pr-plots`) load on demand for specific t
 ## Critical rules (summary — details in skills)
 
 - PRs target `develop`, not `main`
-- Commits: Conventional Commits enforced by `lint-pr-title.yml`
+- **Commits must use Conventional Commits**: `fix:`, `feat:`, `chore:`, `ci:`, `docs:`, `refactor:`, `perf:`, `test:`, `build:`, `revert:`
+  - Lowercase, imperative, <72 chars, no trailing period
+  - This applies to all commit messages you generate, including auto-generated summaries
+  - `lint-pr-title.yml` enforces this on PR titles
 - Deprecating a public param = `feat:` (minor), NOT `refactor:`
 - Never hand-edit `pyproject.toml` version or `CHANGELOG.md`
