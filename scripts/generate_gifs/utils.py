@@ -91,6 +91,13 @@ def adjust_segment_boundaries(df, value_col, segments):
             valid_down_start = (value_new_start) and (seg["direction"] == "Down") and (value_new_start > value)
             if valid_up_start or valid_down_start or is_not_trend:
                 start = new_start  # Apply left displacement only if valid
+            else:
+                # Fallback: if not displaced and prev is not trend, extend prev end to cover gap
+                # Copied from plot_pytrendy (pytrendy/io/plot_pytrendy.py:80-87)
+                if is_prev_not_trend and prev_neighbouring:
+                    prev_idx = i - 1
+                    prev_adj_end = adjusted[prev_idx][1]
+                    adjusted[prev_idx] = (adjusted[prev_idx][0], prev_adj_end + pd.Timedelta(days=1))
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
@@ -105,6 +112,11 @@ def adjust_segment_boundaries(df, value_col, segments):
             is_not_trend = not ("trend_class" in seg)
             if valid_up_end or valid_down_end or is_not_trend:
                 end = new_end  # Apply right displacement only if valid
+            else:
+                # Fallback: if not displaced and next is noise, shift next start left to close gap
+                # Copied from plot_pytrendy (pytrendy/io/plot_pytrendy.py:104-106)
+                if next_seg_noise and next_neighbouring:
+                    next_seg["start"] = (pd.to_datetime(next_seg["start"]) - pd.Timedelta(days=1)).strftime("%Y-%m-%d")
         else:
             end = end
 
