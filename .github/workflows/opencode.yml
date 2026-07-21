@@ -19,9 +19,17 @@ on:
 
 jobs:
   opencode:
+    concurrency:
+      group: opencode-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
     if: |
-      github.event.comment.author_association == 'COLLABORATOR' ||
-      github.event.comment.author_association == 'OWNER'
+      (
+        github.event.comment.author_association == 'COLLABORATOR' ||
+        github.event.comment.author_association == 'OWNER'
+      ) && (
+        contains(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, '/opencode')
+      )
     runs-on: ubuntu-latest
     timeout-minutes: 15
     permissions:

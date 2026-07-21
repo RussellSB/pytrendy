@@ -18,6 +18,6 @@ Other skills (`test`, `cicd`, `debug`, `pr-plots`) load on demand for specific t
 - **Commits must use Conventional Commits**: `fix:`, `feat:`, `chore:`, `ci:`, `docs:`, `refactor:`, `perf:`, `test:`, `build:`, `revert:`
   - Lowercase, imperative, <72 chars, no trailing period
   - This applies to all commit messages you generate, including auto-generated summaries
-  - `lint-pr-title.yml` enforces this on PR titles
+  - `lint-pr-title.yml` enforces the `type: description` prefix and allowed types on PR titles (regex: `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`)
 - Deprecating a public param = `feat:` (minor), NOT `refactor:`
 - Never hand-edit `pyproject.toml` version or `CHANGELOG.md`
