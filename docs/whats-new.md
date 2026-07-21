@@ -67,7 +67,6 @@ v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that
                 title="Gradual Trend — Custom Visual",
                 grid={"visible": True, "color": "black", "alpha": 0.8},
                 legend_loc="upper left",
-                legend_bbox_to_anchor=(0, 0),
             ),
         )
         ```
