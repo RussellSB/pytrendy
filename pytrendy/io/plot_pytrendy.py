@@ -23,6 +23,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Supported keys:
+
             - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
             - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
             - **xlabel** (`str`): X-axis label. Defaults to "Date".
@@ -57,6 +58,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     }
     if plot_params:
         plot_params = dict(plot_params)  # avoid mutating caller's dict
+        has_custom_legend_loc = 'legend_loc' in plot_params
+        has_custom_legend_anchor = 'legend_bbox_to_anchor' in plot_params
         custom_colors = plot_params.pop('colors', None)
         custom_grid = plot_params.pop('grid', None)
         default_params.update(plot_params)
@@ -64,6 +67,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             default_params['colors'].update(custom_colors)
         if custom_grid:
             default_params['grid'].update(custom_grid)
+        if has_custom_legend_loc and not has_custom_legend_anchor:
+            default_params['legend_bbox_to_anchor'] = None
 
     # Define colors
     color_map = default_params['colors']
@@ -173,7 +178,11 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
 
     # Optional: show grid lines for both
-    ax.grid(default_params['grid']['visible'], **{k: v for k, v in default_params['grid'].items() if k != 'visible'})
+    grid_params = default_params['grid']
+    if grid_params['visible']:
+        ax.grid(True, **{k: v for k, v in grid_params.items() if k != 'visible'})
+    else:
+        ax.grid(False, which='both')
 
     ax.set_title(default_params['title'], fontsize=20)
     ax.set_xlabel(default_params['xlabel'])
