@@ -36,12 +36,12 @@ jobs:
           fi
 
           if [ "$BASE" = "main" ]; then
-            # Check if all changed files are CI/CD files under .github/
+            # Check if all changed files are CI/CD or agentic config files
             CHANGED_FILES=$(gh pr diff ${{ github.event.pull_request.number }} --name-only 2>/dev/null || echo "")
             if [ -n "$CHANGED_FILES" ]; then
-              NON_CICD_FILES=$(echo "$CHANGED_FILES" | grep -v "^\.github/" || true)
+              NON_CICD_FILES=$(echo "$CHANGED_FILES" | grep -v -E "^(.github/|AGENTS\.md|pyproject\.toml|opencode\.json|\.opencode/|\.releaserc)" || true)
               if [ -z "$NON_CICD_FILES" ]; then
-                echo "Base branch check passed: all changed files are CI/CD files under .github/"
+                echo "Base branch check passed: all changed files are CI/CD or agentic config"
                 exit 0
               fi
             fi
