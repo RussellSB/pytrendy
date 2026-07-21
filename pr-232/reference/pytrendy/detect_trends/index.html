@@ -1719,16 +1719,18 @@ Defaults to <code>True</code>.</p>
 )
           –
           <div class="doc-md-description">
-            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:
-- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
-- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
-- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
-- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
-- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
-- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
-- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
-- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
-- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
+            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:</p>
+<ul>
+<li><strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).</li>
+<li><strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".</li>
+<li><strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".</li>
+<li><strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".</li>
+<li><strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.</li>
+<li><strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.</li>
+<li><strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).</li>
+<li><strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".</li>
+<li><strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</li>
+</ul>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1844,7 +1846,8 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">93</span>
 <span class="normal">94</span>
 <span class="normal">95</span>
-<span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
+<span class="normal">96</span>
+<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is the main function that runs trend detection end-to-end.</span>
 
@@ -1879,6 +1882,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
+
 <span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
 <span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
 <span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>

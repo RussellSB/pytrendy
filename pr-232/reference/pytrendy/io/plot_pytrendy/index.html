@@ -1651,16 +1651,18 @@ It also annotates ranked segments and handles visual adjustments for abrupt tran
 )
           –
           <div class="doc-md-description">
-            <p>Optional dict to customise plot appearance. Supported keys:
-- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
-- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
-- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
-- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
-- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
-- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
-- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
-- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
-- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
+            <p>Optional dict to customise plot appearance. Supported keys:</p>
+<ul>
+<li><strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).</li>
+<li><strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".</li>
+<li><strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".</li>
+<li><strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".</li>
+<li><strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.</li>
+<li><strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.</li>
+<li><strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).</li>
+<li><strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".</li>
+<li><strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</li>
+</ul>
           </div>
         </li>
     </ul>
@@ -1868,7 +1870,16 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="normal">192</span>
 <span class="normal">193</span>
 <span class="normal">194</span>
-<span class="normal">195</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualizes detected trend segments over the original time series signal.</span>
 
@@ -1886,6 +1897,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="sd">            If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Supported keys:</span>
+
 <span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
 <span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
 <span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
@@ -1920,6 +1932,8 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
     <span class="p">}</span>
     <span class="k">if</span> <span class="n">plot_params</span><span class="p">:</span>
         <span class="n">plot_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>  <span class="c1"># avoid mutating caller&#39;s dict</span>
+        <span class="n">has_custom_legend_loc</span> <span class="o">=</span> <span class="s1">&#39;legend_loc&#39;</span> <span class="ow">in</span> <span class="n">plot_params</span>
+        <span class="n">has_custom_legend_anchor</span> <span class="o">=</span> <span class="s1">&#39;legend_bbox_to_anchor&#39;</span> <span class="ow">in</span> <span class="n">plot_params</span>
         <span class="n">custom_colors</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;colors&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">custom_grid</span> <span class="o">=</span> <span class="n">plot_params</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;grid&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="n">default_params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">plot_params</span><span class="p">)</span>
@@ -1927,6 +1941,8 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
             <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_colors</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">custom_grid</span><span class="p">:</span>
             <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">custom_grid</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_custom_legend_loc</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_custom_legend_anchor</span><span class="p">:</span>
+            <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;legend_bbox_to_anchor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># Define colors</span>
     <span class="n">color_map</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;colors&#39;</span><span class="p">]</span>
@@ -2036,7 +2052,11 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
     <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
 
     <span class="c1"># Optional: show grid lines for both</span>
-    <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">][</span><span class="s1">&#39;visible&#39;</span><span class="p">],</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;visible&#39;</span><span class="p">})</span>
+    <span class="n">grid_params</span> <span class="o">=</span> <span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;grid&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">grid_params</span><span class="p">[</span><span class="s1">&#39;visible&#39;</span><span class="p">]:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">grid_params</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">&#39;visible&#39;</span><span class="p">})</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">&#39;both&#39;</span><span class="p">)</span>
 
     <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;title&#39;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">default_params</span><span class="p">[</span><span class="s1">&#39;xlabel&#39;</span><span class="p">])</span>
