@@ -3,16 +3,74 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-<!--
-!!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
-    Switch to the **main** docs via the badge in the header to see the stable documentation.
--->
+!!! note "Pre-release documentation"
+    You are viewing the **develop** (pre-release) build.  
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Coming in v1.4.1 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+
+```bash
+pip install --pre pytrendy
+```
+
+v1.4.0-dev.2 adds **plot customisation** via a new `plot_params` dict — introduced in dev.1, improved in dev.2.
+
+??? note "Plot customisation via `plot_params`"
+    A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
+
+    - **Figure dimensions** — set `figsize` to control width and height.
+    - **Title & labels** — add a domain-specific `title`, `xlabel`, or `ylabel`.
+    - **Colour scheme** — pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
+    - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
+    - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+
+    For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
+    Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — no `plot_params` (default)</span>
+
+    ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — custom `plot_params`</span>
+
+    ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Default appearance
+        pt.detect_trends(df, date_col="date", value_col="gradual")
+
+        # Custom appearance — black grid at 0.8 opacity, legend in bottom left
+        pt.detect_trends(
+            df, date_col="date", value_col="gradual",
+            plot_params=dict(
+                figsize=(20, 6),
+                title="Gradual Trend — Custom Visual",
+                grid={"visible": True, "color": "black", "alpha": 0.8},
+                legend_loc="lower left",
+            ),
+        )
+        ```
+---
 
 ## Released in v1.3.0
 
