@@ -21,7 +21,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-v1.4.0-dev.2 introduces **plot customisation** — a new `plot_params` dict that lets you override every visual aspect of the trend-detection plot without forking the plotting code. (Spans v1.4.0-dev.1 → v1.4.0-dev.2.)
+v1.4.0-dev.2 adds **plot customisation** via a new `plot_params` dict — introduced in dev.1, improved in dev.2.
 
 ??? note "Plot customisation via `plot_params`"
     A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
@@ -45,7 +45,7 @@ v1.4.0-dev.2 introduces **plot customisation** — a new `plot_params` dict that
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">After — custom `plot_params`</span>
 
-    ![Custom plot with black grid at 0.8 opacity, title, and legend in upper left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
+    ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
 
     </div>
     </div>
@@ -59,14 +59,14 @@ v1.4.0-dev.2 introduces **plot customisation** — a new `plot_params` dict that
         # Default appearance
         pt.detect_trends(df, date_col="date", value_col="gradual")
 
-        # Custom appearance — black grid at 0.8 opacity, legend in upper left
+        # Custom appearance — black grid at 0.8 opacity, legend in bottom left
         pt.detect_trends(
             df, date_col="date", value_col="gradual",
             plot_params=dict(
                 figsize=(20, 6),
                 title="Gradual Trend — Custom Visual",
                 grid={"visible": True, "color": "black", "alpha": 0.8},
-                legend_loc="upper left",
+                legend_loc="lower left",
             ),
         )
         ```
