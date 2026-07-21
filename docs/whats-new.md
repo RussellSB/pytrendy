@@ -21,7 +21,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-v1.4.0-dev.1 introduces **plot customisation** — a new `plot_params` dict that lets you override every visual aspect of the trend-detection plot without forking the plotting code.
+v1.4.0-dev.2 introduces **plot customisation** — a new `plot_params` dict that lets you override every visual aspect of the trend-detection plot without forking the plotting code. (Spans v1.4.0-dev.1 → v1.4.0-dev.2.)
 
 ??? note "Plot customisation via `plot_params`"
     A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
