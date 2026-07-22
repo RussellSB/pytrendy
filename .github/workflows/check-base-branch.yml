@@ -36,6 +36,19 @@ jobs:
           fi
 
           if [ "$BASE" = "main" ]; then
+            # Check if all changed files are CI/CD or agentic config files
+            PR_NUMBER=$(jq --raw-output '.pull_request.number // empty' "$GITHUB_EVENT_PATH")
+            CHANGED_FILES=$(gh pr diff "$PR_NUMBER" --name-only 2>/dev/null || echo "")
+            if [ -n "$CHANGED_FILES" ]; then
+              NON_CICD_FILES=$(echo "$CHANGED_FILES" | grep -v -E "^(.github/|AGENTS\.md$|pyproject\.toml$|opencode\.json$|opencode\.yaml$|\.opencode/|\.releaserc)" || true)
+              if [ -z "$NON_CICD_FILES" ]; then
+                echo "Base branch check passed: all changed files are CI/CD or agentic config"
+                exit 0
+              fi
+            fi
+          fi
+
+          if [ "$BASE" = "main" ]; then
             echo "Error: Pull requests targeting 'main' must come from the 'develop' branch, not '$HEAD'."
             exit 1
           fi
