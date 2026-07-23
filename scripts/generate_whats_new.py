@@ -173,6 +173,10 @@ def _call_opencode(prompt: str, model: str) -> str | None:
         Guidelines:
         - Focus on user impact, not internal implementation details.
         - Use clear, plain language aimed at data scientists and analysts.
+        - Do NOT include any AI chat preamble, thinking traces, or meta-commentary
+          in the output. The output is documentation, not a conversation. Every line
+          must be user-facing docs content — no "Let me look at…", "Now I have all
+          the context…", or similar internal reasoning.
         - Start with a one-sentence summary of the release.
         - Keep all change-specific prose inside `??? note` blocks. Do not place
           standalone change descriptions outside those blocks.
