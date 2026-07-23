@@ -21,11 +21,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-Let me look at the segments_refine module to understand the flat threshold fix, and check for any existing test data related to the double-padding fix.
-Now I have all the context needed. Let me write the What's New entry.
-Now I have all the context. Here's the What's New entry:
-
-Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and three related improvements to abrupt padding reliability.
+Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.
 
 ??? note "Long gradual ramps no longer truncated by false flat detection"
     A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
@@ -68,11 +64,10 @@ Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false 
         ```
 
 ??? note "Abrupt padding reliability improvements"
-    Three internal fixes make abrupt-segment padding more robust:
+    Two internal fixes make abrupt-segment padding more robust:
 
     - **Double-padding prevention** — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
     - **Padded flag guard** — the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
-    - **Flat threshold tuning** — the flat-detection threshold (`THRESHOLD_FLAT`) was adjusted to 0.835, improving the accuracy of gradual-segment start detection at the cost of slightly reduced sensitivity to near-flat gradual trends.
 
     These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
 
