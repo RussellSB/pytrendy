@@ -13,7 +13,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.4.1 <span class="version-prerelease">pre-release</span>
+## Coming in v1.4.3 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
 
@@ -21,7 +21,60 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-v1.4.0-dev.2 adds **plot customisation** via a new `plot_params` dict — introduced in dev.1, improved in dev.2.
+Let me look at the segments_refine module to understand the flat threshold fix, and check for any existing test data related to the double-padding fix.
+Now I have all the context needed. Let me write the What's New entry.
+Now I have all the context. Here's the What's New entry:
+
+Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and three related improvements to abrupt padding reliability.
+
+??? note "Long gradual ramps no longer truncated by false flat detection"
+    A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
+    Fixed: [#195](https://github.com/RussellSB/pytrendy/issues/195)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.4.0-dev.2</span>
+
+    ![Gradual ramp truncated by false flat detection](img/whats-new/pre-release/whats_new_gradual_ramp_before_dev2.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.4.0-dev.3</span>
+
+    ![Gradual ramp detected as a single Up segment](img/whats-new/pre-release/whats_new_gradual_ramp_after_dev3.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = (
+            "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"
+            "tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"
+        )
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="gradual_ramp_90d",
+            method_params=dict(abrupt_padding=28),
+        )
+        print(result.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Up         2026-04-07  2026-06-29   ← full 90-day ramp
+        # Down       2026-09-27  2026-10-26
+        ```
+
+??? note "Abrupt padding reliability improvements"
+    Three internal fixes make abrupt-segment padding more robust:
+
+    - **Double-padding prevention** — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
+    - **Padded flag guard** — the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
+    - **Flat threshold tuning** — the flat-detection threshold (`THRESHOLD_FLAT`) was adjusted to 0.835, improving the accuracy of gradual-segment start detection at the cost of slightly reduced sensitivity to near-flat gradual trends.
+
+    These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
 
 ??? note "Plot customisation via `plot_params`"
     A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
@@ -70,6 +123,7 @@ v1.4.0-dev.2 adds **plot customisation** via a new `plot_params` dict — introd
             ),
         )
         ```
+
 ---
 
 ## Released in v1.3.0
