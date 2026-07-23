@@ -1354,10 +1354,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v141-pre-release" class="md-nav__link">
+  <a href="#coming-in-v143-pre-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coming in v1.4.1 pre-release
+        Coming in v1.4.3 pre-release
       
     </span>
   </a>
@@ -1560,10 +1560,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v141-pre-release" class="md-nav__link">
+  <a href="#coming-in-v143-pre-release" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Coming in v1.4.1 pre-release
+        Coming in v1.4.3 pre-release
       
     </span>
   </a>
@@ -1765,11 +1765,56 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <hr />
 <!-- WHATS_NEW_CONTENT_START -->
 
-<h2 id="coming-in-v141-pre-release">Coming in v1.4.1 <span class="version-prerelease">pre-release</span></h2>
+<h2 id="coming-in-v143-pre-release">Coming in v1.4.3 <span class="version-prerelease">pre-release</span></h2>
 <p><em>Staged on the <code>develop</code> branch — will land in the next stable release. Currently available as the latest pre-release:</em></p>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
 </code></pre></div>
-<p>v1.4.0-dev.2 adds <strong>plot customisation</strong> via a new <code>plot_params</code> dict — introduced in dev.1, improved in dev.2.</p>
+<p>Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.</p>
+<details class="note">
+<summary>Long gradual ramps no longer truncated by false flat detection</summary>
+<p>A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
+Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/195">#195</a></p>
+<p><div class="before-after-grid" markdown>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — v1.4.0-dev.2</span></p>
+<p><img alt="Gradual ramp truncated by false flat detection" src="../img/whats-new/pre-release/whats_new_gradual_ramp_before_dev2.png" /></p>
+<p></div>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — v1.4.0-dev.3</span></p>
+<p><img alt="Gradual ramp detected as a single Up segment" src="../img/whats-new/pre-release/whats_new_gradual_ramp_after_dev3.png" /></p>
+<p></div>
+</div></p>
+<details class="example">
+<summary>Code</summary>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+
+<span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/develop/&quot;</span>
+    <span class="s2">&quot;tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv&quot;</span>
+<span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual_ramp_90d&quot;</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">&quot;Up/Down&quot;</span><span class="p">)[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="c1"># direction       start         end</span>
+<span class="c1"># Up         2026-04-07  2026-06-29   ← full 90-day ramp</span>
+<span class="c1"># Down       2026-09-27  2026-10-26</span>
+</code></pre></div>
+</details>
+</details>
+<details class="note">
+<summary>Abrupt padding reliability improvements</summary>
+<p>Two internal fixes make abrupt-segment padding more robust:</p>
+<ul>
+<li><strong>Double-padding prevention</strong> — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.</li>
+<li><strong>Padded flag guard</strong> — the pad loop now checks each segment's <code>padded</code> flag instead of relying on a pass counter, giving more reliable protection against double-padding.</li>
+</ul>
+<p>These changes are internal and do not require new user code. Existing <code>abrupt_padding</code> behaviour is preserved; only edge cases where padding was over-applied are corrected.</p>
+</details>
 <details class="note">
 <summary>Plot customisation via <code>plot_params</code></summary>
 <p>A new <code>plot_params</code> dictionary, accepted by both <code>detect_trends()</code> and <code>plot_pytrendy()</code>, lets you override every visual aspect of the trend-detection plot. Key capabilities:</p>
