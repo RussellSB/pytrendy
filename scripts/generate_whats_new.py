@@ -207,6 +207,11 @@ def _call_opencode(prompt: str, model: str) -> str | None:
         - For images, always use local docs-relative paths under
           `img/whats-new/v<version>/...` (or `img/whats-new/pre-release/...` when a
           versioned path is not available). Never link to GitHub user-attachments URLs.
+          **CRITICAL: Do NOT reference image files that do not exist.** Before adding any
+          image reference, verify the file exists by reading the docs/img/whats-new/
+          directory. If images are needed for a new feature or fix but don't exist yet,
+          omit the image references entirely — do not invent paths to non-existent files.
+          Broken image links in the docs are worse than no images at all.
         - Do NOT include the top-level ## heading; the caller will add it.
         - Do NOT wrap the output in a code fence.
         - Before/after images must be visually comparable. For any bug fix or feature
@@ -524,6 +529,30 @@ def _update_develop_note(file_path: Path, is_prerelease: bool, tag: str) -> None
     print(f"[whats-new] Updated develop note (is_prerelease={is_prerelease}).")
 
 
+def _validate_image_refs(file_path: Path) -> list[str]:
+    """Check for image references pointing to non-existent files.
+
+    Returns a list of broken image paths (empty if all valid).
+    """
+    if not file_path.exists():
+        return []
+    text = file_path.read_text(encoding="utf-8")
+    # Find all markdown image references: ![alt](path)
+    img_pattern = re.compile(r'!\[[^\]]*\]\(([^)]+)\)')
+    broken = []
+    for match in img_pattern.finditer(text):
+        img_path = match.group(1)
+        # Skip URLs (only validate local paths)
+        if img_path.startswith(("http://", "https://")):
+            continue
+        # Resolve relative to the docs directory
+        docs_dir = file_path.parent
+        full_path = docs_dir / img_path
+        if not full_path.exists():
+            broken.append(img_path)
+    return broken
+
+
 def _inject_section(file_path: Path, new_block: str) -> None:
     """Prepend `new_block` inside the sentinel markers in `file_path`."""
     text = file_path.read_text(encoding="utf-8")
@@ -825,6 +854,21 @@ def main() -> None:
 
     # Update the develop-branch note block (no-op when sentinels absent, e.g. main).
     _update_develop_note(WHATS_NEW_PATH, is_prerelease, tag)
+
+    # Validate image references
+    broken_images = _validate_image_refs(WHATS_NEW_PATH)
+    if broken_images:
+        print(
+            f"[whats-new] WARNING: Found {len(broken_images)} broken image reference(s):",
+            file=sys.stderr,
+        )
+        for img in broken_images:
+            print(f"  - {img}", file=sys.stderr)
+        print(
+            "[whats-new] Broken images will render as placeholders in the docs. "
+            "Add the missing image files or remove the references.",
+            file=sys.stderr,
+        )
 
     print(f"[whats-new] Updated {WHATS_NEW_PATH}")
 
