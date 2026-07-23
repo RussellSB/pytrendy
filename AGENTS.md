@@ -19,5 +19,7 @@ Other skills (`test`, `cicd`, `debug`, `pr-plots`) load on demand for specific t
   - Lowercase, imperative, <72 chars, no trailing period
   - This applies to all commit messages you generate, including auto-generated summaries
   - `lint-pr-title.yml` enforces the `type: description` prefix and allowed types on PR titles (regex: `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`)
+  - **PR titles use the same pattern** — non-conforming titles are blocked in CI
 - Deprecating a public param = `feat:` (minor), NOT `refactor:`
+- **`chore` vs `fix`**: `fix:` triggers a **patch release** via semantic-release. Use `chore:` or `ci:` for maintenance-only changes that have zero user-facing code impact. Using `fix:` on non-bugfix work causes accidental auto-releases.
 - Never hand-edit `pyproject.toml` version or `CHANGELOG.md`

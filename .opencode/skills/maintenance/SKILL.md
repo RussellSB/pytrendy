@@ -5,7 +5,9 @@ description: Use when making ANY code change to pytrendy, creating issues, or op
 
 # Maintenance & API evolution
 
-This is the consolidated context issue #141 asked for — the design principles agents keep re-litigating on PRs.
+> **CRITICAL: Before EVERY `git commit`, verify the message matches `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`. If not, rewrite it. No exceptions.**
+>
+> **CRITICAL: Before EVERY PR title creation, verify the title matches the same pattern. `lint-pr-title.yml` enforces this in CI — PRs with non-conforming titles are blocked.**
 
 ## Public API surface
 
@@ -84,6 +86,7 @@ Segment dicts have at minimum: `direction` ('Up'/'Down'/'Flat'/'Noise'), `start`
 - `lint-pr-title.yml` rejects titles not matching `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`.
 - semantic-release maps: `feat`→minor, `fix`→patch, `!`/`BREAKING CHANGE:`→major, others→no bump.
 - Deprecating a public API param = `feat:` (minor), *not* `refactor:` — see "Deprecation policy" section above.
+- **`chore` vs `fix`**: `fix:` triggers a **patch release** via semantic-release. Use `chore:` or `ci:` for maintenance-only changes that have zero user-facing code impact. Using `fix:` on non-bugfix work causes accidental auto-releases.
 - Imperative, lowercase, <72 chars, no trailing period.
 
 ## Don't touch these manually
