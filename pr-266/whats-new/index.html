@@ -1799,7 +1799,7 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/195">#195</a></p>
     <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual_ramp_90d&quot;</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">&quot;Up/Down&quot;</span><span class="p">)[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
 <span class="c1"># direction       start         end</span>
 <span class="c1"># Up         2026-04-07  2026-06-29   ← full 90-day ramp</span>
 <span class="c1"># Down       2026-09-27  2026-10-26</span>
