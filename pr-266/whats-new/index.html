@@ -1769,10 +1769,7 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <p><em>Staged on the <code>develop</code> branch — will land in the next stable release. Currently available as the latest pre-release:</em></p>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
 </code></pre></div>
-<p>Let me look at the segments_refine module to understand the flat threshold fix, and check for any existing test data related to the double-padding fix.
-Now I have all the context needed. Let me write the What's New entry.
-Now I have all the context. Here's the What's New entry:</p>
-<p>Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and three related improvements to abrupt padding reliability.</p>
+<p>Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.</p>
 <details class="note">
 <summary>Long gradual ramps no longer truncated by false flat detection</summary>
 <p>A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
@@ -1811,11 +1808,10 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/195">#195</a></p>
 </details>
 <details class="note">
 <summary>Abrupt padding reliability improvements</summary>
-<p>Three internal fixes make abrupt-segment padding more robust:</p>
+<p>Two internal fixes make abrupt-segment padding more robust:</p>
 <ul>
 <li><strong>Double-padding prevention</strong> — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.</li>
 <li><strong>Padded flag guard</strong> — the pad loop now checks each segment's <code>padded</code> flag instead of relying on a pass counter, giving more reliable protection against double-padding.</li>
-<li><strong>Flat threshold tuning</strong> — the flat-detection threshold (<code>THRESHOLD_FLAT</code>) was adjusted to 0.835, improving the accuracy of gradual-segment start detection at the cost of slightly reduced sensitivity to near-flat gradual trends.</li>
 </ul>
 <p>These changes are internal and do not require new user code. Existing <code>abrupt_padding</code> behaviour is preserved; only edge cases where padding was over-applied are corrected.</p>
 </details>
