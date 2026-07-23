@@ -57,7 +57,7 @@ Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false 
             df, date_col="date", value_col="gradual_ramp_90d",
             method_params=dict(abrupt_padding=28),
         )
-        print(result.df[["direction", "start", "end"]])
+        print(result.filter_segments(direction="Up/Down")[["direction", "start", "end"]])
         # direction       start         end
         # Up         2026-04-07  2026-06-29   ← full 90-day ramp
         # Down       2026-09-27  2026-10-26
