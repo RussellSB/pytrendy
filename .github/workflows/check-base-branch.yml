@@ -8,8 +8,12 @@ jobs:
   check-base-branch:
     name: Validate Base Branch
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - name: Ensure PR targets allowed base branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BASE="${{ github.base_ref }}"
           HEAD="${{ github.head_ref }}"
