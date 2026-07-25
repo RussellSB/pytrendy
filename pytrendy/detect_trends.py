@@ -43,7 +43,6 @@ def _detect_index_type(df: pd.DataFrame, date_col: str) -> str:
     else:
         raise NotImplementedError(f"date_col has unimplemented dtype {df[date_col].dtype}")
 
-
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
                   date_col: str|None=None,
