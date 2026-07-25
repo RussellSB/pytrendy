@@ -6,7 +6,6 @@ across multiple test files.
 """
 
 import pandas as pd
-import math
 
 def assert_segments_match(detected_segments, expected_segments):
     """

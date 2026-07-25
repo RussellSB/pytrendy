@@ -8,7 +8,6 @@ directions against expected behaviour.
 
 import pytest
 import pytrendy as pt
-import pandas as pd
 from conftest import assert_segments_match
 
 
