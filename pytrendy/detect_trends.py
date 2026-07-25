@@ -10,6 +10,39 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 
+
+def _detect_index_type(df: pd.DataFrame, date_col: str) -> str:
+    """
+    Detect the index type from the date column.
+    
+    Args:
+        df (pd.DataFrame): Input DataFrame
+        date_col (str): Name of the date column
+        
+    Returns:
+        str: Index type ('date', 'datetime64', 'integer', 'float', 'string')
+    """
+    if pd.api.types.is_string_dtype(df[date_col]):
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                message="Could not infer format.*"
+            )
+            parsed = pd.to_datetime(df[date_col], errors="coerce")
+        
+        if parsed.notna().all():
+            return "date"
+        else:
+            return "string"
+    elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
+        return "datetime64"
+    elif pd.api.types.is_integer_dtype(df[date_col]):
+        return "integer"
+    elif pd.api.types.is_float_dtype(df[date_col]):
+        return "float"
+    else:
+        raise NotImplementedError(f"date_col has unimplemented dtype {df[date_col].dtype}")
+
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
                   date_col: str|None=None,
@@ -62,44 +95,26 @@ def detect_trends(df: pd.DataFrame,
     index_type = 'integer'
 
     if date_col is not None:
-        s = df[date_col]
+        index_type = _detect_index_type(df, date_col)
         external_index = df[date_col].copy()
-        if pd.api.types.is_string_dtype(df[date_col]):
-
-            with warnings.catch_warnings():
-                warnings.filterwarnings(
-                    "ignore",
-                    message="Could not infer format.*"
-                )
-                parsed = pd.to_datetime(df[date_col], errors="coerce")
-
-            if parsed.notna().all():
-                df[date_col] = parsed
-                index_type = "date"
-            else:
-                print(
-                    f"Attempting to cast {date_col} to date failed, "
-                    "treating as string lookup."
-                    )
-                index_type = "string"
-        elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
-            index_type = "datetime64"
-        #elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():
-        #    index_type = "datetimePd"
-        elif pd.api.types.is_integer_dtype(df[date_col]):
-                pass
-        elif pd.api.types.is_float_dtype(df[date_col]):
-                index_type = "float"
-        else:
-            raise NotImplementedError(f"date_col has unimplimented dtype {df[date_col].dtype}") 
+        
+        if index_type == 'date':
+            df[date_col] = pd.to_datetime(df[date_col])
+        elif index_type == 'string':
+            print(
+                f"Attempting to cast {date_col} to date failed, "
+                "treating as string lookup."
+            )
     else:
         external_index = np.arange(len(df))
 
     internal_index = np.arange(len(df))
-    index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
+    index_lookup = dict(zip(internal_index, np.asarray(external_index)))
     
-    df[date_col] = internal_index.copy()
-    df.set_index(date_col, inplace=True)
+    # Use a dedicated scratch column name to avoid clobbering user's columns
+    _pytrendy_idx = '_pytrendy_idx'
+    df[_pytrendy_idx] = internal_index.copy()
+    df.set_index(_pytrendy_idx, inplace=True)
     df = df[[value_col]]
     
     if method_params is None:
