@@ -87,6 +87,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
         for j, abrupt_subseg in enumerate(abrupt_subsegs):
             new_start = abrupt_subseg['start'] - 1
             new_end = abrupt_subseg['end'] - 1
+            
+            # Guard against out-of-range bounds
+            if new_start < df.index[0] or new_end < df.index[0]:
+                continue
 
             start_value = df.loc[new_start, value_col] # referencing df, in case outside df_segment scope
             end_value = df.loc[new_end, value_col]

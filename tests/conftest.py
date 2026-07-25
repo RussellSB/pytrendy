@@ -11,7 +11,7 @@ import pandas as pd
 def _check_value(key, detected, expected, i):
     """
     Helper function to check a single value (start or end) against expected value.
-    
+
     Args:
         key: The key name ('start' or 'end')
         detected: The detected value
@@ -24,7 +24,6 @@ def _check_value(key, detected, expected, i):
     else:
         assert detected == expected, \
             f"Segment {i}: Expected {key} '{expected}', got '{detected}'"
-
 
 def assert_segments_match(detected_segments, expected_segments):
     """

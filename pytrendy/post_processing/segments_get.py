@@ -25,7 +25,7 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
 
     Args:
         df (pd.DataFrame): 
-            Series DataFrame containing a `trend_flag` column.
+            Time series DataFrame containing a `trend_flag` column.
 
     Returns:
         list: 
