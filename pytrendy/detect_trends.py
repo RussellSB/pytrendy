@@ -48,6 +48,7 @@ def detect_trends(df: pd.DataFrame,
                   date_col: str|None=None,
                   plot: bool=True, 
                   method_params: dict|None=None, 
+                  plot_params: dict|None=None,
                   debug: bool=False
                   ) -> PyTrendyResults:
     """
@@ -163,7 +164,7 @@ def detect_trends(df: pd.DataFrame,
     if plot: 
         df[date_col] = external_index
         df.set_index(date_col, inplace=True)
-        plot_pytrendy(df=df, value_col=value_col, segments_enhanced=segments, index_type=index_type)
+        plot_pytrendy(df=df, value_col=value_col, segments_enhanced=segments, index_type=index_type, plot_params=plot_params)
 
     results = PyTrendyResults(segments=segments, index_type=index_type)
     return results

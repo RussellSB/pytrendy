@@ -24,7 +24,7 @@ def _safe_adjacent(index, pos, offset):
         return index[new_pos]
     return None
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False) -> plt.Figure:
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -271,7 +271,12 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
 
     # Optional: show grid lines for both
-    ax.grid(True, which='major', color='gray', alpha=0.3)
+    grid_cfg = default_params['grid']
+    if grid_cfg.get('visible', True):
+        ax.grid(True, which=grid_cfg.get('which', 'major'),
+                color=grid_cfg.get('color', 'gray'), alpha=grid_cfg.get('alpha', 0.3))
+    else:
+        ax.grid(False)
 
     if index_type == 'string':
         ticks = ax.get_xticks()
@@ -281,16 +286,16 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         ax.set_xticklabels(labels[::n], rotation=90, ha='center')
 
 
-    ax.set_title("PyTrendy Detection", fontsize=20)
+    ax.set_title(default_params['title'], fontsize=20)
 
     if index_type == 'date':
-        ax.set_xlabel("Date")
+        ax.set_xlabel(default_params.get('xlabel', 'Date'))
     elif index_type == 'string':
-        ax.set_xlabel('Label')
+        ax.set_xlabel(default_params.get('xlabel', 'Label'))
     else:
-        ax.set_xlabel("Index")
+        ax.set_xlabel(default_params.get('xlabel', 'Index'))
 
-    ax.set_ylabel("Value")
+    ax.set_ylabel(default_params.get('ylabel', 'Value'))
 
     # Create custom legend handles (colored boxes)
     legend_handles = [
