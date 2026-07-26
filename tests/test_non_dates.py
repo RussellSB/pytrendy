@@ -89,3 +89,32 @@ class TestNonDateCases:
         ]
 
         assert_segments_match(results.segments, expected_segments)
+
+    @pytest.mark.core
+    def test_weekly_date_index(self):
+        """Test standard gradual trend with weekly-spaced dates."""
+        df = pt.load_data('series_synthetic')
+        # Create weekly dates starting from 2026-01-01
+        df['weekly_date'] = pd.date_range(start='2026-01-01', periods=len(df), freq='W')
+        results = pt.detect_trends(
+            df,
+            value_col='gradual',
+            date_col='weekly_date',
+            plot=False,
+            method_params={'is_abrupt_padded': False}
+        )
+        
+        # Expected segments based on current behavior
+        expected_segments = [
+            {'direction': 'Up',   'start': pd.Timestamp('2026-01-11'),  'end': pd.Timestamp('2026-06-14')},
+            {'direction': 'Down', 'start': pd.Timestamp('2026-06-21'),  'end': pd.Timestamp('2026-09-06')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2026-09-13'),  'end': pd.Timestamp('2026-10-04')},
+            {'direction': 'Up',   'start': pd.Timestamp('2026-10-11'),  'end': pd.Timestamp('2027-05-23')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-05-30'),  'end': pd.Timestamp('2027-06-13')},
+            {'direction': 'Down', 'start': pd.Timestamp('2027-06-20'),  'end': pd.Timestamp('2027-09-26')},
+            {'direction': 'Up',   'start': pd.Timestamp('2027-10-03'),  'end': pd.Timestamp('2028-06-11')},
+            {'direction': 'Down', 'start': pd.Timestamp('2028-06-18'),  'end': pd.Timestamp('2029-03-18')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2029-03-25'),  'end': pd.Timestamp('2029-06-17')},
+        ]
+
+        assert_segments_match(results.segments, expected_segments)

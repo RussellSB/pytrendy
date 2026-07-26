@@ -7,6 +7,24 @@ across multiple test files.
 
 import pandas as pd
 
+
+def _check_value(key, detected, expected, i):
+    """
+    Helper function to check a single value (start or end) against expected value.
+
+    Args:
+        key: The key name ('start' or 'end')
+        detected: The detected value
+        expected: The expected value
+        i: Segment index for error messages
+    """
+    if isinstance(detected, float):
+        assert round(detected, 6) == round(expected, 6), \
+            f"Segment {i}: Expected {key} '{expected}', got '{detected}'"
+    else:
+        assert detected == expected, \
+            f"Segment {i}: Expected {key} '{expected}', got '{detected}'"
+
 def assert_segments_match(detected_segments, expected_segments):
     """
     Helper function to validate that detected segments match expected segments.
@@ -38,19 +56,8 @@ def assert_segments_match(detected_segments, expected_segments):
         assert detected['direction'] == expected['direction'], \
             f"Segment {i}: Expected direction '{expected['direction']}', got '{detected['direction']}'"
         
-        if isinstance(detected['start'], float):
-            assert round(detected['start'], 6) == round(expected['start'], 6), \
-                f"Segment {i}: Expected start '{expected['start']}', got '{detected['start']}'"
-        else:
-            assert detected['start'] == expected['start'], \
-                f"Segment {i}: Expected start '{expected['start']}', got '{detected['start']}'"
-        
-        if isinstance(detected['end'], float):
-            assert round(detected['end'], 6) == round(expected['end'], 6), \
-                f"Segment {i}: Expected end '{expected['end']}', got '{detected['end']}'"
-        else:
-            assert detected['end'] == expected['end'], \
-                f"Segment {i}: Expected end '{expected['end']}', got '{detected['end']}'"
+        _check_value('start', detected['start'], expected['start'], i)
+        _check_value('end', detected['end'], expected['end'], i)
 
 
 def assert_segments_in_a_haystack(detected_segments, expected_segments):
