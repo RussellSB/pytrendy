@@ -82,6 +82,18 @@ def detect_trends(df: pd.DataFrame,
 
             - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        plot_params (dict, optional):
+            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
+
+            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
+            - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
+            - **xlabel** (`str`): X-axis label. Defaults to "Date".
+            - **ylabel** (`str`): Y-axis label. Defaults to "Value".
+            - **colors** (`dict`): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.
+            - **grid** (`dict`): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+            - **legend_loc** (`str`): Legend location. Defaults to "upper right".
+            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.
             Defaults to `False`.

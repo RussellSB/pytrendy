@@ -3,16 +3,123 @@
 Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
-<!--
-!!! note "Develop build"
-    You are viewing the **develop** build, currently aligned with stable release **v1.3.0**.  
-    Switch to the **main** docs via the badge in the header to see the stable documentation.
--->
+!!! note "Pre-release documentation"
+    You are viewing the **develop** (pre-release) build.  
+    The section at the top reflects changes staged for the next stable release.  
+    Switch to the **main** docs via the badge in the header to see only stable content.
 <!-- WHATS_NEW_NOTE_END -->
 
 ---
 
 <!-- WHATS_NEW_CONTENT_START -->
+
+## Coming in v1.4.3 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+
+```bash
+pip install --pre pytrendy
+```
+
+Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.
+
+??? note "Long gradual ramps no longer truncated by false flat detection"
+    A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
+    Fixed: [#195](https://github.com/RussellSB/pytrendy/issues/195)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — v1.4.0-dev.2</span>
+
+    ![Gradual ramp truncated by false flat detection](img/whats-new/pre-release/whats_new_gradual_ramp_before_dev2.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — v1.4.0-dev.3</span>
+
+    ![Gradual ramp detected as a single Up segment](img/whats-new/pre-release/whats_new_gradual_ramp_after_dev3.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = (
+            "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"
+            "tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"
+        )
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="gradual_ramp_90d",
+            method_params=dict(abrupt_padding=28),
+        )
+        print(result.filter_segments(direction="Up/Down")[["direction", "start", "end"]])
+        # direction       start         end
+        # Up         2026-04-07  2026-06-29   ← full 90-day ramp
+        # Down       2026-09-27  2026-10-26
+        ```
+
+??? note "Abrupt padding reliability improvements"
+    Two internal fixes make abrupt-segment padding more robust:
+
+    - **Double-padding prevention** — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
+    - **Padded flag guard** — the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
+
+    These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
+
+??? note "Plot customisation via `plot_params`"
+    A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
+
+    - **Figure dimensions** — set `figsize` to control width and height.
+    - **Title & labels** — add a domain-specific `title`, `xlabel`, or `ylabel`.
+    - **Colour scheme** — pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
+    - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
+    - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+
+    For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
+    Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — no `plot_params` (default)</span>
+
+    ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — custom `plot_params`</span>
+
+    ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Default appearance
+        pt.detect_trends(df, date_col="date", value_col="gradual")
+
+        # Custom appearance — black grid at 0.8 opacity, legend in bottom left
+        pt.detect_trends(
+            df, date_col="date", value_col="gradual",
+            plot_params=dict(
+                figsize=(20, 6),
+                title="Gradual Trend — Custom Visual",
+                grid={"visible": True, "color": "black", "alpha": 0.8},
+                legend_loc="lower left",
+            ),
+        )
+        ```
+
+---
 
 ## Released in v1.3.0
 

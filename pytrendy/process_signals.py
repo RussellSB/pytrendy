@@ -54,6 +54,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
 
     THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
     THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
+    THRESHOLD_FLAT = 0.835 # Sensitivity to detecting flats as a fraction of min std (non-zero)
 
     assert pd.api.types.is_integer_dtype(df.index.dtype), f"Supplied Index has type {df.index.dtype}"
 
@@ -180,31 +181,36 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
 
     # 3. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centred windows doesnt cover
+
+    # 3.1 Compute smoothed signal rolling std to be used by following logic
     df['smoothed'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1)
     df['smoothed_std'] = df['smoothed'].rolling(WINDOW_FLAT, center=True).std()
     df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=WINDOW_FLAT).std().iloc[::-1]
     df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
 
+    # 3.2 Compute derivative early so flat detection can check both smoothness and motion.
+    derivative_limit = abs(iqr(df[value_col])) * THRESHOLD_SMOOTH
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
+
+    # 3.3 Compute Flat Flag using both std and deriv limits
     df['flat_flag'] = 0
     rolling_std = df['value_cleaned'].rolling(WINDOW_FLAT, center=True).std()
-    min_nonzero_std = rolling_std[rolling_std > 0].min()
-    df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0), 'flat_flag'] = 1 
+    nonzero_std = rolling_std[rolling_std > 0]
+    min_nonzero_std = nonzero_std.min() if not nonzero_std.empty else 0.0
+    derivative_near_zero = df['smoothed_deriv'].abs() <= derivative_limit
+    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * THRESHOLD_FLAT)
+    df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0) & (derivative_near_zero | extremely_smooth), 'flat_flag'] = 1 
 
-    # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
-    # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
-    # Results in signal that's uptrend > 0, else down. As long as its not on a flat or noise.
+    # 4. Detect up/down trend.
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
 
-    # Important condition to establish non-trend segments to avoid detecting trends over
-    avoid_condition = (df['flat_flag'] == 0) # flat is always avoided
-    if method_params['avoid_noise']: # noise can be optionally avoided, up to the user
+    avoid_condition = (df['flat_flag'] == 0)
+    if method_params['avoid_noise']:
         avoid_condition &= (df['noise_flag'] == 0)
 
-    derivative_limit = abs(iqr(df[value_col])) * THRESHOLD_SMOOTH
-    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= derivative_limit) & avoid_condition, 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -derivative_limit) & avoid_condition, 'trend_flag'] = -1
 

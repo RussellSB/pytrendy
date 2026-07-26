@@ -42,25 +42,59 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             The type of index passed by the user. Different index types require different logic. Currently Accepted Index Types are: "date", "integer", "float".
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
+        plot_params (dict, optional):
+            Optional dict to customise plot appearance. Supported keys:
+
+            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
+            - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
+            - **xlabel** (`str`): X-axis label. Defaults to "Date".
+            - **ylabel** (`str`): Y-axis label. Defaults to "Value".
+            - **colors** (`dict`): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
+            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.
+            - **grid** (`dict`): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
+            - **legend_loc** (`str`): Legend location. Defaults to "upper right".
+            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).
 
     Returns:
         matplotlib.figure.Figure:
             The figure object containing the plot. Can be displayed with `plt.show()` or saved.
     """
     
-    # Define colours
-    color_map = {
-        'Up': 'lightgreen',
-        'Down': 'lightcoral',
-        'Flat': 'lightblue',
-        'Noise': 'lightgray',
+    # Default plotting params
+    default_params = {
+        'figsize': (20, 5),
+        'title': "PyTrendy Detection",
+        'xlabel': "Date",
+        'ylabel': "Value",
+        'colors': {
+            'Up': 'lightgreen',
+            'Down': 'lightcoral',
+            'Flat': 'lightblue',
+            'Noise': 'lightgray',
+        },
+        'alpha': 0.4,
+        'grid': {'visible': True, 'which': 'major', 'color': 'gray', 'alpha': 0.3},
+        'legend_loc': 'upper right',
+        'legend_bbox_to_anchor': (1, 1.15)
     }
+    if plot_params:
+        plot_params = dict(plot_params)  # avoid mutating caller's dict
+        has_custom_legend_loc = 'legend_loc' in plot_params
+        has_custom_legend_anchor = 'legend_bbox_to_anchor' in plot_params
+        custom_colors = plot_params.pop('colors', None)
+        custom_grid = plot_params.pop('grid', None)
+        default_params.update(plot_params)
+        if custom_colors:
+            default_params['colors'].update(custom_colors)
+        if custom_grid:
+            default_params['grid'].update(custom_grid)
+        if has_custom_legend_loc and not has_custom_legend_anchor:
+            default_params['legend_bbox_to_anchor'] = None
 
-    accepted_index_types = ['date', 'datetime64', 'integer', 'float', 'string']
-    if index_type not in accepted_index_types:
-        raise NotImplementedError(f"Index Type {index_type} not yet implemented.")
+    # Define colors
+    color_map = default_params['colors']
 
-    fig, ax = plt.subplots(figsize=(20, 5))
+    fig, ax = plt.subplots(figsize=default_params['figsize'])
 
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
@@ -260,13 +294,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
     # Create custom legend handles (colored boxes)
     legend_handles = [
-        mpatches.Patch(color='lightgreen', alpha=0.4, label='Up'),
-        mpatches.Patch(color='lightcoral', alpha=0.4, label='Down'),
-        mpatches.Patch(color='lightblue', alpha=0.4, label='Flat'),
-        mpatches.Patch(color='lightgray', alpha=0.4, label='Noise'), 
+        mpatches.Patch(color=default_params['colors']['Up'], alpha=default_params['alpha'], label='Up'),
+        mpatches.Patch(color=default_params['colors']['Down'], alpha=default_params['alpha'], label='Down'),
+        mpatches.Patch(color=default_params['colors']['Flat'], alpha=default_params['alpha'], label='Flat'),
+        mpatches.Patch(color=default_params['colors']['Noise'], alpha=default_params['alpha'], label='Noise'), 
     ]
-    ax.legend(handles=legend_handles, loc='upper right', 
-            bbox_to_anchor=(1, 1.15), ncol=4, frameon=True)
+    ax.legend(handles=legend_handles, loc=default_params['legend_loc'], 
+            bbox_to_anchor=default_params['legend_bbox_to_anchor'], ncol=4, frameon=True)
 
     plt.tight_layout()
     if not suppress_show:
