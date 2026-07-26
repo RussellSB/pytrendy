@@ -1640,7 +1640,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1716,7 +1716,9 @@ Defaults to <code>True</code>.</p>
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.detect_trends.detect_trends(plot_params)" class="doc doc-heading doc-heading-parameter">              <b><code>plot_params</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
+)
           –
           <div class="doc-md-description">
             <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:</p>
@@ -1885,11 +1887,13 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">166</span>
 <span class="normal">167</span>
 <span class="normal">168</span>
-<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">169</span>
+<span class="normal">170</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
                   <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span>
                   <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2005,7 +2009,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span> 
         <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">external_index</span>
         <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">)</span>
+        <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="n">plot_params</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">results</span>
