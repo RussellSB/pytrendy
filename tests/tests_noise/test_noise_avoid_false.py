@@ -39,9 +39,9 @@ class TestNoiseAvoidFalse:
             date_col='date',
             value_col='gradual',
             plot=False,
-            method_params=dict(is_abrupt_padded=False
-                               , avoid_noise=False # main parameter tested
-                        )
+            method_params={'abrupt_padding': 0,
+                           'avoid_noise': False  # main parameter tested
+                        }
         )
 
         # Expect no noise segments representing the four spikes
