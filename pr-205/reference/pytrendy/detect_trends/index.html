@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -752,6 +752,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;method_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
       
     </span>
   </a>
@@ -1544,6 +1555,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;plot_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(debug)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1664,7 +1686,7 @@ The <code>date_col</code> must contain datetime-like values (daily frequency rec
 )
           –
           <div class="doc-md-description">
-            <p>Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to idenify segmenets.</p>
+            <p>Historically, this represents the name of the column containing dates, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to identify segments.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1689,6 +1711,25 @@ Defaults to <code>True</code>.</p>
 <ul>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad around abrupt transitions. Defaults to <code>0</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
+</ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.detect_trends.detect_trends(plot_params)" class="doc doc-heading doc-heading-parameter">              <b><code>plot_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:</p>
+<ul>
+<li><strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).</li>
+<li><strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".</li>
+<li><strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".</li>
+<li><strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".</li>
+<li><strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.</li>
+<li><strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.</li>
+<li><strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).</li>
+<li><strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".</li>
+<li><strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</li>
 </ul>
           </div>
         </li>
@@ -1721,37 +1762,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/detect_trends.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 16</span>
-<span class="normal"> 17</span>
-<span class="normal"> 18</span>
-<span class="normal"> 19</span>
-<span class="normal"> 20</span>
-<span class="normal"> 21</span>
-<span class="normal"> 22</span>
-<span class="normal"> 23</span>
-<span class="normal"> 24</span>
-<span class="normal"> 25</span>
-<span class="normal"> 26</span>
-<span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
-<span class="normal"> 30</span>
-<span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
-<span class="normal"> 40</span>
-<span class="normal"> 41</span>
-<span class="normal"> 42</span>
-<span class="normal"> 43</span>
-<span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 46</span>
 <span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
@@ -1850,7 +1861,31 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
-<span class="normal">145</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -1880,7 +1915,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">        value_col (str):</span>
 <span class="sd">            Name of the column containing the primary signal to analyse for trend detection.</span>
 <span class="sd">        date_col (str|None):</span>
-<span class="sd">            Historically, this represents the name of the column containing timestamps, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is &#39;None&#39;, in which case an integer sequence will be generated and used to idenify segmenets.</span>
+<span class="sd">            Historically, this represents the name of the column containing dates, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is &#39;None&#39;, in which case an integer sequence will be generated and used to identify segments.</span>
 <span class="sd">        plot (bool, optional):</span>
 <span class="sd">            If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.</span>
 <span class="sd">            Defaults to `True`.</span>
@@ -1889,6 +1924,18 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
+<span class="sd">        plot_params (dict, optional):</span>
+<span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
+
+<span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
+<span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
+<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
+<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to &quot;Value&quot;.</span>
+<span class="sd">            - **colors** (`dict`): Dictionary mapping direction (&#39;Up&#39;, &#39;Down&#39;, &#39;Flat&#39;, &#39;Noise&#39;) to matplotlib colors. Defaults to light variants.</span>
+<span class="sd">            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.</span>
+<span class="sd">            - **grid** (`dict`): Grid configuration with keys &#39;visible&#39; (bool), &#39;which&#39; (str), &#39;color&#39; (str), &#39;alpha&#39; (float).</span>
+<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to &quot;upper right&quot;.</span>
+<span class="sd">            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).</span>
 <span class="sd">        debug (bool, optional):</span>
 <span class="sd">            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.</span>
 <span class="sd">            Defaults to `False`.</span>
@@ -1902,44 +1949,26 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="n">index_type</span> <span class="o">=</span> <span class="s1">&#39;integer&#39;</span>
 
     <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">s</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span>
+        <span class="n">index_type</span> <span class="o">=</span> <span class="n">_detect_index_type</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">)</span>
         <span class="n">external_index</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_string_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]):</span>
 
-            <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span>
-                    <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>
-                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Could not infer format.*&quot;</span>
-                <span class="p">)</span>
-                <span class="n">parsed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">parsed</span><span class="o">.</span><span class="n">notna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
-                <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">parsed</span>
-                <span class="n">index_type</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Attempting to cast </span><span class="si">{</span><span class="n">date_col</span><span class="si">}</span><span class="s2"> to date failed, &quot;</span>
-                    <span class="s2">&quot;treating as string lookup.&quot;</span>
-                    <span class="p">)</span>
-                <span class="n">index_type</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
-        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_datetime64_any_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]):</span>
-            <span class="n">index_type</span> <span class="o">=</span> <span class="s2">&quot;datetime64&quot;</span>
-        <span class="c1">#elif s.map(lambda x: isinstance(x, date) or pd.isna(x)).all():</span>
-        <span class="c1">#    index_type = &quot;datetimePd&quot;</span>
-        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]):</span>
-                <span class="k">pass</span>
-        <span class="k">elif</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_float_dtype</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]):</span>
-                <span class="n">index_type</span> <span class="o">=</span> <span class="s2">&quot;float&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;date_col has unimplimented dtype </span><span class="si">{</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> 
+        <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">&#39;date&#39;</span><span class="p">:</span>
+            <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">&#39;string&#39;</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Attempting to cast </span><span class="si">{</span><span class="n">date_col</span><span class="si">}</span><span class="s2"> to date failed, &quot;</span>
+                <span class="s2">&quot;treating as string lookup.&quot;</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">external_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
 
     <span class="n">internal_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))</span>
-    <span class="n">index_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">internal_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="p">:</span> <span class="n">external_index</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">internal_index</span><span class="p">))}</span>
+    <span class="n">index_lookup</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">internal_index</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">external_index</span><span class="p">)))</span>
 
-    <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">internal_index</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Use a dedicated scratch column name to avoid clobbering user&#39;s columns</span>
+    <span class="n">_pytrendy_idx</span> <span class="o">=</span> <span class="s1">&#39;_pytrendy_idx&#39;</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">_pytrendy_idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">internal_index</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">_pytrendy_idx</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">value_col</span><span class="p">]]</span>
 
     <span class="k">if</span> <span class="n">method_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -2077,7 +2106,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../javascripts/extra.js"></script>
       

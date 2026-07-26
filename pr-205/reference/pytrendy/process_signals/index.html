@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1904,7 +1904,13 @@
 <span class="normal">247</span>
 <span class="normal">248</span>
 <span class="normal">249</span>
-<span class="normal">250</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">250</span>
+<span class="normal">251</span>
+<span class="normal">252</span>
+<span class="normal">253</span>
+<span class="normal">254</span>
+<span class="normal">255</span>
+<span class="normal">256</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Applies signal processing techniques to classify regions of a time series.</span>
 
@@ -1951,6 +1957,7 @@
 
     <span class="n">THRESHOLD_NOISE</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="c1"># Sensitivity to detecting noise (recommended 0-10)</span>
     <span class="n">THRESHOLD_SMOOTH</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="c1"># Sensitivity to detecting trends as fraction of iqr</span>
+    <span class="n">THRESHOLD_FLAT</span> <span class="o">=</span> <span class="mf">0.835</span> <span class="c1"># Sensitivity to detecting flats as a fraction of min std (non-zero)</span>
 
     <span class="k">assert</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Supplied Index has type </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">&quot;</span>
 
@@ -2077,31 +2084,36 @@
 
     <span class="c1"># 3. Flat detection using rolling std of savgol filter.</span>
     <span class="c1"># with leading and trailing to cater for periods centred windows doesnt cover</span>
+
+    <span class="c1"># 3.1 Compute smoothed signal rolling std to be used by following logic</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">WINDOW_SMOOTH</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std_leading&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">WINDOW_FLAT</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std_trailing&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std_leading&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std_trailing&#39;</span><span class="p">])</span>
 
+    <span class="c1"># 3.2 Compute derivative early so flat detection can check both smoothness and motion.</span>
+    <span class="n">derivative_limit</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]))</span> <span class="o">*</span> <span class="n">THRESHOLD_SMOOTH</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_deriv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">WINDOW_SMOOTH</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># 3.3 Compute Flat Flag using both std and deriv limits</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">rolling_std</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-    <span class="n">min_nonzero_std</span> <span class="o">=</span> <span class="n">rolling_std</span><span class="p">[</span><span class="n">rolling_std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">min_nonzero_std</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;noise_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">),</span> <span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> 
+    <span class="n">nonzero_std</span> <span class="o">=</span> <span class="n">rolling_std</span><span class="p">[</span><span class="n">rolling_std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">min_nonzero_std</span> <span class="o">=</span> <span class="n">nonzero_std</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">nonzero_std</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">derivative_near_zero</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_deriv&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">derivative_limit</span>
+    <span class="n">extremely_smooth</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">min_nonzero_std</span> <span class="o">*</span> <span class="n">THRESHOLD_FLAT</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_std&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">min_nonzero_std</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;noise_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">derivative_near_zero</span> <span class="o">|</span> <span class="n">extremely_smooth</span><span class="p">),</span> <span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> 
 
-    <span class="c1"># 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). </span>
-    <span class="c1"># Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.</span>
-    <span class="c1"># Results in signal that&#39;s uptrend &gt; 0, else down. As long as its not on a flat or noise.</span>
+    <span class="c1"># 4. Detect up/down trend.</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">&#39;trend_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;trend_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;noise_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">&#39;trend_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">3</span>
 
-    <span class="c1"># Important condition to establish non-trend segments to avoid detecting trends over</span>
-    <span class="n">avoid_condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="c1"># flat is always avoided</span>
-    <span class="k">if</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">&#39;avoid_noise&#39;</span><span class="p">]:</span> <span class="c1"># noise can be optionally avoided, up to the user</span>
+    <span class="n">avoid_condition</span> <span class="o">=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;flat_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">&#39;avoid_noise&#39;</span><span class="p">]:</span>
         <span class="n">avoid_condition</span> <span class="o">&amp;=</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;noise_flag&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">derivative_limit</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]))</span> <span class="o">*</span> <span class="n">THRESHOLD_SMOOTH</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_deriv&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">WINDOW_SMOOTH</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_deriv&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">derivative_limit</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">avoid_condition</span><span class="p">,</span> <span class="s1">&#39;trend_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">&#39;smoothed_deriv&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="o">-</span><span class="n">derivative_limit</span><span class="p">)</span> <span class="o">&amp;</span> <span class="n">avoid_condition</span><span class="p">,</span> <span class="s1">&#39;trend_flag&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
@@ -2242,7 +2254,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../javascripts/extra.js"></script>
       
