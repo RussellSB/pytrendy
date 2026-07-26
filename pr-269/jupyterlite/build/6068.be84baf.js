@@ -1,0 +1,2 @@
+"use strict";(self.rspackChunk_JUPYTERLAB_CORE_OUTPUT=self.rspackChunk_JUPYTERLAB_CORE_OUTPUT||[]).push([[6068],{63711(s){s.exports=JSON.parse('{"version":"11.15.0"}')}}]);
+//# sourceMappingURL=6068.be84baf.js.map
