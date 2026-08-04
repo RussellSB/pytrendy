@@ -8,8 +8,12 @@ jobs:
   check-base-branch:
     name: Validate Base Branch
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - name: Ensure PR targets allowed base branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           BASE="${{ github.base_ref }}"
           HEAD="${{ github.head_ref }}"
@@ -33,6 +37,21 @@ jobs:
           if [ "$BASE" = "main" ] && [[ "$HEAD" == docs/whats-new-* ]]; then
             echo "Base branch check passed: allowing automated What's New PR from '$HEAD' to 'main'."
             exit 0
+          fi
+
+          if [ "$BASE" = "main" ]; then
+            # Check if all changed files are CI/CD or agentic config files
+            PR_NUMBER=$(jq --raw-output '.pull_request.number // empty' "$GITHUB_EVENT_PATH")
+            CHANGED_FILES=$(curl -sL -H "Authorization: token $GH_TOKEN" \
+              "https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files?per_page=100" \
+              | jq -r '.[].filename' 2>/dev/null || echo "")
+            if [ -n "$CHANGED_FILES" ]; then
+              NON_CICD_FILES=$(echo "$CHANGED_FILES" | grep -v -E "^(.github/|AGENTS\.md$|pyproject\.toml$|opencode\.json$|opencode\.yaml$|\.opencode/|\.releaserc)" || true)
+              if [ -z "$NON_CICD_FILES" ]; then
+                echo "Base branch check passed: all changed files are CI/CD or agentic config"
+                exit 0
+              fi
+            fi
           fi
 
           if [ "$BASE" = "main" ]; then
