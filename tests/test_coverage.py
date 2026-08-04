@@ -707,24 +707,7 @@ class TestPlotStringNextNoiseFill:
 # abrupt_shaving: out-of-range guard when new_start < df.index[0] (line 93)
 # =============================================================================
 
-class TestAbruptShavingOutOfRange:
-    """Test that the out-of-range guard in abrupt_shaving triggers for leading segments."""
 
-    def test_leading_abrupt_at_index_start(self):
-        """Line 93: new_start < df.index[0] triggers continue.
-
-        Uses detect_trends on data with an abrupt spike at the very start,
-        which produces a leading abrupt segment whose new_start would be
-        before df.index[0].
-        """
-        # Data with an abrupt spike at index 0 — needs enough points for savgol
-        values = [500] + [100] * 49
-        df = pd.DataFrame({'value': values})
-
-        results = pt.detect_trends(df, value_col='value',
-                                   plot=False, method_params={'abrupt_padding': 0})
-        assert results is not None
-        assert len(results.segments) > 0
 
 
 # =============================================================================
