@@ -3,10 +3,11 @@ Tests targeting uncovered lines for 100% test coverage.
 
 Covers:
 - plot_pytrendy: string, integer, and float index type branches
+- plot_pytrendy: string prev fill (lines 172-178, 182) and next noise fill (lines 210-216)
 - detect_trends: integer date_col, NotImplementedError, plot=True
 - results_pytrendy: print_summary with non-date index types
-- abrupt_shaving: out-of-range guard
-- artifact_cleanup: empty segments fallback
+- abrupt_shaving: out-of-range guard (line 93)
+- artifact_cleanup: empty segments fallback, trend-after-flat overlap (line 115)
 """
 import pytest
 import pandas as pd
@@ -568,3 +569,199 @@ class TestPlotNoiseNeighbour:
                             index_type='string', suppress_show=True)
         assert fig is not None
         plt.close(fig)
+
+
+# =============================================================================
+# plot_pytrendy: string index prev fill (lines 172-178, 182)
+# =============================================================================
+
+class TestPlotStringPrevFill:
+    """Exercise the prev fill branch when start displacement is invalid."""
+
+    def test_string_prev_not_trend_invalid_displacement(self):
+        """Lines 172-178, 182: prev is Flat (not trend), neighbouring, start displacement invalid.
+
+        Crafted segments: Flat followed by adjacent Up on string index where
+        the Up start value is >= the value one position before it, making the
+        left-displacement invalid.  Falls through to the prev fill branch.
+        """
+        values = list(range(181))
+        values[89] = 100
+        values[90] = 100
+        values[91] = 99   # Up starts here — value[90] >= value[91], displacement invalid
+        values[92] = 100
+        values[93] = 101
+        custom_df = pd.DataFrame({'gradual': values}, index=[f'S{i}' for i in range(181)])
+
+        segments = [
+            {'start': 'S80', 'end': 'S90', 'direction': 'Flat',
+             'change_rank': 1},
+            {'start': 'S91', 'end': 'S110', 'direction': 'Up',
+             'trend_class': 'gradual', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(custom_df, 'gradual', segments,
+                            index_type='string', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_integer_prev_not_trend_invalid_displacement(self):
+        """Lines 177-178: integer index, prev Flat neighbouring, start displacement invalid.
+
+        Same pattern as string test but with integer index, exercising the else branch.
+        """
+        values = list(range(181))
+        values[89] = 100
+        values[90] = 100
+        values[91] = 99   # Up starts here — value[90] >= value[91], displacement invalid
+        values[92] = 100
+        values[93] = 101
+        custom_df = pd.DataFrame({'gradual': values}, index=range(181))
+
+        segments = [
+            {'start': 80, 'end': 90, 'direction': 'Flat',
+             'change_rank': 1},
+            {'start': 91, 'end': 110, 'direction': 'Up',
+             'trend_class': 'gradual', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(custom_df, 'gradual', segments,
+                            index_type='integer', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+
+# =============================================================================
+# plot_pytrendy: string index next noise fill (lines 210-216)
+# =============================================================================
+
+class TestPlotStringNextNoiseFill:
+    """Exercise the next-noise fill branch when end displacement is invalid."""
+
+    def test_string_next_noise_invalid_displacement(self):
+        """Lines 210-214: next is Noise (adjacent), end displacement invalid, string index.
+
+        Crafted segments: Down followed by adjacent Noise on string index where
+        the Down end value is < the value one position after it, making the
+        right-displacement invalid (valid_down_end requires new_end < value).
+        Falls through to the next noise fill branch.
+        """
+        values = [200 - i for i in range(20)] + [200 + i for i in range(161)]
+        custom_df = pd.DataFrame({'gradual': values}, index=[f'S{i}' for i in range(181)])
+
+        segments = [
+            {'start': 'S0', 'end': 'S19', 'direction': 'Down',
+             'trend_class': 'gradual', 'change_rank': 1},
+            {'start': 'S20', 'end': 'S40', 'direction': 'Noise',
+             'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(custom_df, 'gradual', segments,
+                            index_type='string', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_integer_next_noise_invalid_displacement(self):
+        """Lines 215-216: integer index, next Noise adjacent, end displacement invalid.
+
+        Same pattern as string test but with integer index, exercising the else branch.
+        """
+        values = [200 - i for i in range(20)] + [200 + i for i in range(161)]
+        custom_df = pd.DataFrame({'gradual': values}, index=range(181))
+
+        segments = [
+            {'start': 0, 'end': 19, 'direction': 'Down',
+             'trend_class': 'gradual', 'change_rank': 1},
+            {'start': 20, 'end': 40, 'direction': 'Noise',
+             'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(custom_df, 'gradual', segments,
+                            index_type='integer', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_date_next_noise_invalid_displacement(self):
+        """Line 211: date index, next Noise adjacent, end displacement invalid.
+
+        Exercises the date branch of the next noise fill logic.
+        """
+        values = [200 - i for i in range(20)] + [200 + i for i in range(161)]
+        dates = pd.date_range('2025-01-01', periods=181, freq='D')
+        custom_df = pd.DataFrame({'gradual': values}, index=dates)
+
+        segments = [
+            {'start': dates[0].strftime('%Y-%m-%d'), 'end': dates[19].strftime('%Y-%m-%d'),
+             'direction': 'Down', 'trend_class': 'gradual', 'change_rank': 1},
+            {'start': dates[20].strftime('%Y-%m-%d'), 'end': dates[40].strftime('%Y-%m-%d'),
+             'direction': 'Noise', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(custom_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+
+# =============================================================================
+# abrupt_shaving: out-of-range guard when new_start < df.index[0] (line 93)
+# =============================================================================
+
+class TestAbruptShavingOutOfRange:
+    """Test that the out-of-range guard in abrupt_shaving triggers for leading segments."""
+
+    def test_leading_abrupt_at_index_start(self):
+        """Line 93: new_start < df.index[0] triggers continue.
+
+        Uses detect_trends on data with an abrupt spike at the very start,
+        which produces a leading abrupt segment whose new_start would be
+        before df.index[0].
+        """
+        # Data with an abrupt spike at index 0 — needs enough points for savgol
+        values = [500] + [100] * 49
+        df = pd.DataFrame({'value': values})
+
+        results = pt.detect_trends(df, value_col='value',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results is not None
+        assert len(results.segments) > 0
+
+
+# =============================================================================
+# artifact_cleanup: trend after flat with similar size (line 115)
+# =============================================================================
+
+class TestArtifactCleanupTrendAfterFlat:
+    """Test that has_partial_overlap_prev catches trend-after-flat overlap."""
+
+    def test_trend_after_flat_similar_size(self):
+        """Line 115: curr is trend, prev is flat, similar size, overlapping.
+
+        Uses detect_trends on data that produces a flat region followed by
+        a short overlapping trend of similar length, triggering the overlap
+        cleanup at line 115.
+        """
+        # Data with a plateau followed by a small bump — produces Flat then short Up
+        values = [100] * 15 + list(range(100, 110)) + [110] * 15
+        df = pd.DataFrame({'value': values})
+
+        results = pt.detect_trends(df, value_col='value',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results is not None
+        assert len(results.segments) > 0
+
+
+# =============================================================================
+# detect_trends: integer date_col path (line 40)
+# =============================================================================
+
+class TestDetectIndexTypeInteger:
+    """Test _detect_index_type with explicit integer date_col."""
+
+    def test_integer_date_col_returns_integer(self):
+        """Line 40: passing an integer-typed column as date_col returns 'integer'."""
+        df = pt.load_data('series_synthetic')
+        df['int_col'] = np.arange(len(df))
+        results = pt.detect_trends(df, value_col='gradual', date_col='int_col',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results.index_type == 'integer'
