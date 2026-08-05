@@ -18,7 +18,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         segments_refined (list): List of segment dictionaries potentially with artifacts from post-processing.
         method_params (dict): Optional parameters for cleanup behaviour. Supported keys:
 
-            - **abrupt_padding** (`int`): Padding window in days used by abrupt refinement; included for pipeline consistency. Defaults to `0`.
+            - **is_abrupt_padded** (`bool`): If `True`, skips neighboring-noise checks around abrupt segments. Defaults to `False`.
+            - **abrupt_padding** (`int`): Padding window (index units) used by abrupt refinement; included for pipeline consistency. Defaults to `28`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
@@ -36,7 +37,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_flat = segment['direction'] == 'Flat'
         is_border = (start == df.index[0]) or (end == df.index[-1])
         flat_edge_case = is_flat and not is_border
-        
+
         # inverse if start before end, immediately clean
         if (end - start) < 0:
             return True
@@ -89,8 +90,8 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
     def has_overlap_prev(segment: dict, segment_prev: dict) -> bool:
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
-        start = segment['start']
-        end = segment['end']
+        start =  segment['start']
+        end =  segment['end']
         width = end - start
 
         prev_dir = segment_prev['direction']
@@ -141,7 +142,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
     def has_partial_overlap_prev(segment: dict, segment_prev: dict) -> bool:
         """Light checks with overlaps on previous, that wouldnt already be covered by has_overlap_next"""
         dir = segment['direction']
-        start = segment['start']
+        start =  segment['start']
         end = segment['end']
         width = end - start
 
@@ -235,7 +236,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         if has_inverse(df, value_col, segment): 
             continue # Excludes segment.
         segments_refined.append(segment)
-
+    
     # Pass 5: 
     # - Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough (enabled when avoid_noise is True)
     # - Sets trends to flat when too flat.
@@ -247,14 +248,14 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         df_segment = df.loc[start:end].copy()
 
         # Conditions for edge cases
-        left_is_noise = any( # Consider segments within neighbour distance on left
+        left_is_noise = any(( # Consider segments within neighbour distance on left
                 0 <= (start - prev_seg['end']) <= GROUPING_DISTANCE
                 and prev_seg.get('direction') == 'Noise'
-            for k, prev_seg in enumerate(segments) if k != i)
-        right_is_noise = any( # Consider segments within neighbour distance on right
+            ) for k, prev_seg in enumerate(segments) if k != i)
+        right_is_noise = any(( # Consider segments within neighbour distance on right
                 0 <= (next_seg['start'] - end) <= GROUPING_DISTANCE
                 and next_seg.get('direction') == 'Noise'
-            for k, next_seg in enumerate(segments) if k != i)
+            ) for k, next_seg in enumerate(segments) if k != i)
         
         is_flat = segment['direction'] == 'Flat'
         is_gradual = ('trend_class' in segment and segment['trend_class'] == 'gradual')
@@ -326,7 +327,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
 
 def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
-    """Fill uncovered time gaps with Flat segments.
+    """Fill uncovered gaps with Flat segments using df's Index.
 
     Adds Flat segments for:
     - Internal gaps between consecutive segments.
@@ -335,7 +336,7 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     """
     if not segments: # if refinement produced no segments, cover full range as Flat and avoid index access errors below.
         start, end = df.index.min(), df.index.max()
-        return [dict(start=start, end=end, direction='Flat')]
+        return [{'start': start, 'end': end, 'direction': 'Flat'}]
 
     segments_refined = segments.copy()
 
@@ -345,11 +346,11 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     if data_start < first_start:
         lead_end = first_start - 1
         if lead_end >= data_start:
-            segments_refined.insert(0, dict(
-                start=data_start,
-                end=lead_end,
-                direction='Flat'
-            ))
+            segments_refined.insert(0, {
+                'start': data_start,
+                'end': lead_end,
+                'direction': 'Flat'
+            })
 
     # Internal gaps (work on snapshot to avoid index shift confusion)
     j = 0
@@ -364,11 +365,11 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
         gap_end = next_seg['start'] - 1
 
         if gap_end >= gap_start:
-            segments_refined.insert(mapped + 1, dict(
-                start=gap_start,
-                end=gap_end,
-                direction='Flat'
-            ))
+            segments_refined.insert(mapped + 1, {
+                'start': gap_start,
+                'end': gap_end,
+                'direction': 'Flat'
+            })
             j += 1
 
     # Trailing gap
@@ -377,10 +378,10 @@ def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
     if data_end > last_end:
         trail_start = last_end + 1
         if data_end >= trail_start:
-            segments_refined.append(dict(
-                start=trail_start,
-                end=data_end,
-                direction='Flat'
-            ))
+            segments_refined.append({
+                'start': trail_start,
+                'end': data_end,
+                'direction': 'Flat'
+            })
 
     return segments_refined
