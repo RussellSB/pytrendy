@@ -588,7 +588,7 @@ class TestPlotPrevFill:
                                    plot=False, method_params={'abrupt_padding': 0})
         assert results.index_type == 'string'
         assert_segments_in_a_haystack(results.segments, [
-            {'direction': 'Flat', 'start': results.segments[0]['start'], 'end': results.segments[0]['end']},
+            {'direction': 'Flat', 'start': 'S0', 'end': 'S18'},
         ])
 
     def test_integer_prev_fill(self):
@@ -599,7 +599,7 @@ class TestPlotPrevFill:
                                    plot=False, method_params={'abrupt_padding': 0})
         assert results.index_type == 'integer'
         assert_segments_in_a_haystack(results.segments, [
-            {'direction': 'Flat', 'start': results.segments[0]['start'], 'end': results.segments[0]['end']},
+            {'direction': 'Flat', 'start': 0, 'end': 18},
         ])
 
 
@@ -615,7 +615,7 @@ class TestPlotNextNoiseFill:
                                    plot=False, method_params={'abrupt_padding': 0})
         assert results.index_type == 'string'
         assert_segments_in_a_haystack(results.segments, [
-            {'direction': 'Down', 'start': results.segments[0]['start'], 'end': results.segments[0]['end']},
+            {'direction': 'Down', 'start': 'S1', 'end': 'S17'},
         ])
 
     def test_integer_next_noise_fill(self):
@@ -626,7 +626,7 @@ class TestPlotNextNoiseFill:
                                    plot=False, method_params={'abrupt_padding': 0})
         assert results.index_type == 'integer'
         assert_segments_in_a_haystack(results.segments, [
-            {'direction': 'Down', 'start': results.segments[0]['start'], 'end': results.segments[0]['end']},
+            {'direction': 'Down', 'start': 1, 'end': 17},
         ])
 
     def test_date_next_noise_fill(self):
@@ -638,7 +638,7 @@ class TestPlotNextNoiseFill:
                                    plot=False, method_params={'abrupt_padding': 0})
         assert results.index_type == 'datetime64'
         assert_segments_in_a_haystack(results.segments, [
-            {'direction': 'Down', 'start': results.segments[0]['start'], 'end': results.segments[0]['end']},
+            {'direction': 'Down', 'start': pd.Timestamp('2025-01-02'), 'end': pd.Timestamp('2025-01-18')},
         ])
 
 
