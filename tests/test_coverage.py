@@ -656,3 +656,129 @@ class TestDetectIndexTypeInteger:
             {'direction': 'Up', 'start': 1, 'end': 23},
             {'direction': 'Flat', 'start': 168, 'end': 180},
         ])
+
+
+# =============================================================================
+# plot_pytrendy: prev fill branch (lines 172-178, 182)
+# TODO: move to tests_plotting/edgecases/
+# =============================================================================
+
+class TestPlotPrevFillDirect:
+    """Test the prev fill branch in plot_pytrendy when start displacement is invalid."""
+
+    def test_string_prev_fill_direct(self):
+        """Lines 172-176, 182: string index, Flat→Up adjacent, invalid start displacement.
+
+        The Up starts at a position where the value is lower than the Flat end value,
+        making the left-displacement invalid. This triggers the prev fill branch.
+        """
+        # Custom data with a dip so Up start value < Flat end value
+        values = list(range(40))
+        values[19] = 25  # Flat end value (high)
+        values[20] = 15  # Up start value (low) — displacement invalid
+        str_idx = [f'S{i}' for i in range(40)]
+        plot_df = pd.DataFrame({'gradual': values}, index=str_idx)
+
+        segments = [
+            {'start': 'S10', 'end': 'S19', 'direction': 'Flat',
+             'change_rank': 1},
+            {'start': 'S20', 'end': 'S35', 'direction': 'Up',
+             'trend_class': 'gradual', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='string', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_integer_prev_fill_direct(self):
+        """Lines 177-178: integer index, Flat→Up adjacent, invalid start displacement."""
+        values = list(range(40))
+        values[19] = 25  # Flat end value (high)
+        values[20] = 15  # Up start value (low) — displacement invalid
+        plot_df = pd.DataFrame({'gradual': values}, index=range(40))
+
+        segments = [
+            {'start': 10, 'end': 19, 'direction': 'Flat',
+             'change_rank': 1},
+            {'start': 20, 'end': 35, 'direction': 'Up',
+             'trend_class': 'gradual', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='integer', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+
+# =============================================================================
+# plot_pytrendy: next noise fill branch (lines 210-216)
+# TODO: move to tests_plotting/edgecases/
+# =============================================================================
+
+class TestPlotNextNoiseFillDirect:
+    """Test the next noise fill branch in plot_pytrendy when end displacement is invalid."""
+
+    def test_date_next_noise_fill_direct(self):
+        """Line 211: date index, Down→Noise adjacent, invalid end displacement.
+
+        The Down ends at a position where the value is lower than the next position's value,
+        making the right-displacement invalid. This triggers the next noise fill branch.
+        """
+        # Custom data where Down end value < next value (invalid for Down)
+        values = list(range(40))
+        values[24] = 10  # Down end value (low)
+        values[25] = 35  # Noise start value (high) — displacement invalid
+        dates = pd.date_range('2025-01-01', periods=40, freq='D')
+        plot_df = pd.DataFrame({'gradual': values}, index=dates)
+
+        segments = [
+            {'start': pd.Timestamp('2025-01-02'), 'end': pd.Timestamp('2025-01-25'),
+             'direction': 'Down', 'trend_class': 'gradual', 'change_rank': 1},
+            {'start': pd.Timestamp('2025-01-26'), 'end': pd.Timestamp('2025-02-05'),
+             'direction': 'Noise', 'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_string_next_noise_fill_direct(self):
+        """Lines 213-214: string index, Down→Noise adjacent, invalid end displacement."""
+        values = list(range(40))
+        values[24] = 10  # Down end value (low)
+        values[25] = 35  # Noise start value (high) — displacement invalid
+        str_idx = [f'S{i}' for i in range(40)]
+        plot_df = pd.DataFrame({'gradual': values}, index=str_idx)
+
+        segments = [
+            {'start': 'S1', 'end': 'S24', 'direction': 'Down',
+             'trend_class': 'gradual', 'change_rank': 1},
+            {'start': 'S25', 'end': 'S35', 'direction': 'Noise',
+             'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='string', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    def test_integer_next_noise_fill_direct(self):
+        """Line 216: integer index, Down→Noise adjacent, invalid end displacement."""
+        values = list(range(40))
+        values[24] = 10  # Down end value (low)
+        values[25] = 35  # Noise start value (high) — displacement invalid
+        plot_df = pd.DataFrame({'gradual': values}, index=range(40))
+
+        segments = [
+            {'start': 1, 'end': 24, 'direction': 'Down',
+             'trend_class': 'gradual', 'change_rank': 1},
+            {'start': 25, 'end': 35, 'direction': 'Noise',
+             'change_rank': 2},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='integer', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
