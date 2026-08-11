@@ -89,4 +89,4 @@ jobs:
           CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: opencode-go/mimo-v2.5
+          model: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
