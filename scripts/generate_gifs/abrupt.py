@@ -60,15 +60,14 @@ def generate():
     durations: list[int] = []
 
     def R1(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        """Cycle 1 (no padding): ranks at top, matching original plot_pytrendy."""
+        """Cycle 1 (no padding): ranks centred on lower part of plot."""
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
-                                   rank_y_offset=0.05, rank_bold=False))
+                                   rank_y_offset=0.70, rank_bold=False))
 
     def R2(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        """Cycle 2 (with padding): ranks vertically centred within segments."""
+        """Cycle 2 (with padding): ranks vertically centred."""
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
-                                   rank_y_offset=0.5, rank_bold=False,
-                                   rank_center_on_data=True))
+                                   rank_y_offset=0.50, rank_bold=False))
 
     def hold(ms):
         durations.append(ms)
