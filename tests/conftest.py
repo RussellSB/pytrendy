@@ -6,6 +6,31 @@ across multiple test files.
 """
 
 import pandas as pd
+import numpy as np
+
+
+def build_internal_index(df: pd.DataFrame, date_col: str) -> tuple:
+    """
+    Build the internal index framework for unwrapped-pipeline tests.
+
+    Mirrors the external_index / internal_index / index_lookup construction
+    used by ``detect_trends``, so tests that bypass the main entry point stay
+    in sync with the production logic in a single place.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        date_col (str): Name of the column to use as the external index.
+
+    Returns:
+        tuple: ``(external_index, internal_index, index_lookup)`` where
+        ``external_index`` holds the datetime index values, ``internal_index``
+        is the positional integer sequence, and ``index_lookup`` maps internal
+        to external index values.
+    """
+    external_index = pd.to_datetime(df[date_col])
+    internal_index = np.arange(len(df))
+    index_lookup = dict(zip(internal_index, np.asarray(external_index)))
+    return external_index, internal_index, index_lookup
 
 
 def _check_value(key, detected, expected, i):

@@ -8,8 +8,8 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 
 import pytest
 import pandas as pd
-import numpy as np
 from copy import deepcopy
+from conftest import build_internal_index
 import pytrendy as pt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 from pytrendy.process_signals import process_signals
@@ -69,9 +69,7 @@ class TestPlotPytrendyEdgeCases:
         
         # ------ pt.detect_trends() [part 1]
         # unwrapped-equivalent to disable grouping at a lower level     
-        external_index = pd.to_datetime(df[date_col])
-        internal_index = np.arange(len(df))
-        index_lookup = {internal_index[i] : external_index[i] for i in range(len(internal_index))}
+        external_index, internal_index, index_lookup = build_internal_index(df, date_col)
     
         df[date_col] = internal_index
         df.set_index(date_col, inplace=True)
