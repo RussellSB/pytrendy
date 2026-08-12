@@ -139,6 +139,8 @@ def render_frame(
     rank_size: int = 12,
     seg_alpha: float = 0.4,
     rank_y_offset: float = 0.05,
+    rank_bold: bool = True,
+    title_suffix: str | None = None,
 ) -> Image.Image:
     """Render one frame as a complete matplotlib figure -> PIL Image.
 
@@ -152,6 +154,9 @@ def render_frame(
         seg_alpha: Opacity of segment fills (0-1).
         rank_y_offset: Rank vertical position as fraction from top of y-range
                         (e.g. 0.05 = 5% from top, 0.95 = near bottom).
+        rank_bold: Whether rank numbers use bold font weight.
+        title_suffix: Optional suffix text drawn right of the title in light gray
+                        (e.g. "(seed=10, std=20)").
     """
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
 
@@ -191,7 +196,8 @@ def render_frame(
                 rc = RANK_COLORS.get(seg["direction"], (0, 0, 0))
                 rc_norm = (rc[0]/255, rc[1]/255, rc[2]/255)
                 ax.text(mid, y_pos, str(seg["change_rank"]), fontsize=rank_size,
-                        fontweight="bold", ha="center", va="center",
+                        fontweight="bold" if rank_bold else "normal",
+                        ha="center", va="center",
                         color=rc_norm, alpha=rank_alpha)
 
     # Formatting
@@ -203,6 +209,15 @@ def render_frame(
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right")
     ax.grid(True, which="major", color="gray", alpha=0.3)
     ax.set_title(title, fontsize=20)
+    if title_suffix:
+        fig.canvas.draw()  # ensure renderer available for extent calc
+        renderer = fig.canvas.get_renderer()
+        bb = ax.title.get_window_extent(renderer=renderer)
+        fig.text(
+            bb.x1 + 8, bb.y0 + bb.height / 2,
+            title_suffix, fontsize=15, color="lightgray",
+            ha="left", va="center",
+        )
     ax.set_xlabel("Date")
     ax.set_ylabel("Value")
     legend_handles = [

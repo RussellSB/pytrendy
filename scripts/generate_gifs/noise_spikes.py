@@ -30,7 +30,7 @@ from scripts.generate_gifs.utils import (
 # ---------------------------------------------------------------------------
 OUTPUT_PATH = REPO_ROOT / "plots" / "Noise-Spikes.gif"
 
-TITLE = "Detect Trends in Data with Spikes"
+TITLE = "Detect Spikes"
 
 # Spike dates to introduce chronologically (from notebook)
 SPIKE_DATES = ["2025-04-08", "2025-05-08", "2025-06-08"]
