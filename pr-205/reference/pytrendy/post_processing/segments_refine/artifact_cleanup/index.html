@@ -2286,7 +2286,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
     <div class="doc doc-contents ">
 
-        <p>Fill uncovered gaps with Flat segments using df's Index.</p>
+        <p>Fill uncovered time gaps with Flat segments using df's Index.</p>
 <p>Adds Flat segments for:
 - Internal gaps between consecutive segments.
 - Leading gap before the first segment if df index starts earlier.
@@ -2354,7 +2354,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">385</span>
 <span class="normal">386</span>
 <span class="normal">387</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill uncovered gaps with Flat segments using df&#39;s Index.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fill uncovered time gaps with Flat segments using df&#39;s Index.</span>
 
 <span class="sd">    Adds Flat segments for:</span>
 <span class="sd">    - Internal gaps between consecutive segments.</span>
