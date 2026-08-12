@@ -138,6 +138,7 @@ def render_frame(
     rank_alpha: float = 1.0,
     rank_size: int = 12,
     seg_alpha: float = 0.4,
+    rank_y_offset: float = 0.05,
 ) -> Image.Image:
     """Render one frame as a complete matplotlib figure -> PIL Image.
 
@@ -149,6 +150,8 @@ def render_frame(
         rank_alpha: Opacity of rank numbers (0-1).
         rank_size: Font size for rank numbers.
         seg_alpha: Opacity of segment fills (0-1).
+        rank_y_offset: Rank vertical position as fraction from top of y-range
+                        (e.g. 0.05 = 5% from top, 0.95 = near bottom).
     """
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
 
@@ -184,7 +187,7 @@ def render_frame(
                     and "change_rank" in seg and sweep_progress is not None
                     and clip_end >= end):
                 mid = start + (end - start) / 2
-                y_pos = ymax - (ymax - ymin) * 0.05
+                y_pos = ymax - (ymax - ymin) * rank_y_offset
                 rc = RANK_COLORS.get(seg["direction"], (0, 0, 0))
                 rc_norm = (rc[0]/255, rc[1]/255, rc[2]/255)
                 ax.text(mid, y_pos, str(seg["change_rank"]), fontsize=rank_size,

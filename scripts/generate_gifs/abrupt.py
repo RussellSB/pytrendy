@@ -60,7 +60,8 @@ def generate():
     durations: list[int] = []
 
     def R(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 12, sa))
+        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 20, sa,
+                                   rank_y_offset=0.95))
 
     def hold(ms):
         durations.append(ms)
