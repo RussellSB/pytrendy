@@ -32,8 +32,8 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
             A list of dictionaries, each representing a segment with keys:
 
             - `'direction'`: Segment type (e.g., `'Up'`, `'Down'`)
-            - `'start'`: Start index of the segment
-            - `'end'`: End index of the segment
+            - `'start'`: Start time of the segment
+            - `'end'`: End time of the segment
             - `'segmenth_length'`: Duration of the segment, in elements.
     
     """

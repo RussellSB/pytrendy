@@ -62,7 +62,7 @@ def update_next_segment(i: int, new_end: int, segments: list[dict], segments_ref
 
     Args:
         i (int): Index of the current segment.
-        new_end (int): Updated end index of the current segment.
+        new_end (int): Updated end time of the current segment.
         segments (list): Original segment list.
         segments_refined (list): Refined segment list being modified.
     """

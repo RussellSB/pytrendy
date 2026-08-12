@@ -327,7 +327,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
 
 def fill_in_flats(df: pd.DataFrame, segments: list[dict]) -> list[dict]:
-    """Fill uncovered gaps with Flat segments using df's Index.
+    """Fill uncovered time gaps with Flat segments using df's Index.
 
     Adds Flat segments for:
     - Internal gaps between consecutive segments.

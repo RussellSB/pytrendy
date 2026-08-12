@@ -67,7 +67,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         segment_enhanced['SNR'] = float(10 * np.log10(signal_power / noise_power)) if noise_power != 0 else np.nan
         segments_enhanced.append(segment_enhanced)
 
-    # Establish index, earliest to latest
+    # Establish time index, earliest to latest
     for i, _ in enumerate(segments_enhanced):
         segments_enhanced[i]['time_index'] = i+1
 
