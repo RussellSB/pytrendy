@@ -59,9 +59,16 @@ def generate():
     frames: list[Image.Image] = []
     durations: list[int] = []
 
-    def R(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 20, sa,
-                                   rank_y_offset=0.5, rank_bold=False))
+    def R1(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
+        """Cycle 1 (no padding): ranks at top, matching original plot_pytrendy."""
+        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
+                                   rank_y_offset=0.05, rank_bold=False))
+
+    def R2(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
+        """Cycle 2 (with padding): ranks vertically centred within segments."""
+        frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
+                                   rank_y_offset=0.5, rank_bold=False,
+                                   rank_center_on_data=True))
 
     def hold(ms):
         durations.append(ms)
@@ -70,27 +77,27 @@ def generate():
     print("Rendering Cycle 1 ...")
 
     # 1. Raw plot (white background)
-    R(TITLE1); hold(500)
+    R1(TITLE1); hold(500)
 
     # 2. All segments sweep left to right (blue, green, blue, red, blue)
     for i in range(30):
-        R(TITLE1, sweep=(i + 1) / 30, segs=segs1); hold(40)
+        R1(TITLE1, sweep=(i + 1) / 30, segs=segs1); hold(40)
 
     # 3. Sweep complete hold (all segments visible)
-    R(TITLE1, sweep=1.0, segs=segs1); hold(500)
+    R1(TITLE1, sweep=1.0, segs=segs1); hold(500)
 
     # 4. Ranks fade in (larger, near top)
     for i in range(10):
         a = (i + 1) / 10
-        R(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
+        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
 
     # 5. Result hold
-    R(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(5000)
+    R1(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(5000)
 
     # 6. Ranks fade out
     for i in range(10):
         a = max(0.0, 1.0 - (i + 1) / 10)
-        R(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
+        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
 
     # ── Crossfade: Phase 1 end → Phase 2 start ─────────────────────────
     # Pre-render the two frames to crossfade between
@@ -106,27 +113,27 @@ def generate():
     print("Rendering Cycle 2 ...")
 
     # 7. Raw plot (new title)
-    R(TITLE2); hold(500)
+    R2(TITLE2); hold(500)
 
     # 8. All segments sweep left to right (padded)
     for i in range(30):
-        R(TITLE2, sweep=(i + 1) / 30, segs=segs2); hold(40)
+        R2(TITLE2, sweep=(i + 1) / 30, segs=segs2); hold(40)
 
     # 9. Sweep complete hold
-    R(TITLE2, sweep=1.0, segs=segs2); hold(500)
+    R2(TITLE2, sweep=1.0, segs=segs2); hold(500)
 
     # 10. Ranks fade in
     for i in range(10):
         a = (i + 1) / 10
-        R(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
+        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
 
     # 11. Result hold
-    R(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(5000)
+    R2(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(5000)
 
     # 12. Ranks fade out
     for i in range(10):
         a = max(0.0, 1.0 - (i + 1) / 10)
-        R(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
+        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
 
     # ── Crossfade: Phase 2 end → Phase 1 start (seamless loop) ────────
     phase2_end = render_frame(df, value_col, TITLE2, sweep_progress=1.0, segments=segs2)

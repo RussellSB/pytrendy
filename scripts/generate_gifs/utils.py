@@ -140,6 +140,7 @@ def render_frame(
     seg_alpha: float = 0.4,
     rank_y_offset: float = 0.05,
     rank_bold: bool = True,
+    rank_center_on_data: bool = False,
     title_suffix: str | None = None,
 ) -> Image.Image:
     """Render one frame as a complete matplotlib figure -> PIL Image.
@@ -155,6 +156,8 @@ def render_frame(
         rank_y_offset: Rank vertical position as fraction from top of y-range
                         (e.g. 0.05 = 5% from top, 0.95 = near bottom).
         rank_bold: Whether rank numbers use bold font weight.
+        rank_center_on_data: If True, vertically centre each rank within its
+                        segment's data value range instead of a fixed plot offset.
         title_suffix: Optional suffix text drawn right of the title in light gray
                         (e.g. "(seed=10, std=20)").
     """
@@ -192,7 +195,16 @@ def render_frame(
                     and "change_rank" in seg and sweep_progress is not None
                     and clip_end >= end):
                 mid = start + (end - start) / 2
-                y_pos = ymax - (ymax - ymin) * rank_y_offset
+                if rank_center_on_data:
+                    seg_mask = (df.index >= start) & (df.index <= end)
+                    vals = df.loc[seg_mask, value_col]
+                    seg_min, seg_max = vals.min(), vals.max()
+                    if seg_max > seg_min:
+                        y_pos = seg_max - (seg_max - seg_min) * 0.5
+                    else:
+                        y_pos = ymax - (ymax - ymin) * rank_y_offset
+                else:
+                    y_pos = ymax - (ymax - ymin) * rank_y_offset
                 rc = RANK_COLORS.get(seg["direction"], (0, 0, 0))
                 rc_norm = (rc[0]/255, rc[1]/255, rc[2]/255)
                 ax.text(mid, y_pos, str(seg["change_rank"]), fontsize=rank_size,
