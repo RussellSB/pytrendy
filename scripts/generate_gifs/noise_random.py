@@ -22,7 +22,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import pytrendy as pt
 from scripts.generate_gifs.utils import (
-    REPO_ROOT, render_frame, save_gif
+    REPO_ROOT, render_frame, save_gif, save_keyframes
 )
 
 # ---------------------------------------------------------------------------
@@ -81,6 +81,8 @@ def generate():
             title_suffix=suffix
         )
         print(f"  Noise std={noise_std}: rendered")
+
+    save_keyframes(key_frames, "Noise-Random")
 
     frames: list[Image.Image] = []
     durations: list[int] = []

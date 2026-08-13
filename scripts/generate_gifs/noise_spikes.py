@@ -22,7 +22,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import pytrendy as pt
 from scripts.generate_gifs.utils import (
-    REPO_ROOT, render_frame, save_gif
+    REPO_ROOT, render_frame, save_gif, save_keyframes
 )
 
 # ---------------------------------------------------------------------------
@@ -88,6 +88,8 @@ def generate():
             show_ranks=True, rank_alpha=1.0
         )
         print(f"  {num} spike(s): rendered")
+
+    save_keyframes(key_frames, "Noise-Spikes")
 
     frames: list[Image.Image] = []
     durations: list[int] = []

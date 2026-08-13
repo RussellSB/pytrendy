@@ -20,7 +20,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import pytrendy as pt
 from scripts.generate_gifs.utils import (
-    REPO_ROOT, render_frame, save_gif
+    REPO_ROOT, render_frame, save_gif, save_keyframes
 )
 
 def _crossfade(bottom: Image.Image, top: Image.Image, alpha: float) -> Image.Image:
@@ -60,14 +60,14 @@ def generate():
     durations: list[int] = []
 
     def R1(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        """Cycle 1 (no padding): ranks centred on lower part of plot."""
+        """Cycle 1 (no padding): ranks in 5-15 y-axis band."""
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
-                                   rank_y_offset=0.70, rank_bold=False))
+                                   rank_y_offset=0.876, rank_bold=False))
 
     def R2(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
-        """Cycle 2 (with padding): ranks vertically centred."""
+        """Cycle 2 (with padding): ranks in 50-60 y-axis band."""
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
-                                   rank_y_offset=0.50, rank_bold=False))
+                                   rank_y_offset=0.367, rank_bold=False))
 
     def hold(ms):
         durations.append(ms)
@@ -142,6 +142,21 @@ def generate():
         alpha = (i + 1) / 15
         frames.append(_crossfade(phase1_start, phase2_end, alpha))
         hold(50)
+
+    # ── Save keyframes for review ─────────────────────────────────────
+    cycle1_result = render_frame(df, value_col, TITLE1, sweep_progress=1.0, segments=segs1,
+                                 show_ranks=True, rank_alpha=1.0, rank_size=22,
+                                 rank_y_offset=0.876, rank_bold=False)
+    cycle2_result = render_frame(df, value_col, TITLE2, sweep_progress=1.0, segments=segs2,
+                                 show_ranks=True, rank_alpha=1.0, rank_size=22,
+                                 rank_y_offset=0.367, rank_bold=False)
+    save_keyframes({
+        "cycle1_result": cycle1_result,
+        "cycle1_end": phase1_end,
+        "phase2_start": phase2_start,
+        "cycle2_result": cycle2_result,
+        "cycle2_end": phase2_end,
+    }, "Abrupt")
 
     # ── Save ───────────────────────────────────────────────────────────
     n = len(frames)

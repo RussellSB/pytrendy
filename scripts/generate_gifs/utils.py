@@ -267,3 +267,17 @@ def save_gif(frames, durations, output_path):
 
     size_kb = output_path.stat().st_size / 1024
     return size_kb
+
+
+def save_keyframes(key_frames: dict, gif_name: str) -> None:
+    """Temporarily save pre-rendered key frames as PNGs for review.
+
+    Saves to temp/gif_keyframes/<gif_name>/<label>.png (gitignored).
+    """
+    out_dir = REPO_ROOT / "temp" / "gif_keyframes" / gif_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for label, im in key_frames.items():
+        safe = str(label).replace("/", "_").replace(" ", "_")
+        path = out_dir / f"{safe}.png"
+        im.convert("RGB").save(str(path))
+    print(f"  keyframes saved -> {out_dir}")

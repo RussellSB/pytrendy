@@ -20,7 +20,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import pytrendy as pt
 from scripts.generate_gifs.utils import (
-    REPO_ROOT, render_frame, save_gif
+    REPO_ROOT, render_frame, save_gif, save_keyframes
 )
 
 # ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ def generate():
 
     def R(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 20, sa,
-                                   rank_y_offset=0.30, rank_bold=False))
+                                   rank_y_offset=0.13, rank_bold=False))
 
     def hold(ms):
         durations.append(ms)
@@ -87,6 +87,12 @@ def generate():
 
     # 8. Brief pause on raw plot (matches frame 0 for seamless loop)
     R(TITLE); hold(300)
+
+    # ── Save keyframes for review ─────────────────────────────────────
+    result_frame = render_frame(df, value_col, TITLE, sweep_progress=1.0, segments=segs,
+                                show_ranks=True, rank_alpha=1.0, rank_size=20,
+                                rank_y_offset=0.13, rank_bold=False)
+    save_keyframes({"result": result_frame}, "Gradual")
 
     # ── Save ───────────────────────────────────────────────────────────
     n = len(frames)
