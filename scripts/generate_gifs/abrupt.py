@@ -103,10 +103,10 @@ def generate():
     phase1_end = render_frame(df, value_col, TITLE1, sweep_progress=1.0, segments=segs1)
     phase2_start = render_frame(df, value_col, TITLE2)
 
-    for i in range(15):
-        alpha = (i + 1) / 15
+    for i in range(8):
+        alpha = (i + 1) / 8
         frames.append(_crossfade(phase2_start, phase1_end, alpha))
-        hold(50)
+        hold(40)
 
     # ── Cycle 2: with padding ──────────────────────────────────────────
     print("Rendering Cycle 2 ...")
