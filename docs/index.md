@@ -35,10 +35,13 @@ Trend detection has several use cases, such as analysing stock prices, identifyi
 
 ## Features
 
-![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
-![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif)
-![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif)
-![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif)
+![Gradual Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual.gif)
+
+![Abrupt Trends](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt.gif)
+
+![Noise Spikes](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes.gif)
+
+![Random Noise](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random.gif)
 
 ---
 
