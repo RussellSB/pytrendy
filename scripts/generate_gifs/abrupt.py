@@ -127,7 +127,7 @@ def generate():
         R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
 
     # 11. Result hold
-    R2(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(5000)
+    R2(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(2000)
 
     # 12. Ranks fade out
     for i in range(10):
