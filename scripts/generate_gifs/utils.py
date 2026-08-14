@@ -209,15 +209,6 @@ def render_frame(
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right")
     ax.grid(True, which="major", color="gray", alpha=0.3)
     ax.set_title(title, fontsize=20)
-    if title_suffix:
-        fig.canvas.draw()  # ensure renderer available for extent calc
-        renderer = fig.canvas.get_renderer()
-        bb = ax.title.get_window_extent(renderer=renderer)
-        fig.text(
-            bb.x1 + 8, bb.y0 + bb.height / 2,
-            title_suffix, fontsize=15, color="lightgray",
-            ha="left", va="center",
-        )
     ax.set_xlabel("Date")
     ax.set_ylabel("Value")
     legend_handles = [
@@ -229,6 +220,16 @@ def render_frame(
     ax.legend(handles=legend_handles, loc="upper right",
               bbox_to_anchor=(1, 1.10), ncol=4, frameon=True)
     plt.tight_layout()
+
+    if title_suffix:
+        # Place suffix right of the title in figure-fraction coords
+        fig.canvas.draw()  # ensure renderer available for extent calc
+        renderer = fig.canvas.get_renderer()
+        bb = ax.title.get_window_extent(renderer=renderer)
+        inv = fig.transFigure.inverted()
+        x_fig, y_fig = inv.transform((bb.x1 + 8, bb.y0 + bb.height / 2))
+        fig.text(x_fig, y_fig, title_suffix, fontsize=15, color="lightgray",
+                 ha="left", va="center")
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=DPI)
