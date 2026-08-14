@@ -228,7 +228,7 @@ def render_frame(
         bb = ax.title.get_window_extent(renderer=renderer)
         inv = fig.transFigure.inverted()
         x_fig, y_fig = inv.transform((bb.x1 + 8, bb.y0 + bb.height / 2))
-        fig.text(x_fig, y_fig, title_suffix, fontsize=15, color="lightgray",
+        fig.text(x_fig, y_fig, title_suffix, fontsize=15, color=(0.62, 0.62, 0.62),
                  ha="left", va="center")
 
     buf = io.BytesIO()
