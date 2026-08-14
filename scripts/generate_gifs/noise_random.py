@@ -22,7 +22,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 import pytrendy as pt
 from scripts.generate_gifs.utils import (
-    REPO_ROOT, render_frame, save_gif
+    REPO_ROOT, render_frame, save_gif, save_keyframes
 )
 
 # ---------------------------------------------------------------------------
@@ -30,7 +30,7 @@ from scripts.generate_gifs.utils import (
 # ---------------------------------------------------------------------------
 OUTPUT_PATH = REPO_ROOT / "plots" / "Noise-Random.gif"
 
-TITLE = "Detect Trends in Noisy Data"
+TITLE = "Detect Noise"
 
 # Noise levels to cycle through (from notebook)
 NOISE_LEVELS = [0, 10, 20, 50]
@@ -73,13 +73,16 @@ def generate():
     key_frames = {}
     for noise_std in NOISE_LEVELS:
         data = noise_data[noise_std]
-        title_with_info = f"{TITLE} (seed={SEED}, std={noise_std})"
+        suffix = f"(seed={SEED}, std={noise_std})"
         key_frames[noise_std] = render_frame(
-            data["df"], "gradual", title_with_info,
+            data["df"], "gradual", TITLE,
             sweep_progress=1.0, segments=data["segs"],
-            show_ranks=True, rank_alpha=1.0
+            show_ranks=True, rank_alpha=1.0,
+            title_suffix=suffix
         )
         print(f"  Noise std={noise_std}: rendered")
+
+    save_keyframes(key_frames, "Noise-Random")
 
     frames: list[Image.Image] = []
     durations: list[int] = []

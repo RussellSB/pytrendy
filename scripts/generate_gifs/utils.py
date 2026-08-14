@@ -138,6 +138,10 @@ def render_frame(
     rank_alpha: float = 1.0,
     rank_size: int = 12,
     seg_alpha: float = 0.4,
+    rank_y_offset: float = 0.05,
+    rank_bold: bool = True,
+    title_suffix: str | None = None,
+    center_rank_in_grid: bool = False,
 ) -> Image.Image:
     """Render one frame as a complete matplotlib figure -> PIL Image.
 
@@ -149,6 +153,13 @@ def render_frame(
         rank_alpha: Opacity of rank numbers (0-1).
         rank_size: Font size for rank numbers.
         seg_alpha: Opacity of segment fills (0-1).
+        rank_y_offset: Rank vertical position as fraction from top of y-range
+                        (e.g. 0.05 = 5% from top, 0.95 = near bottom).
+        rank_bold: Whether rank numbers use bold font weight.
+        title_suffix: Optional suffix text drawn right of the title in light gray
+                        (e.g. "(seed=10, std=20)").
+        center_rank_in_grid: If True, horizontally centre each rank within the
+                        vertical grid box it falls into instead of the segment midpoint.
     """
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
 
@@ -164,6 +175,17 @@ def render_frame(
         clip_end = first_date + total_span * min(sweep_progress, 1.0)
     else:
         clip_end = last_date  # no clipping
+
+    # Set up x-axis grid before rank placement (needed for grid-box centering)
+    ax.set_xlim(first_date, last_date)
+    ax.set_ylim(ymin, ymax)
+    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+    grid_ticks = None
+    if center_rank_in_grid:
+        grid_ticks = ax.get_xticks()
 
     # Render segments clipped to sweep range
     if segments:
@@ -184,19 +206,21 @@ def render_frame(
                     and "change_rank" in seg and sweep_progress is not None
                     and clip_end >= end):
                 mid = start + (end - start) / 2
-                y_pos = ymax - (ymax - ymin) * 0.05
+                if grid_ticks is not None:
+                    mid_num = mdates.date2num(mid)
+                    below = [t for t in grid_ticks if t <= mid_num]
+                    above = [t for t in grid_ticks if t >= mid_num]
+                    if below and above and below[-1] < above[0]:
+                        mid = pd.Timestamp(mdates.num2date((below[-1] + above[0]) / 2))
+                y_pos = ymax - (ymax - ymin) * rank_y_offset
                 rc = RANK_COLORS.get(seg["direction"], (0, 0, 0))
                 rc_norm = (rc[0]/255, rc[1]/255, rc[2]/255)
                 ax.text(mid, y_pos, str(seg["change_rank"]), fontsize=rank_size,
-                        fontweight="bold", ha="center", va="center",
+                        fontweight="bold" if rank_bold else "normal",
+                        ha="center", va="center",
                         color=rc_norm, alpha=rank_alpha)
 
     # Formatting
-    ax.set_xlim(first_date, last_date)
-    ax.set_ylim(ymin, ymax)
-    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right")
     ax.grid(True, which="major", color="gray", alpha=0.3)
     ax.set_title(title, fontsize=20)
@@ -211,6 +235,16 @@ def render_frame(
     ax.legend(handles=legend_handles, loc="upper right",
               bbox_to_anchor=(1, 1.10), ncol=4, frameon=True)
     plt.tight_layout()
+
+    if title_suffix:
+        # Place suffix right of the title in figure-fraction coords
+        fig.canvas.draw()  # ensure renderer available for extent calc
+        renderer = fig.canvas.get_renderer()
+        bb = ax.title.get_window_extent(renderer=renderer)
+        inv = fig.transFigure.inverted()
+        x_fig, y_fig = inv.transform((bb.x1 + 8, bb.y0 + bb.height / 2))
+        fig.text(x_fig, y_fig, title_suffix, fontsize=15, color=(0.62, 0.62, 0.62),
+                 ha="left", va="center")
 
     buf = io.BytesIO()
     fig.savefig(buf, format="png", dpi=DPI)
@@ -249,3 +283,17 @@ def save_gif(frames, durations, output_path):
 
     size_kb = output_path.stat().st_size / 1024
     return size_kb
+
+
+def save_keyframes(key_frames: dict, gif_name: str) -> None:
+    """Temporarily save pre-rendered key frames as PNGs for review.
+
+    Saves to temp/gif_keyframes/<gif_name>/<label>.png (gitignored).
+    """
+    out_dir = REPO_ROOT / "temp" / "gif_keyframes" / gif_name
+    out_dir.mkdir(parents=True, exist_ok=True)
+    for label, im in key_frames.items():
+        safe = str(label).replace("/", "_").replace(" ", "_")
+        path = out_dir / f"{safe}.png"
+        im.convert("RGB").save(str(path))
+    print(f"  keyframes saved -> {out_dir}")

@@ -28,10 +28,13 @@ Most time series tools give you either a "trend component" (via decomposition) o
 
 ## Features
 
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif)
-![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif)
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual.gif)
+
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt.gif)
+
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes.gif)
+
+![](https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random.gif)
 
 ## Quickstart
 
