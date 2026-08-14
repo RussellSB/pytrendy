@@ -91,7 +91,7 @@ def generate():
         R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
 
     # 5. Result hold
-    R1(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(5000)
+    R1(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(3000)
 
     # 6. Ranks fade out
     for i in range(10):
@@ -103,10 +103,10 @@ def generate():
     phase1_end = render_frame(df, value_col, TITLE1, sweep_progress=1.0, segments=segs1)
     phase2_start = render_frame(df, value_col, TITLE2)
 
-    for i in range(8):
-        alpha = (i + 1) / 8
+    for i in range(15):
+        alpha = (i + 1) / 15
         frames.append(_crossfade(phase2_start, phase1_end, alpha))
-        hold(40)
+        hold(50)
 
     # ── Cycle 2: with padding ──────────────────────────────────────────
     print("Rendering Cycle 2 ...")
