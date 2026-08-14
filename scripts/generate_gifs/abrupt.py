@@ -67,7 +67,8 @@ def generate():
     def R2(title, sweep=None, segs=None, ranks=False, ra=1.0, sa=0.4):
         """Cycle 2 (with padding): ranks in 50-60 y-axis band."""
         frames.append(render_frame(df, value_col, title, sweep, segs, ranks, ra, 22, sa,
-                                   rank_y_offset=0.367, rank_bold=False))
+                                   rank_y_offset=0.367, rank_bold=False,
+                                   center_rank_in_grid=True))
 
     def hold(ms):
         durations.append(ms)
@@ -149,7 +150,8 @@ def generate():
                                  rank_y_offset=0.876, rank_bold=False)
     cycle2_result = render_frame(df, value_col, TITLE2, sweep_progress=1.0, segments=segs2,
                                  show_ranks=True, rank_alpha=1.0, rank_size=22,
-                                 rank_y_offset=0.367, rank_bold=False)
+                                 rank_y_offset=0.367, rank_bold=False,
+                                 center_rank_in_grid=True)
     save_keyframes({
         "cycle1_result": cycle1_result,
         "cycle1_end": phase1_end,

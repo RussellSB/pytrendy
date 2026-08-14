@@ -141,6 +141,7 @@ def render_frame(
     rank_y_offset: float = 0.05,
     rank_bold: bool = True,
     title_suffix: str | None = None,
+    center_rank_in_grid: bool = False,
 ) -> Image.Image:
     """Render one frame as a complete matplotlib figure -> PIL Image.
 
@@ -157,6 +158,8 @@ def render_frame(
         rank_bold: Whether rank numbers use bold font weight.
         title_suffix: Optional suffix text drawn right of the title in light gray
                         (e.g. "(seed=10, std=20)").
+        center_rank_in_grid: If True, horizontally centre each rank within the
+                        vertical grid box it falls into instead of the segment midpoint.
     """
     fig, ax = plt.subplots(figsize=FIGSIZE, dpi=DPI)
 
@@ -172,6 +175,17 @@ def render_frame(
         clip_end = first_date + total_span * min(sweep_progress, 1.0)
     else:
         clip_end = last_date  # no clipping
+
+    # Set up x-axis grid before rank placement (needed for grid-box centering)
+    ax.set_xlim(first_date, last_date)
+    ax.set_ylim(ymin, ymax)
+    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+
+    grid_ticks = None
+    if center_rank_in_grid:
+        grid_ticks = ax.get_xticks()
 
     # Render segments clipped to sweep range
     if segments:
@@ -192,6 +206,12 @@ def render_frame(
                     and "change_rank" in seg and sweep_progress is not None
                     and clip_end >= end):
                 mid = start + (end - start) / 2
+                if grid_ticks is not None:
+                    mid_num = mdates.date2num(mid)
+                    below = [t for t in grid_ticks if t <= mid_num]
+                    above = [t for t in grid_ticks if t >= mid_num]
+                    if below and above and below[-1] < above[0]:
+                        mid = pd.Timestamp(mdates.num2date((below[-1] + above[0]) / 2))
                 y_pos = ymax - (ymax - ymin) * rank_y_offset
                 rc = RANK_COLORS.get(seg["direction"], (0, 0, 0))
                 rc_norm = (rc[0]/255, rc[1]/255, rc[2]/255)
@@ -201,11 +221,6 @@ def render_frame(
                         color=rc_norm, alpha=rank_alpha)
 
     # Formatting
-    ax.set_xlim(first_date, last_date)
-    ax.set_ylim(ymin, ymax)
-    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%m-%d"))
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
     plt.setp(ax.get_xticklabels(), rotation=90, ha="right")
     ax.grid(True, which="major", color="gray", alpha=0.3)
     ax.set_title(title, fontsize=20)
