@@ -1720,16 +1720,18 @@ Defaults to <code>True</code>.</p>
 )
           –
           <div class="doc-md-description">
-            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:
-- <strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).
-- <strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".
-- <strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".
-- <strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".
-- <strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.
-- <strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.
-- <strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).
-- <strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".
-- <strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</p>
+            <p>Optional dict to customise plot appearance. Only used when <code>plot</code> is <code>True</code>. Supported keys:</p>
+<ul>
+<li><strong>figsize</strong> (<code>tuple</code>): Figure size as (width, height). Defaults to (20, 5).</li>
+<li><strong>title</strong> (<code>str</code>): Plot title. Defaults to "PyTrendy Detection".</li>
+<li><strong>xlabel</strong> (<code>str</code>): X-axis label. Defaults to "Date".</li>
+<li><strong>ylabel</strong> (<code>str</code>): Y-axis label. Defaults to "Value".</li>
+<li><strong>colors</strong> (<code>dict</code>): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.</li>
+<li><strong>alpha</strong> (<code>float</code>): Transparency level for shaded regions. Defaults to 0.4.</li>
+<li><strong>grid</strong> (<code>dict</code>): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).</li>
+<li><strong>legend_loc</strong> (<code>str</code>): Legend location. Defaults to "upper right".</li>
+<li><strong>legend_bbox_to_anchor</strong> (<code>tuple</code>): Legend box anchor position. Defaults to (1, 1.15).</li>
+</ul>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1847,8 +1849,9 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">95</span>
 <span class="normal">96</span>
 <span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">98</span>
+<span class="normal">99</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    This is the main function that runs trend detection end-to-end.</span>
 
 <span class="sd">    It runs the full PyTrendy pipeline in five stages: signal smoothing, segment extraction, boundary refinement, metric analysis, and optional visualization. </span>
@@ -1883,14 +1886,15 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
+
 <span class="sd">            - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).</span>
-<span class="sd">            - **title** (`str`): Plot title. Defaults to &quot;PyTrendy Detection&quot;.</span>
-<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to &quot;Date&quot;.</span>
-<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to &quot;Value&quot;.</span>
-<span class="sd">            - **colors** (`dict`): Dictionary mapping direction (&#39;Up&#39;, &#39;Down&#39;, &#39;Flat&#39;, &#39;Noise&#39;) to matplotlib colors. Defaults to light variants.</span>
+<span class="sd">            - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".</span>
+<span class="sd">            - **xlabel** (`str`): X-axis label. Defaults to "Date".</span>
+<span class="sd">            - **ylabel** (`str`): Y-axis label. Defaults to "Value".</span>
+<span class="sd">            - **colors** (`dict`): Dictionary mapping direction ('Up', 'Down', 'Flat', 'Noise') to matplotlib colors. Defaults to light variants.</span>
 <span class="sd">            - **alpha** (`float`): Transparency level for shaded regions. Defaults to 0.4.</span>
-<span class="sd">            - **grid** (`dict`): Grid configuration with keys &#39;visible&#39; (bool), &#39;which&#39; (str), &#39;color&#39; (str), &#39;alpha&#39; (float).</span>
-<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to &quot;upper right&quot;.</span>
+<span class="sd">            - **grid** (`dict`): Grid configuration with keys 'visible' (bool), 'which' (str), 'color' (str), 'alpha' (float).</span>
+<span class="sd">            - **legend_loc** (`str`): Legend location. Defaults to "upper right".</span>
 <span class="sd">            - **legend_bbox_to_anchor** (`tuple`): Legend box anchor position. Defaults to (1, 1.15).</span>
 <span class="sd">        debug (bool, optional):</span>
 <span class="sd">            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy.</span>
@@ -1900,7 +1904,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">        PyTrendyResults:</span>
 <span class="sd">            An object encapsulating the detected segments and associated metadata.</span>
 <span class="sd">            Use this object to access segment statistics, rankings, and export utilities.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">])</span>
     <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1910,19 +1914,19 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="n">method_params</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Avoid mutable default argument by accepting None and constructing a new dict here</span>
 
     <span class="c1"># Trigger deprecation warning if old parameter is used    </span>
-    <span class="k">if</span> <span class="s1">&#39;is_abrupt_padded&#39;</span> <span class="ow">in</span> <span class="n">method_params</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'is_abrupt_padded'</span> <span class="ow">in</span> <span class="n">method_params</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;&#39;is_abrupt_padded&#39; in method_params is deprecated. &quot;</span>
-            <span class="s2">&quot;Use &#39;abrupt_padding&#39; only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28).&quot;</span><span class="p">,</span>
+            <span class="s2">"'is_abrupt_padded' in method_params is deprecated. "</span>
+            <span class="s2">"Use 'abrupt_padding' only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28)."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># Configures trend detection heuristics</span>
     <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;abrupt_padding&#39;</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;abrupt_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">&#39;gradual_padding&#39;</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gradual_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">&#39;avoid_noise&#39;</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;avoid_noise&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'gradual_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
     <span class="c1"># Core 5-step pipeline</span>

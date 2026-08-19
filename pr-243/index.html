@@ -1537,10 +1537,10 @@
 <p>Trend detection has several use cases, such as analysing stock prices, identifying demand patterns in seasonality, and scanning Google Trends at scale for emerging movements. A main use case is identifying different periods of marketing activity at scale, to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.</p>
 <hr />
 <h2 id="features">Features</h2>
-<p><img alt="Gradual Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" />
-<img alt="Abrupt Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif" />
-<img alt="Noise Spikes" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif" />
-<img alt="Random Noise" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif" /></p>
+<p><img alt="Gradual Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual.gif" /></p>
+<p><img alt="Abrupt Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt.gif" /></p>
+<p><img alt="Noise Spikes" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes.gif" /></p>
+<p><img alt="Random Noise" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random.gif" /></p>
 <hr />
 <h2 id="installation">Installation</h2>
 <p>Install the package from PyPi.
@@ -1553,8 +1553,8 @@
 <h2 id="quickstart">Quickstart</h2>
 <p>Import pytrendy, and apply trend detection on daily time series data.
 <div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;series_synthetic&#39;</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;gradual&#39;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">'series_synthetic'</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">'date'</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">'gradual'</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png" /></p>
@@ -1562,7 +1562,7 @@
 <div class="language-text highlight"><pre><span></span><code>Detected: 
 - 3 Uptrends. 
 - 3 Downtrends.
-- 3 Flats.
+- 2 Flats.
 - 0 Noise.
 
 The best detected trend is Down between dates 2025-05-09 - 2025-06-17
@@ -1573,19 +1573,18 @@ Full Results:
 time_index                                                                               
 1                 Up  2025-01-02  2025-01-24    22     14.013348            5     gradual
 2               Down  2025-01-25  2025-02-05    11    -13.564214            6     gradual
-3               Flat  2025-02-06  2025-02-09     3     -1.168831            9         NaN
-4                 Up  2025-02-10  2025-03-14    32     24.632035            3     gradual
-5               Flat  2025-03-15  2025-03-17     2      5.660173            7         NaN
-6               Down  2025-03-18  2025-04-01    14    -22.721861            4     gradual
-7                 Up  2025-04-02  2025-05-08    36     72.611833            2     gradual
-8               Down  2025-05-09  2025-06-17    39    -73.253968            1     gradual
-9               Flat  2025-06-18  2025-06-30    12      3.910534            8         NaN 
+3               Flat  2025-02-06  2025-02-09     3     -1.168831            8         NaN
+4                 Up  2025-02-10  2025-03-17    35     26.190476            3     gradual
+5               Down  2025-03-18  2025-04-01    14    -22.721861            4     gradual
+6                 Up  2025-04-02  2025-05-08    36     72.611833            2     gradual
+7               Down  2025-05-09  2025-06-17    39    -73.253968            1     gradual
+8               Flat  2025-06-18  2025-06-30    12      3.910534            7         NaN
 -------------------------------------------------------------------------------
 </code></pre></div>
 </div>
 
 <p>Explore the strongest uptrends:
-<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">'Up'</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">'change_rank'</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 </code></pre></div></p>
 <table>
 <thead>
@@ -1621,13 +1620,13 @@ time_index
 <td>4</td>
 <td>Up</td>
 <td>2025-02-10</td>
-<td>2025-03-14</td>
+<td>2025-03-17</td>
 <td>gradual</td>
-<td>24.63</td>
-<td>169.22%</td>
-<td>32</td>
-<td>24.63</td>
-<td>18.87</td>
+<td>26.19</td>
+<td>179.93%</td>
+<td>35</td>
+<td>26.19</td>
+<td>18.61</td>
 <td>3</td>
 </tr>
 <tr>
