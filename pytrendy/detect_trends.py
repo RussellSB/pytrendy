@@ -45,6 +45,7 @@ def detect_trends(df: pd.DataFrame, date_col: str, value_col: str, plot=True, me
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
+
             - **figsize** (`tuple`): Figure size as (width, height). Defaults to (20, 5).
             - **title** (`str`): Plot title. Defaults to "PyTrendy Detection".
             - **xlabel** (`str`): X-axis label. Defaults to "Date".

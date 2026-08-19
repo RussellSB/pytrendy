@@ -134,6 +134,10 @@ def shave_abrupt_trends(df: pd.DataFrame, value_col: str, segments: list[dict], 
             if segment['direction'] not in ['Up', 'Down'] or segment['trend_class'] != 'abrupt': 
                 continue
 
+            # Skip segments already padded in first pass; .get returns False when key absent (unpadded segments)
+            if second_pass and segment.get('padded', False):
+                continue
+
             abrupt_start = pd.to_datetime(segment['start'])
             abrupt_end = pd.to_datetime(segment['end'])
 
