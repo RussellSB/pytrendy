@@ -81,7 +81,7 @@ class TestPlotPytrendyEdgeCases:
         segments_refined = deepcopy(segments)
         segments_refined = classify_trends(df, value_col, segments_refined)
         # No grouping code in between these steps
-        segments_refined = expand_contract_segments(df, value_col, segments_refined) # for gradual
+        segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params) # for gradual
         segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
         segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract
         # No grouping code & further post-processing after these steps

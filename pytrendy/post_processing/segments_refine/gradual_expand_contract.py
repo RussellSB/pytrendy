@@ -8,17 +8,21 @@ from copy import deepcopy
 from .update_neighbours import update_prev_segment, update_next_segment
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
     Examines ±7 days around each segment's start and end to find stronger turning points.
     Skips segments classified as 'abrupt' to preserve their precision.
+    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding > 0``.
 
     Args:
         df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): List of segment dictionaries.
+        method_params (dict): Detection parameters. Supported keys:
+
+            - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.
 
     Returns:
         list: Refined segment list with updated boundaries.
@@ -114,21 +118,25 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
             segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
             update_next_segment(i, new_end, segments, segments_refined)
 
+    # Pad gradual segments into adjacent flat regions when gradual_padding is set.
+    # Mirrors the abrupt padding pattern: called from within the same module rather
+    # than exposed as a separate top-level step in segments_refine/__init__.py.
+    segments_refined = _pad_gradual_trends(df, segments_refined, method_params)
+
     return segments_refined
 
 
-def pad_gradual_trends(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
+def _pad_gradual_trends(df: pd.DataFrame, segments: list[dict], method_params: dict) -> list[dict]:
     """
     Extends gradual segment end dates by a specified number of days.
 
-    Mirrors the padding behaviour for abrupt segments: extends the end date forward,
-    truncating before any non-Flat segment that would be overlapped, and clamping
-    to the last index date. Sets a ``padded`` flag on modified segments.
+    Extends the end date forward, truncating before any non-Flat segment that
+    would be overlapped, and clamping to the last index date. Sets a ``padded``
+    flag on modified segments.
 
     Args:
         df (pd.DataFrame): Time series DataFrame.
-        value_col (str): Name of the signal column.
-        segments (list): List of segment dictionaries with ``'trend_class': 'gradual'``.
+        segments (list): List of segment dictionaries.
         method_params (dict): Supported keys:
 
             - **gradual_padding** (`int`): Number of days to pad. Defaults to ``0``.
