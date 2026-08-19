@@ -1182,58 +1182,8 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pad_gradual_trends
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" pad_gradual_trends">
-      <ul class="md-nav__list">
-        
           <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(df)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;df
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(value_col)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;value_col
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(segments)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;segments
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(method_params)" class="md-nav__link">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;method_params
@@ -1553,58 +1503,8 @@
   
 </li>
         
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;pad_gradual_trends
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" pad_gradual_trends">
-      <ul class="md-nav__list">
-        
           <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(df)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;df
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(value_col)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;value_col
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(segments)" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;segments
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(method_params)" class="md-nav__link">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;method_params
@@ -1679,14 +1579,15 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Refines segment boundaries by expanding or contracting based on local extrema.</p>
 <p>Examines ±7 days around each segment's start and end to find stronger turning points.
-Skips segments classified as 'abrupt' to preserve their precision.</p>
+Skips segments classified as 'abrupt' to preserve their precision.
+Optionally pads gradual segments into adjacent flat regions when <code>gradual_padding &gt; 0</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1713,6 +1614,17 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="doc doc-heading doc-heading-parameter">              <b><code>method_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Detection parameters. Supported keys:</p>
+<ul>
+<li><strong>gradual_padding</strong> (<code>int</code>): Days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
+</ul>
           </div>
         </li>
     </ul>
@@ -1838,17 +1750,30 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Refines segment boundaries by expanding or contracting based on local extrema.</span>
 
 <span class="sd">    Examines ±7 days around each segment's start and end to find stronger turning points.</span>
 <span class="sd">    Skips segments classified as 'abrupt' to preserve their precision.</span>
+<span class="sd">    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding &gt; 0``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): Time series DataFrame.</span>
 <span class="sd">        value_col (str): Name of the signal column.</span>
 <span class="sd">        segments (list): List of segment dictionaries.</span>
+<span class="sd">        method_params (dict): Detection parameters. Supported keys:</span>
+
+<span class="sd">            - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Refined segment list with updated boundaries.</span>
@@ -1944,189 +1869,12 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
             <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
 
+    <span class="c1"># Pad gradual segments into adjacent flat regions when gradual_padding is set.</span>
+    <span class="c1"># Mirrors the abrupt padding pattern: called from within the same module rather</span>
+    <span class="c1"># than exposed as a separate top-level step in segments_refine/__init__.py.</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">_pad_gradual_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="n">segments_refined</span>
-</code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h2 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">pad_gradual_trends</span>
-
-
-</h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">pad_gradual_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
-</code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Extends gradual segment end dates by a specified number of days.</p>
-<p>Mirrors the padding behaviour for abrupt segments: extends the end date forward,
-truncating before any non-Flat segment that would be overlapped, and clamping
-to the last index date. Sets a <code>padded</code> flag on modified segments.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(df)" class="doc doc-heading doc-heading-parameter">              <b><code>df</code></b>
-</h3>              (<code><span title="pandas.DataFrame">DataFrame</span></code>)
-          –
-          <div class="doc-md-description">
-            <p>Time series DataFrame.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(value_col)" class="doc doc-heading doc-heading-parameter">              <b><code>value_col</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
-          –
-          <div class="doc-md-description">
-            <p>Name of the signal column.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
-          –
-          <div class="doc-md-description">
-            <p>List of segment dictionaries with <code>'trend_class': 'gradual'</code>.</p>
-          </div>
-        </li>
-        <li class="doc-section-item field-body">
-<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.pad_gradual_trends(method_params)" class="doc doc-heading doc-heading-parameter">              <b><code>method_params</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
-          –
-          <div class="doc-md-description">
-            <p>Supported keys:</p>
-<ul>
-<li><strong>gradual_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>0</code>.</li>
-</ul>
-          </div>
-        </li>
-    </ul>
-
-
-<p><span class="doc-section-title">Returns:</span></p>
-    <ul>
-        <li class="doc-section-item field-body">
-<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
-)          –
-          <div class="doc-md-description">
-            <p>Segment list with padded gradual boundaries.</p>
-          </div>
-        </li>
-    </ul>
-
-
-            <details class="mkdocstrings-source">
-              <summary>Source code in <code>pytrendy/post_processing/segments_refine/gradual_expand_contract.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
-<span class="normal">147</span>
-<span class="normal">148</span>
-<span class="normal">149</span>
-<span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">pad_gradual_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Extends gradual segment end dates by a specified number of days.</span>
-
-<span class="sd">    Mirrors the padding behaviour for abrupt segments: extends the end date forward,</span>
-<span class="sd">    truncating before any non-Flat segment that would be overlapped, and clamping</span>
-<span class="sd">    to the last index date. Sets a ``padded`` flag on modified segments.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        df (pd.DataFrame): Time series DataFrame.</span>
-<span class="sd">        value_col (str): Name of the signal column.</span>
-<span class="sd">        segments (list): List of segment dictionaries with ``'trend_class': 'gradual'``.</span>
-<span class="sd">        method_params (dict): Supported keys:</span>
-
-<span class="sd">            - **gradual_padding** (`int`): Number of days to pad. Defaults to ``0``.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        list: Segment list with padded gradual boundaries.</span>
-<span class="sd">    """</span>
-
-    <span class="n">gradual_padding</span> <span class="o">=</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">gradual_padding</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">segments</span>
-
-    <span class="n">segments_padded</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
-
-    <span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
-    <span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
-    <span class="n">meta_df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
-
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
-
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">]</span> <span class="ow">or</span> <span class="n">segment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'trend_class'</span><span class="p">)</span> <span class="o">!=</span> <span class="s1">'gradual'</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="n">gradual_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
-
-        <span class="n">new_end</span> <span class="o">=</span> <span class="n">gradual_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">gradual_padding</span><span class="p">)</span>
-        <span class="n">overlaps</span> <span class="o">=</span> <span class="n">meta_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">gradual_end</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">new_end</span><span class="p">)]</span>
-        <span class="n">overlaps_nonflats</span> <span class="o">=</span> <span class="n">overlaps</span><span class="p">[</span><span class="n">overlaps</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">'Flat'</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">overlaps_nonflats</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
-            <span class="n">first_notflat_overlap</span> <span class="o">=</span> <span class="n">overlaps_nonflats</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">new_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">first_notflat_overlap</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">new_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_end</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
-        <span class="n">segments_padded</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
-        <span class="n">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_padded</span><span class="p">)</span>
-
-        <span class="n">segments_padded</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'padded'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span> <span class="o">!=</span> <span class="n">gradual_end</span>
-
-    <span class="k">return</span> <span class="n">segments_padded</span>
 </code></pre></div></td></tr></table></div>
             </details>
     </div>

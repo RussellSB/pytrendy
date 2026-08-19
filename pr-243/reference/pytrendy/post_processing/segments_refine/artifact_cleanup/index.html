@@ -1950,7 +1950,12 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">322</span>
 <span class="normal">323</span>
 <span class="normal">324</span>
-<span class="normal">325</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Removes segments any invalid segments, such as inversions or overlaps.</span>
 <span class="sd">    Typically to clean up after boundary adjustments introduced from noise or trend refinements.</span>
@@ -2200,6 +2205,9 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
         <span class="n">is_flat</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Flat'</span>
         <span class="n">is_gradual</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'gradual'</span><span class="p">)</span>
         <span class="n">is_abrupt</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">)</span>
+        <span class="c1"># Covers both abrupt_padding and gradual_padding: padded segments must</span>
+        <span class="c1"># not be reclassified as Flat by the trend_too_flat / trend_too_small</span>
+        <span class="c1"># checks below, since the extension was intentional.</span>
         <span class="n">is_padded</span> <span class="o">=</span> <span class="p">(</span><span class="s1">'padded'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'padded'</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">)</span>
         <span class="n">is_small</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">df_segment</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span>
 
@@ -2257,6 +2265,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
             <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Noise'</span> 
             <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span> <span class="k">del</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span>
 
+        <span class="c1"># Padded segments are protected from flat reclassification — the extension</span>
+        <span class="c1"># into flat regions is intentional and the original trend still holds.</span>
         <span class="k">if</span> <span class="n">trend_ends_too_close</span> <span class="ow">or</span> <span class="n">trend_too_small</span> <span class="ow">or</span> <span class="p">(</span><span class="n">trend_too_flat</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">is_padded</span><span class="p">):</span>
             <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Flat'</span> 
             <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span> <span class="k">del</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span>
@@ -2292,12 +2302,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/artifact_cleanup.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">328</span>
-<span class="normal">329</span>
-<span class="normal">330</span>
-<span class="normal">331</span>
-<span class="normal">332</span>
-<span class="normal">333</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
 <span class="normal">334</span>
 <span class="normal">335</span>
 <span class="normal">336</span>
@@ -2350,7 +2355,12 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">383</span>
 <span class="normal">384</span>
 <span class="normal">385</span>
-<span class="normal">386</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">386</span>
+<span class="normal">387</span>
+<span class="normal">388</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Fill uncovered time gaps with Flat segments using df's DateTimeIndex.</span>
 
 <span class="sd">    Adds Flat segments for:</span>

@@ -1519,6 +1519,7 @@
             <p>Optional parameters for abrupt padding and control. Supported keys:</p>
 <ul>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>0</code>.</li>
+<li><strong>gradual_padding</strong> (<code>int</code>): Number of days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
 </ul>
           </div>
         </li>
@@ -1605,6 +1606,7 @@
 <span class="sd">        method_params (dict): Optional parameters for abrupt padding and control. Supported keys:</span>
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.</span>
+<span class="sd">            - **gradual_padding** (`int`): Number of days to extend gradual segment ends forward. Defaults to `0`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Final refined segment list.</span>
@@ -1615,8 +1617,7 @@
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># grouping 1st pass: sporadic flats &amp; noises</span>
 
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># for gradual</span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">pad_gradual_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for gradual padding</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for gradual + gradual padding</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for abrupt</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from expand/contract</span>
