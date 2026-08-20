@@ -644,6 +644,35 @@ class TestResultsPrintSummary:
         
         assert success
 
+    def test_print_summary_integer_index(self):
+        """Line 112: print_summary with integer index_type uses 'indexes' descriptor."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, value_col='gradual', plot=False,
+                                   method_params={'abrupt_padding': 0})
+        assert results.index_type == 'integer'
+        # Should not raise
+        results.print_summary()
+
+    def test_print_summary_string_index(self):
+        """Line 114: print_summary with string index_type uses 'labels' descriptor."""
+        df = pt.load_data('series_synthetic')
+        df['str_col'] = [f'S{i}' for i in range(len(df))]
+        results = pt.detect_trends(df, value_col='gradual', date_col='str_col',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results.index_type == 'string'
+        # Should not raise
+        results.print_summary()
+
+    def test_print_summary_float_index(self):
+        """print_summary with float index_type uses 'indexes' descriptor."""
+        df = pt.load_data('series_synthetic')
+        df['float_col'] = np.linspace(0, 1, len(df))
+        results = pt.detect_trends(df, value_col='gradual', date_col='float_col',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results.index_type == 'float'
+        # Should not raise
+        results.print_summary()
+
 
 class TestResultsIntegration:
     """Integration tests for full workflows and edge cases."""
