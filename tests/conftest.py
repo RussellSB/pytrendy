@@ -8,14 +8,15 @@ across multiple test files.
 import pandas as pd
 import numpy as np
 
+from pytrendy.io import prepare_index
+
 
 def build_internal_index(df: pd.DataFrame, date_col: str) -> tuple:
     """
     Build the internal index framework for unwrapped-pipeline tests.
 
-    Mirrors the external_index / internal_index / index_lookup construction
-    used by ``detect_trends``, so tests that bypass the main entry point stay
-    in sync with the production logic in a single place.
+    Uses the production ``prepare_index.build_index_lookup`` helper so tests that
+    bypass the main entry point stay in sync with the detection logic in a single place.
 
     Args:
         df (pd.DataFrame): Input DataFrame.
@@ -29,86 +30,70 @@ def build_internal_index(df: pd.DataFrame, date_col: str) -> tuple:
     """
     external_index = pd.to_datetime(df[date_col])
     internal_index = np.arange(len(df))
-    index_lookup = dict(zip(internal_index, np.asarray(external_index)))
+    index_lookup = prepare_index.build_index_lookup(external_index)
     return external_index, internal_index, index_lookup
 
 
-def _check_value(key, detected, expected, i):
+def _assert_boundary_equal(boundary: str, actual, expected, segment_index: int) -> None:
     """
-    Helper function to check a single value (start or end) against expected value.
+    Assert a single segment boundary (start or end) equals the expected value.
+
+    Float boundaries are compared with 6-decimal rounding to tolerate the
+    floating-point representation differences introduced by float index columns.
 
     Args:
-        key: The key name ('start' or 'end')
-        detected: The detected value
-        expected: The expected value
-        i: Segment index for error messages
+        boundary: Boundary name ('start' or 'end'), used for the error message.
+        actual: The detected boundary value.
+        expected: The expected boundary value.
+        segment_index: Index of the segment, used for the error message.
     """
-    if isinstance(detected, float):
-        assert round(detected, 6) == round(expected, 6), \
-            f"Segment {i}: Expected {key} '{expected}', got '{detected}'"
+    if isinstance(actual, float):
+        assert round(actual, 6) == round(expected, 6), \
+            f"Segment {segment_index}: Expected {boundary} '{expected}', got '{actual}'"
     else:
-        assert detected == expected, \
-            f"Segment {i}: Expected {key} '{expected}', got '{detected}'"
+        assert actual == expected, \
+            f"Segment {segment_index}: Expected {boundary} '{expected}', got '{actual}'"
 
-def assert_segments_match(detected_segments, expected_segments):
+
+def assert_segments_match(detected_segments, expected_segments) -> None:
     """
-    Helper function to validate that detected segments match expected segments.
-    
-    This function compares detected trend segments against expected segments,
-    validating that the direction, start time, and end time match for each segment.
-    
+    Assert detected segments exactly match expected segments (count, order, direction, boundaries).
+
     Args:
-        detected_segments: List of dictionaries, each representing a detected segment.
-            Each dictionary must have the following keys:
-                - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str, Timestamp, int, or float, the start time of the segment
-                - 'end': str, Timestamp, int, or float, the end time of the segment
-        expected_segments: List of dictionaries with the same structure as detected_segments.
-            Each dictionary must have the following keys:
-                - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str, Timestamp, int, or float, the start time of the segment
-                - 'end': str, Timestamp, int, or float, the end time of the segment
-    
+        detected_segments: List of segment dicts with keys 'direction', 'start', 'end'.
+        expected_segments: List of segment dicts with the same structure.
+
     Raises:
-        AssertionError: If the segments don't match in count, direction, or time boundaries.
+        AssertionError: If the segments don't match in count, direction, or boundaries.
     """
-    # Assert number of segments matches
     assert len(detected_segments) == len(expected_segments), \
         f"Expected {len(expected_segments)} segments, got {len(detected_segments)}"
-    
-    # Assert each segment matches expected values
+
     for i, (detected, expected) in enumerate(zip(detected_segments, expected_segments)):
         assert detected['direction'] == expected['direction'], \
             f"Segment {i}: Expected direction '{expected['direction']}', got '{detected['direction']}'"
-        
-        _check_value('start', detected['start'], expected['start'], i)
-        _check_value('end', detected['end'], expected['end'], i)
+
+        _assert_boundary_equal('start', detected['start'], expected['start'], i)
+        _assert_boundary_equal('end', detected['end'], expected['end'], i)
 
 
-def assert_segments_in_a_haystack(detected_segments, expected_segments):
+def assert_segments_in_a_haystack(detected_segments, expected_segments) -> None:
     """
-    Similar to assert_segments_match but allows for expected segments to be a subset of detected segments.
-    
+    Assert expected segments appear within detected segments (subset match, order-independent).
+
     Args:
-        detected_segments: List of dictionaries, each representing a detected segment.
-            Each dictionary must have the following keys:
-                - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str or Timestamp, the start date of the segment
-                - 'end': str or Timestamp, the end date of the segment
-        expected_segments: List of dictionaries with the same structure as detected_segments.
-            Each dictionary must have the following keys:
-                - 'direction': str, the direction of the segment ('Up', 'Down', 'Flat', 'Noise')
-                - 'start': str, the start date of the segment in 'YYYY-MM-DD' format
-                - 'end': str, the end date of the segment in 'YYYY-MM-DD' format
-    
+        detected_segments: List of segment dicts with keys 'direction', 'start', 'end'.
+        expected_segments: List of segment dicts expected to be present in the detected segments.
+
     Raises:
-        AssertionError: If expected segments (needle) are not found in the detected segments (haystack).
+        AssertionError: If any expected segment is not found in the detected segments.
     """
-    unmatched_detected = [(segment['direction'], segment['start'], segment['end']) for segment in detected_segments]
-    for _, expected in enumerate(expected_segments):
+    unmatched = [(segment['direction'], segment['start'], segment['end']) for segment in detected_segments]
+
+    for expected in expected_segments:
         expected_tuple = (expected['direction'], expected['start'], expected['end'])
 
-        if expected_tuple not in unmatched_detected:
-            assert False, f"Expected {expected_tuple} could not be found in detected trends."
-        
-        unmatched_detected.remove(expected_tuple) # removes matched detected with expected and continues
+        if expected_tuple not in unmatched:
+            raise AssertionError(f"Expected {expected_tuple} could not be found in detected trends.")
+
+        unmatched.remove(expected_tuple)
