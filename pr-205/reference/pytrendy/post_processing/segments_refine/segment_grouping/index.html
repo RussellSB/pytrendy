@@ -1522,9 +1522,9 @@
 <p>Segments are grouped if:</p>
 <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
 <span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>- They share the same `&#39;direction&#39;`
+<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>- They share the same `'direction'`
 - Their gap is ≤ `GROUPING_DISTANCE`
-- They are not classified as `&#39;abrupt&#39;`
+- They are not classified as `'abrupt'`
 </code></pre></div></td></tr></table></div>
 
 <p>This reduces fragmentation caused by short, noisy segments.</p>
@@ -1623,14 +1623,14 @@
 <span class="normal">74</span>
 <span class="normal">75</span>
 <span class="normal">76</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Groups consecutive segments with the same direction if their gap is small.</span>
 
 <span class="sd">    Segments are grouped if:</span>
 
-<span class="sd">        - They share the same `&#39;direction&#39;`</span>
+<span class="sd">        - They share the same `'direction'`</span>
 <span class="sd">        - Their gap is ≤ `GROUPING_DISTANCE`</span>
-<span class="sd">        - They are not classified as `&#39;abrupt&#39;`</span>
+<span class="sd">        - They are not classified as `'abrupt'`</span>
 
 <span class="sd">    This reduces fragmentation caused by short, noisy segments.</span>
 
@@ -1639,10 +1639,10 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Grouped segment list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="c1"># TODO: simplify with new grouping method written in process_signals for noise segments</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">flush_history</span><span class="p">(</span><span class="n">segment_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">output</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append either a single or grouped segment to output.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Append either a single or grouped segment to output."""</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">segment_history</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segment_history</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
@@ -1650,8 +1650,8 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">first</span><span class="p">,</span> <span class="n">last</span> <span class="o">=</span> <span class="n">segment_history</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
             <span class="n">grouped</span> <span class="o">=</span> <span class="n">last</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span>
-            <span class="n">grouped</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">last</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span>
             <span class="n">output</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">grouped</span><span class="p">)</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1659,21 +1659,21 @@
     <span class="n">direction_prev</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
-        <span class="n">direction</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span>
             <span class="ow">and</span> <span class="n">segment_history</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span>
-            <span class="ow">and</span> <span class="p">((</span><span class="ow">not</span> <span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">&#39;abrupt&#39;</span><span class="p">))</span> <span class="c1"># dont group up abrupt trends</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span>
+            <span class="ow">and</span> <span class="p">((</span><span class="ow">not</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">'abrupt'</span><span class="p">))</span> <span class="c1"># dont group up abrupt trends</span>
         <span class="p">):</span>
             <span class="c1"># same direction and within allowed distance -&gt; extend history</span>
             <span class="n">segment_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
         <span class="k">elif</span> <span class="p">(</span>
             <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span>
             <span class="ow">and</span> <span class="n">segment_history</span>
-            <span class="ow">and</span> <span class="p">((</span><span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;abrupt&#39;</span><span class="p">))</span> 
-            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+            <span class="ow">and</span> <span class="p">((</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">))</span> 
+            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span>
         <span class="p">):</span>
             <span class="c1"># same direction and within tight allowed distance for abrupt -&gt; extend history</span>
             <span class="n">segment_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>
