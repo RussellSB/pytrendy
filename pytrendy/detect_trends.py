@@ -2,132 +2,13 @@
 
 import warnings
 import pandas as pd
-import numpy as np
 from .process_signals import process_signals
 from .post_processing.segments_get import get_segments
 from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
-
-
-def _detect_index_type(df: pd.DataFrame, date_col: str) -> str:
-    """
-    Detect the index type from the date column.
-    
-    Args:
-        df (pd.DataFrame): Input DataFrame
-        date_col (str): Name of the date column
-        
-    Returns:
-        str: Index type ('date', 'datetime64', 'integer', 'float', 'string')
-    """
-    if pd.api.types.is_string_dtype(df[date_col]):
-        with warnings.catch_warnings():
-            warnings.filterwarnings(
-                "ignore",
-                message="Could not infer format.*"
-            )
-            parsed = pd.to_datetime(df[date_col], errors="coerce")
-        
-        if parsed.notna().all():
-            return "date"
-        else:
-            return "string"
-    elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
-        return "datetime64"
-    elif pd.api.types.is_integer_dtype(df[date_col]):
-        return "integer"
-    elif pd.api.types.is_float_dtype(df[date_col]):
-        return "float"
-    else:
-        raise NotImplementedError(f"date_col has unimplemented dtype {df[date_col].dtype}")
-
-
-def _prepare_index_framework(df: pd.DataFrame, date_col: str | None, value_col: str) -> tuple:
-    """
-    Prepare the internal index framework used by the pipeline.
-
-    Detects the index type, captures the external index values, builds the
-    internal integer index and its lookup, and stages the working DataFrame
-    on a dedicated scratch column so the user's columns are never clobbered.
-
-    Args:
-        df (pd.DataFrame): Input time series DataFrame.
-        date_col (str|None): Name of the column representing the external index.
-        value_col (str): Name of the signal column.
-
-    Returns:
-        tuple: ``(df, external_index, index_lookup, index_type)`` where ``df`` is
-        the internal-indexed working copy, ``external_index`` holds the original
-        index values, ``index_lookup`` maps internal to external index values, and
-        ``index_type`` is the detected index type.
-    """
-    df = df.copy()
-    index_type = 'integer'
-
-    if date_col is not None:
-        index_type = _detect_index_type(df, date_col)
-        external_index = df[date_col].copy()
-
-        if index_type == 'date':
-            df[date_col] = pd.to_datetime(df[date_col])
-        elif index_type == 'string':
-            print(
-                f"Attempting to cast {date_col} to date failed, "
-                "treating as string lookup."
-            )
-    else:
-        external_index = np.arange(len(df))
-
-    internal_index = np.arange(len(df))
-    index_lookup = dict(zip(internal_index, np.asarray(external_index)))
-
-    # Use a dedicated scratch column name to avoid clobbering user's columns
-    _pytrendy_idx = '_pytrendy_idx'
-    df[_pytrendy_idx] = internal_index.copy()
-    df.set_index(_pytrendy_idx, inplace=True)
-    df = df[[value_col]]
-
-    return df, external_index, index_lookup, index_type
-
-
-def _remap_boundaries(segments: list[dict], index_lookup: dict) -> list[dict]:
-    """
-    Remap internal segment boundaries back to external index values.
-
-    Args:
-        segments (list): Segment list with internal index boundaries.
-        index_lookup (dict): Mapping from internal to external index values.
-
-    Returns:
-        list: Segment list with boundaries expressed in external index values.
-    """
-    for segment in segments:
-        segment['start'] = index_lookup[segment['start']]
-        segment['end'] = index_lookup[segment['end']]
-    return segments
-
-
-def _prepare_plot_frame(df: pd.DataFrame, date_col: str | None, external_index, index_type: str) -> pd.DataFrame:
-    """
-    Restore the external index onto the working DataFrame for plotting.
-
-    Args:
-        df (pd.DataFrame): Internal-indexed working DataFrame.
-        date_col (str|None): Name of the external index column.
-        external_index: External index values captured before staging.
-        index_type (str): Detected index type.
-
-    Returns:
-        pd.DataFrame: DataFrame with the external index restored for plotting.
-    """
-    if index_type == 'date':
-        external_index = pd.to_datetime(external_index)
-
-    df[date_col] = external_index
-    df.set_index(date_col, inplace=True)
-    return df
+from .io import prepare_index
 
 
 def detect_trends(df: pd.DataFrame, 
@@ -191,7 +72,9 @@ def detect_trends(df: pd.DataFrame,
             An object encapsulating the detected segments and associated metadata.
             Use this object to access segment statistics, rankings, and export utilities.
     """
-    df, external_index, index_lookup, index_type = _prepare_index_framework(df, date_col, value_col)
+    # Stage the DataFrame on an internal integer index, keeping the external index
+    # values and a lookup so boundaries can be remapped back later.
+    df, external_index, index_lookup, index_type = prepare_index.prepare_index(df, date_col, value_col)
 
     if method_params is None:
         method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
@@ -217,10 +100,12 @@ def detect_trends(df: pd.DataFrame,
     segments = refine_segments(df, value_col, segments, method_params)
     segments = analyse_segments(df, value_col, segments)
 
-    segments = _remap_boundaries(segments, index_lookup)
+    # Translate internal segment boundaries back to the user's external index values.
+    segments = prepare_index.remap_boundaries(segments, index_lookup)
 
     if plot:
-        plot_df = _prepare_plot_frame(df, date_col, external_index, index_type)
+        # Restore the external index for plotting before rendering the segments.
+        plot_df = prepare_index.prepare_plot_frame(df, date_col, external_index, index_type)
         plot_pytrendy(df=plot_df, value_col=value_col, segments_enhanced=segments, index_type=index_type, plot_params=plot_params)
 
     results = PyTrendyResults(segments=segments, index_type=index_type)
