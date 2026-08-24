@@ -259,7 +259,10 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         is_flat = segment['direction'] == 'Flat'
         is_gradual = ('trend_class' in segment and segment['trend_class'] == 'gradual')
         is_abrupt = ('trend_class' in segment and segment['trend_class'] == 'abrupt')
-        is_padded = is_abrupt and ('padded' in segment) and (segment['padded'] == True)
+        # Covers both abrupt_padding and gradual_padding: padded segments must
+        # not be reclassified as Flat by the trend_too_flat / trend_too_small
+        # checks below, since the extension was intentional.
+        is_padded = ('padded' in segment) and (segment['padded'] == True)
         is_small = len(df_segment) <= 5
 
         # Edge case 1: Check SNR for trend but noise
@@ -316,7 +319,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']
 
-        if trend_ends_too_close or trend_too_small or trend_too_flat:
+        # Padded segments are protected from flat reclassification — the extension
+        # into flat regions is intentional and the original trend still holds.
+        if trend_ends_too_close or trend_too_small or (trend_too_flat and not is_padded):
             segment['direction'] = 'Flat' 
             if 'trend_class' in segment: del segment['trend_class']
         
