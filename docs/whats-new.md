@@ -13,7 +13,7 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.4.3 <span class="version-prerelease">pre-release</span>
+## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
 
@@ -21,7 +21,49 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.
+I've confirmed the feature details from PR/issue #243, the implementation in `gradual_expand_contract.py`, and the regression tests in `tests/test_gradual_padding.py` (plus the verified default output in `tests/test_core_cases.py`). No `gradual_padding` images exist in `docs/img/whats-new/`, so I'm omitting image references entirely.
+v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that extends gradual trend segments forward into adjacent flat regions.
+
+??? note "Gradual trend padding (`gradual_padding`)"
+    A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
+    Set it to the number of days to pad (e.g. `28`); the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
+    Introduced: [#243](https://github.com/RussellSB/pytrendy/issues/243)
+
+    The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Default (gradual_padding=0): gradual segments end at their turning points
+        before = pt.detect_trends(df, date_col="date", value_col="gradual", plot=False)
+        print(before.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Up         2025-01-02  2025-01-24
+        # Down       2025-01-25  2025-02-05
+        # Flat       2025-02-06  2025-02-09
+        # Up         2025-02-10  2025-03-17
+        # Down       2025-03-18  2025-04-01
+        # Up         2025-04-02  2025-05-08
+        # Down       2025-05-09  2025-06-17
+        # Flat       2025-06-18  2025-06-30
+
+        # gradual_padding=28: Down segments extend through trailing Flat regions
+        after = pt.detect_trends(
+            df, date_col="date", value_col="gradual",
+            method_params=dict(gradual_padding=28),
+        )
+        print(after.df[["direction", "start", "end"]])
+        # direction       start         end
+        # Up         2025-01-02  2025-01-24
+        # Down       2025-01-25  2025-02-09   ← Flat absorbed, capped before next Up
+        # Up         2025-02-10  2025-03-17
+        # Down       2025-03-18  2025-04-01
+        # Up         2025-04-02  2025-05-08
+        # Down       2025-05-09  2025-06-30   ← padded to end of series
+        ```
 
 ??? note "Long gradual ramps no longer truncated by false flat detection"
     A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
