@@ -1790,16 +1790,16 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/195">#195</a></p>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
 <span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/develop/&quot;</span>
-    <span class="s2">&quot;tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv&quot;</span>
+    <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"</span>
+    <span class="s2">"tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"</span>
 <span class="p">)</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual_ramp_90d&quot;</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual_ramp_90d"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">&quot;Up/Down&quot;</span><span class="p">)[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">"Up/Down"</span><span class="p">)[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
 <span class="c1"># direction       start         end</span>
 <span class="c1"># Up         2026-04-07  2026-06-29   ← full 90-day ramp</span>
 <span class="c1"># Down       2026-09-27  2026-10-26</span>
@@ -1841,19 +1841,19 @@ Introduced: <a href="https://github.com/RussellSB/pytrendy/issues/122">#122</a><
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
 
 <span class="c1"># Default appearance</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">)</span>
 
 <span class="c1"># Custom appearance — black grid at 0.8 opacity, legend in bottom left</span>
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span>
     <span class="n">plot_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
         <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
-        <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Gradual Trend — Custom Visual&quot;</span><span class="p">,</span>
-        <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;visible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span> <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span>
-        <span class="n">legend_loc</span><span class="o">=</span><span class="s2">&quot;lower left&quot;</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Gradual Trend — Custom Visual"</span><span class="p">,</span>
+        <span class="n">grid</span><span class="o">=</span><span class="p">{</span><span class="s2">"visible"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">"color"</span><span class="p">:</span> <span class="s2">"black"</span><span class="p">,</span> <span class="s2">"alpha"</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">},</span>
+        <span class="n">legend_loc</span><span class="o">=</span><span class="s2">"lower left"</span><span class="p">,</span>
     <span class="p">),</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -1887,15 +1887,15 @@ Introduced: <a href="https://github.com/RussellSB/pytrendy/issues/122">#122</a><
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span>
-    <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/develop/&quot;</span>
-    <span class="s2">&quot;tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv&quot;</span>
+    <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"</span>
+    <span class="s2">"tests/tests_crashes_edgecases/data/zero_baseline_edgecases_2.csv"</span>
 <span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;zero_baseline_market_entry_3&quot;</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"zero_baseline_market_entry_3"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;total_change&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">,</span> <span class="s2">"total_change"</span><span class="p">]])</span>
 </code></pre></div>
 </details>
 <h4 id="false-noise-suppression-on-zero-baseline-leading-edge">False noise suppression on zero-baseline leading edge</h4>
@@ -1929,14 +1929,14 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/issues/142">#142</a></p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/develop/tests/tests_crashes_edgecases/data/zero_baseline_edgecases.csv"</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;zero_baseline_market_entry_1&quot;</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"zero_baseline_market_entry_1"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
 <span class="c1"># direction       start         end</span>
 <span class="c1"># Flat       2026-03-01  2026-03-20</span>
 <span class="c1"># Up         2026-03-21  2026-04-20   ← padded by 28 days</span>
@@ -1972,16 +1972,16 @@ Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/117">#117</a></p
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
 
 <span class="c1"># Before — deprecated (raises DeprecationWarning)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
                           <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
 <span class="c1"># After — use abrupt_padding (int: number of days to pad)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
                           <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">abrupt_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
 </code></pre></div>
 </details>
 </details>
@@ -2072,18 +2072,18 @@ suppressed, yielding clean Up/Down segments.</p>
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="c1"># Simulate a new-market / quasi-experiment: zero activity before and after activation</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-27&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-05&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-30&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-01-01"</span><span class="p">:</span><span class="s2">"2025-02-27"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-05-05"</span><span class="p">:</span><span class="s2">"2025-06-30"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
 <span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">avoid_noise</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
 </code></pre></div>
 </details>
 </details>
@@ -2132,10 +2132,10 @@ Fix: <a href="https://github.com/RussellSB/pytrendy/issues/88">#88</a></p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/low_value_series.csv&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/low_value_series.csv"</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;trend&quot;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;direction&quot;</span><span class="p">,</span> <span class="s2">&quot;pct_change&quot;</span><span class="p">,</span> <span class="s2">&quot;change_rank&quot;</span><span class="p">]])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"trend"</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"pct_change"</span><span class="p">,</span> <span class="s2">"change_rank"</span><span class="p">]])</span>
 </code></pre></div>
 </details>
 </details>
@@ -2163,10 +2163,10 @@ Regression test: <a href="https://github.com/RussellSB/pytrendy/blob/main/tests/
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/low_value_series.csv&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/low_value_series.csv"</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;trend&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">,</span> <span class="s2">&quot;direction&quot;</span><span class="p">]])</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"trend"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">,</span> <span class="s2">"direction"</span><span class="p">]])</span>
 </code></pre></div>
 </details>
 </details>
@@ -2217,14 +2217,14 @@ stability — making the algorithm significantly more reliable on real-world noi
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;date&quot;</span><span class="p">])</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">"date"</span><span class="p">])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-04-08"</span><span class="p">:</span><span class="s2">"2025-04-08"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-05-08"</span><span class="p">:</span><span class="s2">"2025-05-08"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-06-08"</span><span class="p">:</span><span class="s2">"2025-06-08"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span>
                  <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </code></pre></div>
 </details>
@@ -2306,9 +2306,9 @@ the noise and correctly identifies the downtrend structure.</p>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/noisy_edgecases.csv&quot;</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/main/tests/tests_crashes_edgecases/data/noisy_edgecases.csv"</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;noisy_edgecase_3&quot;</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"noisy_edgecase_3"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 </details>
@@ -2334,11 +2334,11 @@ classified as a tight 1–3 day Noise segment with the gradual trends fully inta
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-25&quot;</span><span class="p">:</span><span class="s2">&quot;2025-03-25&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>  <span class="c1"># inject spike</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-03-25"</span><span class="p">:</span><span class="s2">"2025-03-25"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>  <span class="c1"># inject spike</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span>
                  <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </code></pre></div>
 </details>
@@ -2382,18 +2382,18 @@ After v1.1.0, they are explicitly represented as blue Flat segments.</p>
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-28&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-09&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">:</span><span class="s2">&quot;2025-05-08&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">:</span><span class="s2">&quot;2025-06-03&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-02-28"</span><span class="p">:</span><span class="s2">"2025-02-28"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-04-09"</span><span class="p">:</span><span class="s2">"2025-04-09"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-05-08"</span><span class="p">:</span><span class="s2">"2025-05-08"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">300</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-06-03"</span><span class="p">:</span><span class="s2">"2025-06-03"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">320</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
     <span class="n">df</span><span class="p">,</span>
-    <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span>
-    <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span>
+    <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -2419,8 +2419,8 @@ where clean pre/post intervention windows are required.</p>
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
                  <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 </code></pre></div>
 </details>
@@ -2432,7 +2432,7 @@ where clean pre/post intervention windows are required.</p>
 <div class="tabbed-content">
 <div class="tabbed-block">
 <div class="language-python highlight"><pre><span></span><code><span class="n">segments_df</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">segments_df</span>
-<span class="n">summary_df</span>  <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s2">&quot;df&quot;</span><span class="p">]</span>
+<span class="n">summary_df</span>  <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s2">"df"</span><span class="p">]</span>
 </code></pre></div>
 </div>
 <div class="tabbed-block">
@@ -2464,19 +2464,19 @@ resolved; segments now align directionally before any visual displacement.
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-01-01&quot;</span><span class="p">:</span><span class="s2">&quot;2025-02-11&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-02-16&quot;</span><span class="p">:</span><span class="s2">&quot;2025-03-10&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-18&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-15&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-20&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-22&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">250</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-25&quot;</span><span class="p">:</span><span class="s2">&quot;2025-04-01&quot;</span><span class="p">,</span> <span class="s2">&quot;abrupt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-01-01"</span><span class="p">:</span><span class="s2">"2025-02-11"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-02-16"</span><span class="p">:</span><span class="s2">"2025-03-10"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">125</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-03-18"</span><span class="p">:</span><span class="s2">"2025-04-15"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">150</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-03-20"</span><span class="p">:</span><span class="s2">"2025-04-22"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">250</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-03-25"</span><span class="p">:</span><span class="s2">"2025-04-01"</span><span class="p">,</span> <span class="s2">"abrupt"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">200</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
 
 <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
     <span class="n">df</span><span class="p">,</span>
-    <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span>
-    <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+    <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span>
+    <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
     <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span>
 <span class="p">)</span>
 </code></pre></div>
@@ -2512,8 +2512,8 @@ box with a single call to <code>detect_trends()</code>.</p>
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 </details>
@@ -2527,8 +2527,8 @@ not yet available — detections reflect instantaneous precision at the point of
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;abrupt&quot;</span><span class="p">,</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"abrupt"</span><span class="p">,</span>
                  <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">is_abrupt_padded</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
 </code></pre></div>
 </details>
@@ -2542,8 +2542,8 @@ algorithm identifies noise segments while still extracting the underlying Up/Dow
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual-noisy-20&quot;</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual-noisy-20"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 </details>
@@ -2559,11 +2559,11 @@ better distinguishing spike outliers from sustained noise regions.</em></p>
 <summary>Code</summary>
 <div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">&quot;series_synthetic&quot;</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;2025-03-01&quot;</span><span class="p">:</span><span class="s2">&quot;2025-03-01&quot;</span><span class="p">,</span> <span class="s2">&quot;gradual&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># inject spike</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"2025-03-01"</span><span class="p">:</span><span class="s2">"2025-03-01"</span><span class="p">,</span> <span class="s2">"gradual"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">500</span>  <span class="c1"># inject spike</span>
 <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
-<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">&quot;date&quot;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">&quot;gradual&quot;</span><span class="p">)</span>
+<span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">)</span>
 </code></pre></div>
 </details>
 </details>

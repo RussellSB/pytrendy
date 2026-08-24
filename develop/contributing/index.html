@@ -1965,11 +1965,11 @@
 </code></pre></div></li>
 <li>
 <p><strong>Install development dependencies:</strong>
-   <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+   <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev]"</span>
 </code></pre></div>
    The <code>dev</code> group installs everything needed to run the project and its test suite — the core dependencies (<code>numpy</code>, <code>pandas</code>, <code>scipy</code>, <code>matplotlib</code>) are pulled in automatically, and <code>dev</code> adds <code>pytest</code>, <code>pytest-cov</code>, <code>pytest-mpl</code>, and <code>pytest-timeout</code> on top.</p>
 <p>If your PR touches documentation, also install the docs group:
-<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev,docs]&quot;</span>
+<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">".[dev,docs]"</span>
 </code></pre></div></p>
 </li>
 </ol>

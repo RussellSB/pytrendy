@@ -1553,8 +1553,8 @@
 <h2 id="quickstart">Quickstart</h2>
 <p>Import pytrendy, and apply trend detection on daily time series data.
 <div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;series_synthetic&#39;</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;gradual&#39;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">'series_synthetic'</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">'date'</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">'gradual'</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
 </code></pre></div>
 <img alt="" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png" /></p>
@@ -1584,7 +1584,7 @@ time_index
 </div>
 
 <p>Explore the strongest uptrends:
-<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">'Up'</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">'change_rank'</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 </code></pre></div></p>
 <table>
 <thead>

@@ -1182,6 +1182,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;method_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1492,6 +1503,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;method_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1557,14 +1579,15 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Refines segment boundaries by expanding or contracting based on local extrema.</p>
 <p>Examines ±7 days around each segment's start and end to find stronger turning points.
-Skips segments classified as 'abrupt' to preserve their precision.</p>
+Skips segments classified as 'abrupt' to preserve their precision.
+Optionally pads gradual segments into adjacent flat regions when <code>gradual_padding &gt; 0</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1591,6 +1614,17 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(method_params)" class="doc doc-heading doc-heading-parameter">              <b><code>method_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Detection parameters. Supported keys:</p>
+<ul>
+<li><strong>gradual_padding</strong> (<code>int</code>): Days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
+</ul>
           </div>
         </li>
     </ul>
@@ -1716,64 +1750,77 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
 <span class="normal">114</span>
 <span class="normal">115</span>
 <span class="normal">116</span>
-<span class="normal">117</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Refines segment boundaries by expanding or contracting based on local extrema.</span>
 
-<span class="sd">    Examines ±7 days around each segment&#39;s start and end to find stronger turning points.</span>
-<span class="sd">    Skips segments classified as &#39;abrupt&#39; to preserve their precision.</span>
+<span class="sd">    Examines ±7 days around each segment's start and end to find stronger turning points.</span>
+<span class="sd">    Skips segments classified as 'abrupt' to preserve their precision.</span>
+<span class="sd">    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding &gt; 0``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): Time series DataFrame.</span>
 <span class="sd">        value_col (str): Name of the signal column.</span>
 <span class="sd">        segments (list): List of segment dictionaries.</span>
+<span class="sd">        method_params (dict): Detection parameters. Supported keys:</span>
+
+<span class="sd">            - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Refined segment list with updated boundaries.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_window_df</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a slice of df around a center date ±days.&quot;&quot;&quot;</span>
-        <span class="n">pre</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-        <span class="n">post</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="w">        </span><span class="sd">"""Return a slice of df around a center date ±days."""</span>
+        <span class="n">pre</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+        <span class="n">post</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">center</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">days</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">pre</span><span class="p">:</span><span class="n">post</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">):</span>
 
-        <span class="n">start_df</span> <span class="o">=</span> <span class="n">_get_window_df</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
-        <span class="n">end_df</span> <span class="o">=</span> <span class="n">_get_window_df</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="n">start_df</span> <span class="o">=</span> <span class="n">_get_window_df</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
+        <span class="n">end_df</span> <span class="o">=</span> <span class="n">_get_window_df</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
 
         <span class="c1"># Pre-crop local windows to avoid overlapping neighbouring NOISE segments</span>
-        <span class="c1"># This ensures the extrema search doesn&#39;t pull from a noise neighbour region</span>
+        <span class="c1"># This ensures the extrema search doesn't pull from a noise neighbour region</span>
         <span class="c1"># and reduces the need for later conflict corrections.</span>
         <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># handles right of noise</span>
             <span class="n">prev_seg</span> <span class="o">=</span> <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">prev_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span><span class="p">:</span>
-                <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">prev_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'direction'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'Noise'</span><span class="p">:</span>
+                <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
                 <span class="c1"># Exclude days that belong to the previous noise segment</span>
-                <span class="n">crop_from</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">crop_from</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">cropped</span> <span class="o">=</span> <span class="n">start_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">crop_from</span><span class="p">:]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">cropped</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                     <span class="n">start_df</span> <span class="o">=</span> <span class="n">cropped</span>
 
         <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># handles left of noise</span>
             <span class="n">next_seg</span> <span class="o">=</span> <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">next_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span><span class="p">:</span>
-                <span class="n">next_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">next_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'direction'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'Noise'</span><span class="p">:</span>
+                <span class="n">next_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
                 <span class="c1"># Exclude days that belong to the next noise segment</span>
-                <span class="n">crop_to</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                <span class="n">crop_to</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
                 <span class="n">cropped</span> <span class="o">=</span> <span class="n">end_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[:</span><span class="n">crop_to</span><span class="p">]</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">cropped</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                     <span class="n">end_df</span> <span class="o">=</span> <span class="n">cropped</span>
 
-        <span class="k">if</span> <span class="s1">&#39;trend_class&#39;</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;abrupt&#39;</span><span class="p">:</span>
-            <span class="k">continue</span> <span class="c1"># don&#39;t expand/contract abrupt trends. Leave precise to shave.</span>
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Up&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">:</span>
+            <span class="k">continue</span> <span class="c1"># don't expand/contract abrupt trends. Leave precise to shave.</span>
+        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Up'</span><span class="p">:</span>
             <span class="n">new_start</span> <span class="o">=</span> <span class="n">start_df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># get min, latest if all same</span>
             <span class="n">new_end</span> <span class="o">=</span> <span class="n">end_df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
-        <span class="k">elif</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Down&#39;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Down'</span><span class="p">:</span>
             <span class="n">new_start</span> <span class="o">=</span> <span class="n">start_df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># get max, latest if all same</span>
             <span class="n">new_end</span> <span class="o">=</span> <span class="n">end_df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
@@ -1784,11 +1831,11 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
         <span class="c1"># the neighbour. When no neighbour is near and the extremum holds a</span>
         <span class="c1"># significantly different value, the +1 day skips a genuine drop/rise.</span>
         <span class="c1"># Skip this when the previous segment is Noise — noise boundaries are</span>
-        <span class="c1"># deliberately fuzzy and shouldn&#39;t anchor the orphan test.</span>
+        <span class="c1"># deliberately fuzzy and shouldn't anchor the orphan test.</span>
         <span class="n">prev_seg</span> <span class="o">=</span> <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="n">prev_is_noise</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prev_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;direction&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span>
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="n">prev_is_noise</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prev_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'direction'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'Noise'</span>
+        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span>
             <span class="n">extremum</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">new_start</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="n">distance</span> <span class="o">=</span> <span class="p">(</span><span class="n">extremum</span> <span class="o">-</span> <span class="n">prev_end</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
             <span class="c1"># Skip orphan check when previous segment is Noise AND the Noise</span>
@@ -1807,20 +1854,25 @@ Skips segments classified as 'abrupt' to preserve their precision.</p>
                         <span class="n">new_start</span> <span class="o">-=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Check for any inversions</span>
-        <span class="n">start_inverted</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_start</span> <span class="o">&gt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]))</span>
-        <span class="n">end_inverted</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">&lt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]))</span>
+        <span class="n">start_inverted</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_start</span> <span class="o">&gt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]))</span>
+        <span class="n">end_inverted</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">&lt;=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]))</span>
 
         <span class="c1"># Refine start provided valid to update</span>
-        <span class="n">start_changed</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_start</span> <span class="o">!=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]))</span>
+        <span class="n">start_changed</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_start</span> <span class="o">!=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]))</span>
         <span class="k">if</span> <span class="n">start_changed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">start_inverted</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">update_prev_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_start</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
 
         <span class="c1"># Refine end provided valid to update</span>
-        <span class="n">end_changed</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">!=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">]))</span>
+        <span class="n">end_changed</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">!=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]))</span>
         <span class="k">if</span> <span class="n">end_changed</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">end_inverted</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="n">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
+
+    <span class="c1"># Pad gradual segments into adjacent flat regions when gradual_padding is set.</span>
+    <span class="c1"># Mirrors the abrupt padding pattern: called from within the same module rather</span>
+    <span class="c1"># than exposed as a separate top-level step in segments_refine/__init__.py.</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">_pad_gradual_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">segments_refined</span>
 </code></pre></div></td></tr></table></div>
