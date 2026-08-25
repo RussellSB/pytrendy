@@ -1769,46 +1769,42 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <p><em>Staged on the <code>develop</code> branch — will land in the next stable release. Currently available as the latest pre-release:</em></p>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
 </code></pre></div>
-<p>I've confirmed the feature details from PR/issue #243, the implementation in <code>gradual_expand_contract.py</code>, and the regression tests in <code>tests/test_gradual_padding.py</code> (plus the verified default output in <code>tests/test_core_cases.py</code>). No <code>gradual_padding</code> images exist in <code>docs/img/whats-new/</code>, so I'm omitting image references entirely.
-v1.4.0-dev.4 introduces <code>gradual_padding</code>, a new <code>method_params</code> option that extends gradual trend segments forward into adjacent flat regions.</p>
+<p>v1.4.0-dev.4 introduces <code>gradual_padding</code>, a new <code>method_params</code> option that extends gradual trend segments forward into adjacent flat regions.</p>
 <details class="note">
 <summary>Gradual trend padding (<code>gradual_padding</code>)</summary>
 <p>A new <code>gradual_padding</code> option in <code>method_params</code> lets gradual Up/Down segments be extended forward into adjacent flat regions.
-Set it to the number of days to pad (e.g. <code>28</code>); the default is <code>0</code>, which keeps the existing behaviour. This mirrors the <code>abrupt_padding</code> workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
-Introduced: <a href="https://github.com/RussellSB/pytrendy/issues/243">#243</a></p>
+Set it to the number of days to pad; the default is <code>0</code>, which keeps the existing behaviour. This mirrors the <code>abrupt_padding</code> workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
+Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/243">#243</a></p>
 <p>The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.</p>
+<p><div class="before-after-grid" markdown>
+<div class="before-after-panel" markdown>
+<span class="before-after-label before-label">Before — <code>gradual_padding=0</code> (default)</span></p>
+<p><img alt="Long gradual ramp stops at its turning point, leaving a large flat gap" src="../img/whats-new/pre-release/whats_new_gradual_padding_before_pr243.png" /></p>
+<p></div>
+<div class="before-after-panel" markdown>
+<span class="before-after-label after-label">After — <code>gradual_padding=168</code></span></p>
+<p><img alt="Ramp extends through the flat and is clamped before the next abrupt Down" src="../img/whats-new/pre-release/whats_new_gradual_padding_after_pr243.png" /></p>
+<p></div>
+</div></p>
 <details class="example">
 <summary>Code</summary>
-<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
+<div class="language-python highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
 
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s2">"series_synthetic"</span><span class="p">)</span>
-
-<span class="c1"># Default (gradual_padding=0): gradual segments end at their turning points</span>
-<span class="n">before</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">before</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
-<span class="c1"># direction       start         end</span>
-<span class="c1"># Up         2025-01-02  2025-01-24</span>
-<span class="c1"># Down       2025-01-25  2025-02-05</span>
-<span class="c1"># Flat       2025-02-06  2025-02-09</span>
-<span class="c1"># Up         2025-02-10  2025-03-17</span>
-<span class="c1"># Down       2025-03-18  2025-04-01</span>
-<span class="c1"># Up         2025-04-02  2025-05-08</span>
-<span class="c1"># Down       2025-05-09  2025-06-17</span>
-<span class="c1"># Flat       2025-06-18  2025-06-30</span>
-
-<span class="c1"># gradual_padding=28: Down segments extend through trailing Flat regions</span>
-<span class="n">after</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual"</span><span class="p">,</span>
-    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">gradual_padding</span><span class="o">=</span><span class="mi">28</span><span class="p">),</span>
+<span class="n">url</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">"https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"</span>
+    <span class="s2">"tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"</span>
 <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">after</span><span class="o">.</span><span class="n">df</span><span class="p">[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">url</span><span class="p">)</span>
+
+<span class="n">result</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s2">"date"</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s2">"gradual_ramp_90d"</span><span class="p">,</span>
+    <span class="n">method_params</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">gradual_padding</span><span class="o">=</span><span class="mi">168</span><span class="p">),</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s2">"Up/Down"</span><span class="p">)[[</span><span class="s2">"direction"</span><span class="p">,</span> <span class="s2">"start"</span><span class="p">,</span> <span class="s2">"end"</span><span class="p">]])</span>
 <span class="c1"># direction       start         end</span>
-<span class="c1"># Up         2025-01-02  2025-01-24</span>
-<span class="c1"># Down       2025-01-25  2025-02-09   ← Flat absorbed, capped before next Up</span>
-<span class="c1"># Up         2025-02-10  2025-03-17</span>
-<span class="c1"># Down       2025-03-18  2025-04-01</span>
-<span class="c1"># Up         2025-04-02  2025-05-08</span>
-<span class="c1"># Down       2025-05-09  2025-06-30   ← padded to end of series</span>
+<span class="c1"># Up         2026-04-07  2026-09-19   ← absorbed the flat, clamped before the abrupt Down</span>
+<span class="c1"># Down       2026-09-27  2026-09-28</span>
 </code></pre></div>
 </details>
 </details>
