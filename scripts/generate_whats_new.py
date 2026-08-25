@@ -408,7 +408,7 @@ def _make_heading(tag: str, is_prerelease: bool, date_str: str) -> str:
         target = _target_prerelease_version(tag)
         return (
             f'## Coming in v{target} <span class="version-prerelease">pre-release</span>\n\n'
-            "*Staged on the `develop` branch — will land in the next stable release. "
+            "*Staged on the `develop` branch; it will land in the next stable release. "
             "Currently available as the latest pre-release:*\n\n"
             "```bash\n"
             "pip install --pre pytrendy\n"

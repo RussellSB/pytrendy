@@ -15,30 +15,30 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 ## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
 
-*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+*Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
 
 ```bash
 pip install --pre pytrendy
 ```
 
-v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that extends gradual trend segments forward into adjacent flat regions.
+v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a new argument, so you can extend gradual trends into adjacent flat regions and restyle the detection plot. Two fixes round it out: false flat detection no longer chops long gradual ramps, and abrupt segments can't be padded twice.
 
 ??? note "Gradual trend padding (`gradual_padding`)"
     A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
-    Set it to the number of days to pad; the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
+    Set it to the number of days to pad; the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends: each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
     Introduced: [#243](https://github.com/RussellSB/pytrendy/pull/243)
 
     The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — `gradual_padding=0` (default)</span>
+    <span class="before-after-label before-label">Before: `gradual_padding=0` (default)</span>
 
     ![Long gradual ramp stops at its turning point, leaving a large flat gap](img/whats-new/pre-release/whats_new_gradual_padding_before_pr243.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — `gradual_padding=168`</span>
+    <span class="before-after-label after-label">After: `gradual_padding=168`</span>
 
     ![Ramp extends through the flat and is clamped before the next abrupt Down](img/whats-new/pre-release/whats_new_gradual_padding_after_pr243.png)
 
@@ -72,13 +72,13 @@ v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that ext
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.4.0-dev.2</span>
+    <span class="before-after-label before-label">Before: v1.4.0-dev.2</span>
 
     ![Gradual ramp truncated by false flat detection](img/whats-new/pre-release/whats_new_gradual_ramp_before_dev2.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.4.0-dev.3</span>
+    <span class="before-after-label after-label">After: v1.4.0-dev.3</span>
 
     ![Gradual ramp detected as a single Up segment](img/whats-new/pre-release/whats_new_gradual_ramp_after_dev3.png)
 
@@ -109,32 +109,32 @@ v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that ext
 ??? note "Abrupt padding reliability improvements"
     Two internal fixes make abrupt-segment padding more robust:
 
-    - **Double-padding prevention** — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
-    - **Padded flag guard** — the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
+    - **Double-padding prevention**: a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
+    - **Padded flag guard**: the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
 
     These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
 
 ??? note "Plot customisation via `plot_params`"
     A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
 
-    - **Figure dimensions** — set `figsize` to control width and height.
-    - **Title & labels** — add a domain-specific `title`, `xlabel`, or `ylabel`.
-    - **Colour scheme** — pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
-    - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
-    - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+    - **Figure dimensions**: set `figsize` to control width and height.
+    - **Title & labels**: add a domain-specific `title`, `xlabel`, or `ylabel`.
+    - **Colour scheme**: pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
+    - **Grid control**: toggle grid visibility and customise its appearance via the `grid` dict.
+    - **Legend positioning**: move the legend with `legend_loc` and `legend_bbox_to_anchor`.
 
     For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
     Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — no `plot_params` (default)</span>
+    <span class="before-after-label before-label">Before: no `plot_params` (default)</span>
 
     ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — custom `plot_params`</span>
+    <span class="before-after-label after-label">After: custom `plot_params`</span>
 
     ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
 
@@ -150,12 +150,12 @@ v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that ext
         # Default appearance
         pt.detect_trends(df, date_col="date", value_col="gradual")
 
-        # Custom appearance — black grid at 0.8 opacity, legend in bottom left
+        # Custom appearance: black grid at 0.8 opacity, legend in bottom left
         pt.detect_trends(
             df, date_col="date", value_col="gradual",
             plot_params=dict(
                 figsize=(20, 6),
-                title="Gradual Trend — Custom Visual",
+                title="Gradual Trend: Custom Visual",
                 grid={"visible": True, "color": "black", "alpha": 0.8},
                 legend_loc="lower left",
             ),
