@@ -96,10 +96,9 @@ SYSTEM_PROMPT = textwrap.dedent("""\
       blank line, matching the pattern already used in the file.
     - Generate both images yourself with the same `detect_trends()` + `plot_pytrendy()`
       pipeline (install the package with `pip install -e .` if needed) so figsize, grid,
-      legend, and colors match between the two images. Base the scenario on the exact test
-      case from the related PR (look in tests/tests_crashes_edgecases/) rather than a
-      synthetic example, and use the same value_col, method_params, and data file as the
-      test.
+      legend, and colors match between the two images. Base the scenario on the related
+      tests or the scenarios specified in the PR/issue rather than a synthetic example, and
+      use the same value_col, method_params, and data file as the test.
     - Save images under docs/img/whats-new/pre-release/ (pre-release) or
       docs/img/whats-new/v<version>/ (stable) and reference them with docs-relative paths.
       Never link to GitHub user-attachments URLs. After writing, verify every referenced
@@ -111,9 +110,6 @@ SYSTEM_PROMPT = textwrap.dedent("""\
     - Do not touch anything outside the `<!-- WHATS_NEW_CONTENT_START -->` and
       `<!-- WHATS_NEW_CONTENT_END -->` markers, in particular not the pre-release note
       banner between `<!-- WHATS_NEW_NOTE_START -->` and `<!-- WHATS_NEW_NOTE_END -->`.
-    - CRITICAL: the file must contain only user-facing documentation. Never paste your
-      reasoning, chat preamble, thinking traces, tool output, or shell command output
-      (e.g. from git push, pip install, pytest) into the file. If in doubt, leave it out.
 """)
 
 

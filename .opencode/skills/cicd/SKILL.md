@@ -58,7 +58,7 @@ Triggers: on release publish, on Release workflow completion (main/develop), or 
 5. Opens a PR (`docs/whats-new-<tag>`) back to the release branch via `peter-evans/create-pull-request@v7` using `DOCS_PREVIEW_PAT`. The PR's `base` is the release branch (develop or main) — these are the *only* PRs allowed to target `main` from a non-`develop` head (`check-base-branch.yml` whitelists `docs/whats-new-*`).
 6. On stable releases (main, not prerelease), a `sync-to-develop` job re-generates the entry framed as stable and opens a follow-up PR to `develop` so both branches stay consistent.
 
-Agent instructions are baked into `scripts/generate_whats_new.py` (system prompt + docstring): edit `docs/whats-new.md` in place, verify CSV raw URLs resolve (use develop-branch URLs for pre-releases, main for stable), derive before/after plot scenarios from `tests/tests_crashes_edgecases/` not synthetic data, keep figsize/grid/legend/colors identical between before/after images by routing through the same `detect_trends()` + `plot_pytrendy()` pipeline, and never paste reasoning/tool output (e.g. `git push`, `pip install`) into the file.
+Agent instructions are baked into `scripts/generate_whats_new.py` (system prompt + docstring): edit `docs/whats-new.md` in place, verify CSV raw URLs resolve (use develop-branch URLs for pre-releases, main for stable), derive before/after plot scenarios from the related tests or the scenarios specified in the PR/issue rather than synthetic data, and keep figsize/grid/legend/colors identical between before/after images by routing through the same `detect_trends()` + `plot_pytrendy()` pipeline.
 
 For manual before/after plot generation in PR bodies (fix/feature PRs), see the `pr-plots` skill.
 
