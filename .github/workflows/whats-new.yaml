@@ -157,7 +157,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
-          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          OPENCODE_PERMISSION: '{"bash": "allow", "edit": "allow", "webfetch": "allow", "websearch": "allow", "external_directory": "deny", "task": "allow"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
           RELEASE_NAME: ${{ steps.meta.outputs.name }}
@@ -238,7 +238,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
-          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          OPENCODE_PERMISSION: '{"bash": "allow", "edit": "allow", "webfetch": "allow", "websearch": "allow", "external_directory": "deny", "task": "allow"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.generate-whats-new.outputs.tag }}
           RELEASE_NAME: ${{ needs.generate-whats-new.outputs.name }}

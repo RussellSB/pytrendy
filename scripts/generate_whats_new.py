@@ -280,8 +280,8 @@ def _call_opencode(prompt: str, model: str) -> str | None:
     env = os.environ.copy()
     env.setdefault(
         "OPENCODE_PERMISSION",
-        '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", '
-        '"external_directory": "deny", "task": "deny"}',
+        '{"bash": "allow", "edit": "allow", "webfetch": "allow", "websearch": "allow", '
+        '"external_directory": "deny", "task": "allow"}',
     )
 
     full_prompt = system + "\n\n" + prompt

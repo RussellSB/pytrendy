@@ -21,48 +21,49 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 pip install --pre pytrendy
 ```
 
-I've confirmed the feature details from PR/issue #243, the implementation in `gradual_expand_contract.py`, and the regression tests in `tests/test_gradual_padding.py` (plus the verified default output in `tests/test_core_cases.py`). No `gradual_padding` images exist in `docs/img/whats-new/`, so I'm omitting image references entirely.
 v1.4.0-dev.4 introduces `gradual_padding`, a new `method_params` option that extends gradual trend segments forward into adjacent flat regions.
 
 ??? note "Gradual trend padding (`gradual_padding`)"
     A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
-    Set it to the number of days to pad (e.g. `28`); the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
-    Introduced: [#243](https://github.com/RussellSB/pytrendy/issues/243)
+    Set it to the number of days to pad; the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends — each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
+    Introduced: [#243](https://github.com/RussellSB/pytrendy/pull/243)
 
     The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.
 
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before — `gradual_padding=0` (default)</span>
+
+    ![Long gradual ramp stops at its turning point, leaving a large flat gap](img/whats-new/pre-release/whats_new_gradual_padding_before_pr243.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After — `gradual_padding=168`</span>
+
+    ![Ramp extends through the flat and is clamped before the next abrupt Down](img/whats-new/pre-release/whats_new_gradual_padding_after_pr243.png)
+
+    </div>
+    </div>
+
     ??? example "Code"
         ```python
+        import pandas as pd
         import pytrendy as pt
 
-        df = pt.load_data("series_synthetic")
-
-        # Default (gradual_padding=0): gradual segments end at their turning points
-        before = pt.detect_trends(df, date_col="date", value_col="gradual", plot=False)
-        print(before.df[["direction", "start", "end"]])
-        # direction       start         end
-        # Up         2025-01-02  2025-01-24
-        # Down       2025-01-25  2025-02-05
-        # Flat       2025-02-06  2025-02-09
-        # Up         2025-02-10  2025-03-17
-        # Down       2025-03-18  2025-04-01
-        # Up         2025-04-02  2025-05-08
-        # Down       2025-05-09  2025-06-17
-        # Flat       2025-06-18  2025-06-30
-
-        # gradual_padding=28: Down segments extend through trailing Flat regions
-        after = pt.detect_trends(
-            df, date_col="date", value_col="gradual",
-            method_params=dict(gradual_padding=28),
+        url = (
+            "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"
+            "tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"
         )
-        print(after.df[["direction", "start", "end"]])
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="gradual_ramp_90d",
+            method_params=dict(gradual_padding=168),
+        )
+        print(result.filter_segments(direction="Up/Down")[["direction", "start", "end"]])
         # direction       start         end
-        # Up         2025-01-02  2025-01-24
-        # Down       2025-01-25  2025-02-09   ← Flat absorbed, capped before next Up
-        # Up         2025-02-10  2025-03-17
-        # Down       2025-03-18  2025-04-01
-        # Up         2025-04-02  2025-05-08
-        # Down       2025-05-09  2025-06-30   ← padded to end of series
+        # Up         2026-04-07  2026-09-19   ← absorbed the flat, clamped before the abrupt Down
+        # Down       2026-09-27  2026-09-28
         ```
 
 ??? note "Long gradual ramps no longer truncated by false flat detection"
