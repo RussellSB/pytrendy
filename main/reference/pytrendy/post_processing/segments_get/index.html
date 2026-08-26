@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1644,7 +1644,7 @@ constraints to ensure meaningful segments are retained.</p>
 <span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extracts contiguous segments from a flagged time series.</span>
 
 <span class="sd">    This function scans the `trend_flag` column in the input DataFrame and groups</span>
@@ -1672,18 +1672,18 @@ constraints to ensure meaningful segments are retained.</p>
 <span class="sd">        list: </span>
 <span class="sd">            A list of dictionaries, each representing a segment with keys:</span>
 
-<span class="sd">            - `&#39;direction&#39;`: Segment type (e.g., `&#39;Up&#39;`, `&#39;Down&#39;`)</span>
-<span class="sd">            - `&#39;start&#39;`: Start date of the segment</span>
-<span class="sd">            - `&#39;end&#39;`: End date of the segment</span>
-<span class="sd">            - `&#39;segmenth_length&#39;`: Duration in days</span>
-<span class="sd">            - `&#39;time_index&#39;`: Sequential index of the segment</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">            - `'direction'`: Segment type (e.g., `'Up'`, `'Down'`)</span>
+<span class="sd">            - `'start'`: Start date of the segment</span>
+<span class="sd">            - `'end'`: End date of the segment</span>
+<span class="sd">            - `'segmenth_length'`: Duration in days</span>
+<span class="sd">            - `'time_index'`: Sequential index of the segment</span>
+<span class="sd">    """</span>
     <span class="n">map_direction</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;Unknown&#39;</span>
-        <span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Up&#39;</span>
-        <span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;Down&#39;</span>
-        <span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;Flat&#39;</span>
-        <span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;Noise&#39;</span>
+        <span class="mi">0</span><span class="p">:</span> <span class="s1">'Unknown'</span>
+        <span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">'Up'</span>
+        <span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="s1">'Down'</span>
+        <span class="p">,</span> <span class="o">-</span><span class="mi">2</span><span class="p">:</span> <span class="s1">'Flat'</span>
+        <span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">:</span> <span class="s1">'Noise'</span>
     <span class="p">}</span>
 
     <span class="n">segment_length</span> <span class="o">=</span> <span class="mi">0</span>
@@ -1691,26 +1691,26 @@ constraints to ensure meaningful segments are retained.</p>
     <span class="n">direction_prev</span> <span class="o">=</span> <span class="n">map_direction</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[[</span><span class="s1">&#39;trend_flag&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+    <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">df</span><span class="p">[[</span><span class="s1">'trend_flag'</span><span class="p">]]</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
         <span class="n">direction</span> <span class="o">=</span> <span class="n">map_direction</span><span class="p">[</span><span class="n">value</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">():</span> <span class="n">direction</span> <span class="o">=</span> <span class="s1">&#39;Done&#39;</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">max</span><span class="p">():</span> <span class="n">direction</span> <span class="o">=</span> <span class="s1">'Done'</span>
 
         <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span><span class="p">:</span>
             <span class="n">segment_length</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">elif</span> <span class="n">direction</span> <span class="o">!=</span> <span class="n">direction_prev</span><span class="p">:</span> 
             <span class="k">if</span> <span class="p">(</span>    <span class="c1"># Save only when satisfies min window for up/down or flat respectively.</span>
-                    <span class="p">(</span><span class="n">direction_prev</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">))</span> \
-                    <span class="ow">or</span> <span class="p">(</span><span class="n">direction_prev</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">))</span> \
-                    <span class="ow">or</span> <span class="p">(</span><span class="n">direction_prev</span> <span class="o">==</span> <span class="s1">&#39;Flat&#39;</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">))</span> \
+                    <span class="p">(</span><span class="n">direction_prev</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">]</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">))</span> \
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">direction_prev</span> <span class="o">==</span> <span class="s1">'Noise'</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">))</span> \
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">direction_prev</span> <span class="o">==</span> <span class="s1">'Flat'</span> <span class="ow">and</span> <span class="p">(</span><span class="n">segment_length_prev</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">))</span> \
                 <span class="p">):</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">segment_length_prev</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
 
                 <span class="c1"># Save the segment</span>
                 <span class="n">segments</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-                    <span class="s1">&#39;direction&#39;</span><span class="p">:</span> <span class="n">direction_prev</span>
-                    <span class="p">,</span> <span class="s1">&#39;start&#39;</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
-                    <span class="p">,</span> <span class="s1">&#39;end&#39;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+                    <span class="s1">'direction'</span><span class="p">:</span> <span class="n">direction_prev</span>
+                    <span class="p">,</span> <span class="s1">'start'</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                    <span class="p">,</span> <span class="s1">'end'</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
                 <span class="p">})</span>
                 <span class="n">segment_length</span><span class="o">=</span><span class="mi">0</span>
             <span class="k">else</span><span class="p">:</span>
@@ -1817,7 +1817,7 @@ constraints to ensure meaningful segments are retained.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/extra.js"></script>
       

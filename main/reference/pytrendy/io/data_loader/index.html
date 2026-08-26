@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1510,7 +1510,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">load_data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s1">&#39;series_synthetic&#39;</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">load_data</span><span class="p">(</span><span class="n">dataset</span><span class="o">=</span><span class="s1">'series_synthetic'</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1580,8 +1580,8 @@ A pandas DataFrame containing the requested dataset.</p>
 <span class="normal">29</span>
 <span class="normal">30</span>
 <span class="normal">31</span>
-<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">&#39;series_synthetic&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">32</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">(</span><span class="n">dataset</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'series_synthetic'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Loads sample datasets bundled with PyTrendy.</span>
 
 <span class="sd">    This provides quick access to preloaded datasets for testing and demonstration.</span>
@@ -1591,20 +1591,20 @@ A pandas DataFrame containing the requested dataset.</p>
 <span class="sd">        dataset (str, optional):</span>
 <span class="sd">            Name of the dataset to load. Options include:</span>
 
-<span class="sd">            - `&#39;series_synthetic&#39;`: A synthetic time series with embedded trends.</span>
-<span class="sd">            - `&#39;classes_signals&#39;`: Reference signals for classifying trends as gradual or abrupt.</span>
+<span class="sd">            - `'series_synthetic'`: A synthetic time series with embedded trends.</span>
+<span class="sd">            - `'classes_signals'`: Reference signals for classifying trends as gradual or abrupt.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        pd.DataFrame:</span>
 <span class="sd">            A pandas DataFrame containing the requested dataset.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;classes_signals&#39;</span><span class="p">,</span> <span class="s1">&#39;series_synthetic&#39;</span><span class="p">]</span>
+    <span class="n">options</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'classes_signals'</span><span class="p">,</span> <span class="s1">'series_synthetic'</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">dataset</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">options</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1"> is not a valid dataset to load from PyTrendy. Please try either of </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s1"> is not a valid dataset to load from PyTrendy. Please try either of </span><span class="si">{</span><span class="n">options</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="n">dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
-    <span class="n">file_path</span> <span class="o">=</span> <span class="n">dir_path</span> <span class="o">/</span> <span class="s2">&quot;data&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">dir_path</span> <span class="o">/</span> <span class="s2">"data"</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">dataset</span><span class="si">}</span><span class="s2">.csv"</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">df</span>
 </code></pre></div></td></tr></table></div>
@@ -1704,7 +1704,7 @@ A pandas DataFrame containing the requested dataset.</p>
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/extra.js"></script>
       

@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1793,7 +1793,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    This is the main function that runs trend detection end-to-end.</span>
 
 <span class="sd">    It runs the full PyTrendy pipeline in five stages: signal smoothing, segment extraction, boundary refinement, metric analysis, and optional visualization. </span>
@@ -1833,7 +1833,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">        PyTrendyResults:</span>
 <span class="sd">            An object encapsulating the detected segments and associated metadata.</span>
 <span class="sd">            Use this object to access segment statistics, rankings, and export utilities.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">date_col</span><span class="p">])</span>
     <span class="n">df</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="n">date_col</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1843,18 +1843,18 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="n">method_params</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Avoid mutable default argument by accepting None and constructing a new dict here</span>
 
     <span class="c1"># Trigger deprecation warning if old parameter is used    </span>
-    <span class="k">if</span> <span class="s1">&#39;is_abrupt_padded&#39;</span> <span class="ow">in</span> <span class="n">method_params</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s1">'is_abrupt_padded'</span> <span class="ow">in</span> <span class="n">method_params</span><span class="p">:</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;&#39;is_abrupt_padded&#39; in method_params is deprecated. &quot;</span>
-            <span class="s2">&quot;Use &#39;abrupt_padding&#39; only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28).&quot;</span><span class="p">,</span>
+            <span class="s2">"'is_abrupt_padded' in method_params is deprecated. "</span>
+            <span class="s2">"Use 'abrupt_padding' only instead, which is 0 by default. Set to the number of days to pad by (e.g. 28)."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="c1"># Configures trend detection heuristics</span>
     <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">&#39;abrupt_padding&#39;</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;abrupt_padding&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">&#39;avoid_noise&#39;</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;avoid_noise&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+        <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
     <span class="c1"># Core 5-step pipeline</span>
@@ -1963,7 +1963,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
       <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../javascripts/extra.js"></script>
       

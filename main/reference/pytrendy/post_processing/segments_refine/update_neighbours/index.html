@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1790,37 +1790,37 @@
 <span class="normal">94</span>
 <span class="normal">95</span>
 <span class="normal">96</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">new_end</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Adjusts the start of the next segment if it overlaps with the updated end.</span>
 
-<span class="sd">    Skips adjustment if the next segment is classified as &#39;abrupt&#39;, preserving its precision.</span>
+<span class="sd">    Skips adjustment if the next segment is classified as 'abrupt', preserving its precision.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        i (int): Index of the current segment.</span>
 <span class="sd">        new_end (str): Updated end date of the current segment.</span>
 <span class="sd">        segments (list): Original segment list.</span>
 <span class="sd">        segments_refined (list): Refined segment list being modified.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span> <span class="k">return</span>
-    <span class="n">old_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+    <span class="n">old_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span>
     <span class="n">next_segments</span> <span class="o">=</span> <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span>
 
     <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">nextseg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">next_segments</span><span class="p">):</span>
-        <span class="n">next_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
-        <span class="n">next_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="n">next_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
+        <span class="n">next_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
         <span class="n">i_neighbour</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Edge case 1: do not disturb next trends if abrupt or gradual. They will refine themselves in next iteration.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">]):</span>
             <span class="k">continue</span>
 
         <span class="c1"># Edge case 1.2: do not disturb noise spikes (leave precise)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">nextseg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Noise'</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="c1"># Edge case 2: swallow neighbours that get fully overlapped.</span>
         <span class="k">if</span> <span class="n">next_end</span> <span class="o">&gt;=</span> <span class="n">old_end</span> <span class="ow">and</span> <span class="n">next_end</span> <span class="o">&lt;=</span> <span class="n">new_end</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="c1"># Update when a valid neighbour of close enough distance.</span>
@@ -1828,7 +1828,7 @@
         <span class="n">old_dist</span> <span class="o">=</span> <span class="p">(</span><span class="n">next_start</span> <span class="o">-</span> <span class="n">old_end</span><span class="p">)</span><span class="o">.</span><span class="n">days</span>
         <span class="n">is_neighbour</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_dist</span> <span class="o">&lt;=</span> <span class="n">NEIGHBOUR_DISTANCE</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">old_dist</span> <span class="o">&lt;=</span> <span class="n">NEIGHBOUR_DISTANCE</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_neighbour</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">return</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -1935,38 +1935,38 @@
 <span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">update_prev_segment</span><span class="p">(</span><span class="n">i</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">new_start</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Adjusts the end of the previous segment if it overlaps with the updated start.</span>
 
-<span class="sd">    Skips adjustment if the previous segment is classified as &#39;abrupt&#39; or &#39;noise&#39;, preserving its precision.</span>
+<span class="sd">    Skips adjustment if the previous segment is classified as 'abrupt' or 'noise', preserving its precision.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        i (int): Index of the current segment.</span>
 <span class="sd">        new_start (str): Updated start date of the current segment.</span>
 <span class="sd">        segments (list): Original segment list.</span>
 <span class="sd">        segments_refined (list): Refined segment list being modified.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span> <span class="k">return</span>
-    <span class="n">old_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
+    <span class="n">old_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'start'</span><span class="p">])</span>
     <span class="n">prev_segments</span> <span class="o">=</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">[:</span><span class="n">i</span><span class="p">])</span>
 
     <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">prevseg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">prev_segments</span><span class="p">):</span>
-        <span class="n">prev_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span>
-        <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span>
+        <span class="n">prev_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
+        <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
         <span class="n">i_neighbour</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="p">(</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
 
         <span class="c1"># Edge case 1.1: do not disturb previous trends if abrupt. Update them if gradual however.</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">prevseg</span><span class="p">[</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;abrupt&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">]</span> <span class="ow">and</span> <span class="n">prevseg</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="c1"># # Edge case 1.2: do not disturb noise spikes (leave precise)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Noise&#39;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">prevseg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Noise'</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="c1"># Edge case 2: swallow neighbours that get fully overlapped.</span>
         <span class="k">if</span> <span class="n">prev_start</span> <span class="o">&gt;=</span> <span class="n">new_start</span> <span class="ow">and</span> <span class="n">prev_start</span> <span class="o">&lt;=</span> <span class="n">old_start</span><span class="p">:</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">continue</span>
 
         <span class="c1"># Update when a valid neighbour of close enough distance.</span>
@@ -1975,7 +1975,7 @@
         <span class="n">is_neighbour</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_dist</span> <span class="o">&lt;=</span> <span class="n">NEIGHBOUR_DISTANCE</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">old_dist</span> <span class="o">&lt;=</span> <span class="n">NEIGHBOUR_DISTANCE</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_neighbour</span><span class="p">:</span>
             <span class="n">neighbour_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">new_start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
-            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">&#39;end&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbour_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">segments_refined</span><span class="p">[</span><span class="n">i_neighbour</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">neighbour_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
             <span class="k">return</span>
 </code></pre></div></td></tr></table></div>
             </details>
@@ -2074,7 +2074,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../../javascripts/extra.js"></script>
       

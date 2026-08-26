@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1680,10 +1680,10 @@
 <span class="normal">81</span>
 <span class="normal">82</span>
 <span class="normal">83</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Classifies segments as &#39;gradual&#39; or &#39;abrupt&#39; using DTW against reference signals.</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Classifies segments as 'gradual' or 'abrupt' using DTW against reference signals.</span>
 
-<span class="sd">    Adds a `&#39;trend_class&#39;` key to each segment based on similarity to synthetic patterns.</span>
+<span class="sd">    Adds a `'trend_class'` key to each segment based on similarity to synthetic patterns.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): Time series DataFrame.</span>
@@ -1691,63 +1691,63 @@
 <span class="sd">        segments (list): List of segment dictionaries.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list: Segment list with added `&#39;trend_class&#39;` labels.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">        list: Segment list with added `'trend_class'` labels.</span>
+<span class="sd">    """</span>
 
     <span class="n">segments_classified</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
 
-    <span class="n">df_class</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;classes_signals&#39;</span><span class="p">)</span>
-    <span class="n">df_class</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df_class</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">(</span><span class="s1">'classes_signals'</span><span class="p">)</span>
+    <span class="n">df_class</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s1">'date'</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="n">df_class</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_class</span> <span class="o">-</span> <span class="n">df_class</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_class</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">df_class</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="s1">&#39;Down&#39;</span><span class="p">]:</span> 
+        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'Up'</span><span class="p">,</span> <span class="s1">'Down'</span><span class="p">]:</span> 
             <span class="k">continue</span>
 
         <span class="c1"># Skip reclassification for padded segments — their length is artificially inflated</span>
         <span class="c1"># by abrupt_padding, so DTW would wrongly classify them as gradual</span>
-        <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;padded&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">segment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'padded'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="k">continue</span>
 
         <span class="c1"># Assume some padding for abrupt cases</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">df_segment</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
         <span class="n">df_segment</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_segment</span> <span class="o">-</span> <span class="n">df_segment</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_segment</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">df_segment</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
 
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Up&#39;</span><span class="p">:</span> <span class="c1"># using value cleaned to not misclassify as abrupt when padded around noise</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">cost_gradual_up</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">&#39;gradual_up&#39;</span><span class="p">])</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">cost_abrupt_up</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">&#39;abrupt_up&#39;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Up'</span><span class="p">:</span> <span class="c1"># using value cleaned to not misclassify as abrupt when padded around noise</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cost_gradual_up</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">'gradual_up'</span><span class="p">])</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cost_abrupt_up</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">'abrupt_up'</span><span class="p">])</span>
 
             <span class="c1"># round up, so default to gradual if too close</span>
             <span class="n">cost_gradual_up</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cost_gradual_up</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">cost_abrupt_up</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cost_abrupt_up</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">cost_gradual_up</span><span class="p">,</span> <span class="n">cost_abrupt_up</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;gradual&#39;</span>
+                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'gradual'</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;abrupt&#39;</span>
+                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'abrupt'</span>
 
-        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">&#39;direction&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Down&#39;</span><span class="p">:</span> 
+        <span class="k">if</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Down'</span><span class="p">:</span> 
 
-            <span class="n">_</span><span class="p">,</span> <span class="n">cost_gradual_down</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">&#39;gradual_down&#39;</span><span class="p">])</span>
-            <span class="n">_</span><span class="p">,</span> <span class="n">cost_abrupt_down</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">&#39;value_cleaned&#39;</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">&#39;abrupt_down&#39;</span><span class="p">])</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cost_gradual_down</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">'gradual_down'</span><span class="p">])</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">cost_abrupt_down</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">dtw</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">df_class</span><span class="p">[</span><span class="s1">'abrupt_down'</span><span class="p">])</span>
 
             <span class="c1"># round up, so default to gradual if too close</span>
             <span class="n">cost_gradual_down</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cost_gradual_down</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">cost_abrupt_down</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">cost_abrupt_down</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">([</span><span class="n">cost_gradual_down</span><span class="p">,</span> <span class="n">cost_abrupt_down</span><span class="p">])</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;gradual&#39;</span>
+                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'gradual'</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;abrupt&#39;</span>
+                <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'abrupt'</span>
 
         <span class="c1"># Final condition, hard-classify graduals as abrupt if too short</span>
-        <span class="n">segment_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;end&#39;</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">&#39;start&#39;</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span>
+        <span class="n">segment_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span>
         <span class="k">if</span> <span class="n">segment_length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
-            <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;trend_class&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;abrupt&#39;</span>
+            <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'abrupt'</span>
 
     <span class="k">return</span> <span class="n">segments_classified</span>
 </code></pre></div></td></tr></table></div>
@@ -1847,7 +1847,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../../javascripts/extra.js"></script>
       

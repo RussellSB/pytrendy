@@ -19,7 +19,7 @@
       
       
       <link rel="icon" href="icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -27,7 +27,7 @@
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
@@ -1537,10 +1537,10 @@
 <p>Trend detection has several use cases, such as analysing stock prices, identifying demand patterns in seasonality, and scanning Google Trends at scale for emerging movements. A main use case is identifying different periods of marketing activity at scale, to help observationally measure the effectiveness of digital marketing. By applying it to daily marketing spend (treatment), it identifies valid treatment (uptrends/downtrends) and placebo (flat) periods for observational causal inference. Applied to the response of an experiment design, it can also flag periods of noise (such as sales promotions) to mitigate the risk of misleading indications.</p>
 <hr />
 <h2 id="features">Features</h2>
-<p><img alt="Gradual Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" />
-<img alt="Abrupt Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif" />
-<img alt="Noise Spikes" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif" />
-<img alt="Random Noise" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Random-Cropped.gif" /></p>
+<p><img alt="Gradual Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif" />
+<img alt="Abrupt Trends" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif" />
+<img alt="Noise Spikes" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif" />
+<img alt="Random Noise" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Random-Cropped.gif" /></p>
 <hr />
 <h2 id="installation">Installation</h2>
 <p>Install the package from PyPi.
@@ -1553,11 +1553,11 @@
 <h2 id="quickstart">Quickstart</h2>
 <p>Import pytrendy, and apply trend detection on daily time series data.
 <div class="language-py highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytrendy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pt</span>
-<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">&#39;series_synthetic&#39;</span><span class="p">)</span>
-<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">&#39;gradual&#39;</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">df</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">load_data</span><span class="p">(</span><span class="s1">'series_synthetic'</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pt</span><span class="o">.</span><span class="n">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="s1">'date'</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="s1">'gradual'</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">results</span><span class="o">.</span><span class="n">print_summary</span><span class="p">()</span>
 </code></pre></div>
-<img alt="" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/pytrendy-gradual.png" /></p>
+<img alt="" src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/pytrendy-gradual.png" /></p>
 <div class='transparent'>
 <div class="language-text highlight"><pre><span></span><code>Detected: 
 - 3 Uptrends. 
@@ -1585,7 +1585,7 @@ time_index
 </div>
 
 <p>Explore the strongest uptrends:
-<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;Up&#39;</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">&#39;change_rank&#39;</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
+<div class="language-py highlight"><pre><span></span><code><span class="n">results</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">'Up'</span><span class="p">,</span> <span class="n">sort_by</span><span class="o">=</span><span class="s1">'change_rank'</span><span class="p">)[:</span><span class="mi">3</span><span class="p">]</span>
 </code></pre></div></p>
 <table>
 <thead>
@@ -1731,7 +1731,7 @@ time_index
       <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="javascripts/extra.js"></script>
       
