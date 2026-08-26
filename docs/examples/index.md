@@ -7,7 +7,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
 <div class="examples-grid">
     <a class="example-card" href="fundamentals/gradual/">
         <div class="example-card__media">
-            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Gradual-Cropped.gif" alt="Gradual trend example preview">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Gradual-Cropped.gif" alt="Gradual trend example preview">
         </div>
         <div class="example-card__body">
             <h2>Gradual</h2>
@@ -17,7 +17,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
 
     <a class="example-card" href="fundamentals/abrupt/">
         <div class="example-card__media">
-            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Abrupt-Cropped.gif" alt="Abrupt trend example preview">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Abrupt-Cropped.gif" alt="Abrupt trend example preview">
         </div>
         <div class="example-card__body">
             <h2>Abrupt</h2>
@@ -27,7 +27,7 @@ Welcome to the Example Gallery! This provides a visual navigation to all the exa
 
     <a class="example-card" href="fundamentals/noise/">
         <div class="example-card__media">
-            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/develop/plots/Noise-Spikes-Cropped.gif" alt="Noise segment example preview">
+            <img src="https://raw.githubusercontent.com/RussellSB/pytrendy/refs/heads/main/plots/Noise-Spikes-Cropped.gif" alt="Noise segment example preview">
         </div>
         <div class="example-card__body">
             <h2>Noise</h2>
