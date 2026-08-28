@@ -14,17 +14,20 @@ class PyTrendyResults:
     enhanced metrics such as rankings and signal-to-noise ratios.
     """
 
-    def __init__(self, segments: list[dict]) -> None:
+    def __init__(self, segments: list[dict], index_type: str = 'date') -> None:
         """
         Initializes the results object with a list of segments.
 
         Args:
             segments (list):
                 List of dictionaries representing individual trend segments.
+            TODO Add desription for results type, if I want to go with this.
         """
         self.segments = segments
         self.trend_segments = [seg for seg in self.segments if 'trend_class' in seg] # Get segments that are trends (exclude flats and noise)
         
+        self.index_type = index_type
+
         self.set_best()
         self.set_df()
         self.set_summary()
@@ -70,7 +73,17 @@ class PyTrendyResults:
 
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
-        cols = ['time_index', 'direction', 'start', 'end', 'days', 'total_change', 'change_rank']
+
+        unit_descriptor = {
+            'date': 'days',
+            'integer': 'index steps',
+            'float': 'index steps',
+            'string': 'index steps',
+        }.get(self.index_type, 'days')
+
+        df = df.rename({'days' : unit_descriptor}, axis = 1)
+
+        cols = ['time_index', 'direction', 'start', 'end', unit_descriptor, 'total_change', 'change_rank']
         if len(changes) > 1:  #  only include trend_class if atleast one trend exists
             cols += ['trend_class']
         df = df[cols]
@@ -94,11 +107,17 @@ class PyTrendyResults:
         noise = self.summary['direction_counts']['Noise'] if 'Noise' in self.summary['direction_counts'] else 0 
         print(f'Detected: \n- {uptrends} Uptrends. \n- {downtrends} Downtrends.\n- {flats} Flats.\n- {noise} Noise.\n')
 
+        descriptor = 'dates'
+        if self.index_type in ['integer', 'float']:
+            descriptor = 'indexes'
+        elif self.index_type in ['string']:
+            descriptor = 'labels'
+
         if len(self.filter_segments(direction='Up/Down')) == 0:
             print('Detected no trends...')
             return
         else:
-            print(f'The best detected trend is {self.best["direction"]} between dates {self.best["start"]} - {self.best["end"]}\n')
+            print(f'The best detected trend is {self.best["direction"]} between {descriptor} {self.best["start"]} - {self.best["end"]}\n')
 
         print('Full Results:')
         print('-------------------------------------------------------------------------------\n', 

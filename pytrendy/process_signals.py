@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import math
 from scipy.signal import savgol_filter
 from scipy.stats import iqr
 from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
@@ -55,7 +56,9 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
     THRESHOLD_FLAT = 0.835 # Sensitivity to detecting flats as a fraction of min std (non-zero)
 
-    # 1. Noise detection via SNR.
+    assert pd.api.types.is_integer_dtype(df.index.dtype), f"Supplied Index has type {df.index.dtype}"
+
+    # 1. Noise detection via SNR. 
     # 1.1 Compute the SNR
     df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()
     df['noise'] = df[value_col] - df['signal']
@@ -86,15 +89,16 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         if len(after_ends) > 0:
             noise_end = after_ends[0]
         else:
-            noise_end = min(noise_start + pd.Timedelta(days=1), df.index[-1])
-        noise_segments.append(dict(start=noise_start, end=noise_end))
+            noise_end = min(noise_start + 1, df.index[-1])
+        noise_segments.append({'start': noise_start, 'end': noise_end})
+
 
     if len(noise_ends) > 0: # Adds noise end with no start if at beginning
         noise_end = noise_ends[0]
         early_starts = [start for start in noise_starts if start < noise_end]
         if len(early_starts) == 0:
-            noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
-            noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+            noise_start = max(noise_end - 1, df.index[0])
+            noise_segments.insert(0, {'start': noise_start, 'end': noise_end})
 
     # 1.4.2 Group noise segments if within a close enough distance of each other
     if len(noise_segments) <= 1:
@@ -103,7 +107,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         noise_segments_grouped = []
         prev_seg = noise_segments[0].copy()
         for i, seg in enumerate(noise_segments[1:]):
-            width = (seg['start'] - prev_seg['end']).days
+            width = (seg['start'] - prev_seg['end'])
             if width <= GROUPING_DISTANCE:
                 new_seg = {'start': prev_seg['start'], 'end': seg['end']}
                 noise_segments_grouped.append(new_seg)
@@ -122,9 +126,9 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     # 1.4.4 Refine the noise segments early
     for segment in noise_segments_grouped:
 
-        width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
+        width = (segment['end'] - segment['start'])
+        start = segment['start'] - 1
+        end = segment['end'] + 1
 
         # Cap to bounds of df in case at beginning or end.
         start = max(start, df.index.min())
@@ -147,25 +151,27 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
         # Define center as 30% - 70% of window.
-        center_start = (start + (0.3 * width_padded)).floor('D')
-        center_end   = (start + (0.7 * width_padded)).floor('D')
+        center_start = math.floor(start + (0.3 * width_padded)) #.floor('D') 
+        center_end   = math.floor(start + (0.7 * width_padded)) #.floor('D')
+
         is_central = ts_max >= center_start and ts_max <= center_end
 
         # Identify spike-type noise by peak in center, then shave for precision
         if is_central or not abrupt_ends:
-            df_left = df.loc[:ts_max+pd.Timedelta(days=1)].copy()
+            df_left = df.loc[:ts_max+1].copy()
             df_left['diff'] = df_left[value_col].diff(periods=-1).shift(-2)
             lowers = df_left.loc[df_left['diff'] > 0]
             if len(lowers) > 0:
                 noise_start = lowers.index[-1]
                 df.loc[start:noise_start, 'noise_flag'] = 0
 
-            df_right = df.loc[ts_max-pd.Timedelta(days=1):].copy()
+            df_right = df.loc[ts_max-1:].copy()
             df_right['diff'] = df_right[value_col].diff().shift(2)
             highers = df_right.loc[df_right['diff'] > 0]
             if len(highers) > 0:
                 noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
+
 
     # 2. Create a temporary signal with no noise
     # Following flat & trend detection logic assumes no noise in the signals it depends on

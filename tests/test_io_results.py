@@ -400,6 +400,7 @@ class TestResultsFilterSegments:
     @pytest.mark.core
     def test_filter_segments_by_direction_noise(self, outlier_signal):
         """Test filtering segments by 'Noise' direction."""
+
         results = pt.detect_trends(
             outlier_signal,
             date_col='date',
@@ -414,8 +415,11 @@ class TestResultsFilterSegments:
         assert len(noise_segments) == 1
         
         # Expected Noise segment from outlier signal
-        expected_noise = [
-            {'direction': 'Noise', 'start': '2025-02-19', 'end': '2025-02-21'},
+        expected_noise = [{
+             'direction': 'Noise', 
+             'start': pd.to_datetime('2025-02-19'), 
+             'end': pd.to_datetime('2025-02-21')
+            },
         ]
         
         assert_segments_match(noise_segments, expected_noise)
@@ -639,6 +643,35 @@ class TestResultsPrintSummary:
             print(f"print_summary raised exception: {e}")
         
         assert success
+
+    def test_print_summary_integer_index(self):
+        """Line 112: print_summary with integer index_type uses 'indexes' descriptor."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, value_col='gradual', plot=False,
+                                   method_params={'abrupt_padding': 0})
+        assert results.index_type == 'integer'
+        # Should not raise
+        results.print_summary()
+
+    def test_print_summary_string_index(self):
+        """Line 114: print_summary with string index_type uses 'labels' descriptor."""
+        df = pt.load_data('series_synthetic')
+        df['str_col'] = [f'S{i}' for i in range(len(df))]
+        results = pt.detect_trends(df, value_col='gradual', date_col='str_col',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results.index_type == 'string'
+        # Should not raise
+        results.print_summary()
+
+    def test_print_summary_float_index(self):
+        """print_summary with float index_type uses 'indexes' descriptor."""
+        df = pt.load_data('series_synthetic')
+        df['float_col'] = np.linspace(0, 1, len(df))
+        results = pt.detect_trends(df, value_col='gradual', date_col='float_col',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        assert results.index_type == 'float'
+        # Should not raise
+        results.print_summary()
 
 
 class TestResultsIntegration:

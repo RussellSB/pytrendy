@@ -1,11 +1,30 @@
 """**Visualize Detected Trends Over Time Series**"""
 
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
 
-def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
+
+def _safe_adjacent(index, pos, offset):
+    """
+    Safely get an adjacent index value with bounds checking.
+    
+    Args:
+        index: The index to access
+        pos: Current position in the index
+        offset: Offset from current position (+1 or -1)
+        
+    Returns:
+        The adjacent index value if within bounds, None otherwise
+    """
+    new_pos = pos + offset
+    if 0 <= new_pos < len(index):
+        return index[new_pos]
+    return None
+
+def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
     
@@ -19,6 +38,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             Name of the column containing the signal to plot.
         segments_enhanced (list):
             List of segment dictionaries containing keys like `'start'`, `'end'`, `'direction'`, `'trend_class'`, and `'change_rank'`.
+        index_type (str):
+            The type of index passed by the user. Different index types require different logic. Currently Accepted Index Types are: "date", "integer", "float".
         suppress_show (bool, optional):
             If True, suppresses the automatic display of the plot with plt.show(). Defaults to False.
         plot_params (dict, optional):
@@ -78,16 +99,29 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     # Plot the value line
     ax.plot(df.index, df[value_col], color='black', lw=1)
 
+
     # Add shaded regions with fill_between
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
     for i, seg in enumerate(segments_enhanced):
-        start = pd.to_datetime(seg['start'])
-        end = pd.to_datetime(seg['end'])
+        
+        if index_type == "date":
+            start = pd.to_datetime(seg['start'])
+            end = pd.to_datetime(seg['end'])
+        else:
+            start = seg['start']
+            end = seg['end']
+        
         color = color_map.get(seg['direction'], 'gray')
 
         # Get context on prev seg if possible
         prev_seg = segments_enhanced[i-1] if i-1 >= 0 else None
-        prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
+        if index_type == "date":
+            prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
+        elif index_type == 'string':
+            prev_neighbouring = prev_seg and (prev_seg['end'] == df.index[df.index.get_loc(start) - 1])
+        else:
+            prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
+
         is_prev_not_trend = prev_seg and (not ('trend_class' in prev_seg))
 
         # Current seg context
@@ -97,18 +131,32 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Get context on next seg if possible
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
-        next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        if index_type == 'date':
+            next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+        elif index_type == 'string':
+            end_pos = df.index.get_loc(end)
+            next_neighbouring = next_seg and (next_seg['start'] == _safe_adjacent(df.index, end_pos, 1))
+        else:
+            next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
+        
         next_seg_abrupt = next_seg and (('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt'))
         next_seg_noise = next_seg and (next_seg['direction'] == 'Noise')
 
         # Adjust starts when appropriate
         if is_abrupt or is_noise: 
-            start = start # Conditional logic for making abrupt visually tighter
+            pass  # Keep start as-is for abrupt/noise segments
         else: 
-            new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
+            if index_type == 'date':
+                new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
+            elif index_type == 'string':
+                start_pos = df.index.get_loc(start)
+                new_start = _safe_adjacent(df.index, start_pos, -1)
+            else:
+                new_start = start - 1 # Everything else displaced left start
 
             # Check validity of plot start adjustment
-            value_new_start = df.loc[new_start, value_col] if new_start in df.index else None
+            value_new_start = df.loc[new_start, value_col] if new_start is not None and new_start in df.index else None
+
             value = df.loc[start, value_col]
 
             valid_up_start = (value_new_start) and (seg['direction'] == 'Up') and (value_new_start < value)
@@ -117,20 +165,38 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 start = new_start # Apply left displacement only if valid
             else: 
                 # if not displaced and prev is not trend, adjust by plotting (as prev has already been drawn)
-                if is_prev_not_trend and prev_neighbouring: 
-                    prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
-                    prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
-                    mask = (df.index >= prev_end) & (df.index <= prev_new_end) 
-                    prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
-                    ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=default_params['alpha'])
-
+                if is_prev_not_trend and prev_neighbouring:
+                    if index_type == 'date':
+                        prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
+                        prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    elif index_type == 'string':
+                        prev_end = segments_enhanced[i-1]['end']
+                        prev_end_pos = df.index.get_loc(prev_end)
+                        prev_new_end = _safe_adjacent(df.index, prev_end_pos, 1)
+                    else:
+                        prev_end = segments_enhanced[i-1]['end']
+                        prev_new_end = prev_end + 1
+                    
+                    if prev_new_end is not None:
+                        if index_type == 'string':
+                            mask = (np.arange(len(df)) >= df.index.get_loc(prev_end)) & (np.arange(len(df)) <= df.index.get_loc(prev_new_end))
+                        else:
+                            mask = (df.index >= prev_end) & (df.index <= prev_new_end)
+                        prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
+                        ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=0.4)
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
-            new_end = end + pd.Timedelta(days=1)
+            if index_type == 'date':
+                new_end = end + pd.Timedelta(days=1)
+            elif index_type == 'string':
+                end_pos = df.index.get_loc(end)
+                new_end = _safe_adjacent(df.index, end_pos, 1)
+            else:
+                new_end = end + 1
             
             # Check validity of plot end adjustment
-            value_new_end = df.loc[new_end, value_col] if new_end in df.index else None
+            value_new_end = df.loc[new_end, value_col] if new_end is not None and new_end in df.index else None
             value = df.loc[end, value_col]
 
             valid_up_end = (value_new_end) and (seg['direction'] == 'Up') and (value_new_end > value)
@@ -141,16 +207,34 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             else: 
                 # if not displaced and next is noise, adjust for next plotting round
                 if next_seg_noise and next_neighbouring: 
-                    segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    if index_type == 'date':
+                        segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                    elif index_type == 'string':
+                        next_start_pos = df.index.get_loc(segments_enhanced[i+1]['start'])
+                        segments_enhanced[i+1]['start'] = _safe_adjacent(df.index, next_start_pos, -1)
+                    else:
+                        segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
         else: 
-            end = end
+            pass  # Keep end as-is
 
-        mask = (df.index >= start) & (df.index <= end) 
-        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=default_params['alpha'])
+        if index_type == 'string':
+            mask = (np.arange(len(df)) >= df.index.get_loc(start)) & (np.arange(len(df)) <= df.index.get_loc(end))
+        else:
+            mask = (df.index >= start) & (df.index <= end) 
+
+
+        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
         
         # Add ranking if up/down trend
         if 'change_rank' in seg and seg['direction'] in ['Up', 'Down']:
-            mid_date = start + (end - start) / 2
+            
+            if index_type in ['string']:
+                midpoint = int((df.index.get_loc(end) - df.index.get_loc(start))/2)
+                mid_date = df.index[df.index.get_loc(start) + midpoint]
+            else:
+                mid_date = start + (end - start) / 2
+
+            
             y_pos = ymax - (ymax - ymin) * 0.05
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
@@ -158,35 +242,60 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             
         # Add vertical line if next seg is same & touching
         if next_seg and next_neighbouring and next_seg['direction'] == seg['direction']:
-            line_date = pd.to_datetime(seg['end'])
+            if index_type == 'date':
+                line_date = pd.to_datetime(seg['end'])
+            else:
+                line_date = seg['end']
             ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
 
     # Set limits
-    first_date = df.index.min()
-    last_date = df.index.max()
+    if index_type == 'string':
+        first_date = df.index[0]
+        last_date = df.index[-1]
+    else:
+        first_date = df.index.min()
+        last_date = df.index.max()
+
     ax.set_xlim(first_date, last_date)
     ax.set_ylim(ymin, ymax)
 
-    # Major ticks: every 7 days (with labels)
-    ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+    if index_type == 'date':
+        # Major ticks: every 7 days (with labels)
+        ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-    # Minor ticks: every day (no labels, just tick marks/grid)
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
+        # Minor ticks: every day (no labels, just tick marks/grid)
+        ax.xaxis.set_minor_locator(mdates.DayLocator())
 
     # Rotate major tick labels
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
 
     # Optional: show grid lines for both
-    grid_params = default_params['grid']
-    if grid_params['visible']:
-        ax.grid(True, **{k: v for k, v in grid_params.items() if k != 'visible'})
+    grid_cfg = default_params['grid']
+    if grid_cfg.get('visible', True):
+        ax.grid(True, which=grid_cfg.get('which', 'major'),
+                color=grid_cfg.get('color', 'gray'), alpha=grid_cfg.get('alpha', 0.3))
     else:
-        ax.grid(False, which='both')
+        ax.grid(False)
+
+    if index_type == 'string':
+        ticks = ax.get_xticks()
+        labels = [t.get_text() for t in ax.get_xticklabels()]
+        n = 10
+        ax.set_xticks(ticks[::n])
+        ax.set_xticklabels(labels[::n], rotation=90, ha='center')
+
 
     ax.set_title(default_params['title'], fontsize=20)
-    ax.set_xlabel(default_params['xlabel'])
-    ax.set_ylabel(default_params['ylabel'])
+
+    if index_type == 'date':
+        ax.set_xlabel(default_params.get('xlabel', 'Date'))
+    elif index_type == 'string':
+        ax.set_xlabel(default_params.get('xlabel', 'Label'))
+    else:
+        ax.set_xlabel(default_params.get('xlabel', 'Index'))
+
+    ax.set_ylabel(default_params.get('ylabel', 'Value'))
 
     # Create custom legend handles (colored boxes)
     legend_handles = [
