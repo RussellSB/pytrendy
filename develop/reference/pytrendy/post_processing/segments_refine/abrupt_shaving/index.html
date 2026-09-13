@@ -672,6 +672,8 @@
       
         
       
+        
+      
     
     
     
@@ -764,6 +766,34 @@
     
   
     <code class='doc-symbol doc-symbol-nav'></code>plot_pytrendy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../io/prepare_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
   
 
     
@@ -1602,7 +1632,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.abrupt_shaving.shave_abrupt_trends(value_col)" class="doc doc-heading doc-heading-parameter">              <b><code>value_col</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>)
           –
           <div class="doc-md-description">
             <p>Name of the signal column.</p>
@@ -1610,7 +1640,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.abrupt_shaving.shave_abrupt_trends(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></code>)
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries with <code>'trend_class': 'abrupt'</code>.</p>
@@ -1618,7 +1648,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.abrupt_shaving.shave_abrupt_trends(method_params)" class="doc doc-heading doc-heading-parameter">              <b><code>method_params</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
           –
           <div class="doc-md-description">
             <p>Optional parameters for padding and control. Supported keys:</p>
@@ -1633,7 +1663,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 <p><span class="doc-section-title">Returns:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
+<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>]</code>
 )          –
           <div class="doc-md-description">
             <p>Refined segment list with adjusted abrupt boundaries.</p>
@@ -1792,9 +1822,7 @@ It also supports multi-abrupt detection within a segment and optional padding to
 <span class="normal">156</span>
 <span class="normal">157</span>
 <span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">second_pass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">init_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">159</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">second_pass</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">init_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Refines abrupt segments by detecting changepoints using z-score outliers.</span>
 
@@ -1831,8 +1859,8 @@ It also supports multi-abrupt detection within a segment and optional padding to
                 <span class="k">continue</span> <span class="c1"># exit if not re-classified for sake of second pass</span>
 
         <span class="c1"># Get start end padded for some leniency</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span>
         <span class="n">df_segment</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
         <span class="c1"># Use z-score on diff, to know when a change is an anomoly in the trend</span>
@@ -1856,23 +1884,23 @@ It also supports multi-abrupt detection within a segment and optional padding to
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">after_ends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">abrupt_end</span> <span class="o">=</span> <span class="n">after_ends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># first if aligned</span>
             <span class="k">elif</span> <span class="n">abrupt_start</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span> 
-                <span class="n">abrupt_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">abrupt_start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="n">abrupt_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">abrupt_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">continue</span> <span class="c1"># neither if not connected</span>
 
-            <span class="n">abrupt_subsegs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">abrupt_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">abrupt_end</span><span class="p">))</span>
+            <span class="n">abrupt_subsegs</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s1">'start'</span><span class="p">:</span> <span class="n">abrupt_start</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">:</span> <span class="n">abrupt_end</span><span class="p">})</span>
 
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">abrupt_ends</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span> <span class="c1"># Adds abrupt end with no start if at beginning</span>
             <span class="n">abrupt_end</span> <span class="o">=</span> <span class="n">abrupt_ends</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">early_starts</span> <span class="o">=</span> <span class="p">[</span><span class="n">start</span> <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">abrupt_starts</span> <span class="k">if</span> <span class="n">start</span> <span class="o">&lt;</span> <span class="n">abrupt_end</span><span class="p">]</span>
             <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">early_starts</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">abrupt_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">abrupt_end</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-                <span class="n">abrupt_subsegs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">start</span><span class="o">=</span><span class="n">abrupt_start</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="n">abrupt_end</span><span class="p">))</span>
+                <span class="n">abrupt_start</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">abrupt_end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+                <span class="n">abrupt_subsegs</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="p">{</span><span class="s1">'start'</span><span class="p">:</span> <span class="n">abrupt_start</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">:</span> <span class="n">abrupt_end</span><span class="p">})</span>
 
         <span class="c1"># If in right direction shave out abrupt subsegs from abrupt segment &amp; adjust neighbours.</span>
         <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">abrupt_subseg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">abrupt_subsegs</span><span class="p">):</span>
-            <span class="n">new_start</span> <span class="o">=</span> <span class="n">abrupt_subseg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">new_end</span> <span class="o">=</span> <span class="n">abrupt_subseg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">new_start</span> <span class="o">=</span> <span class="n">abrupt_subseg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">new_end</span> <span class="o">=</span> <span class="n">abrupt_subseg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
             <span class="n">start_value</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">new_start</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span> <span class="c1"># referencing df, in case outside df_segment scope</span>
             <span class="n">end_value</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">new_end</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span>
@@ -1885,17 +1913,17 @@ It also supports multi-abrupt detection within a segment and optional padding to
 
             <span class="k">if</span> <span class="n">j</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Update current segment</span>
-                <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span>
                 <span class="n">update_prev_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_start</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
 
-                <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">segments_refined</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span>
                 <span class="n">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="c1"># Wedge in a new segment between current and next (needed for edge case of many abrupt near each other)</span>
                 <span class="n">new_seg</span> <span class="o">=</span> <span class="n">segment</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-                <span class="n">new_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
-                <span class="n">new_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                <span class="n">new_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_start</span>
+                <span class="n">new_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span>
                 <span class="n">new_segments</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">i</span><span class="p">,</span> <span class="n">new_seg</span><span class="p">))</span>  <span class="c1"># Store with reference index</span>
 
     <span class="c1"># Add to main segments list, then sort.</span>
@@ -1903,17 +1931,15 @@ It also supports multi-abrupt detection within a segment and optional padding to
         <span class="n">insert_index</span> <span class="o">=</span> <span class="n">base_index</span> <span class="o">+</span> <span class="n">offset</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="n">segments_refined</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">new_seg</span><span class="p">)</span>
         <span class="n">segments</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">new_seg</span><span class="p">)</span>
-        <span class="n">update_prev_segment</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">new_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
-        <span class="n">update_next_segment</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">new_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]),</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">seg</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]))</span>
+        <span class="n">update_prev_segment</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">new_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">],</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
+        <span class="n">update_next_segment</span><span class="p">(</span><span class="n">insert_index</span><span class="p">,</span> <span class="n">new_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">],</span> <span class="n">segments</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">seg</span><span class="p">:</span> <span class="n">seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
 
     <span class="c1"># Second pass to pad segments if specified</span>
     <span class="n">segments_padded</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
 
-        <span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># metadata df, to filter by datetime easily</span>
-        <span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
-        <span class="n">meta_df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
+        <span class="n">meta_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># metadata df, to filter by easily</span>
 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">):</span>
 
@@ -1924,21 +1950,21 @@ It also supports multi-abrupt detection within a segment and optional padding to
             <span class="k">if</span> <span class="n">second_pass</span> <span class="ow">and</span> <span class="n">segment</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'padded'</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="k">continue</span>
 
-            <span class="n">abrupt_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
-            <span class="n">abrupt_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
+            <span class="n">abrupt_start</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
+            <span class="n">abrupt_end</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span>
 
             <span class="c1"># Simulate new end with padding and cater for any overlaps it might cause</span>
-            <span class="n">new_end</span> <span class="o">=</span> <span class="n">abrupt_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="n">method_params</span><span class="p">[</span><span class="s1">'abrupt_padding'</span><span class="p">])</span>
+            <span class="n">new_end</span> <span class="o">=</span> <span class="n">abrupt_end</span> <span class="o">+</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">'abrupt_padding'</span><span class="p">]</span>
             <span class="n">overlaps</span> <span class="o">=</span> <span class="n">meta_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">abrupt_end</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">meta_df</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">new_end</span><span class="p">)]</span>
             <span class="n">overlaps_nonflats</span> <span class="o">=</span> <span class="n">overlaps</span><span class="p">[</span><span class="n">overlaps</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span><span class="o">!=</span><span class="s1">'Flat'</span><span class="p">]</span>
 
             <span class="c1"># Adjust padding to be before first nonflat segment that it would overlap</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">overlaps_nonflats</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
                 <span class="n">first_notflat_overlap</span> <span class="o">=</span> <span class="n">overlaps_nonflats</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                <span class="n">new_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">first_notflat_overlap</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">new_end</span> <span class="o">=</span> <span class="n">first_notflat_overlap</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span>
 
             <span class="n">new_end</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">new_end</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># make sure doesnt go out of bounds</span>
-            <span class="n">segments_padded</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+            <span class="n">segments_padded</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_end</span>
             <span class="n">update_next_segment</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">new_end</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">segments_padded</span><span class="p">)</span> <span class="c1"># will always be a flat it adjusts/overwrites</span>
 
             <span class="c1"># Store meta data that got padded &amp; stretched out</span>

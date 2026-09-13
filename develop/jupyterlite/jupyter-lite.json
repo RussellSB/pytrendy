@@ -14,7 +14,7 @@
     "federated_extensions": [
       {
         "extension": "./extension",
-        "load": "static/remoteEntry.14ef810bb410daaf.js",
+        "load": "static/remoteEntry.abcac41d5ca77040.js",
         "name": "@jupyterlite/pyodide-kernel-extension"
       },
       {
@@ -403,7 +403,7 @@
     "litePluginSettings": {
       "@jupyterlite/pyodide-kernel-extension:kernel": {
         "pipliteUrls": [
-          "./extensions/@jupyterlite/pyodide-kernel-extension/static/pypi/all.json?sha256=b0fbc8323d9394c8d15587f70bdadd88843643fc9b7cb0595fdc4fbc86af168c"
+          "./extensions/@jupyterlite/pyodide-kernel-extension/static/pypi/all.json?sha256=94e75a51d1c49df7d0c23591188ff4a7ca5475efe7332814b3e5c4b980ef5a71"
         ]
       }
     },

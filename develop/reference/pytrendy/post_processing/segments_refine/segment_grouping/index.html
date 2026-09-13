@@ -672,6 +672,8 @@
       
         
       
+        
+      
     
     
     
@@ -764,6 +766,34 @@
     
   
     <code class='doc-symbol doc-symbol-nav'></code>plot_pytrendy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../io/prepare_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
   
 
     
@@ -1534,7 +1564,7 @@
     <ul>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.segment_grouping.group_segments(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></code>)
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries.</p>
@@ -1546,7 +1576,7 @@
 <p><span class="doc-section-title">Returns:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
+<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>]</code>
 )          –
           <div class="doc-md-description">
             <p>Grouped segment list.</p>
@@ -1664,7 +1694,7 @@
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span>
             <span class="ow">and</span> <span class="n">segment_history</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span>
             <span class="ow">and</span> <span class="p">((</span><span class="ow">not</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">'abrupt'</span><span class="p">))</span> <span class="c1"># dont group up abrupt trends</span>
         <span class="p">):</span>
             <span class="c1"># same direction and within allowed distance -&gt; extend history</span>
@@ -1673,7 +1703,7 @@
             <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span>
             <span class="ow">and</span> <span class="n">segment_history</span>
             <span class="ow">and</span> <span class="p">((</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">))</span> 
-            <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="mi">1</span>
         <span class="p">):</span>
             <span class="c1"># same direction and within tight allowed distance for abrupt -&gt; extend history</span>
             <span class="n">segment_history</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">segment</span><span class="p">)</span>

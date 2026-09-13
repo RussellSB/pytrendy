@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://russellsb.github.io/pytrendy/develop/reference/pytrendy/io/results_pytrendy/">
       
       
-        <link rel="prev" href="../plot_pytrendy/">
+        <link rel="prev" href="../prepare_index/">
       
       
         <link rel="next" href="../../post_processing/">
@@ -674,6 +674,8 @@
       
         
       
+        
+      
     
     
     
@@ -783,6 +785,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../prepare_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -862,6 +892,17 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;segments
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.results_pytrendy.PyTrendyResults(index_type)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index_type
       
     </span>
   </a>
@@ -1541,6 +1582,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.io.results_pytrendy.PyTrendyResults(index_type)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index_type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1698,7 +1750,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="s1">'date'</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1717,10 +1769,22 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
     <ul>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.io.results_pytrendy.PyTrendyResults(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></code>)
           –
           <div class="doc-md-description">
             <p>List of dictionaries representing individual trend segments.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.results_pytrendy.PyTrendyResults(index_type)" class="doc doc-heading doc-heading-parameter">              <b><code>index_type</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>, default:
+                  <code>&#39;date&#39;</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>The type of the index used for the segments (<code>'date'</code>, <code>'datetime64'</code>,
+<code>'integer'</code>, <code>'float'</code>, or <code>'string'</code>). Used to render summaries with the
+appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>). Defaults to <code>'date'</code>.</p>
           </div>
         </li>
     </ul>
@@ -1747,16 +1811,28 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 <span class="normal">27</span>
 <span class="normal">28</span>
 <span class="normal">29</span>
-<span class="normal">30</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">30</span>
+<span class="normal">31</span>
+<span class="normal">32</span>
+<span class="normal">33</span>
+<span class="normal">34</span>
+<span class="normal">35</span>
+<span class="normal">36</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">index_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'date'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Initializes the results object with a list of segments.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        segments (list):</span>
 <span class="sd">            List of dictionaries representing individual trend segments.</span>
+<span class="sd">        index_type (str):</span>
+<span class="sd">            The type of the index used for the segments (``'date'``, ``'datetime64'``,</span>
+<span class="sd">            ``'integer'``, ``'float'``, or ``'string'``). Used to render summaries with the</span>
+<span class="sd">            appropriate descriptor (e.g. ``'days'`` vs ``'index steps'``). Defaults to ``'date'``.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">segments</span> <span class="o">=</span> <span class="n">segments</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">trend_segments</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments</span> <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">seg</span><span class="p">]</span> <span class="c1"># Get segments that are trends (exclude flats and noise)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">index_type</span> <span class="o">=</span> <span class="n">index_type</span>
 
     <span class="bp">self</span><span class="o">.</span><span class="n">set_best</span><span class="p">()</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">set_df</span><span class="p">()</span>
@@ -1797,7 +1873,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
     <ul>
         <li class="doc-section-item field-body">
 <h4 id="pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments(direction)" class="doc doc-heading doc-heading-parameter">              <b><code>direction</code></b>
-</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>, default:
                   <code>&#39;Any&#39;</code>
 )
           –
@@ -1807,7 +1883,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
         </li>
         <li class="doc-section-item field-body">
 <h4 id="pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments(sort_by)" class="doc doc-heading doc-heading-parameter">              <b><code>sort_by</code></b>
-</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>, default:
                   <code>&#39;time_index&#39;</code>
 )
           –
@@ -1817,7 +1893,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
         </li>
         <li class="doc-section-item field-body">
 <h4 id="pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments(format)" class="doc doc-heading doc-heading-parameter">              <b><code>format</code></b>
-</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>, default:
+</h4>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>, default:
                   <code>&#39;df&#39;</code>
 )
           –
@@ -1831,7 +1907,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 <p><span class="doc-section-title">Returns:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a> | <span title="pandas.DataFrame">DataFrame</span></code>
+              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a> | <span title="pandas.DataFrame">DataFrame</span></code>
           –
           <div class="doc-md-description">
             <p>Union[<code>list</code>, <code>pd.DataFrame</code>]: Filtered and sorted segments in the specified format.</p>
@@ -1842,29 +1918,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span>
-<span class="normal">129</span>
-<span class="normal">130</span>
-<span class="normal">131</span>
-<span class="normal">132</span>
-<span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span>
-<span class="normal">145</span>
-<span class="normal">146</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
@@ -1889,7 +1943,29 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 <span class="normal">168</span>
 <span class="normal">169</span>
 <span class="normal">170</span>
-<span class="normal">171</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'Any'</span><span class="p">,</span> <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'time_index'</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'df'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'Any'</span><span class="p">,</span> <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'time_index'</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'df'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Filters and sorts segments based on direction and ranking.</span>
 
@@ -1962,29 +2038,35 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
-<span class="normal"> 85</span>
-<span class="normal"> 86</span>
-<span class="normal"> 87</span>
-<span class="normal"> 88</span>
-<span class="normal"> 89</span>
-<span class="normal"> 90</span>
-<span class="normal"> 91</span>
-<span class="normal"> 92</span>
-<span class="normal"> 93</span>
-<span class="normal"> 94</span>
-<span class="normal"> 95</span>
-<span class="normal"> 96</span>
-<span class="normal"> 97</span>
-<span class="normal"> 98</span>
-<span class="normal"> 99</span>
-<span class="normal">100</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
 <span class="normal">104</span>
 <span class="normal">105</span>
-<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prints a readable summary of detected trends.</span>
 
@@ -1997,11 +2079,17 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
     <span class="n">noise</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s1">'direction_counts'</span><span class="p">][</span><span class="s1">'Noise'</span><span class="p">]</span> <span class="k">if</span> <span class="s1">'Noise'</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s1">'direction_counts'</span><span class="p">]</span> <span class="k">else</span> <span class="mi">0</span> 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Detected: </span><span class="se">\n</span><span class="s1">- </span><span class="si">{</span><span class="n">uptrends</span><span class="si">}</span><span class="s1"> Uptrends. </span><span class="se">\n</span><span class="s1">- </span><span class="si">{</span><span class="n">downtrends</span><span class="si">}</span><span class="s1"> Downtrends.</span><span class="se">\n</span><span class="s1">- </span><span class="si">{</span><span class="n">flats</span><span class="si">}</span><span class="s1"> Flats.</span><span class="se">\n</span><span class="s1">- </span><span class="si">{</span><span class="n">noise</span><span class="si">}</span><span class="s1"> Noise.</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
+    <span class="n">descriptor</span> <span class="o">=</span> <span class="s1">'dates'</span>
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'integer'</span><span class="p">,</span> <span class="s1">'float'</span><span class="p">]:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="s1">'indexes'</span>
+    <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">index_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'string'</span><span class="p">]:</span>
+        <span class="n">descriptor</span> <span class="o">=</span> <span class="s1">'labels'</span>
+
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">filter_segments</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">'Up/Down'</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s1">'Detected no trends...'</span><span class="p">)</span>
         <span class="k">return</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'The best detected trend is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"direction"</span><span class="p">]</span><span class="si">}</span><span class="s1"> between dates </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'The best detected trend is </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"direction"</span><span class="p">]</span><span class="si">}</span><span class="s1"> between </span><span class="si">{</span><span class="n">descriptor</span><span class="si">}</span><span class="s1"> </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"start"</span><span class="p">]</span><span class="si">}</span><span class="s1"> - </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">best</span><span class="p">[</span><span class="s2">"end"</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s1">'</span><span class="p">)</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s1">'Full Results:'</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="s1">'-------------------------------------------------------------------------------</span><span class="se">\n</span><span class="s1">'</span><span class="p">,</span> 
@@ -2037,18 +2125,18 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">38</span>
 <span class="normal">39</span>
 <span class="normal">40</span>
 <span class="normal">41</span>
 <span class="normal">42</span>
-<span class="normal">43</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">43</span>
+<span class="normal">44</span>
+<span class="normal">45</span>
+<span class="normal">46</span>
+<span class="normal">47</span>
+<span class="normal">48</span>
+<span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.</span>
 
@@ -2090,21 +2178,21 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">108</span>
-<span class="normal">109</span>
-<span class="normal">110</span>
-<span class="normal">111</span>
-<span class="normal">112</span>
-<span class="normal">113</span>
-<span class="normal">114</span>
-<span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.</span>
 
@@ -2147,13 +2235,7 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">51</span>
 <span class="normal">52</span>
 <span class="normal">53</span>
 <span class="normal">54</span>
@@ -2184,7 +2266,23 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 <span class="normal">79</span>
 <span class="normal">80</span>
 <span class="normal">81</span>
-<span class="normal">82</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">82</span>
+<span class="normal">83</span>
+<span class="normal">84</span>
+<span class="normal">85</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span>
+<span class="normal">91</span>
+<span class="normal">92</span>
+<span class="normal">93</span>
+<span class="normal">94</span>
+<span class="normal">95</span>
+<span class="normal">96</span>
+<span class="normal">97</span>
+<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.</span>
 
@@ -2212,7 +2310,17 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
 
     <span class="c1"># Set summary df (without extra details)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span>
-    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'time_index'</span><span class="p">,</span> <span class="s1">'direction'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">,</span> <span class="s1">'days'</span><span class="p">,</span> <span class="s1">'total_change'</span><span class="p">,</span> <span class="s1">'change_rank'</span><span class="p">]</span>
+
+    <span class="n">unit_descriptor</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">'date'</span><span class="p">:</span> <span class="s1">'days'</span><span class="p">,</span>
+        <span class="s1">'integer'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
+        <span class="s1">'float'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
+        <span class="s1">'string'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
+    <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_type</span><span class="p">,</span> <span class="s1">'days'</span><span class="p">)</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'days'</span> <span class="p">:</span> <span class="n">unit_descriptor</span><span class="p">},</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'time_index'</span><span class="p">,</span> <span class="s1">'direction'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">,</span> <span class="n">unit_descriptor</span><span class="p">,</span> <span class="s1">'total_change'</span><span class="p">,</span> <span class="s1">'change_rank'</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1">#  only include trend_class if atleast one trend exists</span>
         <span class="n">cols</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>

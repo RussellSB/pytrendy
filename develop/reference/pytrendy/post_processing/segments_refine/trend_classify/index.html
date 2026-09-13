@@ -672,6 +672,8 @@
       
         
       
+        
+      
     
     
     
@@ -764,6 +766,34 @@
     
   
     <code class='doc-symbol doc-symbol-nav'></code>plot_pytrendy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../io/prepare_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
   
 
     
@@ -1578,7 +1608,7 @@
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.trend_classify.classify_trends(value_col)" class="doc doc-heading doc-heading-parameter">              <b><code>value_col</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>)
           –
           <div class="doc-md-description">
             <p>Name of the signal column.</p>
@@ -1586,7 +1616,7 @@
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.trend_classify.classify_trends(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></code>)
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries.</p>
@@ -1598,7 +1628,7 @@
 <p><span class="doc-section-title">Returns:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
+<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>]</code>
 )          –
           <div class="doc-md-description">
             <p>Segment list with added <code>'trend_class'</code> labels.</p>
@@ -1711,8 +1741,8 @@
             <span class="k">continue</span>
 
         <span class="c1"># Assume some padding for abrupt cases</span>
-        <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">2</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">+</span> <span class="mi">2</span>
 
         <span class="n">df_segment</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">]</span>
         <span class="n">df_segment</span> <span class="o">=</span> <span class="p">(</span><span class="n">df_segment</span> <span class="o">-</span> <span class="n">df_segment</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">df_segment</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">df_segment</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
@@ -1745,7 +1775,7 @@
                 <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'abrupt'</span>
 
         <span class="c1"># Final condition, hard-classify graduals as abrupt if too short</span>
-        <span class="n">segment_length</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]))</span><span class="o">.</span><span class="n">days</span>
+        <span class="n">segment_length</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">segment_length</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
             <span class="n">segments_classified</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'abrupt'</span>
 
