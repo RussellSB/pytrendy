@@ -183,7 +183,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                         else:
                             mask = (df.index >= prev_end) & (df.index <= prev_new_end)
                         prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
-                        ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=0.4)
+                        ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=default_params['alpha'])
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
@@ -223,7 +223,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             mask = (df.index >= start) & (df.index <= end) 
 
 
-        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=0.4)
+        ax.fill_between(df.index[mask], ymin, ymax, color=color, alpha=default_params['alpha'])
         
         # Add ranking if up/down trend
         if 'change_rank' in seg and seg['direction'] in ['Up', 'Down']:
