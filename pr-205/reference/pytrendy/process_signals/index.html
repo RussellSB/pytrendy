@@ -1657,8 +1657,6 @@
           <div class="doc-md-description">
             <p>Optional parameters to customize detection heuristics. Supported keys:</p>
 <ul>
-<li><strong>is_abrupt_padded</strong> (<code>bool</code>): Whether to pad abrupt transitions between segments. Defaults to <code>False</code>.</li>
-<li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad around abrupt transitions. Only referenced when <code>is_abrupt_padded</code> is <code>True</code>. Defaults to <code>28</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
 </ul>
           </div>
@@ -1938,9 +1936,7 @@
 <span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies signal processing techniques to classify regions of a time series.</span>
 
@@ -1969,8 +1965,6 @@
 <span class="sd">        method_params (dict, optional):</span>
 <span class="sd">            Optional parameters to customize detection heuristics. Supported keys:</span>
 
-<span class="sd">            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.</span>
-<span class="sd">            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
 <span class="sd">        debug (bool, optional):</span>
 <span class="sd">            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.</span>
@@ -2084,8 +2078,8 @@
         <span class="n">ts_max</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">:</span><span class="n">end</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">idxmax</span><span class="p">()</span>
 
         <span class="c1"># Define center as 30% - 70% of window.</span>
-        <span class="n">center_start</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">width_padded</span><span class="p">))</span> <span class="c1">#.floor('D') </span>
-        <span class="n">center_end</span>   <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.7</span> <span class="o">*</span> <span class="n">width_padded</span><span class="p">))</span> <span class="c1">#.floor('D')</span>
+        <span class="n">center_start</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.3</span> <span class="o">*</span> <span class="n">width_padded</span><span class="p">))</span>
+        <span class="n">center_end</span>   <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">start</span> <span class="o">+</span> <span class="p">(</span><span class="mf">0.7</span> <span class="o">*</span> <span class="n">width_padded</span><span class="p">))</span>
 
         <span class="n">is_central</span> <span class="o">=</span> <span class="n">ts_max</span> <span class="o">&gt;=</span> <span class="n">center_start</span> <span class="ow">and</span> <span class="n">ts_max</span> <span class="o">&lt;=</span> <span class="n">center_end</span>
 

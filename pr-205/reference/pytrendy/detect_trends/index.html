@@ -1697,8 +1697,7 @@ It optionally visualizes the results and returns a structured object containing 
 </h3>              (<code><span title="pandas.DataFrame">DataFrame</span></code>)
           –
           <div class="doc-md-description">
-            <p>Input time series data containing at least the specified <code>date_col</code> and <code>value_col</code>.
-The <code>date_col</code> must contain datetime-like values (daily frequency recommended).</p>
+            <p>Input time series data containing at least the specified <code>date_col</code> and <code>value_col</code>.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1740,6 +1739,7 @@ Defaults to <code>True</code>.</p>
             <p>Optional parameters to customize detection heuristics. Supported keys:</p>
 <ul>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad around abrupt transitions. Defaults to <code>0</code>.</li>
+<li><strong>gradual_padding</strong> (<code>int</code>): Number of days to pad after gradual trend ends. Defaults to <code>0</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
 </ul>
           </div>
@@ -1892,7 +1892,15 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">109</span>
 <span class="normal">110</span>
 <span class="normal">111</span>
-<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">112</span>
+<span class="normal">113</span>
+<span class="normal">114</span>
+<span class="normal">115</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -1919,7 +1927,6 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame):</span>
 <span class="sd">            Input time series data containing at least the specified `date_col` and `value_col`.</span>
-<span class="sd">            The `date_col` must contain datetime-like values (daily frequency recommended).</span>
 <span class="sd">        value_col (str):</span>
 <span class="sd">            Name of the column containing the primary signal to analyse for trend detection.</span>
 <span class="sd">        date_col (str|None):</span>
@@ -1931,6 +1938,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            Optional parameters to customize detection heuristics. Supported keys:</span>
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.</span>
+<span class="sd">            - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
@@ -1953,6 +1961,13 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            An object encapsulating the detected segments and associated metadata.</span>
 <span class="sd">            Use this object to access segment statistics, rankings, and export utilities.</span>
 <span class="sd">    """</span>
+    <span class="c1"># Reject the deprecated positional order detect_trends(df, date_col, value_col).</span>
+    <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">is_legacy_positional_order</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+            <span class="s2">"detect_trends received arguments in the deprecated (date_col, value_col) order. "</span>
+            <span class="s2">"Pass value_col first: detect_trends(df, value_col, date_col=...)."</span>
+        <span class="p">)</span>
+
     <span class="c1"># Stage the DataFrame on an internal integer index, keeping the external index</span>
     <span class="c1"># values and a lookup so boundaries can be remapped back later.</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">,</span> <span class="n">index_type</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">prepare_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">)</span>
@@ -1972,6 +1987,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="c1"># Configures trend detection heuristics</span>
     <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'gradual_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
         <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
