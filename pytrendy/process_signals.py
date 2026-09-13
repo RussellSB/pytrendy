@@ -36,8 +36,6 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         method_params (dict, optional):
             Optional parameters to customize detection heuristics. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
