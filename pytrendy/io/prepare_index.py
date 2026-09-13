@@ -59,6 +59,35 @@ def detect_index_type(df: pd.DataFrame, date_col: str) -> str:
         raise NotImplementedError(f"date_col has unimplemented dtype {df[date_col].dtype}")
 
 
+def is_legacy_positional_order(df: pd.DataFrame, value_col: str, date_col: str) -> bool:
+    """
+    Detect the deprecated ``detect_trends(df, date_col, value_col)`` positional order.
+
+    Under the old API the first positional column was always date-like (it was passed
+    through ``pd.to_datetime``) and the second was the numeric value column. So if the
+    column currently bound as ``value_col`` is date-like while ``date_col`` is numeric,
+    the caller almost certainly used the legacy order.
+
+    Args:
+        df (pd.DataFrame): Input DataFrame.
+        value_col (str): Column currently bound as the value/signal column.
+        date_col (str): Column currently bound as the date/index column.
+
+    Returns:
+        bool: True if the arguments appear to be in the legacy (date_col, value_col) order.
+    """
+    value_dtype = df[value_col].dtype
+    date_dtype = df[date_col].dtype
+
+    value_is_datelike = pd.api.types.is_datetime64_any_dtype(value_dtype) or (
+        pd.api.types.is_string_dtype(value_dtype)
+        and pd.to_datetime(df[value_col], errors="coerce").notna().all()
+    )
+    date_is_numeric = pd.api.types.is_numeric_dtype(date_dtype)
+
+    return value_is_datelike and date_is_numeric
+
+
 def build_index_lookup(external_index) -> dict:
     """
     Build a lookup mapping internal integer positions to external index values.

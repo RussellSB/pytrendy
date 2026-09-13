@@ -256,3 +256,19 @@ class TestNextNoiseFill:
         assert_segments_in_a_haystack(results.segments, [
             {'direction': 'Down', 'start': pd.Timestamp('2025-01-02'), 'end': pd.Timestamp('2025-01-18')},
         ])
+
+
+class TestLegacyPositionalOrder:
+    """detect_trends rejects the deprecated (date_col, value_col) positional order."""
+
+    def test_old_positional_order_raises(self):
+        """Passing (date_col, value_col) positionally raises a TypeError."""
+        df = pt.load_data('series_synthetic')
+        with pytest.raises(TypeError, match="value_col first"):
+            pt.detect_trends(df, 'date', 'gradual', plot=False)
+
+    def test_new_positional_order_ok(self):
+        """Passing (value_col, date_col) positionally works without error."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, 'gradual', 'date', plot=False)
+        assert results is not None

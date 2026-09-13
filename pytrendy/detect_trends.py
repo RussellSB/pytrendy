@@ -72,6 +72,13 @@ def detect_trends(df: pd.DataFrame,
             An object encapsulating the detected segments and associated metadata.
             Use this object to access segment statistics, rankings, and export utilities.
     """
+    # Reject the deprecated positional order detect_trends(df, date_col, value_col).
+    if date_col is not None and prepare_index.is_legacy_positional_order(df, value_col, date_col):
+        raise TypeError(
+            "detect_trends received arguments in the deprecated (date_col, value_col) order. "
+            "Pass value_col first: detect_trends(df, value_col, date_col=...)."
+        )
+
     # Stage the DataFrame on an internal integer index, keeping the external index
     # values and a lookup so boundaries can be remapped back later.
     df, external_index, index_lookup, index_type = prepare_index.prepare_index(df, date_col, value_col)
