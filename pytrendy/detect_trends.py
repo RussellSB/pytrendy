@@ -41,14 +41,14 @@ def detect_trends(df: pd.DataFrame,
         value_col (str):
             Name of the column containing the primary signal to analyse for trend detection.
         date_col (str|None):
-            Historically, this represents the name of the column containing dates, but pytrendy now allows for indexes of any type to be used. In general, this column represents a human readable reference to the x-position of the sequence. Normally this would be a date or timestamp, but any unique set of values could be used. Default is 'None', in which case an integer sequence will be generated and used to identify segments.
+            Column giving the x-axis position of each observation. Typically dates, but any unique, sortable values (integer, float, or string) are supported. If not specified, the DataFrame's index is used.
         plot (bool, optional):
             If `True`, generates a matplotlib plot showing the detected trend segments over the original signal.
             Defaults to `True`.
         method_params (dict, optional):
             Optional parameters to customize detection heuristics. Supported keys:
 
-            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.
+            - **abrupt_padding** (`int`): Number of days to pad after abrupt transitions. Defaults to `0`.
             - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         plot_params (dict, optional):
