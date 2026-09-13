@@ -38,7 +38,6 @@ def detect_trends(df: pd.DataFrame,
     Args:
         df (pd.DataFrame):
             Input time series data containing at least the specified `date_col` and `value_col`.
-            The `date_col` must contain datetime-like values (daily frequency recommended).
         value_col (str):
             Name of the column containing the primary signal to analyse for trend detection.
         date_col (str|None):

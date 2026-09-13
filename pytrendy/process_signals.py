@@ -149,8 +149,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
         # Define center as 30% - 70% of window.
-        center_start = math.floor(start + (0.3 * width_padded)) #.floor('D') 
-        center_end   = math.floor(start + (0.7 * width_padded)) #.floor('D')
+        center_start = math.floor(start + (0.3 * width_padded))
+        center_end   = math.floor(start + (0.7 * width_padded))
 
         is_central = ts_max >= center_start and ts_max <= center_end
 

@@ -21,7 +21,10 @@ class PyTrendyResults:
         Args:
             segments (list):
                 List of dictionaries representing individual trend segments.
-            TODO Add desription for results type, if I want to go with this.
+            index_type (str):
+                The type of the index used for the segments (``'date'``, ``'datetime64'``,
+                ``'integer'``, ``'float'``, or ``'string'``). Used to render summaries with the
+                appropriate descriptor (e.g. ``'days'`` vs ``'index steps'``). Defaults to ``'date'``.
         """
         self.segments = segments
         self.trend_segments = [seg for seg in self.segments if 'trend_class' in seg] # Get segments that are trends (exclude flats and noise)
