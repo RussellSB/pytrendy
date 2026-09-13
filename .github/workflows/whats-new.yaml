@@ -143,6 +143,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      # ── 3.5 Install package ──────────────────────────────────────────────────
+      # Lets the agent run detect_trends() itself to generate before/after plots.
+      - name: Install package
+        if: steps.meta.outputs.skip != 'true'
+        run: pip install -e ".[dev]"
+
       # ── 4. Install OpenCode CLI ─────────────────────────────────────────────
       - name: Install OpenCode CLI
         if: steps.meta.outputs.skip != 'true'
@@ -157,7 +163,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
-          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          OPENCODE_PERMISSION: '{"bash": "allow", "edit": "allow", "webfetch": "allow", "websearch": "allow", "external_directory": "deny", "task": "allow"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ steps.meta.outputs.tag }}
           RELEASE_NAME: ${{ steps.meta.outputs.name }}
@@ -228,6 +234,9 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Install package
+        run: pip install -e ".[dev]"
+
       - name: Install OpenCode CLI
         run: |
           curl -fsSL https://opencode.ai/install | bash
@@ -238,7 +247,7 @@ jobs:
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
           OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
-          OPENCODE_PERMISSION: '{"bash": "deny", "edit": "deny", "webfetch": "deny", "websearch": "deny", "external_directory": "deny", "task": "deny"}'
+          OPENCODE_PERMISSION: '{"bash": "allow", "edit": "allow", "webfetch": "allow", "websearch": "allow", "external_directory": "deny", "task": "allow"}'
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           RELEASE_TAG: ${{ needs.generate-whats-new.outputs.tag }}
           RELEASE_NAME: ${{ needs.generate-whats-new.outputs.name }}

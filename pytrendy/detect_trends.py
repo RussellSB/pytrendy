@@ -50,6 +50,7 @@ def detect_trends(df: pd.DataFrame,
             Optional parameters to customize detection heuristics. Supported keys:
 
             - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Defaults to `0`.
+            - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
@@ -91,6 +92,7 @@ def detect_trends(df: pd.DataFrame,
     # Configures trend detection heuristics
     method_params = {
         'abrupt_padding': method_params.get('abrupt_padding', 0),
+        'gradual_padding': method_params.get('gradual_padding', 0),
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 

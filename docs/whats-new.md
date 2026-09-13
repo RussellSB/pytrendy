@@ -1,6 +1,6 @@
 # What's New
 
-Stay up to date with every PyTrendy release — user-facing improvements, bug fixes, and behaviour changes.
+Stay up to date with every PyTrendy release - user-facing improvements, bug fixes, and behaviour changes.
 
 <!-- WHATS_NEW_NOTE_START -->
 !!! note "Pre-release documentation"
@@ -13,15 +13,58 @@ Stay up to date with every PyTrendy release — user-facing improvements, bug fi
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.4.3 <span class="version-prerelease">pre-release</span>
+## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
 
-*Staged on the `develop` branch — will land in the next stable release. Currently available as the latest pre-release:*
+*Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
 
 ```bash
 pip install --pre pytrendy
 ```
 
-Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false flat detection, and two related improvements to abrupt padding reliability.
+v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a new argument, so you can extend gradual trends into adjacent flat regions and restyle the detection plot. Two fixes round it out: false flat detection no longer chops long gradual ramps, and abrupt segments can't be padded twice.
+
+??? note "Gradual trend padding (`gradual_padding`)"
+    A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
+    Set it to the number of days to pad; the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends: each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
+    Introduced: [#243](https://github.com/RussellSB/pytrendy/pull/243)
+
+    The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before: `gradual_padding=0` (default)</span>
+
+    ![Long gradual ramp stops at its turning point, leaving a large flat gap](img/whats-new/pre-release/whats_new_gradual_padding_before_pr243.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After: `gradual_padding=168`</span>
+
+    ![Ramp extends through the flat and is clamped before the next abrupt Down](img/whats-new/pre-release/whats_new_gradual_padding_after_pr243.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        url = (
+            "https://raw.githubusercontent.com/RussellSB/pytrendy/develop/"
+            "tests/tests_crashes_edgecases/data/gradual_ramp_edgecases.csv"
+        )
+        df = pd.read_csv(url)
+
+        result = pt.detect_trends(
+            df, date_col="date", value_col="gradual_ramp_90d",
+            method_params=dict(gradual_padding=168),
+        )
+        print(result.filter_segments(direction="Up/Down")[["direction", "start", "end"]])
+        # direction       start         end
+        # Up         2026-04-07  2026-09-19   ← absorbed the flat, clamped before the abrupt Down
+        # Down       2026-09-27  2026-09-28
+        ```
 
 ??? note "Long gradual ramps no longer truncated by false flat detection"
     A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
@@ -29,13 +72,13 @@ Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false 
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.4.0-dev.2</span>
+    <span class="before-after-label before-label">Before: v1.4.0-dev.2</span>
 
     ![Gradual ramp truncated by false flat detection](img/whats-new/pre-release/whats_new_gradual_ramp_before_dev2.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.4.0-dev.3</span>
+    <span class="before-after-label after-label">After: v1.4.0-dev.3</span>
 
     ![Gradual ramp detected as a single Up segment](img/whats-new/pre-release/whats_new_gradual_ramp_after_dev3.png)
 
@@ -66,32 +109,32 @@ Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false 
 ??? note "Abrupt padding reliability improvements"
     Two internal fixes make abrupt-segment padding more robust:
 
-    - **Double-padding prevention** — a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
-    - **Padded flag guard** — the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
+    - **Double-padding prevention**: a second shave pass no longer re-pads segments that were already padded in the first pass, which previously stretched abrupt regions beyond their natural width.
+    - **Padded flag guard**: the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
 
     These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
 
 ??? note "Plot customisation via `plot_params`"
     A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
 
-    - **Figure dimensions** — set `figsize` to control width and height.
-    - **Title & labels** — add a domain-specific `title`, `xlabel`, or `ylabel`.
-    - **Colour scheme** — pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
-    - **Grid control** — toggle grid visibility and customise its appearance via the `grid` dict.
-    - **Legend positioning** — move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+    - **Figure dimensions**: set `figsize` to control width and height.
+    - **Title & labels**: add a domain-specific `title`, `xlabel`, or `ylabel`.
+    - **Colour scheme**: pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
+    - **Grid control**: toggle grid visibility and customise its appearance via the `grid` dict.
+    - **Legend positioning**: move the legend with `legend_loc` and `legend_bbox_to_anchor`.
 
     For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
     Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — no `plot_params` (default)</span>
+    <span class="before-after-label before-label">Before: no `plot_params` (default)</span>
 
     ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — custom `plot_params`</span>
+    <span class="before-after-label after-label">After: custom `plot_params`</span>
 
     ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
 
@@ -107,12 +150,12 @@ Four fixes in v1.4.0-dev.3: long gradual ramps no longer get truncated by false 
         # Default appearance
         pt.detect_trends(df, date_col="date", value_col="gradual")
 
-        # Custom appearance — black grid at 0.8 opacity, legend in bottom left
+        # Custom appearance: black grid at 0.8 opacity, legend in bottom left
         pt.detect_trends(
             df, date_col="date", value_col="gradual",
             plot_params=dict(
                 figsize=(20, 6),
-                title="Gradual Trend — Custom Visual",
+                title="Gradual Trend: Custom Visual",
                 grid={"visible": True, "color": "black", "alpha": 0.8},
                 legend_loc="lower left",
             ),
@@ -131,18 +174,18 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
     Multiple fixes since v1.2.0 have improved trend detection on zero baseline edgecases. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
 
     #### Up trend detection on smaller ramps
-    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on zero baseline edgecase series. The same fix also preserves `total_change` values for Down segments — the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
+    Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on zero baseline edgecase series. The same fix also preserves `total_change` values for Down segments - the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
     [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/pull/177)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.2.0-dev.5</span>
+    <span class="before-after-label before-label">Before - v1.2.0-dev.5</span>
 
     ![Before: Up segment missing on zero-baseline smaller ramp](img/whats-new/pre-release/whats_new_zero_baseline_up_before_dev6.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.2.0-dev.6</span>
+    <span class="before-after-label after-label">After - v1.2.0-dev.6</span>
 
     ![After: Up segment correctly detected on zero-baseline smaller ramp](img/whats-new/pre-release/whats_new_zero_baseline_up_after_dev6.png)
 
@@ -167,18 +210,18 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
         ```
 
     #### False noise suppression on zero-baseline leading edge
-    The centred rolling mean in noise detection looks ahead at abrupt transitions, producing `signal ≈ noise` and a false low SNR on the last few zero days before the jump. This created a spurious Noise segment at the leading edge of the transition. A guard now suppresses `noise_flag` when `value=0`, `previous value=0`, and `signal!=0` — the signature of an imminent abrupt change inside a run of zeros.
+    The centred rolling mean in noise detection looks ahead at abrupt transitions, producing `signal ≈ noise` and a false low SNR on the last few zero days before the jump. This created a spurious Noise segment at the leading edge of the transition. A guard now suppresses `noise_flag` when `value=0`, `previous value=0`, and `signal!=0` - the signature of an imminent abrupt change inside a run of zeros.
     [#163](https://github.com/RussellSB/pytrendy/issues/163) [#170](https://github.com/RussellSB/pytrendy/pull/170)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.2.0-dev.4</span>
+    <span class="before-after-label before-label">Before - v1.2.0-dev.4</span>
 
     ![Before: false Noise segment at leading edge of zero-baseline transition](img/whats-new/pre-release/whats_new_zero_baseline_noise_before_pr170.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.2.0-dev.5</span>
+    <span class="before-after-label after-label">After - v1.2.0-dev.5</span>
 
     ![After: Noise suppressed, Flat runs directly into Up](img/whats-new/pre-release/whats_new_zero_baseline_noise_after_pr170.png)
 
@@ -191,15 +234,15 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.2.0</span>
+    <span class="before-after-label before-label">Before - v1.2.0</span>
 
-    ![Zero baseline edgecase — entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
+    ![Zero baseline edgecase - entire series incorrectly shown as Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_before_pr142.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.2.4</span>
+    <span class="before-after-label after-label">After - v1.2.4</span>
 
-    ![Zero baseline edgecase — Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
+    ![Zero baseline edgecase - Flat → Up (padded to 2026-04-20) → Flat](img/whats-new/v1.2.4/whats_new_zero_baseline_abrupt_after_pr142.png)
 
     </div>
     </div>
@@ -233,7 +276,7 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
     | Old API | New API |
     |---|---|
     | `method_params=dict(is_abrupt_padded=True)` | `method_params=dict(abrupt_padding=28)` |
-    | `method_params=dict(is_abrupt_padded=False)` | (default — no change needed) |
+    | `method_params=dict(is_abrupt_padded=False)` | (default - no change needed) |
 
     ??? example "Code"
         ```python
@@ -241,11 +284,11 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
 
         df = pt.load_data("series_synthetic")
 
-        # Before — deprecated (raises DeprecationWarning)
+        # Before - deprecated (raises DeprecationWarning)
         result = pt.detect_trends(df, date_col="date", value_col="abrupt",
                                   method_params=dict(is_abrupt_padded=True))
 
-        # After — use abrupt_padding (int: number of days to pad)
+        # After - use abrupt_padding (int: number of days to pad)
         result = pt.detect_trends(df, date_col="date", value_col="abrupt",
                                   method_params=dict(abrupt_padding=28))
         print(result.df[["direction", "start", "end"]])
@@ -254,11 +297,11 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
 ??? note "Agentic docs & workflow improvements"
     The What's New page and CI/CD automation have been significantly improved through agentic AI integration and developer workflow enhancements.
 
-    - **Whats-new generator migration** — the automated docs generator was migrated from GitHub Models API to OpenCode with Kimi K2.7-code, then to deepseek-flash-v4 with a 5-minute timeout. Path handling and access tokens were refined across multiple iterations.
+    - **Whats-new generator migration** - the automated docs generator was migrated from GitHub Models API to OpenCode with Kimi K2.7-code, then to deepseek-flash-v4 with a 5-minute timeout. Path handling and access tokens were refined across multiple iterations.
       [#165](https://github.com/RussellSB/pytrendy/pull/165) [#174](https://github.com/RussellSB/pytrendy/pull/174) [#175](https://github.com/RussellSB/pytrendy/pull/175) [#172](https://github.com/RussellSB/pytrendy/pull/172)
-    - **PR plot generation skill** — a new `pr-plots` agent skill automates before/after plot generation for fix/feature PRs, with human-in-the-loop image upload to GitHub.
+    - **PR plot generation skill** - a new `pr-plots` agent skill automates before/after plot generation for fix/feature PRs, with human-in-the-loop image upload to GitHub.
       [#176](https://github.com/RussellSB/pytrendy/pull/176)
-    - **Agent skill tree & copilot migration** — consolidated agent context into `AGENTS.md` plus trigger-loaded skills under `.opencode/skills/`, migrating from Copilot instructions.
+    - **Agent skill tree & copilot migration** - consolidated agent context into `AGENTS.md` plus trigger-loaded skills under `.opencode/skills/`, migrating from Copilot instructions.
       [#167](https://github.com/RussellSB/pytrendy/pull/167)
 
 ??? note "CI/CD pipeline improvements"
@@ -291,7 +334,7 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
 
 Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two fixes to trend metrics and normalised input handling.
 
-??? note "Automated What's New — agentic docs generator"
+??? note "Automated What's New - agentic docs generator"
     The What's New page itself is now generated by an AI agent. A GitHub Actions workflow
     ([`whats-new.yaml`](https://github.com/RussellSB/pytrendy/blob/main/.github/workflows/whats-new.yaml))
     fires automatically whenever a GitHub Release is published. It invokes
@@ -307,7 +350,7 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
     - Stable releases (from `main`) add a versioned entry and open a sync PR back to `develop`.
     - Code examples reference GitHub raw URLs (`develop` for pre-release, `main` for stable) so they are always reproducible.
     - Within each section, fixes and features are listed in **descending time order** (most recent at the top).
-    - Before/after plot comparisons use `plot_pytrendy(df, value_col, segments, suppress_show=True)` — this ensures a consistent `figsize=(20, 5)`, weekly grid, and legend across all images so they are directly comparable.
+    - Before/after plot comparisons use `plot_pytrendy(df, value_col, segments, suppress_show=True)` - this ensures a consistent `figsize=(20, 5)`, weekly grid, and legend across all images so they are directly comparable.
     - Agent instructions embedded in the script docstring remind the generator to verify that referenced CSV files still exist before each refresh.
 
 ??? note "Noise detection control (`avoid_noise`)"
@@ -321,15 +364,15 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — `avoid_noise=True` (default)</span>
+    <span class="before-after-label before-label">Before - `avoid_noise=True` (default)</span>
 
-    ![New-market case — Noise artifacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
+    ![New-market case - Noise artifacts at step boundaries](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_before_pr110.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — `avoid_noise=False`</span>
+    <span class="before-after-label after-label">After - `avoid_noise=False`</span>
 
-    ![New-market case — clean Up/Down with avoid_noise=False](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png)
+    ![New-market case - clean Up/Down with avoid_noise=False](img/whats-new/pre-release/whats_new_avoid_noise_abrupt_after_pr110.png)
 
     </div>
     </div>
@@ -379,21 +422,21 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
 ??? note "Trend detection on normalised time series"
     `detect_trends()` previously returned an empty result when the input signal was scaled to the
     `[0, 1]` range (e.g., after min-max normalisation). The absolute detection threshold was too large
-    relative to the signal amplitude — causing the algorithm to detect nothing, which the flat fill-in
+    relative to the signal amplitude - causing the algorithm to detect nothing, which the flat fill-in
     logic then represented as a single all-Flat series.
     Fix: [#79](https://github.com/RussellSB/pytrendy/pull/79)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.1.10</span>
+    <span class="before-after-label before-label">Before - v1.1.10</span>
 
-    ![Normalised series — whole series shown as Flat (nothing detected)](img/whats-new/v1.1.11/whats_new_low_value_before.png)
+    ![Normalised series - whole series shown as Flat (nothing detected)](img/whats-new/v1.1.11/whats_new_low_value_before.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.11</span>
+    <span class="before-after-label after-label">After - v1.1.11</span>
 
-    ![Normalised series — trends correctly detected in v1.1.11](img/whats-new/v1.1.11/whats_new_low_value_after.png)
+    ![Normalised series - trends correctly detected in v1.1.11](img/whats-new/v1.1.11/whats_new_low_value_after.png)
 
     </div>
     </div>
@@ -417,13 +460,13 @@ Four updates in v1.2.0: an agentic docs generator, a new noise toggle, and two f
 ## Noise Detection & Robustness (v1.1.3 – v1.1.10)
 
 A sustained series of improvements to noise detection, spike precision, and edge-case
-stability — making the algorithm significantly more reliable on real-world noisy signals.
+stability - making the algorithm significantly more reliable on real-world noisy signals.
 
 ### Released in v1.1.10
 
 > Released 2026-03-21
 
-Comprehensive automated tests added for noise edge cases and crash scenarios — full coverage for the noise detection module. ([#46](https://github.com/RussellSB/pytrendy/issues/46))
+Comprehensive automated tests added for noise edge cases and crash scenarios - full coverage for the noise detection module. ([#46](https://github.com/RussellSB/pytrendy/issues/46))
 
 ??? note "Details"
     - Automated tests for noise crashes (`test_noise_crashes.py`) and edge cases (`test_noise_edgecases.py`).
@@ -434,7 +477,7 @@ Comprehensive automated tests added for noise edge cases and crash scenarios —
 
 ### Released in v1.1.8 and v1.1.9
 
-> v1.1.8 — 2025-11-15 · v1.1.9 — 2026-02-07
+> v1.1.8 - 2025-11-15 · v1.1.9 - 2026-02-07
 
 Targeted improvements to noise detection precision and flat segment handling. ([v1.1.8: tag](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.8) · [v1.1.9: #42](https://github.com/RussellSB/pytrendy/issues/42))
 
@@ -448,13 +491,13 @@ Targeted improvements to noise detection precision and flat segment handling. ([
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.1.7</span>
+    <span class="before-after-label before-label">Before - v1.1.7</span>
 
     ![Trailing region left uncovered before v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_before_pr42.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.8</span>
+    <span class="before-after-label after-label">After - v1.1.8</span>
 
     ![Trailing region covered as Flat after v1.1.8](img/whats-new/v1.1.8/whats_new_flat_fill_trailing_after_pr42.png)
 
@@ -494,18 +537,18 @@ Targeted improvements to noise detection precision and flat segment handling. ([
 
 ### Released in v1.1.3 – v1.1.7
 
-> v1.1.3 — 2025-10-16 · v1.1.4 — 2025-10-19 · v1.1.5 — 2025-10-22 · v1.1.6 — 2025-10-23 · v1.1.7 — 2025-11-01
+> v1.1.3 - 2025-10-16 · v1.1.4 - 2025-10-19 · v1.1.5 - 2025-10-22 · v1.1.6 - 2025-10-23 · v1.1.7 - 2025-11-01
 
 A focused series of noise detection improvements, from an initial major revamp through to edge-case tuning and stability fixes.
 
-??? note "v1.1.7 — expand-contract & noise stability"
+??? note "v1.1.7 - expand-contract & noise stability"
     ([tag v1.1.7](https://github.com/RussellSB/pytrendy/releases/tag/v1.1.7))
 
     - **Expand-contract:** gradual trends can now be retroactively updated when a newer gradual changes the reference baseline. ([a99c30f](https://github.com/RussellSB/pytrendy/commit/a99c30f))
     - **Noise detection:** resolved edge cases around abrupt-noise boundaries, opposite-direction overlaps, and post-grouping validity checks. ([9b41189](https://github.com/RussellSB/pytrendy/commit/9b41189), [06aa45c](https://github.com/RussellSB/pytrendy/commit/06aa45c))
     - **Plot:** visual displacement is only applied when it does not break the up/down direction contract. ([7ae27ad](https://github.com/RussellSB/pytrendy/commit/7ae27ad))
 
-??? note "v1.1.6 — noise threshold tuning"
+??? note "v1.1.6 - noise threshold tuning"
     Made the noise threshold slightly less sensitive to avoid false positives on near-zero signals.
     ([#16](https://github.com/RussellSB/pytrendy/issues/16))
 
@@ -515,24 +558,24 @@ A focused series of noise detection improvements, from an initial major revamp t
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.1.5</span>
+    <span class="before-after-label before-label">Before - v1.1.5</span>
 
-    ![Near-zero flatline — false Noise detections before PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_before_pr16.png)
+    ![Near-zero flatline - false Noise detections before PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_before_pr16.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.6</span>
+    <span class="before-after-label after-label">After - v1.1.6</span>
 
-    ![Near-zero flatline — correctly classified as Flat after PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_after_pr16.png)
+    ![Near-zero flatline - correctly classified as Flat after PR #16](img/whats-new/v1.1.6/whats_new_noise_threshold_after_pr16.png)
 
     </div>
     </div>
 
-??? note "v1.1.5 — abrupt shaving infinite loop"
+??? note "v1.1.5 - abrupt shaving infinite loop"
     Fixed an infinite loop in abrupt shaving when a segment was broken into abrupt sub-segments.
     ([#14](https://github.com/RussellSB/pytrendy/issues/14))
 
-??? note "v1.1.4 — noise detection major revamp"
+??? note "v1.1.4 - noise detection major revamp"
     Trend detection now much less sensitive to noise spikes overall. Introduces DTW-based
     abrupt/noise distinction and more robust spike classification.
     ([#13](https://github.com/RussellSB/pytrendy/issues/13))
@@ -543,15 +586,15 @@ A focused series of noise detection improvements, from an initial major revamp t
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.1.3</span>
+    <span class="before-after-label before-label">Before - v1.1.3</span>
 
-    ![Noise detection before PR #13 — fragmented](img/whats-new/v1.1.4/whats_new_noise_before_pr13.png)
+    ![Noise detection before PR #13 - fragmented](img/whats-new/v1.1.4/whats_new_noise_before_pr13.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.4</span>
+    <span class="before-after-label after-label">After - v1.1.4</span>
 
-    ![Noise detection after PR #13 — consolidated](img/whats-new/v1.1.4/whats_new_noise_after_pr13.png)
+    ![Noise detection after PR #13 - consolidated](img/whats-new/v1.1.4/whats_new_noise_after_pr13.png)
 
     </div>
     </div>
@@ -568,7 +611,7 @@ A focused series of noise detection improvements, from an initial major revamp t
         pt.detect_trends(df, date_col="date", value_col="noisy_edgecase_3")
         ```
 
-??? note "v1.1.3 — spikes on gradual trends"
+??? note "v1.1.3 - spikes on gradual trends"
     Improved handling of spike segments that sit on top of gradual trends.
     ([#12](https://github.com/RussellSB/pytrendy/issues/12))
 
@@ -578,15 +621,15 @@ A focused series of noise detection improvements, from an initial major revamp t
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.1.2</span>
+    <span class="before-after-label before-label">Before - v1.1.2</span>
 
-    ![Spike on gradual — wide Noise band before PR #12](img/whats-new/v1.1.3/whats_new_spike_before_pr12.png)
+    ![Spike on gradual - wide Noise band before PR #12](img/whats-new/v1.1.3/whats_new_spike_before_pr12.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.3</span>
+    <span class="before-after-label after-label">After - v1.1.3</span>
 
-    ![Spike on gradual — tight Noise segment after PR #12](img/whats-new/v1.1.3/whats_new_spike_after_pr12.png)
+    ![Spike on gradual - tight Noise segment after PR #12](img/whats-new/v1.1.3/whats_new_spike_after_pr12.png)
 
     </div>
     </div>
@@ -609,12 +652,12 @@ A focused series of noise detection improvements, from an initial major revamp t
 
 ## Core Engine & Initial Launch (v1.0.x – v1.1.2)
 
-The foundation of PyTrendy — from initial release through the first major engine overhaul
+The foundation of PyTrendy - from initial release through the first major engine overhaul
 that introduced flat fill-in, a cleaner results API, and comprehensive robustness improvements.
 
 ### Released in v1.1.1 and v1.1.2
 
-> v1.1.1 — 2025-10-15 · v1.1.2 — 2025-10-15
+> v1.1.1 - 2025-10-15 · v1.1.2 - 2025-10-15
 
 Patch releases addressing deployment pipeline issues and a relative-import fix introduced
 when v1.1.0 restructured the package layout. No user-facing behaviour changes.
@@ -624,9 +667,9 @@ when v1.1.0 restructured the package layout. No user-facing behaviour changes.
 
 ### Released in v1.1.0
 
-> Released 2025-10-15 — *minor version: new features and major robustness overhaul*
+> Released 2025-10-15 - *minor version: new features and major robustness overhaul*
 
-The most significant update to PyTrendy's core engine since the initial launch — new flat fill-in,
+The most significant update to PyTrendy's core engine since the initial launch - new flat fill-in,
 a simpler results interface, and a thorough revamp of the signal processing pipeline. ([#8](https://github.com/RussellSB/pytrendy/issues/8))
 
 ??? note "Flat fill-in"
@@ -638,15 +681,15 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.0.x</span>
+    <span class="before-after-label before-label">Before - v1.0.x</span>
 
-    ![Flat fill-in before PR #8 — white gaps remain between segments](img/whats-new/v1.1.0/whats_new_flat_fill_before_pr8.png)
+    ![Flat fill-in before PR #8 - white gaps remain between segments](img/whats-new/v1.1.0/whats_new_flat_fill_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.0</span>
+    <span class="before-after-label after-label">After - v1.1.0</span>
 
-    ![Flat fill-in after PR #8 — gaps covered by Flat segments](img/whats-new/v1.1.0/whats_new_flat_fill_after_pr8.png)
+    ![Flat fill-in after PR #8 - gaps covered by Flat segments](img/whats-new/v1.1.0/whats_new_flat_fill_after_pr8.png)
 
     </div>
     </div>
@@ -673,7 +716,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
         )
         ```
 
-??? note "Abrupt trend detection — illustrated"
+??? note "Abrupt trend detection - illustrated"
     v1.1.0 introduced `is_abrupt_padded` for the first time, enabling boundary padding so that
     abrupt transitions span their natural width rather than hairline boundaries.
     This unlocks quasi-experiment designs such as Interrupted Time Series Analysis (ITSA),
@@ -681,15 +724,15 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.0.x</span>
+    <span class="before-after-label before-label">Before - v1.0.x</span>
 
-    ![Abrupt detection before PR #8 — hairline Up/Down bands](img/whats-new/v1.1.0/whats_new_abrupt_before_pr8.png)
+    ![Abrupt detection before PR #8 - hairline Up/Down bands](img/whats-new/v1.1.0/whats_new_abrupt_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.0</span>
+    <span class="before-after-label after-label">After - v1.1.0</span>
 
-    ![Abrupt detection after PR #8 — properly padded regions](img/whats-new/v1.1.0/whats_new_abrupt_after_pr8.png)
+    ![Abrupt detection after PR #8 - properly padded regions](img/whats-new/v1.1.0/whats_new_abrupt_after_pr8.png)
 
     </div>
     </div>
@@ -724,21 +767,21 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
 ??? note "Brown-bug fix"
     Up (green) and Down (red) regions were stacking on top of each other in v1.0.x, blending into a
-    brownish artifact. The root cause — abrupt spikes being shaved without direction-awareness — was
+    brownish artifact. The root cause - abrupt spikes being shaved without direction-awareness - was
     resolved; segments now align directionally before any visual displacement.
     ([b0d1690](https://github.com/RussellSB/pytrendy/commit/b0d1690) · [5509178](https://github.com/RussellSB/pytrendy/commit/5509178))
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before — v1.0.x</span>
+    <span class="before-after-label before-label">Before - v1.0.x</span>
 
-    ![Brown-bug — Up/Down regions stack causing brown artifact (v1.0.x)](img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png)
+    ![Brown-bug - Up/Down regions stack causing brown artifact (v1.0.x)](img/whats-new/v1.1.0/whats_new_brown_bug_before_pr8.png)
 
     </div>
     <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After — v1.1.0</span>
+    <span class="before-after-label after-label">After - v1.1.0</span>
 
-    ![Brown-bug fixed — segments align directionally, no overlap (v1.1.0)](img/whats-new/v1.1.0/whats_new_brown_bug_after_pr8.png)
+    ![Brown-bug fixed - segments align directionally, no overlap (v1.1.0)](img/whats-new/v1.1.0/whats_new_brown_bug_after_pr8.png)
 
     </div>
     </div>
@@ -780,7 +823,7 @@ a simpler results interface, and a thorough revamp of the signal processing pipe
 
 ### Released in v1.0.x
 
-> August–September 2025 — *initial release*
+> August–September 2025 - *initial release*
 
 PyTrendy launched with gradual, abrupt, and flat trend detection in a single call.
 ([v1.0.0](https://github.com/RussellSB/pytrendy/releases/tag/v1.0.0))
@@ -789,7 +832,7 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
     Smooth up and down trends are detected and annotated as Up, Down, and Flat segments out of the
     box with a single call to `detect_trends()`.
 
-    ![Gradual trend detection — initial release](img/whats-new/v1.0.x/whats_new_gradual.png)
+    ![Gradual trend detection - initial release](img/whats-new/v1.0.x/whats_new_gradual.png)
 
     ??? example "Code"
         ```python
@@ -802,9 +845,9 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
 ??? note "Abrupt trend detection"
     Abrupt step-changes in the signal are detected and annotated as Up or Down regions. v1.0.x
     already supported multi-segment abrupt series. Boundary padding (`is_abrupt_padded=True`) was
-    not yet available — detections reflect instantaneous precision at the point of change.
+    not yet available - detections reflect instantaneous precision at the point of change.
 
-    ![Abrupt detection — initial release output (non-padded)](img/whats-new/v1.0.x/whats_new_v10x_abrupt.png)
+    ![Abrupt detection - initial release output (non-padded)](img/whats-new/v1.0.x/whats_new_v10x_abrupt.png)
 
     ??? example "Code"
         ```python
@@ -815,11 +858,11 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
                          method_params=dict(is_abrupt_padded=False))
         ```
 
-??? note "Noise detection — random noise on a gradual trend"
+??? note "Noise detection - random noise on a gradual trend"
     When the input signal carries moderate random noise layered on top of a gradual trend, the
     algorithm identifies noise segments while still extracting the underlying Up/Down/Flat structure.
 
-    ![Noise random — initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_random.png)
+    ![Noise random - initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_random.png)
 
     ??? example "Code"
         ```python
@@ -829,15 +872,15 @@ PyTrendy launched with gradual, abrupt, and flat trend detection in a single cal
         pt.detect_trends(df, date_col="date", value_col="gradual-noisy-20")
         ```
 
-??? note "Noise detection — spikes on a gradual trend"
+??? note "Noise detection - spikes on a gradual trend"
     Isolated outlier spikes sitting on top of a smooth gradual trend are classified as short Noise
     segments, leaving the surrounding Up/Down structure intact.
 
     *This was the initial implementation of spike detection in v1.0.x. Subsequent versions (v1.1.3,
-    v1.1.4, v1.1.7) targeted significant precision improvements — reducing over-wide Noise bands and
+    v1.1.4, v1.1.7) targeted significant precision improvements - reducing over-wide Noise bands and
     better distinguishing spike outliers from sustained noise regions.*
 
-    ![Noise spike — initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_spike.png)
+    ![Noise spike - initial release output](img/whats-new/v1.0.x/whats_new_v10x_noise_spike.png)
 
     ??? example "Code"
         ```python
