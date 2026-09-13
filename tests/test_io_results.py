@@ -320,16 +320,16 @@ class TestResultsSetDataFrame:
         assert gradual_results.df_summary.index.name == 'time_index'
 
     @pytest.mark.core
-    def test_df_has_mult_change(self, gradual_results):
-        """Test that DataFrame has mult_change column (float) next to pct_change."""
+    def test_df_has_mltp_change(self, gradual_results):
+        """Test that DataFrame has mltp_change column (float) next to pct_change."""
         assert 'pct_change' in gradual_results.df.columns
-        assert 'mult_change' in gradual_results.df.columns
+        assert 'mltp_change' in gradual_results.df.columns
 
         for seg in gradual_results.segments:
             if seg['pct_change'] != seg['pct_change']:  # NaN (zero baseline)
                 continue
-            assert isinstance(seg['mult_change'], float)
-            assert seg['mult_change'] == pytest.approx(seg['pct_change'] + 1)
+            assert isinstance(seg['mltp_change'], float)
+            assert seg['mltp_change'] == pytest.approx(seg['pct_change'] + 1)
 
     @pytest.mark.core
     def test_df_has_required_cols(self, gradual_results):
