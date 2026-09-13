@@ -152,26 +152,24 @@ def _pad_gradual_trends(df: pd.DataFrame, segments: list[dict], method_params: d
     segments_padded = deepcopy(segments)
 
     meta_df = pd.DataFrame(segments)
-    meta_df['start'] = pd.to_datetime(meta_df['start'])
-    meta_df['end'] = pd.to_datetime(meta_df['end'])
 
     for i, segment in enumerate(segments):
 
         if segment['direction'] not in ['Up', 'Down'] or segment.get('trend_class') != 'gradual':
             continue
 
-        gradual_end = pd.to_datetime(segment['end'])
+        gradual_end = segment['end']
 
-        new_end = gradual_end + pd.Timedelta(days=gradual_padding)
+        new_end = gradual_end + gradual_padding
         overlaps = meta_df.loc[(meta_df['start'] > gradual_end) & (meta_df['start'] <= new_end)]
         overlaps_nonflats = overlaps[overlaps['direction'] != 'Flat']
 
         if not overlaps_nonflats.empty:
             first_notflat_overlap = overlaps_nonflats.iloc[0]
-            new_end = pd.to_datetime(first_notflat_overlap['start']) - pd.Timedelta(days=1)
+            new_end = first_notflat_overlap['start'] - 1
 
         new_end = min(new_end, df.index[-1])
-        segments_padded[i]['end'] = new_end.strftime('%Y-%m-%d')
+        segments_padded[i]['end'] = new_end
         update_next_segment(i, new_end, segments, segments_padded)
 
         segments_padded[i]['padded'] = new_end != gradual_end
