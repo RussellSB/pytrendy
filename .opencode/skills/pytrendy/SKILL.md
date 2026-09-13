@@ -61,7 +61,7 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 | `.segments` | `list[dict]` | Raw segment dicts (all directions including Flat/Noise). |
 | `.trend_segments` | `list[dict]` | Subset with a `trend_class` key (Up/Down only — Flats/Noise excluded). |
 | `.best` | `dict \| None` | Segment with lowest `change_rank` among `trend_segments`; `None` if no trends. Picked on `total_change` magnitude (steepness × length), not raw `change`. |
-| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, change, pct_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0`). |
+| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, change, pct_change, mult_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0`). |
 | `.df_summary` | `pd.DataFrame` | Slimmer view: `direction, start, end, days, total_change, change_rank, trend_class`. What `.print_summary()` prints. |
 | `.summary` | `dict` | `direction_counts` (Counter→dict over Up/Down/Flat/Noise), `trend_class_counts` (gradual/abrupt), `highest_total_change`. |
 
@@ -88,6 +88,7 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 
 - `change` / `total_change` — cumulative sum of day-over-day differences across the segment.
 - `pct_change` — relative change; e.g. `3.67` = +367%. Useful for comparing trends of different baselines.
+- `mult_change` — multiplier change (ratio of end/start values); e.g. `4.67` = 4.67x. Useful when `pct_change` explodes above 100%.
 - `days` — segment length.
 - `SNR` — signal-to-noise ratio. **Lower SNR ≈ noisier segment.** Noise segments typically have SNR < ~7; clean gradual trends sit around 17-22. Borderline trends (e.g. SNR ~5.9) show up with high `change_rank` numbers — still detected but flagged as weak.
 - `change_rank` — 1 = strongest trend by `abs(total_change)`. Lower is stronger. Artifact trends (short, low-magnitude) get high rank numbers and are effectively de-prioritized.
