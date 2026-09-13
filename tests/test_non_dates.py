@@ -272,3 +272,61 @@ class TestLegacyPositionalOrder:
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, 'gradual', 'date', plot=False)
         assert results is not None
+
+
+class TestIndexSorting:
+    """detect_trends sorts unsorted sortable indexes before detection."""
+
+    def test_unsorted_date_column(self):
+        """Shuffled date column produces the same segments as sorted input."""
+        df = pt.load_data('series_synthetic')
+        expected = pt.detect_trends(df, value_col='gradual', date_col='date',
+                                    plot=False, method_params={'abrupt_padding': 0})
+        shuffled = df.sample(frac=1.0, random_state=42).reset_index(drop=True)
+        actual = pt.detect_trends(shuffled, value_col='gradual', date_col='date',
+                                  plot=False, method_params={'abrupt_padding': 0})
+        assert_segments_match(actual.segments, expected.segments)
+
+    def test_unsorted_integer_index(self):
+        """Scrambled integer index (date_col=None) sorts back to original order."""
+        df = pt.load_data('series_synthetic')
+        expected = pt.detect_trends(df, value_col='gradual', plot=False,
+                                    method_params={'abrupt_padding': 0})
+        perm = np.random.RandomState(42).permutation(len(df))
+        scrambled = df.iloc[perm].copy()
+        scrambled.index = perm  # each row labelled by its original position
+        actual = pt.detect_trends(scrambled, value_col='gradual', plot=False,
+                                  method_params={'abrupt_padding': 0})
+        assert_segments_match(actual.segments, expected.segments)
+
+    def test_datetime_index_fallback(self):
+        """date_col=None honours a DatetimeIndex, returning Timestamp boundaries."""
+        df = pt.load_data('series_synthetic')
+        df = df.set_index(pd.date_range('2025-01-01', periods=len(df), freq='D'))
+        results = pt.detect_trends(df, value_col='gradual', plot=False,
+                                   method_params={'abrupt_padding': 0})
+        assert results.index_type == 'datetime64'
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': pd.Timestamp('2025-01-02'), 'end': pd.Timestamp('2025-01-24')},
+        ])
+
+    def test_float_index_nan_warns(self):
+        """Float index containing NaN raises a UserWarning."""
+        df = pt.load_data('series_synthetic')
+        df['float_nan'] = np.linspace(0, 1, len(df))
+        df.loc[5, 'float_nan'] = np.nan
+        with pytest.warns(UserWarning, match="NaN"):
+            pt.detect_trends(df, value_col='gradual', date_col='float_nan',
+                             plot=False, method_params={'abrupt_padding': 0})
+
+    def test_string_date_index_fallback(self):
+        """date_col=None with a string-date index sorts chronologically and keeps labels."""
+        df = pt.load_data('series_synthetic')
+        df.index = [d.strftime('%Y-%m-%d') for d in pd.date_range('2025-01-01', periods=len(df), freq='D')]
+        scrambled = df.iloc[np.random.RandomState(7).permutation(len(df))]
+        results = pt.detect_trends(scrambled, value_col='gradual', plot=False,
+                                   method_params={'abrupt_padding': 0})
+        assert results.index_type == 'date'
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
+        ])

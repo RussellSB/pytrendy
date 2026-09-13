@@ -26,37 +26,36 @@ import numpy as np
 import pandas as pd
 
 
-def detect_index_type(df: pd.DataFrame, date_col: str) -> str:
+def detect_index_type(values) -> str:
     """
-    Detect the index type from the date column.
+    Detect the index type from a Series or Index of values.
 
     Args:
-        df (pd.DataFrame): Input DataFrame.
-        date_col (str): Name of the date column.
+        values: A pandas Series or Index of index values.
 
     Returns:
         str: Index type (``'date'``, ``'datetime64'``, ``'integer'``, ``'float'``, or ``'string'``).
     """
-    if pd.api.types.is_string_dtype(df[date_col]):
+    if pd.api.types.is_string_dtype(values):
         with warnings.catch_warnings():
             warnings.filterwarnings(
                 "ignore",
                 message="Could not infer format.*"
             )
-            parsed = pd.to_datetime(df[date_col], errors="coerce")
+            parsed = pd.to_datetime(values, errors="coerce")
 
         if parsed.notna().all():
             return "date"
         else:
             return "string"
-    elif pd.api.types.is_datetime64_any_dtype(df[date_col]):
+    elif pd.api.types.is_datetime64_any_dtype(values):
         return "datetime64"
-    elif pd.api.types.is_integer_dtype(df[date_col]):
+    elif pd.api.types.is_integer_dtype(values):
         return "integer"
-    elif pd.api.types.is_float_dtype(df[date_col]):
+    elif pd.api.types.is_float_dtype(values):
         return "float"
     else:
-        raise NotImplementedError(f"date_col has unimplemented dtype {df[date_col].dtype}")
+        raise NotImplementedError(f"unimplemented dtype {values.dtype}")
 
 
 def is_legacy_positional_order(df: pd.DataFrame, value_col: str, date_col: str) -> bool:
@@ -122,15 +121,20 @@ def prepare_index(df: pd.DataFrame, date_col: str | None, value_col: str) -> tup
         ``index_type`` is the detected index type.
     """
     df = df.copy()
-    index_type = 'integer'
 
     if date_col is not None:
-        index_type = detect_index_type(df, date_col)
+        index_type = detect_index_type(df[date_col])
+        index_values = df[date_col]
+
+        # Sort sortable index types ascending so the internal positional index
+        # reflects chronological (date) / numeric order. Non-sortable types
+        # ('string') keep their given order.
+        if index_type in ('date', 'datetime64', 'integer', 'float'):
+            sort_key = pd.to_datetime(index_values) if index_type == 'date' else index_values
+            df = df.iloc[np.asarray(sort_key).argsort(kind='stable')].reset_index(drop=True)
         external_index = df[date_col].copy()
 
-        if index_type == 'date':
-            df[date_col] = pd.to_datetime(df[date_col])
-        elif index_type == 'string':
+        if index_type == 'string':
             warnings.warn(
                 f"Attempting to cast {date_col} to date failed, "
                 "treating as string lookup.",
@@ -138,7 +142,26 @@ def prepare_index(df: pd.DataFrame, date_col: str | None, value_col: str) -> tup
                 stacklevel=2,
             )
     else:
-        external_index = np.arange(len(df))
+        # No date column: fall back to the DataFrame's own index.
+        index_type = detect_index_type(df.index)
+        index_values = df.index
+
+        # Sort sortable index types ascending; non-sortable ('string') and the
+        # default integer index keep their given order.
+        if index_type in ('datetime64', 'integer', 'float'):
+            df = df.sort_index(kind='stable')
+        elif index_type == 'date':  # string-date index: sort chronologically, keep labels
+            order = np.asarray(pd.to_datetime(df.index)).argsort(kind='stable')
+            df = df.iloc[order]
+        external_index = np.asarray(df.index)
+
+    if index_type == 'float' and pd.isna(index_values).any():
+        warnings.warn(
+            "float index contains NaN values; they sort to the end and may "
+            "produce unexpected segment boundaries.",
+            UserWarning,
+            stacklevel=2,
+        )
 
     index_lookup = build_index_lookup(external_index)
 
@@ -185,6 +208,9 @@ def prepare_plot_frame(df: pd.DataFrame, date_col: str | None, external_index, i
     if index_type == 'date':
         external_index = pd.to_datetime(external_index)
 
-    df[date_col] = external_index
-    df.set_index(date_col, inplace=True)
+    # Use a sentinel name when no date column was supplied, so the restored
+    # index has a meaningful label rather than a None-named column.
+    index_name = date_col if date_col is not None else '_index'
+    df[index_name] = np.asarray(external_index)
+    df.set_index(index_name, inplace=True)
     return df
