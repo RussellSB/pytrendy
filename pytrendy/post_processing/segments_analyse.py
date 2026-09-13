@@ -54,7 +54,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         segment_enhanced['mult_change'] = (float(val_end / val_start) if val_start != 0 else np.nan)
 
         # Calculate days & cumulative total change
-        days = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        days = segment['end'] - segment['start']
         if days == 0: 
             days = 1 # edge case for 1 day flat between noise spike & trend
         segment_enhanced['days'] = days # set days
