@@ -748,3 +748,19 @@ class TestResultsDataStructures:
         for i, segment in enumerate(gradual_results.segments):
             for field in required_fields:
                 assert field in segment, f"Segment {i} missing field: {field}"
+
+
+class TestChangeColumnRemoved:
+    """The redundant `change` column was removed in favour of `total_change`."""
+
+    @pytest.mark.core
+    def test_change_column_absent(self):
+        """`change` is absent from .df (raises KeyError); `total_change` remains."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        assert 'total_change' in results.df.columns
+        assert 'change' not in results.df.columns
+        with pytest.raises(KeyError):
+            results.df['change']
+        for seg in results.segments:
+            assert 'change' not in seg
