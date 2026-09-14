@@ -38,7 +38,7 @@ pytrendy/
     │   ├── segment_grouping.py        # merge short consecutive same-direction segments
     │   ├── artifact_cleanup.py        # remove invalid segments, fill gaps with flats
     │   └── update_neighbours.py       # boundary cascade when a neighbor changes
-    └── segments_analyse.py    # per-segment metrics: change, duration, SNR, change_rank
+    └── segments_analyse.py    # per-segment metrics: total_change, duration, SNR, change_rank
 ```
 
 ## Datasets
@@ -61,7 +61,7 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 | `.segments` | `list[dict]` | Raw segment dicts (all directions including Flat/Noise). |
 | `.trend_segments` | `list[dict]` | Subset with a `trend_class` key (Up/Down only — Flats/Noise excluded). |
 | `.best` | `dict \| None` | Segment with lowest `change_rank` among `trend_segments`; `None` if no trends. Picked on `total_change` magnitude (steepness × length), not raw `change`. |
-| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, change, pct_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0`). |
+| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, pct_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0`). |
 | `.df_summary` | `pd.DataFrame` | Slimmer view: `direction, start, end, days, total_change, change_rank, trend_class`. What `.print_summary()` prints. |
 | `.summary` | `dict` | `direction_counts` (Counter→dict over Up/Down/Flat/Noise), `trend_class_counts` (gradual/abrupt), `highest_total_change`. |
 
@@ -80,13 +80,13 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 - **Debugging one direction** → `results.filter_segments(direction='Up')` to isolate uptrends only (the abrupt notebook does this to compare uptrends against each other).
 - **Rank the strongest trends** → `results.filter_segments(direction='Up/Down', sort_by='change_rank')`. Rank 1 = steepest+longest by `total_change` magnitude.
 - **Top-N** → `results.filter_segments(direction='Up', sort_by='change_rank')[:3]`.
-- **Full per-segment metrics** → `results.df` (includes `change`, `pct_change`, `SNR` that `df_summary` omits).
+- **Full per-segment metrics** → `results.df` (all columns, e.g. `total_change`, `pct_change`, `SNR`).
 - **Raw dicts for downstream code** → `results.filter_segments(format='dict')` or `results.segments` / `results.trend_segments`.
 - **Best single segment** → `results.best` (dict).
 
 ### Metric columns (what they mean)
 
-- `change` / `total_change` — cumulative sum of day-over-day differences across the segment.
+- `total_change` — net change across the segment; sum of day-over-day diffs (telescopes to end − start).
 - `pct_change` — relative change; e.g. `3.67` = +367%. Useful for comparing trends of different baselines.
 - `days` — segment length.
 - `SNR` — signal-to-noise ratio. **Lower SNR ≈ noisier segment.** Noise segments typically have SNR < ~7; clean gradual trends sit around 17-22. Borderline trends (e.g. SNR ~5.9) show up with high `change_rank` numbers — still detected but flagged as weak.

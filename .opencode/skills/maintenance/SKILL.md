@@ -36,9 +36,10 @@ from pytrendy import detect_trends, load_data, plot_pytrendy, dtw
 
 **Deprecating a public param is `feat:`, NOT `refactor:`** — even if the code change is a rename. Deprecation is a user-facing signal that triggers a minor bump and documents intent to remove in a future major. See `docs/contributing.md` "Deprecations" and `.github/copilot-instructions.md` (now migrated here).
 
-### Current live deprecation
+### Current live deprecations
 
-`detect_trends(..., method_params=...)`: `is_abrupt_padded` is **deprecated** (raises `DeprecationWarning`, see `pytrendy/detect_trends.py:63`). Use `abrupt_padding` instead.
+- `detect_trends(..., method_params=...)`: `is_abrupt_padded` is **deprecated** (raises `DeprecationWarning`, see `pytrendy/detect_trends.py:63`). Use `abrupt_padding` instead.
+- `detect_trends` **argument order** — reworked in #205 (weekly-data support): the signature is now `detect_trends(df, value_col, date_col=None, ...)`. The old `(df, date_col, value_col)` positional order is rejected with a `TypeError` (see `pytrendy/detect_trends.py:76`). Keyword callers are unaffected.
 
 ### Current `method_params` keys (the only ones honored)
 
