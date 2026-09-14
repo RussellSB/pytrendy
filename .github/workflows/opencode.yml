@@ -1,5 +1,16 @@
 name: opencode
 
+# Supported events (per opencode docs + runtime allowlist):
+#   issue_comment              — /oc in PR/issue conversation thread
+#   pull_request_review_comment — /oc on a specific code line (Files tab)
+#   issues                     — auto on issue open/edit (needs prompt input)
+#   pull_request               — auto on PR open/sync (needs prompt input)
+#   schedule                   — cron (needs prompt input)
+#   workflow_dispatch           — manual (needs prompt input)
+#
+# Note: pull_request_review (review body on Submit) is NOT supported by the
+# opencode action. /oc in review bodies will be ignored. Use conversation
+# comments or line comments instead.
 on:
   issue_comment:
     types: [created]
@@ -8,38 +19,74 @@ on:
 
 jobs:
   opencode:
+    concurrency:
+      group: opencode-${{ github.event.issue.number || github.event.pull_request.number }}
+      cancel-in-progress: false
     if: |
       (
         github.event.comment.author_association == 'COLLABORATOR' ||
         github.event.comment.author_association == 'OWNER'
       ) && (
-        contains(github.event.comment.body, ' /oc') ||
-        startsWith(github.event.comment.body, '/oc') ||
-        contains(github.event.comment.body, ' /opencode') ||
-        startsWith(github.event.comment.body, '/opencode')
+        contains(github.event.comment.body, '/oc') ||
+        contains(github.event.comment.body, '/opencode')
       )
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
-      # OIDC token for OpenCode auth
       id-token: write
-      # allows OpenCode to push branches, commits, and create PRs
       contents: write
-      # allows OpenCode to comment on / update PRs it's invoked from
       pull-requests: write
-      # allows OpenCode to comment on / update issues it's invoked from
       issues: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v7
+        # TODO: upgrade to @v7 when opencode docs update
+        uses: actions/checkout@v6
         with:
-          persist-credentials: true
+          persist-credentials: false
+
+      # Create a CI-specific global config instead of modifying the project's
+      # opencode.json to avoid conflicts with local dev setups. Plugins are
+      # deduplicated by package name, but the user's global config has a local
+      # ponytail plugin file that would coexist with the npm package — creating
+      # a CI-only config sidesteps this entirely.
+      - name: Configure opencode for CI
+        run: |
+          mkdir -p ~/.config/opencode
+          cat > ~/.config/opencode/opencode.jsonc << 'EOCONF'
+          {
+            "plugin": [
+              "@dietrichgebert/ponytail"
+            ],
+            "permission": {
+              "external_directory": {
+                "/tmp/*": "allow"
+              },
+              "question": "deny",
+              "doom_loop": "deny"
+            },
+            "mcp": {
+              "gh_grep": {
+                "type": "remote",
+                "url": "https://mcp.grep.app"
+              },
+              "context7": {
+                "type": "remote",
+                "url": "https://mcp.context7.com/mcp",
+                "headers": {
+                  "Authorization": "Bearer {env:CONTEXT7_API_KEY}"
+                }
+              }
+            }
+          }
+          EOCONF
 
       - name: Run opencode
         uses: anomalyco/opencode/github@latest
         env:
           OPENCODE_API_KEY: ${{ secrets.OPENCODE_API_KEY }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENCODE_MODEL: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
+          PYTRENDY_CI: "true"
+          PONYTAIL_DEFAULT_MODE: "ultra"
+          CONTEXT7_API_KEY: ${{ secrets.CONTEXT7_API_KEY }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          model: ${{ env.OPENCODE_MODEL }}
-          use_github_token: true
+          model: ${{ vars.OPENCODE_MODEL || 'opencode-go/deepseek-v4-flash' }}
