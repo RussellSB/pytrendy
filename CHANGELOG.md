@@ -1,3 +1,12 @@
+## [1.3.1](https://github.com/RussellSB/pytrendy/compare/v1.3.0...v1.3.1) (2026-07-15)
+
+
+### Bug Fixes
+
+* downgrade checkout to v6 to match opencode docs ([3509466](https://github.com/RussellSB/pytrendy/commit/35094666762a1286448ac82ef9a38b43399aeb2a))
+* remove use_github_token to enable OpenCode app auth ([1fe067e](https://github.com/RussellSB/pytrendy/commit/1fe067efaf1e970f823013536bb52d96f6dac60d))
+* trim permissions to id-token write only ([66fbab4](https://github.com/RussellSB/pytrendy/commit/66fbab4ca277ac431d04a95a34248f977261bc22))
+
 # [1.3.0](https://github.com/RussellSB/pytrendy/compare/v1.2.0...v1.3.0) (2026-06-28)
 
 

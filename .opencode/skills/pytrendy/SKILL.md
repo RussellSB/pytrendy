@@ -1,6 +1,6 @@
 ---
 name: pytrendy
-description: Use when modifying the trend detection pipeline, adding/renaming modules under pytrendy/, or working with datasets and results. Covers the 5-stage pipeline, module boundaries, built-in data, and the PyTrendyResults API.
+description: Use when working on pytrendy code, tests, or data. Covers the 5-stage pipeline, module map, install/verify, datasets, PyTrendyResults API, and docs tooling.
 ---
 
 # pytrendy package architecture
@@ -38,7 +38,7 @@ pytrendy/
     │   ├── segment_grouping.py        # merge short consecutive same-direction segments
     │   ├── artifact_cleanup.py        # remove invalid segments, fill gaps with flats
     │   └── update_neighbours.py       # boundary cascade when a neighbor changes
-    └── segments_analyse.py    # per-segment metrics: change, duration, SNR, change_rank
+    └── segments_analyse.py    # per-segment metrics: total_change, duration, SNR, change_rank
 ```
 
 ## Datasets
@@ -60,8 +60,8 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 |---|---|---|
 | `.segments` | `list[dict]` | Raw segment dicts (all directions including Flat/Noise). |
 | `.trend_segments` | `list[dict]` | Subset with a `trend_class` key (Up/Down only — Flats/Noise excluded). |
-| `.best` | `dict \| None` | Segment with lowest `change_rank` among `trend_segments`; `None` if no trends. Picked on `total_change` magnitude (steepness × length), not raw `change`. |
-| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, change, pct_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0`). |
+| `.best` | `dict \| None` | Segment with lowest `change_rank` among `trend_segments`; `None` if no trends. Picked on `total_change` magnitude (steepness × length). |
+| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, pct_change, mltp_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0` or `gradual_padding>0`). |
 | `.df_summary` | `pd.DataFrame` | Slimmer view: `direction, start, end, days, total_change, change_rank, trend_class`. What `.print_summary()` prints. |
 | `.summary` | `dict` | `direction_counts` (Counter→dict over Up/Down/Flat/Noise), `trend_class_counts` (gradual/abrupt), `highest_total_change`. |
 
@@ -80,14 +80,15 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 - **Debugging one direction** → `results.filter_segments(direction='Up')` to isolate uptrends only (the abrupt notebook does this to compare uptrends against each other).
 - **Rank the strongest trends** → `results.filter_segments(direction='Up/Down', sort_by='change_rank')`. Rank 1 = steepest+longest by `total_change` magnitude.
 - **Top-N** → `results.filter_segments(direction='Up', sort_by='change_rank')[:3]`.
-- **Full per-segment metrics** → `results.df` (includes `change`, `pct_change`, `SNR` that `df_summary` omits).
+- **Full per-segment metrics** → `results.df` (all columns, e.g. `total_change`, `pct_change`, `SNR`).
 - **Raw dicts for downstream code** → `results.filter_segments(format='dict')` or `results.segments` / `results.trend_segments`.
 - **Best single segment** → `results.best` (dict).
 
 ### Metric columns (what they mean)
 
-- `change` / `total_change` — cumulative sum of day-over-day differences across the segment.
-- `pct_change` — relative change; e.g. `3.67` = +367%. Useful for comparing trends of different baselines.
+- `total_change` — net change across the segment; sum of day-over-day diffs (telescopes to end − start).
+- `pct_change` — relative change; equals `(value_end / value_start) - 1`; e.g. `3.67` = +367%. Equals `mltp_change - 1`.
+- `mltp_change` — multiplier change; equals `value_end / value_start`; e.g. `4.67` = 4.67x. Equals `pct_change + 1`; more readable when the change exceeds +100%.
 - `days` — segment length.
 - `SNR` — signal-to-noise ratio. **Lower SNR ≈ noisier segment.** Noise segments typically have SNR < ~7; clean gradual trends sit around 17-22. Borderline trends (e.g. SNR ~5.9) show up with high `change_rank` numbers — still detected but flagged as weak.
 - `change_rank` — 1 = strongest trend by `abs(total_change)`. Lower is stronger. Artifact trends (short, low-magnitude) get high rank numbers and are effectively de-prioritized.
@@ -116,3 +117,31 @@ Tests exercise this heavily in `tests/test_io_results.py` (all `@pytest.mark.cor
 ```
 
 `detect_trends` reconstructs this dict from an allowlist — unknown keys are dropped. Adding a tunable = update the allowlist in `detect_trends.py:72` + the docstring + add a test.
+
+## Install & verify
+
+During development you can import `pytrendy` directly — no rebuild step needed.
+The commands below are primarily for end users or when setting up a fresh environment.
+
+```bash
+pip install -e ".[dev]"           # dev: pytest, pytest-cov, pytest-mpl, pytest-timeout
+pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs work
+```
+
+**Verify before push** — CI runs core first, then non-core with `--cov-append`:
+
+```bash
+pytest tests/ -m core                       # essential, must pass
+pytest tests/ -m "not core" --cov-append    # the rest
+# or just: pytest  (pyproject addopts already set --mpl --cov=pytrendy)
+```
+
+- 15s per-test timeout (`pytest-timeout`).
+- Plot tests use **pytest-mpl** with baselines pinned to **matplotlib==3.10.8** (hard pin in `pyproject.toml`). Regenerating baselines on another version = false failures. See the `test` skill.
+- `coverage.xml` + `.coverage` are gitignored artifacts; don't commit.
+
+## Docs
+
+- MkDocs Material + mkdocstrings (Google-style). New page → register under `nav:` in `mkdocs.yml`.
+- `mkdocs serve` for local preview. PRs touching `docs/`, `mkdocs.yml`, or `pytrendy/` auto-deploy a preview at `russellsb.github.io/pytrendy/pr-<N>/` (bot comments the URL; removed on PR close; fork PRs skipped).
+- JupyterLite notebooks in `docs/examples/` — run `scripts/normalize_notebooks.sh` before building docs (works around a JupyterLite text-output rendering bug).

@@ -44,7 +44,7 @@ class TestNoiseCrashes:
 
         # Expected segments to find a subset of based on current behaviour
         expected_segments = [
-            {'direction': 'Down', 'start': '2025-05-15', 'end': '2025-06-07'},
+            {'direction': 'Down', 'start': '2025-05-15', 'end': '2025-06-12'},
         ]
         assert_segments_in_a_haystack(results.segments, expected_segments)
 

@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 
+
 def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:
     """
     Enhances trend segments with quantitative metrics and rankings.
@@ -16,7 +17,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
 
     Metrics added include:
     
-    - Absolute and percent change (based on start/end values)
+    - Percent change (based on start/end values)
 
     - Duration in days
 
@@ -39,21 +40,21 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
     Returns:
         list: 
             A list of enhanced segment dictionaries with additional keys:
-            - `'change'`, `'pct_change'`, `'days'`, `'total_change'`, `'SNR'`, `'change_rank'`
+            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'days'`, `'SNR'`, `'change_rank'`
     """
     segments_enhanced = []
     for segment in segments:
         segment_enhanced = segment.copy()
         df_segment = df.loc[segment['start']:segment['end']]
 
-        # Calculate absolute and relative change from first point to last point of trend.
+        # Calculate relative change from first point to last point of trend.
         val_start = df_segment[value_col].iloc[0]
         val_end = df_segment[value_col].iloc[-1]
-        segment_enhanced['change'] = float(val_end - val_start)
         segment_enhanced['pct_change'] = (float(val_end / val_start - 1) if val_start != 0 else np.nan)
+        segment_enhanced['mltp_change'] = (float(val_end / val_start) if val_start != 0 else np.nan)
 
         # Calculate days & cumulative total change
-        days = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        days = segment['end'] - segment['start']
         if days == 0: 
             days = 1 # edge case for 1 day flat between noise spike & trend
         segment_enhanced['days'] = days # set days
