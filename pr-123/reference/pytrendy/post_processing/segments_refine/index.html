@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../../../icon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -672,6 +672,8 @@
       
         
       
+        
+      
     
     
     
@@ -764,6 +766,34 @@
     
   
     <code class='doc-symbol doc-symbol-nav'></code>plot_pytrendy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../io/prepare_index/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
   
 
     
@@ -1497,7 +1527,7 @@
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.refine_segments(value_col)" class="doc doc-heading doc-heading-parameter">              <b><code>value_col</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#str">str</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#str">str</a></code>)
           –
           <div class="doc-md-description">
             <p>Name of the signal column.</p>
@@ -1505,7 +1535,7 @@
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.refine_segments(segments)" class="doc doc-heading doc-heading-parameter">              <b><code>segments</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a></code>)
           –
           <div class="doc-md-description">
             <p>Initial segment list from detection.</p>
@@ -1513,12 +1543,13 @@
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.refine_segments(method_params)" class="doc doc-heading doc-heading-parameter">              <b><code>method_params</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a></code>)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
           –
           <div class="doc-md-description">
             <p>Optional parameters for abrupt padding and control. Supported keys:</p>
 <ul>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>0</code>.</li>
+<li><strong>gradual_padding</strong> (<code>int</code>): Number of days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
 </ul>
           </div>
         </li>
@@ -1528,7 +1559,7 @@
 <p><span class="doc-section-title">Returns:</span></p>
     <ul>
         <li class="doc-section-item field-body">
-<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/library/stdtypes.html#dict">dict</a>]</code>
+<b><code>list</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a>[<a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a>]</code>
 )          –
           <div class="doc-md-description">
             <p>Final refined segment list.</p>
@@ -1586,8 +1617,9 @@
 <span class="normal">59</span>
 <span class="normal">60</span>
 <span class="normal">61</span>
-<span class="normal">62</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="normal">62</span>
+<span class="normal">63</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Full post-processing pipeline to refine detected trend segments.</span>
 
 <span class="sd">    This function applies:</span>
@@ -1604,21 +1636,22 @@
 <span class="sd">        method_params (dict): Optional parameters for abrupt padding and control. Supported keys:</span>
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.</span>
+<span class="sd">            - **gradual_padding** (`int`): Number of days to extend gradual segment ends forward. Defaults to `0`.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Final refined segment list.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># grouping 1st pass: sporadic flats &amp; noises</span>
 
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># for gradual</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for gradual + gradual padding</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for abrupt</span>
 
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from expand/contract</span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># grouping 2nd pass: after trend refine and cleanup</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from expand/contract    </span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># grouping 2nd pass: after trend refine and cleanup    </span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps again after grouping</span>
 
     <span class="n">init_segments</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
@@ -1731,7 +1764,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.indexes", "content.tabs.link", "content.code.copy", "header.autohide"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
         <script src="../../../../javascripts/extra.js"></script>
       
