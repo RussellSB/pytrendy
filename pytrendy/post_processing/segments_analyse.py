@@ -40,7 +40,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
     Returns:
         list: 
             A list of enhanced segment dictionaries with additional keys:
-            - `'total_change'`, `'pct_change'`, `'days'`, `'SNR'`, `'change_rank'`
+            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'days'`, `'SNR'`, `'change_rank'`
     """
     segments_enhanced = []
     for segment in segments:
@@ -51,6 +51,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         val_start = df_segment[value_col].iloc[0]
         val_end = df_segment[value_col].iloc[-1]
         segment_enhanced['pct_change'] = (float(val_end / val_start - 1) if val_start != 0 else np.nan)
+        segment_enhanced['mltp_change'] = (float(val_end / val_start) if val_start != 0 else np.nan)
 
         # Calculate days & cumulative total change
         days = segment['end'] - segment['start']
