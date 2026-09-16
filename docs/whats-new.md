@@ -21,7 +21,7 @@ Stay up to date with every PyTrendy release - user-facing improvements, bug fixe
 pip install --pre pytrendy
 ```
 
-v2.0.0 is a breaking-release stream: trend detection now runs on any index type (dates, weekly steps, integers, floats, or strings) with `date_col` optional, the redundant `change` column has been removed in favour of `total_change`, and a new `mltp_change` multiplier column lands next to `pct_change`. Ruff bootstraps the linter into dev tooling and CI.
+v2.0.0 is a breaking-release stream: trend detection now runs on any index type (dates, weekly steps, integers, floats, or strings) with `date_col` optional, the redundant `change` column has been removed in favour of `total_change`, and a new `mltp_change` multiplier column lands next to `pct_change`. Gradual trends gain `gradual_padding` so they can absorb adjacent flat regions, false flat detection no longer chops long gradual ramps, abrupt segments can't be padded twice, and Ruff bootstraps the linter into dev tooling and CI.
 
 ??? note "Weekly data and any-index support — `detect_trends` signature reworked"
     `detect_trends()` no longer requires a date column. The signature is now
@@ -67,18 +67,6 @@ v2.0.0 is a breaking-release stream: trend detection now runs on any index type 
     in both the test and release workflows. The initial configuration bootstraps the linter
     without failing on the existing codebase, so rule coverage can be tightened incrementally.
     Introduced: [#123](https://github.com/RussellSB/pytrendy/pull/123)
-
----
-
-## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
-
-*Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
-
-```bash
-pip install --pre pytrendy
-```
-
-v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a new argument, so you can extend gradual trends into adjacent flat regions and restyle the detection plot. Two fixes round it out: false flat detection no longer chops long gradual ramps, and abrupt segments can't be padded twice.
 
 ??? note "Gradual trend padding (`gradual_padding`)"
     A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
