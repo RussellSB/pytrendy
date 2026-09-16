@@ -1395,17 +1395,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v144-pre-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coming in v1.4.4 pre-release
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#released-in-v130" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1612,17 +1601,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#coming-in-v144-pre-release" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Coming in v1.4.4 pre-release
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#released-in-v130" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1821,7 +1799,7 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <p><em>Staged on the <code>develop</code> branch; it will land in the next stable release. Currently available as the latest pre-release:</em></p>
 <div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
 </code></pre></div>
-<p>v2.0.0 is a breaking-release stream: trend detection now runs on any index type (dates, weekly steps, integers, floats, or strings) with <code>date_col</code> optional, the redundant <code>change</code> column has been removed in favour of <code>total_change</code>, and a new <code>mltp_change</code> multiplier column lands next to <code>pct_change</code>. Ruff bootstraps the linter into dev tooling and CI.</p>
+<p>v2.0.0 is a breaking-release stream: trend detection now runs on any index type (dates, weekly steps, integers, floats, or strings) with <code>date_col</code> optional, the redundant <code>change</code> column has been removed in favour of <code>total_change</code>, and a new <code>mltp_change</code> multiplier column lands next to <code>pct_change</code>. Gradual trends gain <code>gradual_padding</code> so they can absorb adjacent flat regions, false flat detection no longer chops long gradual ramps, abrupt segments can't be padded twice, and Ruff bootstraps the linter into dev tooling and CI.</p>
 <details class="note">
 <summary>Weekly data and any-index support — <code>detect_trends</code> signature reworked</summary>
 <p><code>detect_trends()</code> no longer requires a date column. The signature is now
@@ -1872,12 +1850,6 @@ in both the test and release workflows. The initial configuration bootstraps the
 without failing on the existing codebase, so rule coverage can be tightened incrementally.
 Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/123">#123</a></p>
 </details>
-<hr />
-<h2 id="coming-in-v144-pre-release">Coming in v1.4.4 <span class="version-prerelease">pre-release</span></h2>
-<p><em>Staged on the <code>develop</code> branch; it will land in the next stable release. Currently available as the latest pre-release:</em></p>
-<div class="language-bash highlight"><pre><span></span><code>pip<span class="w"> </span>install<span class="w"> </span>--pre<span class="w"> </span>pytrendy
-</code></pre></div>
-<p>v1.4.0-dev.4 adds <code>gradual_padding</code> to <code>method_params</code> and <code>plot_params</code> as a new argument, so you can extend gradual trends into adjacent flat regions and restyle the detection plot. Two fixes round it out: false flat detection no longer chops long gradual ramps, and abrupt segments can't be padded twice.</p>
 <details class="note">
 <summary>Gradual trend padding (<code>gradual_padding</code>)</summary>
 <p>A new <code>gradual_padding</code> option in <code>method_params</code> lets gradual Up/Down segments be extended forward into adjacent flat regions.
