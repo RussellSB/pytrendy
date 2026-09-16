@@ -119,6 +119,24 @@ class TestPlotPytrendyEdgeCases:
         return fig
 
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_spaced_no_gaps.png', style='default')
+    def test_plot_weekly_spaced_no_gaps(self):
+        """Regression: weekly-spaced dates must shade without boundary gaps.
+
+        Non-daily point spacing previously left ~6-day white bands between
+        segments because boundary displacement assumed a one-day step.
+        """
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        weekly = df.set_index('date')['gradual'].resample('W').last()
+        weekly.index = weekly.index.strftime('%Y-%m-%d')
+        dfw = weekly.reset_index()
+        dfw.columns = ['date', 'gradual']
+
+        results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
+        return self._prepare_and_plot(dfw, 'gradual', results.segments)
+
     def test_plot_show_behavior(self, monkeypatch):
         """
         Test that plot_pytrendy triggers plt.show() when suppress_show=False.
