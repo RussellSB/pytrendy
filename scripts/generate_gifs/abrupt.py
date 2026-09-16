@@ -77,27 +77,27 @@ def generate():
     print("Rendering Cycle 1 ...")
 
     # 1. Raw plot (white background)
-    R1(TITLE1); hold(500)
+    R1(TITLE1); hold(400)
 
     # 2. All segments sweep left to right (blue, green, blue, red, blue)
     for i in range(30):
-        R1(TITLE1, sweep=(i + 1) / 30, segs=segs1); hold(40)
+        R1(TITLE1, sweep=(i + 1) / 30, segs=segs1); hold(30)
 
     # 3. Sweep complete hold (all segments visible)
-    R1(TITLE1, sweep=1.0, segs=segs1); hold(500)
+    R1(TITLE1, sweep=1.0, segs=segs1); hold(400)
 
     # 4. Ranks fade in (larger, near top)
     for i in range(10):
         a = (i + 1) / 10
-        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
+        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(30)
 
     # 5. Result hold
-    R1(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(2000)
+    R1(TITLE1, sweep=1.0, segs=segs1, ranks=True); hold(1450)
 
     # 6. Ranks fade out
     for i in range(10):
         a = max(0.0, 1.0 - (i + 1) / 10)
-        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(40)
+        R1(TITLE1, sweep=1.0, segs=segs1, ranks=True, ra=a); hold(30)
 
     # ── Crossfade: Phase 1 end → Phase 2 start ─────────────────────────
     # Pre-render the two frames to crossfade between
@@ -107,33 +107,33 @@ def generate():
     for i in range(15):
         alpha = (i + 1) / 15
         frames.append(_crossfade(phase2_start, phase1_end, alpha))
-        hold(50)
+        hold(40)
 
     # ── Cycle 2: with padding ──────────────────────────────────────────
     print("Rendering Cycle 2 ...")
 
     # 7. Raw plot (new title)
-    R2(TITLE2); hold(500)
+    R2(TITLE2); hold(400)
 
     # 8. All segments sweep left to right (padded)
     for i in range(30):
-        R2(TITLE2, sweep=(i + 1) / 30, segs=segs2); hold(40)
+        R2(TITLE2, sweep=(i + 1) / 30, segs=segs2); hold(30)
 
     # 9. Sweep complete hold
-    R2(TITLE2, sweep=1.0, segs=segs2); hold(500)
+    R2(TITLE2, sweep=1.0, segs=segs2); hold(400)
 
     # 10. Ranks fade in
     for i in range(10):
         a = (i + 1) / 10
-        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
+        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(30)
 
     # 11. Result hold
-    R2(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(2000)
+    R2(TITLE2, sweep=1.0, segs=segs2, ranks=True); hold(1450)
 
     # 12. Ranks fade out
     for i in range(10):
         a = max(0.0, 1.0 - (i + 1) / 10)
-        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(40)
+        R2(TITLE2, sweep=1.0, segs=segs2, ranks=True, ra=a); hold(30)
 
     # ── Crossfade: Phase 2 end → Phase 1 start (seamless loop) ────────
     phase2_end = render_frame(df, value_col, TITLE2, sweep_progress=1.0, segments=segs2)
@@ -142,7 +142,7 @@ def generate():
     for i in range(15):
         alpha = (i + 1) / 15
         frames.append(_crossfade(phase1_start, phase2_end, alpha))
-        hold(50)
+        hold(40)
 
     # ── Save keyframes for review ─────────────────────────────────────
     cycle1_result = render_frame(df, value_col, TITLE1, sweep_progress=1.0, segments=segs1,
