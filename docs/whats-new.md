@@ -150,6 +150,7 @@ v2.0.0 is a breaking-release stream, grouped into four sections below:
 
     For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
     Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
+    Credits: [@gyr0tron](https://github.com/gyr0tron) (plot_params feature), [@RussellSB](https://github.com/RussellSB) (integration and review), [@alexbthundiyil-spec](https://github.com/alexbthundiyil-spec) (original custom-figsize prototype)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
