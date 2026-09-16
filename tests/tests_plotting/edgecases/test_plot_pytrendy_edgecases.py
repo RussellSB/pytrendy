@@ -175,6 +175,40 @@ class TestPlotPytrendyEdgeCases:
         assert major_weekdays == {'Sun'}
         return fig
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_fortnightly_pinned_ticks.png', style='default')
+    def test_fortnightly_pinned_ticks(self):
+        """Fortnightly dates get majors pinned to every observation.
+
+        A ``WeekdayLocator(interval=2)`` anchors its interval grid to the Unix
+        epoch, so its majors landed one week off the 14-day observations (0/38 on
+        data points). Non-daily spacing now pins majors to the data's own index
+        positions, so every major (and its 'major' gridline) sits on a sampled
+        point.
+        """
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 3, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        weekly = long.set_index('date')['gradual'].resample('W').last()
+        fortnightly = pd.DataFrame({
+            'date': pd.date_range('2025-01-05', periods=len(weekly) // 2, freq='14D'),
+            'gradual': weekly.iloc[::2].values,
+        })
+
+        results = pt.detect_trends(fortnightly, date_col='date', value_col='gradual',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        plot_df = fortnightly.set_index('date')[['gradual']]
+        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
+                            index_type='datetime64', suppress_show=True)
+
+        major = {
+            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major == set(pd.DatetimeIndex(fortnightly['date']).normalize())
+        return fig
+
     def test_plot_show_behavior(self, monkeypatch):
         """
         Test that plot_pytrendy triggers plt.show() when suppress_show=False.
