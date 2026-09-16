@@ -137,6 +137,26 @@ class TestPlotPytrendyEdgeCases:
         results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
         return self._prepare_and_plot(dfw, 'gradual', results.segments)
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_datetime64_ticks.png', style='default')
+    def test_plot_weekly_datetime64_ticks(self):
+        """Weekly datetime64 index gets weekly majors and no daily minor ticks.
+
+        A real datetime64 column previously skipped the locator block entirely,
+        leaving matplotlib's AutoDateLocator to pick a handful of auto ticks.
+        """
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        weekly = df.set_index('date')['gradual'].resample('W').last().reset_index()
+        weekly.columns = ['date', 'gradual']
+
+        results = pt.detect_trends(weekly, date_col='date', value_col='gradual', plot=False)
+        plot_df = weekly.set_index('date')[['gradual']]
+        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
+                            index_type='datetime64', suppress_show=True)
+        assert len(fig.axes[0].xaxis.get_minorticklocs()) == 0
+        return fig
+
     def test_plot_show_behavior(self, monkeypatch):
         """
         Test that plot_pytrendy triggers plt.show() when suppress_show=False.
