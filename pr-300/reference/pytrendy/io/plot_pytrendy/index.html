@@ -1745,24 +1745,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/plot_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
-<span class="normal"> 30</span>
-<span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
-<span class="normal"> 40</span>
-<span class="normal"> 41</span>
-<span class="normal"> 42</span>
-<span class="normal"> 43</span>
-<span class="normal"> 44</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 44</span>
 <span class="normal"> 45</span>
 <span class="normal"> 46</span>
 <span class="normal"> 47</span>
@@ -2031,7 +2014,56 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="normal">310</span>
 <span class="normal">311</span>
 <span class="normal">312</span>
-<span class="normal">313</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">index_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"date"</span><span class="p">,</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="normal">313</span>
+<span class="normal">314</span>
+<span class="normal">315</span>
+<span class="normal">316</span>
+<span class="normal">317</span>
+<span class="normal">318</span>
+<span class="normal">319</span>
+<span class="normal">320</span>
+<span class="normal">321</span>
+<span class="normal">322</span>
+<span class="normal">323</span>
+<span class="normal">324</span>
+<span class="normal">325</span>
+<span class="normal">326</span>
+<span class="normal">327</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span>
+<span class="normal">343</span>
+<span class="normal">344</span>
+<span class="normal">345</span>
+<span class="normal">346</span>
+<span class="normal">347</span>
+<span class="normal">348</span>
+<span class="normal">349</span>
+<span class="normal">350</span>
+<span class="normal">351</span>
+<span class="normal">352</span>
+<span class="normal">353</span>
+<span class="normal">354</span>
+<span class="normal">355</span>
+<span class="normal">356</span>
+<span class="normal">357</span>
+<span class="normal">358</span>
+<span class="normal">359</span>
+<span class="normal">360</span>
+<span class="normal">361</span>
+<span class="normal">362</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">index_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"date"</span><span class="p">,</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Visualizes detected trend segments over the original time series signal.</span>
 
@@ -2109,9 +2141,13 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
     <span class="c1"># Add shaded regions with fill_between</span>
     <span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_ylim</span><span class="p">()</span>  <span class="c1"># get plot's visible y-range</span>
+    <span class="c1"># 'date' and 'datetime64' are both real date axes: boundaries must be</span>
+    <span class="c1"># displaced by the actual point spacing (via _adjacent_to), not a hard-coded</span>
+    <span class="c1"># one-day step, or non-daily data leaves white gaps between shaded regions.</span>
+    <span class="n">is_date_axis</span> <span class="o">=</span> <span class="n">index_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'date'</span><span class="p">,</span> <span class="s1">'datetime64'</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">):</span>
 
-        <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s2">"date"</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
             <span class="n">start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span>
             <span class="n">end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -2122,12 +2158,14 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
         <span class="c1"># Get context on prev seg if possible</span>
         <span class="n">prev_seg</span> <span class="o">=</span> <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span><span class="o">-</span><span class="mi">1</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s2">"date"</span><span class="p">:</span>
-            <span class="n">prev_neighbouring</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">==</span> <span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
+            <span class="n">prev_point</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">prev_neighbouring</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">prev_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">==</span> <span class="n">prev_point</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
             <span class="n">prev_neighbouring</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">prev_neighbouring</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">prev_point</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">prev_neighbouring</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">prev_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">==</span> <span class="n">prev_point</span><span class="p">)</span>
 
         <span class="n">is_prev_not_trend</span> <span class="o">=</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">prev_seg</span><span class="p">))</span>
 
@@ -2138,13 +2176,15 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
         <span class="c1"># Get context on next seg if possible</span>
         <span class="n">next_seg</span> <span class="o">=</span> <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
-            <span class="n">next_neighbouring</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">==</span> <span class="p">(</span><span class="n">end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+        <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
+            <span class="n">next_point</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">next_neighbouring</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">==</span> <span class="n">next_point</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
             <span class="n">end_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
             <span class="n">next_neighbouring</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">==</span> <span class="n">_safe_adjacent</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">next_neighbouring</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="n">end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">next_point</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">next_neighbouring</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">==</span> <span class="n">next_point</span><span class="p">)</span>
 
         <span class="n">next_seg_abrupt</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">((</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">next_seg</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'abrupt'</span><span class="p">))</span>
         <span class="n">next_seg_noise</span> <span class="o">=</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Noise'</span><span class="p">)</span>
@@ -2153,13 +2193,13 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
         <span class="k">if</span> <span class="n">is_abrupt</span> <span class="ow">or</span> <span class="n">is_noise</span><span class="p">:</span> 
             <span class="k">pass</span>  <span class="c1"># Keep start as-is for abrupt/noise segments</span>
         <span class="k">else</span><span class="p">:</span> 
-            <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
-                <span class="n">new_start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Everything else displaced left start</span>
+            <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
+                <span class="n">new_start</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Everything else displaced left start</span>
             <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
                 <span class="n">start_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">start</span><span class="p">)</span>
                 <span class="n">new_start</span> <span class="o">=</span> <span class="n">_safe_adjacent</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start_pos</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">new_start</span> <span class="o">=</span> <span class="n">start</span> <span class="o">-</span> <span class="mi">1</span> <span class="c1"># Everything else displaced left start</span>
+                <span class="n">new_start</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># Everything else displaced left start</span>
 
             <span class="c1"># Check validity of plot start adjustment</span>
             <span class="n">value_new_start</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">new_start</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span> <span class="k">if</span> <span class="n">new_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_start</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2168,21 +2208,22 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
             <span class="n">valid_up_start</span> <span class="o">=</span> <span class="p">(</span><span class="n">value_new_start</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Up'</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value_new_start</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">valid_down_start</span> <span class="o">=</span> <span class="p">(</span><span class="n">value_new_start</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Down'</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value_new_start</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">valid_up_start</span> <span class="ow">or</span> <span class="n">valid_down_start</span> <span class="ow">or</span> <span class="n">is_not_trend</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">valid_up_start</span> <span class="ow">or</span> <span class="n">valid_down_start</span> <span class="ow">or</span> <span class="n">is_not_trend</span><span class="p">)</span> <span class="ow">and</span> <span class="n">new_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">start</span> <span class="o">=</span> <span class="n">new_start</span> <span class="c1"># Apply left displacement only if valid</span>
             <span class="k">else</span><span class="p">:</span> 
                 <span class="c1"># if not displaced and prev is not trend, adjust by plotting (as prev has already been drawn)</span>
                 <span class="k">if</span> <span class="n">is_prev_not_trend</span> <span class="ow">and</span> <span class="n">prev_neighbouring</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
                         <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span>
-                        <span class="n">prev_new_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">prev_end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                        <span class="n">prev_adj_end</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">prev_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">prev_new_end</span> <span class="o">=</span> <span class="n">prev_adj_end</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span> <span class="k">if</span> <span class="n">prev_adj_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="kc">None</span>
                     <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
                         <span class="n">prev_end</span> <span class="o">=</span> <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span>
                         <span class="n">prev_end_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">prev_end</span><span class="p">)</span>
                         <span class="n">prev_new_end</span> <span class="o">=</span> <span class="n">_safe_adjacent</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">prev_end_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="n">prev_end</span> <span class="o">=</span> <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">]</span>
-                        <span class="n">prev_new_end</span> <span class="o">=</span> <span class="n">prev_end</span> <span class="o">+</span> <span class="mi">1</span>
+                        <span class="n">prev_new_end</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">prev_end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="n">prev_new_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                         <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
@@ -2194,13 +2235,13 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
         <span class="c1"># Adjust ends when appropriate</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">next_seg_abrupt</span> <span class="ow">or</span> <span class="n">next_seg_noise</span><span class="p">)</span> <span class="ow">and</span> <span class="n">next_neighbouring</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
-                <span class="n">new_end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
+                <span class="n">new_end</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
                 <span class="n">end_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
                 <span class="n">new_end</span> <span class="o">=</span> <span class="n">_safe_adjacent</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">new_end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span>
+                <span class="n">new_end</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
             <span class="c1"># Check validity of plot end adjustment</span>
             <span class="n">value_new_end</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">new_end</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span> <span class="k">if</span> <span class="n">new_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">new_end</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span> <span class="k">else</span> <span class="kc">None</span>
@@ -2209,18 +2250,24 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
             <span class="n">valid_up_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">value_new_end</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Up'</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value_new_end</span> <span class="o">&gt;</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">valid_down_end</span> <span class="o">=</span> <span class="p">(</span><span class="n">value_new_end</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Down'</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">value_new_end</span> <span class="o">&lt;</span> <span class="n">value</span><span class="p">)</span>
             <span class="n">is_not_trend</span> <span class="o">=</span> <span class="ow">not</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">seg</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">valid_up_end</span> <span class="ow">or</span> <span class="n">valid_down_end</span> <span class="ow">or</span> <span class="n">is_not_trend</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">valid_up_end</span> <span class="ow">or</span> <span class="n">valid_down_end</span> <span class="ow">or</span> <span class="n">is_not_trend</span><span class="p">)</span> <span class="ow">and</span> <span class="n">new_end</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">end</span> <span class="o">=</span> <span class="n">new_end</span>  <span class="c1"># Apply right displacement only if valid</span>
             <span class="k">else</span><span class="p">:</span> 
                 <span class="c1"># if not displaced and next is noise, adjust for next plotting round</span>
                 <span class="k">if</span> <span class="n">next_seg_noise</span> <span class="ow">and</span> <span class="n">next_neighbouring</span><span class="p">:</span> 
-                    <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
-                        <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">])</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
+                        <span class="n">next_start</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">])</span>
+                        <span class="n">next_adj_start</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">next_start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">next_adj_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_adj_start</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'string'</span><span class="p">:</span>
                         <span class="n">next_start_pos</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get_loc</span><span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">])</span>
                         <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_safe_adjacent</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">next_start_pos</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+                        <span class="n">next_start</span> <span class="o">=</span> <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span>
+                        <span class="n">next_adj_start</span> <span class="o">=</span> <span class="n">_adjacent_to</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">next_start</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">next_adj_start</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                            <span class="n">segments_enhanced</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">][</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">=</span> <span class="n">next_adj_start</span>
         <span class="k">else</span><span class="p">:</span> 
             <span class="k">pass</span>  <span class="c1"># Keep end as-is</span>
 
@@ -2249,7 +2296,7 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 
         <span class="c1"># Add vertical line if next seg is same &amp; touching</span>
         <span class="k">if</span> <span class="n">next_seg</span> <span class="ow">and</span> <span class="n">next_neighbouring</span> <span class="ow">and</span> <span class="n">next_seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="n">seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">is_date_axis</span><span class="p">:</span>
                 <span class="n">line_date</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">line_date</span> <span class="o">=</span> <span class="n">seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span>
@@ -2266,13 +2313,30 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
     <span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">first_date</span><span class="p">,</span> <span class="n">last_date</span><span class="p">)</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">ymin</span><span class="p">,</span> <span class="n">ymax</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">index_type</span> <span class="o">==</span> <span class="s1">'date'</span><span class="p">:</span>
-        <span class="c1"># Major ticks: every 7 days (with labels)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">WeekdayLocator</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">index_type</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'date'</span><span class="p">,</span> <span class="s1">'datetime64'</span><span class="p">):</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">gap_days</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">median</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">))</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'D'</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">gap_days</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Daily data: weekly majors on the default weekday, as before.</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">WeekdayLocator</span><span class="p">(</span><span class="n">interval</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Non-daily spacing: pin majors to the data's own index positions so</span>
+            <span class="c1"># every major (and its 'major' gridline) lands exactly on an</span>
+            <span class="c1"># observation, for any cadence including irregular. A WeekdayLocator</span>
+            <span class="c1"># anchors its interval grid to the Unix epoch, which lands majors</span>
+            <span class="c1"># beside fortnightly / month-end observations.</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="s1">'%Y-%m-</span><span class="si">%d</span><span class="s1">'</span><span class="p">))</span>
 
-        <span class="c1"># Minor ticks: every day (no labels, just tick marks/grid)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DayLocator</span><span class="p">())</span>
+        <span class="c1"># Minor ticks: every day, but only when points are daily-or-finer. A daily</span>
+        <span class="c1"># ruler under non-daily data (e.g. weekly points) misrepresents the sampling,</span>
+        <span class="c1"># so non-daily spacing gets no minors at all.</span>
+        <span class="k">if</span> <span class="n">gap_days</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_minor_locator</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DayLocator</span><span class="p">())</span>
 
     <span class="c1"># Rotate major tick labels</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'right'</span><span class="p">)</span>
