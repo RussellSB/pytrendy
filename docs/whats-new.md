@@ -13,6 +13,63 @@ Stay up to date with every PyTrendy release - user-facing improvements, bug fixe
 
 <!-- WHATS_NEW_CONTENT_START -->
 
+## Coming in v2.0.0 <span class="version-prerelease">pre-release</span>
+
+*Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
+
+```bash
+pip install --pre pytrendy
+```
+
+v2.0.0 is a breaking-release stream: trend detection now runs on any index type (dates, weekly steps, integers, floats, or strings) with `date_col` optional, the redundant `change` column has been removed in favour of `total_change`, and a new `mltp_change` multiplier column lands next to `pct_change`. Ruff bootstraps the linter into dev tooling and CI.
+
+??? note "Weekly data and any-index support — `detect_trends` signature reworked"
+    `detect_trends()` no longer requires a date column. The signature is now
+    `detect_trends(df, value_col, date_col=None, ...)` — when `date_col` is omitted, the
+    DataFrame's own index is used, and any unique, sortable index type is accepted: datetimes,
+    integers, floats, or date-like strings (including weekly and other irregular spacing).
+    Detection runs on an internal contiguous integer index and every segment boundary is remapped
+    back to your external index, so `results.df`, `.print_summary()`, and plots all speak in
+    your units — the `days` column reports "index steps" for non-date indexes.
+    Introduced: [#205](https://github.com/RussellSB/pytrendy/pull/205)
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        # weekly series with a plain integer index - no date column needed
+        df = pd.read_csv(url)                      # value_col + weekly observations
+        results = pt.detect_trends(df, value_col="series", plot=True)
+        ```
+
+    !!! warning "Breaking: argument order"
+        The old `(df, date_col, value_col)` positional order is rejected with a `TypeError`.
+        Update positional callers to `detect_trends(df, value_col, date_col=...)` or pass
+        keywords.
+
+??? note "Removed the redundant `change` column (breaking)"
+    `results.df` no longer contains a `change` column: it always duplicated `total_change`
+    (a telescoping sum of daily differences equals the net end-to-start change).
+    Reading `results.df["change"]` now raises a `KeyError` — use `total_change`, which holds
+    the identical value. Segment dictionaries and `.df_summary` are unaffected.
+    Introduced: [#294](https://github.com/RussellSB/pytrendy/pull/294)
+
+??? note "New `mltp_change` multiplier metric"
+    Alongside `pct_change`, each segment now reports `mltp_change = value_end / value_start`
+    as a float. While `pct_change` answers "how much relative growth (+367%)", `mltp_change`
+    answers "what multiplier (4.67x)" — the more readable framing once changes exceed +100%.
+    It is NaN when the segment starts at zero.
+    Introduced: [#291](https://github.com/RussellSB/pytrendy/pull/291)
+
+??? note "Ruff wired into dev tooling and CI"
+    `ruff` joins the `dev` dependency extra and a `Run Ruff` step now precedes the test suite
+    in both the test and release workflows. The initial configuration bootstraps the linter
+    without failing on the existing codebase, so rule coverage can be tightened incrementally.
+    Introduced: [#123](https://github.com/RussellSB/pytrendy/pull/123)
+
+---
+
 ## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
