@@ -39,7 +39,7 @@ v2.0.0 is a breaking-release stream, grouped into four sections below:
     back to your external index, so `results.df`, `.print_summary()`, and plots all speak in
     your units — the `days` column reports "index steps" for non-date indexes.
     Introduced: [#205](https://github.com/RussellSB/pytrendy/pull/205)
-    Credits: [@ChrisMarsden833](https://github.com/ChrisMarsden833) (weekly-data feature), [@RussellSB](https://github.com/RussellSB) (index framework and integration)
+    Credits: [@ChrisMarsden833](https://github.com/ChrisMarsden833) (weekly-data feature), [@RussellSB](https://github.com/RussellSB) (full integration with code coverage, refactoring and bug fixes)
 
     ??? example "Code"
         ```python
