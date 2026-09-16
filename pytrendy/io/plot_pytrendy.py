@@ -24,6 +24,23 @@ def _safe_adjacent(index, pos, offset):
         return index[new_pos]
     return None
 
+def _adjacent_to(index, value, offset):
+    """
+    Return the index value adjacent to *value* (``offset`` of +1 or -1), or None.
+
+    Boundary displacement must follow the actual point spacing rather than a
+    hard-coded daily step, otherwise non-daily data (e.g. weekly dates) leaves
+    white gaps between shaded segments. For a contiguous daily index this is
+    equivalent to ``value +/- 1 day``.
+    """
+    try:
+        pos = index.get_loc(value)
+    except KeyError:
+        return None
+    if not isinstance(pos, int):
+        return None  # non-unique index: no well-defined adjacent point
+    return _safe_adjacent(index, pos, offset)
+
 def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
     Visualizes detected trend segments over the original time series signal.
@@ -116,7 +133,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         # Get context on prev seg if possible
         prev_seg = segments_enhanced[i-1] if i-1 >= 0 else None
         if index_type == "date":
-            prev_neighbouring = prev_seg and (pd.to_datetime(prev_seg['end']) == (start - pd.Timedelta(days=1)))
+            prev_point = _adjacent_to(df.index, start, -1)
+            prev_neighbouring = prev_seg and (prev_point is not None) and (pd.to_datetime(prev_seg['end']) == prev_point)
         elif index_type == 'string':
             prev_neighbouring = prev_seg and (prev_seg['end'] == df.index[df.index.get_loc(start) - 1])
         else:
@@ -132,7 +150,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         # Get context on next seg if possible
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
         if index_type == 'date':
-            next_neighbouring = next_seg and (pd.to_datetime(next_seg['start']) == (end + pd.Timedelta(days=1)))
+            next_point = _adjacent_to(df.index, end, 1)
+            next_neighbouring = next_seg and (next_point is not None) and (pd.to_datetime(next_seg['start']) == next_point)
         elif index_type == 'string':
             end_pos = df.index.get_loc(end)
             next_neighbouring = next_seg and (next_seg['start'] == _safe_adjacent(df.index, end_pos, 1))
@@ -147,7 +166,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             pass  # Keep start as-is for abrupt/noise segments
         else: 
             if index_type == 'date':
-                new_start = start - pd.Timedelta(days=1) # Everything else displaced left start
+                new_start = _adjacent_to(df.index, start, -1) # Everything else displaced left start
             elif index_type == 'string':
                 start_pos = df.index.get_loc(start)
                 new_start = _safe_adjacent(df.index, start_pos, -1)
@@ -161,14 +180,15 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
             valid_up_start = (value_new_start) and (seg['direction'] == 'Up') and (value_new_start < value)
             valid_down_start = (value_new_start) and (seg['direction'] == 'Down') and (value_new_start > value)
-            if valid_up_start or valid_down_start or is_not_trend:
+            if (valid_up_start or valid_down_start or is_not_trend) and new_start is not None:
                 start = new_start # Apply left displacement only if valid
             else: 
                 # if not displaced and prev is not trend, adjust by plotting (as prev has already been drawn)
                 if is_prev_not_trend and prev_neighbouring:
                     if index_type == 'date':
                         prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
-                        prev_new_end = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                        prev_adj_end = _adjacent_to(df.index, prev_end, 1)
+                        prev_new_end = prev_adj_end.strftime('%Y-%m-%d') if prev_adj_end is not None else None
                     elif index_type == 'string':
                         prev_end = segments_enhanced[i-1]['end']
                         prev_end_pos = df.index.get_loc(prev_end)
@@ -188,7 +208,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
             if index_type == 'date':
-                new_end = end + pd.Timedelta(days=1)
+                new_end = _adjacent_to(df.index, end, 1)
             elif index_type == 'string':
                 end_pos = df.index.get_loc(end)
                 new_end = _safe_adjacent(df.index, end_pos, 1)
@@ -202,13 +222,16 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             valid_up_end = (value_new_end) and (seg['direction'] == 'Up') and (value_new_end > value)
             valid_down_end = (value_new_end) and (seg['direction'] == 'Down') and (value_new_end < value)
             is_not_trend = not ('trend_class' in seg)
-            if valid_up_end or valid_down_end or is_not_trend:
+            if (valid_up_end or valid_down_end or is_not_trend) and new_end is not None:
                 end = new_end  # Apply right displacement only if valid
             else: 
                 # if not displaced and next is noise, adjust for next plotting round
                 if next_seg_noise and next_neighbouring: 
                     if index_type == 'date':
-                        segments_enhanced[i+1]['start'] = (pd.to_datetime(segments_enhanced[i+1]['start']) - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                        next_start = pd.to_datetime(segments_enhanced[i+1]['start'])
+                        next_adj_start = _adjacent_to(df.index, next_start, -1)
+                        if next_adj_start is not None:
+                            segments_enhanced[i+1]['start'] = next_adj_start.strftime('%Y-%m-%d')
                     elif index_type == 'string':
                         next_start_pos = df.index.get_loc(segments_enhanced[i+1]['start'])
                         segments_enhanced[i+1]['start'] = _safe_adjacent(df.index, next_start_pos, -1)
