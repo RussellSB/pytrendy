@@ -142,7 +142,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         elif index_type == 'string':
             prev_neighbouring = prev_seg and (prev_seg['end'] == df.index[df.index.get_loc(start) - 1])
         else:
-            prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
+            prev_point = _adjacent_to(df.index, start, -1)
+            prev_neighbouring = prev_seg and (prev_point is not None) and (prev_seg['end'] == prev_point)
 
         is_prev_not_trend = prev_seg and (not ('trend_class' in prev_seg))
 
@@ -160,7 +161,8 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             end_pos = df.index.get_loc(end)
             next_neighbouring = next_seg and (next_seg['start'] == _safe_adjacent(df.index, end_pos, 1))
         else:
-            next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
+            next_point = _adjacent_to(df.index, end, 1)
+            next_neighbouring = next_seg and (next_point is not None) and (next_seg['start'] == next_point)
         
         next_seg_abrupt = next_seg and (('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt'))
         next_seg_noise = next_seg and (next_seg['direction'] == 'Noise')
@@ -175,7 +177,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 start_pos = df.index.get_loc(start)
                 new_start = _safe_adjacent(df.index, start_pos, -1)
             else:
-                new_start = start - 1 # Everything else displaced left start
+                new_start = _adjacent_to(df.index, start, -1) # Everything else displaced left start
 
             # Check validity of plot start adjustment
             value_new_start = df.loc[new_start, value_col] if new_start is not None and new_start in df.index else None
@@ -199,7 +201,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                         prev_new_end = _safe_adjacent(df.index, prev_end_pos, 1)
                     else:
                         prev_end = segments_enhanced[i-1]['end']
-                        prev_new_end = prev_end + 1
+                        prev_new_end = _adjacent_to(df.index, prev_end, 1)
                     
                     if prev_new_end is not None:
                         if index_type == 'string':
@@ -217,7 +219,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 end_pos = df.index.get_loc(end)
                 new_end = _safe_adjacent(df.index, end_pos, 1)
             else:
-                new_end = end + 1
+                new_end = _adjacent_to(df.index, end, 1)
             
             # Check validity of plot end adjustment
             value_new_end = df.loc[new_end, value_col] if new_end is not None and new_end in df.index else None
@@ -240,7 +242,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                         next_start_pos = df.index.get_loc(segments_enhanced[i+1]['start'])
                         segments_enhanced[i+1]['start'] = _safe_adjacent(df.index, next_start_pos, -1)
                     else:
-                        segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
+                        next_start = segments_enhanced[i+1]['start']
+                        next_adj_start = _adjacent_to(df.index, next_start, -1)
+                        if next_adj_start is not None:
+                            segments_enhanced[i+1]['start'] = next_adj_start
         else: 
             pass  # Keep end as-is
 

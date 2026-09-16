@@ -7,6 +7,7 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 """
 
 import pytest
+import numpy as np
 import pandas as pd
 from copy import deepcopy
 from conftest import build_internal_index
@@ -481,4 +482,53 @@ class TestPlotNextNoiseFillDirect:
 
         fig = plot_pytrendy(plot_df, 'gradual', segments,
                             index_type='integer', suppress_show=True)
+        return fig
+
+
+# =============================================================================
+# plot_pytrendy: spacing-aware numeric (float) boundary displacement
+# =============================================================================
+
+class TestPlotFloatIndexSpacing:
+    """Regression: non-contiguous numeric indexes must displace boundaries by
+    the actual point spacing, not a hard-coded one step.
+
+    A float index (e.g. ``linspace(0, 4.3, 181)``) previously paid a ``±1``
+    step that was ~23% of the whole axis: Flat segments over-shaded from the
+    axis start and adjacent segments left white bands between them.
+    """
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_float_dense_no_gaps.png',
+                                    style='default')
+    def test_float_dense_no_gaps(self):
+        """Dense float index: shaded segments tile edge-to-edge, no white bands."""
+        df = pt.load_data('series_synthetic')
+        df['float_idx'] = np.linspace(0, 4.3, len(df))
+        results = pt.detect_trends(df, value_col='gradual', date_col='float_idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_df = df.set_index('float_idx')[['gradual']]
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='float', suppress_show=True)
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_float_sparse_no_gaps.png',
+                                    style='default')
+    def test_float_sparse_no_gaps(self):
+        """Sparse float index (gap 0.2): segments tile edge-to-edge, no white bands."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        weekly = df.set_index('date')['gradual'].resample('W').last()
+        sparse = pd.DataFrame({'float_idx': np.arange(len(weekly)) * 0.2,
+                               'gradual': weekly.values})
+        results = pt.detect_trends(sparse, value_col='gradual', date_col='float_idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_df = sparse.set_index('float_idx')[['gradual']]
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='float', suppress_show=True)
         return fig
