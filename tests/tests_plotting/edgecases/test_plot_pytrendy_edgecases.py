@@ -566,3 +566,62 @@ class TestPlotFloatIndexSpacing:
         fig = plot_pytrendy(plot_df, 'gradual', results.segments,
                             index_type='float', suppress_show=True)
         return fig
+
+
+# =============================================================================
+# plot_pytrendy: _adjacent_to guard branches
+# =============================================================================
+
+class TestAdjacentToGuards:
+    """Direct-call coverage for the ``_adjacent_to`` None-guards.
+
+    TODO: these use hand-crafted segment lists to hit guards the integration
+    pipeline cannot produce (boundaries absent from / duplicated in the plotted
+    index); redo with realistic scenarios if unsorted/duplicate input ever
+    becomes supported (#284).
+    """
+
+    @pytest.mark.plot
+    def test_date_boundary_absent_from_index(self):
+        """Lines 38-39: ``_adjacent_to`` returns None when the boundary is absent.
+
+        ``index.get_loc`` raises ``KeyError`` for a boundary past the plotted
+        index (integration never produces this), so the except-guard returns
+        None and the neighbour check falls back; the mask/xlim then clip the
+        overhanging end.
+        """
+        dates = pd.date_range('2025-01-01', periods=40, freq='D')
+        plot_df = pd.DataFrame({'gradual': np.arange(40, dtype=float)}, index=dates)
+        segments = [
+            {'start': dates[1], 'end': dates[-1] + pd.Timedelta(days=1),  # absent from index
+             'direction': 'Down', 'trend_class': 'gradual', 'change_rank': 1},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    @pytest.mark.plot
+    def test_duplicated_index_boundary_returns_none(self):
+        """Lines 40-41: ``_adjacent_to`` returns None for a duplicated index value.
+
+        On a non-unique index ``index.get_loc(value)`` returns a slice rather
+        than an int, which the guard treats as "no well-defined adjacent point".
+        Duplicate dates are not validated upstream (``prepare_index`` never
+        checks uniqueness), so a duplicated boundary is this guard's real
+        trigger.
+        """
+        dates = pd.date_range('2025-01-01', periods=40, freq='D')
+        dup = dates[20]
+        index = dates.insert(20, dup)  # dup now appears twice
+        plot_df = pd.DataFrame(
+            {'gradual': np.arange(len(index), dtype=float)}, index=index)
+        segments = [
+            {'start': dates[10], 'end': dup, 'direction': 'Flat', 'change_rank': 1},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
