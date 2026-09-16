@@ -282,13 +282,21 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     ax.set_xlim(first_date, last_date)
     ax.set_ylim(ymin, ymax)
 
-    if index_type == 'date':
+    if index_type in ('date', 'datetime64'):
         # Major ticks: every 7 days (with labels)
         ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-        # Minor ticks: every day (no labels, just tick marks/grid)
-        ax.xaxis.set_minor_locator(mdates.DayLocator())
+        # Minor ticks: every day, but only when points are daily-or-finer. A daily
+        # ruler under non-daily data (e.g. weekly points) misrepresents the sampling,
+        # so non-daily spacing gets no minors at all.
+        index = df.index
+        gap_days = (
+            np.median(np.diff(index.values)) / np.timedelta64(1, 'D')
+            if len(index) > 1 else 1
+        )
+        if gap_days <= 1:
+            ax.xaxis.set_minor_locator(mdates.DayLocator())
 
     # Rotate major tick labels
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
