@@ -73,7 +73,7 @@ v2.0.0 is a breaking-release stream: detection now accepts any index type with a
         )
         ```
 
-### New features for detection and analysis
+### Enhanced Capability
 
 ??? note "Weekly data and any-index support — `detect_trends` signature reworked"
     `detect_trends()` no longer requires a date column. The signature is now
@@ -98,11 +98,6 @@ v2.0.0 is a breaking-release stream: detection now accepts any index type with a
         # Down 2025-05-18 → 2025-06-08
         ```
 
-    !!! warning "Breaking: argument order"
-        The old `(df, date_col, value_col)` positional order is rejected with a `TypeError`.
-        Update positional callers to `detect_trends(df, value_col, date_col=...)` or pass
-        keywords.
-
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
     <span class="before-after-label after-label">Weekly dates (YYYY-MM-DD) via `date_col`</span>
@@ -111,6 +106,11 @@ v2.0.0 is a breaking-release stream: detection now accepts any index type with a
 
     </div>
     </div>
+
+    !!! warning "Breaking: argument order"
+        The old `(df, date_col, value_col)` positional order is rejected with a `TypeError`.
+        Update positional callers to `detect_trends(df, value_col, date_col=...)` or pass
+        keywords.
 
 ??? note "Gradual trend padding (`gradual_padding`)"
     A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
