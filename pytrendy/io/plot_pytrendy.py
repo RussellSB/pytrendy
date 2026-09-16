@@ -302,15 +302,12 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             # Daily data: weekly majors on the default weekday, as before.
             ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
         else:
-            # Spacing-matched majors: align the weekly (or coarser) ruler to the
-            # cadence of the data itself, e.g. weekly points falling on Sundays
-            # get Sunday-aligned majors. The default WeekdayLocator picks Tuesday,
-            # which misaligns the 'major' gridlines from a non-Tuesday series.
-            weekday = int(pd.DatetimeIndex(index).weekday.to_series().mode().iloc[0])
-            interval = max(1, round(gap_days / 7))
-            ax.xaxis.set_major_locator(
-                mdates.WeekdayLocator(byweekday=weekday, interval=interval)
-            )
+            # Non-daily spacing: pin majors to the data's own index positions so
+            # every major (and its 'major' gridline) lands exactly on an
+            # observation, for any cadence including irregular. A WeekdayLocator
+            # anchors its interval grid to the Unix epoch, which lands majors
+            # beside fortnightly / month-end observations.
+            ax.set_xticks(index)
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
         # Minor ticks: every day, but only when points are daily-or-finer. A daily
