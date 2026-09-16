@@ -95,7 +95,7 @@ def generate():
 
     crossfade_frames = 15  # frames for each crossfade
     hold_ms = 50  # ms per frame during crossfade
-    result_hold_ms = 2000  # ms to hold each result
+    result_hold_ms = 1500  # ms to hold each result
 
     for idx, noise_std in enumerate(NOISE_LEVELS):
         print(f"  Phase {idx + 1}: Noise std={noise_std}")
@@ -117,7 +117,7 @@ def generate():
 
     # Hold final state (high noise) longer
     frames.append(key_frames[NOISE_LEVELS[-1]])
-    hold(3000)
+    hold(2000)
 
     # Fade from final state back to starting frame for seamless loop
     for i in range(15):
