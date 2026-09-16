@@ -1407,10 +1407,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#new-features-for-detection-and-analysis" class="md-nav__link">
+  <a href="#enhanced-capability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        New features for detection and analysis
+        Enhanced Capability
       
     </span>
   </a>
@@ -1624,10 +1624,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#new-features-for-detection-and-analysis" class="md-nav__link">
+  <a href="#enhanced-capability" class="md-nav__link">
     <span class="md-ellipsis">
       
-        New features for detection and analysis
+        Enhanced Capability
       
     </span>
   </a>
@@ -1867,7 +1867,7 @@ Introduced: <a href="https://github.com/RussellSB/pytrendy/issues/122">#122</a><
 </code></pre></div>
 </details>
 </details>
-<h3 id="new-features-for-detection-and-analysis">New features for detection and analysis</h3>
+<h3 id="enhanced-capability">Enhanced Capability</h3>
 <details class="note">
 <summary>Weekly data and any-index support — <code>detect_trends</code> signature reworked</summary>
 <p><code>detect_trends()</code> no longer requires a date column. The signature is now
@@ -1891,18 +1891,18 @@ Credits: <a href="https://github.com/ChrisMarsden833">@ChrisMarsden833</a> (week
 <span class="c1"># Down 2025-05-18 → 2025-06-08</span>
 </code></pre></div>
 </details>
-<div class="admonition warning">
-<p class="admonition-title">Breaking: argument order</p>
-<p>The old <code>(df, date_col, value_col)</code> positional order is rejected with a <code>TypeError</code>.
-Update positional callers to <code>detect_trends(df, value_col, date_col=...)</code> or pass
-keywords.</p>
-</div>
 <p><div class="before-after-grid" markdown>
 <div class="before-after-panel" markdown>
 <span class="before-after-label after-label">Weekly dates (YYYY-MM-DD) via <code>date_col</code></span></p>
 <p><img alt="Gradual series aggregated to weekly steps and detected through the weekly date column" src="../img/whats-new/pre-release/whats_new_weekly_any_index.png" /></p>
 <p></div>
 </div></p>
+<div class="admonition warning">
+<p class="admonition-title">Breaking: argument order</p>
+<p>The old <code>(df, date_col, value_col)</code> positional order is rejected with a <code>TypeError</code>.
+Update positional callers to <code>detect_trends(df, value_col, date_col=...)</code> or pass
+keywords.</p>
+</div>
 </details>
 <details class="note">
 <summary>Gradual trend padding (<code>gradual_padding</code>)</summary>
