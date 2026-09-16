@@ -1,0 +1,29 @@
+{
+  "content": [
+    {
+      "content": null,
+      "created": "2026-09-16T13:33:37.806409Z",
+      "format": null,
+      "hash": null,
+      "hash_algorithm": null,
+      "last_modified": "2026-09-16T13:33:37.806409Z",
+      "mimetype": null,
+      "name": "fundamentals",
+      "path": "examples/fundamentals",
+      "size": null,
+      "type": "directory",
+      "writable": true
+    }
+  ],
+  "created": "2026-09-16T13:33:37.803170Z",
+  "format": "json",
+  "hash": null,
+  "hash_algorithm": null,
+  "last_modified": "2026-09-16T13:33:37.803170Z",
+  "mimetype": null,
+  "name": "examples",
+  "path": "examples",
+  "size": null,
+  "type": "directory",
+  "writable": true
+}
