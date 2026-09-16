@@ -23,8 +23,8 @@ pip install --pre pytrendy
 
 v2.0.0 is a breaking-release stream, grouped into four sections below:
 
-- **Enhanced Capability** — detection accepts any index type with an optional `date_col`; a new `mltp_change` multiplier view sits alongside `pct_change`.
-- **Customisation** — `gradual_padding` extends gradual trends into adjacent flat regions.
+- **Enhanced Capability** — detection accepts any index type with an optional `date_col`; gradual trends gain `gradual_padding`; a new `mltp_change` multiplier view sits alongside `pct_change`.
+- **Customisation** — `plot_params` restyles every visual aspect of the detection plot.
 - **Bug fixes** — false flat detection on long ramps fixed; over-applied abrupt padding fixed.
 - **Refactoring** — redundant `change` column removed in favour of `total_change`.
 
