@@ -19,6 +19,7 @@ from pytrendy.post_processing.segments_refine.trend_classify import classify_tre
 from pytrendy.post_processing.segments_refine.gradual_expand_contract import expand_contract_segments
 from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
 from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
 
@@ -125,7 +126,9 @@ class TestPlotPytrendyEdgeCases:
         """Regression: weekly-spaced dates must shade without boundary gaps.
 
         Non-daily point spacing previously left ~6-day white bands between
-        segments because boundary displacement assumed a one-day step.
+        segments because boundary displacement assumed a one-day step. Weekly
+        majors are also spacing-matched to the data's own weekday (Sundays),
+        rather than the default Tuesday-aligned ``WeekdayLocator``.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -135,15 +138,24 @@ class TestPlotPytrendyEdgeCases:
         dfw.columns = ['date', 'gradual']
 
         results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
-        return self._prepare_and_plot(dfw, 'gradual', results.segments)
+        fig = self._prepare_and_plot(dfw, 'gradual', results.segments)
+        major_weekdays = {
+            pd.Timestamp(mdates.num2date(t)).strftime('%a')
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major_weekdays == {'Sun'}
+        return fig
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_datetime64_ticks.png', style='default')
     def test_plot_weekly_datetime64_ticks(self):
-        """Weekly datetime64 index gets weekly majors and no daily minor ticks.
+        """Weekly datetime64 index gets Sunday-aligned majors and no daily minor ticks.
 
         A real datetime64 column previously skipped the locator block entirely,
-        leaving matplotlib's AutoDateLocator to pick a handful of auto ticks.
+        leaving matplotlib's AutoDateLocator to pick a handful of auto ticks. Its
+        boundaries also took the integer/float displacement branch (a hard-coded
+        one-day step), so weekly points left ~6-day white bands between shaded
+        segments; both are regression-guarded by this baseline.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -155,6 +167,11 @@ class TestPlotPytrendyEdgeCases:
         fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
                             index_type='datetime64', suppress_show=True)
         assert len(fig.axes[0].xaxis.get_minorticklocs()) == 0
+        major_weekdays = {
+            pd.Timestamp(mdates.num2date(t)).strftime('%a')
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major_weekdays == {'Sun'}
         return fig
 
     def test_plot_show_behavior(self, monkeypatch):

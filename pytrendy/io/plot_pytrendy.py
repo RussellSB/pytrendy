@@ -287,18 +287,30 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     ax.set_ylim(ymin, ymax)
 
     if index_type in ('date', 'datetime64'):
-        # Major ticks: every 7 days (with labels)
-        ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-
-        # Minor ticks: every day, but only when points are daily-or-finer. A daily
-        # ruler under non-daily data (e.g. weekly points) misrepresents the sampling,
-        # so non-daily spacing gets no minors at all.
         index = df.index
         gap_days = (
             np.median(np.diff(index.values)) / np.timedelta64(1, 'D')
             if len(index) > 1 else 1
         )
+
+        if gap_days <= 1:
+            # Daily data: weekly majors on the default weekday, as before.
+            ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+        else:
+            # Spacing-matched majors: align the weekly (or coarser) ruler to the
+            # cadence of the data itself, e.g. weekly points falling on Sundays
+            # get Sunday-aligned majors. The default WeekdayLocator picks Tuesday,
+            # which misaligns the 'major' gridlines from a non-Tuesday series.
+            weekday = int(pd.DatetimeIndex(index).weekday.to_series().mode().iloc[0])
+            interval = max(1, round(gap_days / 7))
+            ax.xaxis.set_major_locator(
+                mdates.WeekdayLocator(byweekday=weekday, interval=interval)
+            )
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+
+        # Minor ticks: every day, but only when points are daily-or-finer. A daily
+        # ruler under non-daily data (e.g. weekly points) misrepresents the sampling,
+        # so non-daily spacing gets no minors at all.
         if gap_days <= 1:
             ax.xaxis.set_minor_locator(mdates.DayLocator())
 
