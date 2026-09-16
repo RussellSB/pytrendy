@@ -7,6 +7,7 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 """
 
 import pytest
+import numpy as np
 import pandas as pd
 from copy import deepcopy
 from conftest import build_internal_index
@@ -19,6 +20,7 @@ from pytrendy.post_processing.segments_refine.trend_classify import classify_tre
 from pytrendy.post_processing.segments_refine.gradual_expand_contract import expand_contract_segments
 from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
 from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 
 
@@ -125,7 +127,9 @@ class TestPlotPytrendyEdgeCases:
         """Regression: weekly-spaced dates must shade without boundary gaps.
 
         Non-daily point spacing previously left ~6-day white bands between
-        segments because boundary displacement assumed a one-day step.
+        segments because boundary displacement assumed a one-day step. Weekly
+        majors are also spacing-matched to the data's own weekday (Sundays),
+        rather than the default Tuesday-aligned ``WeekdayLocator``.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -135,7 +139,75 @@ class TestPlotPytrendyEdgeCases:
         dfw.columns = ['date', 'gradual']
 
         results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
-        return self._prepare_and_plot(dfw, 'gradual', results.segments)
+        fig = self._prepare_and_plot(dfw, 'gradual', results.segments)
+        major_weekdays = {
+            pd.Timestamp(mdates.num2date(t)).strftime('%a')
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major_weekdays == {'Sun'}
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_datetime64_ticks.png', style='default')
+    def test_plot_weekly_datetime64_ticks(self):
+        """Weekly datetime64 index gets Sunday-aligned majors and no daily minor ticks.
+
+        A real datetime64 column previously skipped the locator block entirely,
+        leaving matplotlib's AutoDateLocator to pick a handful of auto ticks. Its
+        boundaries also took the integer/float displacement branch (a hard-coded
+        one-day step), so weekly points left ~6-day white bands between shaded
+        segments; both are regression-guarded by this baseline.
+        """
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        weekly = df.set_index('date')['gradual'].resample('W').last().reset_index()
+        weekly.columns = ['date', 'gradual']
+
+        results = pt.detect_trends(weekly, date_col='date', value_col='gradual', plot=False)
+        plot_df = weekly.set_index('date')[['gradual']]
+        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
+                            index_type='datetime64', suppress_show=True)
+        assert len(fig.axes[0].xaxis.get_minorticklocs()) == 0
+        major_weekdays = {
+            pd.Timestamp(mdates.num2date(t)).strftime('%a')
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major_weekdays == {'Sun'}
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_fortnightly_pinned_ticks.png', style='default')
+    def test_fortnightly_pinned_ticks(self):
+        """Fortnightly dates get majors pinned to every observation.
+
+        A ``WeekdayLocator(interval=2)`` anchors its interval grid to the Unix
+        epoch, so its majors landed one week off the 14-day observations (0/38 on
+        data points). Non-daily spacing now pins majors to the data's own index
+        positions, so every major (and its 'major' gridline) sits on a sampled
+        point.
+        """
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 3, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        weekly = long.set_index('date')['gradual'].resample('W').last()
+        fortnightly = pd.DataFrame({
+            'date': pd.date_range('2025-01-05', periods=len(weekly) // 2, freq='14D'),
+            'gradual': weekly.iloc[::2].values,
+        })
+
+        results = pt.detect_trends(fortnightly, date_col='date', value_col='gradual',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        plot_df = fortnightly.set_index('date')[['gradual']]
+        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
+                            index_type='datetime64', suppress_show=True)
+
+        major = {
+            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
+            for t in fig.axes[0].get_xticks()
+        }
+        assert major == set(pd.DatetimeIndex(fortnightly['date']).normalize())
+        return fig
 
     def test_plot_show_behavior(self, monkeypatch):
         """
@@ -445,3 +517,111 @@ class TestPlotNextNoiseFillDirect:
         fig = plot_pytrendy(plot_df, 'gradual', segments,
                             index_type='integer', suppress_show=True)
         return fig
+
+
+# =============================================================================
+# plot_pytrendy: spacing-aware numeric (float) boundary displacement
+# =============================================================================
+
+class TestPlotFloatIndexSpacing:
+    """Regression: non-contiguous numeric indexes must displace boundaries by
+    the actual point spacing, not a hard-coded one step.
+
+    A float index (e.g. ``linspace(0, 4.3, 181)``) previously paid a ``±1``
+    step that was ~23% of the whole axis: Flat segments over-shaded from the
+    axis start and adjacent segments left white bands between them.
+    """
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_float_dense_no_gaps.png',
+                                    style='default')
+    def test_float_dense_no_gaps(self):
+        """Dense float index: shaded segments tile edge-to-edge, no white bands."""
+        df = pt.load_data('series_synthetic')
+        df['float_idx'] = np.linspace(0, 4.3, len(df))
+        results = pt.detect_trends(df, value_col='gradual', date_col='float_idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_df = df.set_index('float_idx')[['gradual']]
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='float', suppress_show=True)
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_float_sparse_no_gaps.png',
+                                    style='default')
+    def test_float_sparse_no_gaps(self):
+        """Sparse float index (gap 0.2): segments tile edge-to-edge, no white bands."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        weekly = df.set_index('date')['gradual'].resample('W').last()
+        sparse = pd.DataFrame({'float_idx': np.arange(len(weekly)) * 0.2,
+                               'gradual': weekly.values})
+        results = pt.detect_trends(sparse, value_col='gradual', date_col='float_idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_df = sparse.set_index('float_idx')[['gradual']]
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='float', suppress_show=True)
+        return fig
+
+
+# =============================================================================
+# plot_pytrendy: _adjacent_to guard branches
+# =============================================================================
+
+class TestAdjacentToGuards:
+    """Direct-call coverage for the ``_adjacent_to`` None-guards.
+
+    TODO: these use hand-crafted segment lists to hit guards the integration
+    pipeline cannot produce (boundaries absent from / duplicated in the plotted
+    index); redo with realistic scenarios if unsorted/duplicate input ever
+    becomes supported (#284).
+    """
+
+    @pytest.mark.plot
+    def test_date_boundary_absent_from_index(self):
+        """Lines 38-39: ``_adjacent_to`` returns None when the boundary is absent.
+
+        ``index.get_loc`` raises ``KeyError`` for a boundary past the plotted
+        index (integration never produces this), so the except-guard returns
+        None and the neighbour check falls back; the mask/xlim then clip the
+        overhanging end.
+        """
+        dates = pd.date_range('2025-01-01', periods=40, freq='D')
+        plot_df = pd.DataFrame({'gradual': np.arange(40, dtype=float)}, index=dates)
+        segments = [
+            {'start': dates[1], 'end': dates[-1] + pd.Timedelta(days=1),  # absent from index
+             'direction': 'Down', 'trend_class': 'gradual', 'change_rank': 1},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)
+
+    @pytest.mark.plot
+    def test_duplicated_index_boundary_returns_none(self):
+        """Lines 40-41: ``_adjacent_to`` returns None for a duplicated index value.
+
+        On a non-unique index ``index.get_loc(value)`` returns a slice rather
+        than an int, which the guard treats as "no well-defined adjacent point".
+        Duplicate dates are not validated upstream (``prepare_index`` never
+        checks uniqueness), so a duplicated boundary is this guard's real
+        trigger.
+        """
+        dates = pd.date_range('2025-01-01', periods=40, freq='D')
+        dup = dates[20]
+        index = dates.insert(20, dup)  # dup now appears twice
+        plot_df = pd.DataFrame(
+            {'gradual': np.arange(len(index), dtype=float)}, index=index)
+        segments = [
+            {'start': dates[10], 'end': dup, 'direction': 'Flat', 'change_rank': 1},
+        ]
+
+        fig = plot_pytrendy(plot_df, 'gradual', segments,
+                            index_type='date', suppress_show=True)
+        assert fig is not None
+        plt.close(fig)

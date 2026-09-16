@@ -80,11 +80,11 @@ Explore the strongest uptrends:
 results.filter_segments(direction='Up', sort_by='change_rank')[:3]
 ```
 
-| time_index | direction | start | end | trend_class | change | pct_change | days | total_change | SNR | change_rank |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 7 | Up | 2025-04-02 | 2025-05-08 | gradual | 72.61 | 367.50% | 36 | 72.61 | 21.70 | 2 |
-| 4 | Up | 2025-02-10 | 2025-03-17 | gradual | 26.19 | 179.93% | 35 | 26.19 | 18.61 | 3 |
-| 1 | Up | 2025-01-02 | 2025-01-24 | gradual | 14.01 | 104.41% | 22 | 14.01 | 22.21 | 5 |
+| time_index | direction | start | end | trend_class | pct_change | days | total_change | SNR | change_rank |
+|---|---|---|---|---|---|---|---|---|---|
+| 7 | Up | 2025-04-02 | 2025-05-08 | gradual | 367.50% | 36 | 72.61 | 21.70 | 2 |
+| 4 | Up | 2025-02-10 | 2025-03-17 | gradual | 179.93% | 35 | 26.19 | 18.61 | 3 |
+| 1 | Up | 2025-01-02 | 2025-01-24 | gradual | 104.41% | 22 | 14.01 | 22.21 | 5 |
 
 `filter_segments` ranks segments by magnitude (`change_rank`). See the [API reference](https://russellsb.github.io/pytrendy/main/reference/pytrendy/io/results_pytrendy/#pytrendy.io.results_pytrendy.PyTrendyResults.filter_segments) for all filter and sort options.
 

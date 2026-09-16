@@ -119,9 +119,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
     # Add shaded regions with fill_between
     ymin, ymax = ax.get_ylim()  # get plot's visible y-range
+    # 'date' and 'datetime64' are both real date axes: boundaries must be
+    # displaced by the actual point spacing (via _adjacent_to), not a hard-coded
+    # one-day step, or non-daily data leaves white gaps between shaded regions.
+    is_date_axis = index_type in ('date', 'datetime64')
     for i, seg in enumerate(segments_enhanced):
         
-        if index_type == "date":
+        if is_date_axis:
             start = pd.to_datetime(seg['start'])
             end = pd.to_datetime(seg['end'])
         else:
@@ -132,13 +136,14 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Get context on prev seg if possible
         prev_seg = segments_enhanced[i-1] if i-1 >= 0 else None
-        if index_type == "date":
+        if is_date_axis:
             prev_point = _adjacent_to(df.index, start, -1)
             prev_neighbouring = prev_seg and (prev_point is not None) and (pd.to_datetime(prev_seg['end']) == prev_point)
         elif index_type == 'string':
             prev_neighbouring = prev_seg and (prev_seg['end'] == df.index[df.index.get_loc(start) - 1])
         else:
-            prev_neighbouring = prev_seg and (prev_seg['end'] == (start - 1))
+            prev_point = _adjacent_to(df.index, start, -1)
+            prev_neighbouring = prev_seg and (prev_point is not None) and (prev_seg['end'] == prev_point)
 
         is_prev_not_trend = prev_seg and (not ('trend_class' in prev_seg))
 
@@ -149,14 +154,15 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Get context on next seg if possible
         next_seg = segments_enhanced[i+1] if i+1 < len(segments_enhanced) else None
-        if index_type == 'date':
+        if is_date_axis:
             next_point = _adjacent_to(df.index, end, 1)
             next_neighbouring = next_seg and (next_point is not None) and (pd.to_datetime(next_seg['start']) == next_point)
         elif index_type == 'string':
             end_pos = df.index.get_loc(end)
             next_neighbouring = next_seg and (next_seg['start'] == _safe_adjacent(df.index, end_pos, 1))
         else:
-            next_neighbouring = next_seg and (next_seg['start'] == (end + 1))
+            next_point = _adjacent_to(df.index, end, 1)
+            next_neighbouring = next_seg and (next_point is not None) and (next_seg['start'] == next_point)
         
         next_seg_abrupt = next_seg and (('trend_class' in next_seg) and (next_seg['trend_class'] == 'abrupt'))
         next_seg_noise = next_seg and (next_seg['direction'] == 'Noise')
@@ -165,13 +171,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         if is_abrupt or is_noise: 
             pass  # Keep start as-is for abrupt/noise segments
         else: 
-            if index_type == 'date':
+            if is_date_axis:
                 new_start = _adjacent_to(df.index, start, -1) # Everything else displaced left start
             elif index_type == 'string':
                 start_pos = df.index.get_loc(start)
                 new_start = _safe_adjacent(df.index, start_pos, -1)
             else:
-                new_start = start - 1 # Everything else displaced left start
+                new_start = _adjacent_to(df.index, start, -1) # Everything else displaced left start
 
             # Check validity of plot start adjustment
             value_new_start = df.loc[new_start, value_col] if new_start is not None and new_start in df.index else None
@@ -185,7 +191,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             else: 
                 # if not displaced and prev is not trend, adjust by plotting (as prev has already been drawn)
                 if is_prev_not_trend and prev_neighbouring:
-                    if index_type == 'date':
+                    if is_date_axis:
                         prev_end = pd.to_datetime(segments_enhanced[i-1]['end'])
                         prev_adj_end = _adjacent_to(df.index, prev_end, 1)
                         prev_new_end = prev_adj_end.strftime('%Y-%m-%d') if prev_adj_end is not None else None
@@ -195,7 +201,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                         prev_new_end = _safe_adjacent(df.index, prev_end_pos, 1)
                     else:
                         prev_end = segments_enhanced[i-1]['end']
-                        prev_new_end = prev_end + 1
+                        prev_new_end = _adjacent_to(df.index, prev_end, 1)
                     
                     if prev_new_end is not None:
                         if index_type == 'string':
@@ -207,13 +213,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
-            if index_type == 'date':
+            if is_date_axis:
                 new_end = _adjacent_to(df.index, end, 1)
             elif index_type == 'string':
                 end_pos = df.index.get_loc(end)
                 new_end = _safe_adjacent(df.index, end_pos, 1)
             else:
-                new_end = end + 1
+                new_end = _adjacent_to(df.index, end, 1)
             
             # Check validity of plot end adjustment
             value_new_end = df.loc[new_end, value_col] if new_end is not None and new_end in df.index else None
@@ -227,7 +233,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             else: 
                 # if not displaced and next is noise, adjust for next plotting round
                 if next_seg_noise and next_neighbouring: 
-                    if index_type == 'date':
+                    if is_date_axis:
                         next_start = pd.to_datetime(segments_enhanced[i+1]['start'])
                         next_adj_start = _adjacent_to(df.index, next_start, -1)
                         if next_adj_start is not None:
@@ -236,7 +242,10 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                         next_start_pos = df.index.get_loc(segments_enhanced[i+1]['start'])
                         segments_enhanced[i+1]['start'] = _safe_adjacent(df.index, next_start_pos, -1)
                     else:
-                        segments_enhanced[i+1]['start'] = (segments_enhanced[i+1]['start'] - 1)
+                        next_start = segments_enhanced[i+1]['start']
+                        next_adj_start = _adjacent_to(df.index, next_start, -1)
+                        if next_adj_start is not None:
+                            segments_enhanced[i+1]['start'] = next_adj_start
         else: 
             pass  # Keep end as-is
 
@@ -265,7 +274,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             
         # Add vertical line if next seg is same & touching
         if next_seg and next_neighbouring and next_seg['direction'] == seg['direction']:
-            if index_type == 'date':
+            if is_date_axis:
                 line_date = pd.to_datetime(seg['end'])
             else:
                 line_date = seg['end']
@@ -282,13 +291,30 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     ax.set_xlim(first_date, last_date)
     ax.set_ylim(ymin, ymax)
 
-    if index_type == 'date':
-        # Major ticks: every 7 days (with labels)
-        ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+    if index_type in ('date', 'datetime64'):
+        index = df.index
+        gap_days = (
+            np.median(np.diff(index.values)) / np.timedelta64(1, 'D')
+            if len(index) > 1 else 1
+        )
+
+        if gap_days <= 1:
+            # Daily data: weekly majors on the default weekday, as before.
+            ax.xaxis.set_major_locator(mdates.WeekdayLocator(interval=1))
+        else:
+            # Non-daily spacing: pin majors to the data's own index positions so
+            # every major (and its 'major' gridline) lands exactly on an
+            # observation, for any cadence including irregular. A WeekdayLocator
+            # anchors its interval grid to the Unix epoch, which lands majors
+            # beside fortnightly / month-end observations.
+            ax.set_xticks(index)
         ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
 
-        # Minor ticks: every day (no labels, just tick marks/grid)
-        ax.xaxis.set_minor_locator(mdates.DayLocator())
+        # Minor ticks: every day, but only when points are daily-or-finer. A daily
+        # ruler under non-daily data (e.g. weekly points) misrepresents the sampling,
+        # so non-daily spacing gets no minors at all.
+        if gap_days <= 1:
+            ax.xaxis.set_minor_locator(mdates.DayLocator())
 
     # Rotate major tick labels
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
