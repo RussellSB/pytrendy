@@ -13,7 +13,7 @@ Stay up to date with every PyTrendy release - user-facing improvements, bug fixe
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v1.4.4 <span class="version-prerelease">pre-release</span>
+## Coming in v2.0.0 <span class="version-prerelease">pre-release</span>
 
 *Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
 
@@ -21,12 +21,57 @@ Stay up to date with every PyTrendy release - user-facing improvements, bug fixe
 pip install --pre pytrendy
 ```
 
-v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a new argument, so you can extend gradual trends into adjacent flat regions and restyle the detection plot. Two fixes round it out: false flat detection no longer chops long gradual ramps, and abrupt segments can't be padded twice.
+v2.0.0 has major changes both in terms of features and user-facing API, grouped into four sections below:
+
+- **Enhanced Capability** — detection accepts any index type with an optional `date_col`; gradual trends gain `gradual_padding`; a new `mltp_change` multiplier view sits alongside `pct_change`.
+- **Customisation** — `plot_params` restyles every visual aspect of the detection plot.
+- **Bug fixes** — false flat detection on long ramps fixed; over-applied abrupt padding fixed.
+- **Refactoring** — redundant `change` column removed in favour of `total_change`.
+
+### Enhanced Capability
+
+??? note "Weekly data and any-index support — `detect_trends` signature reworked"
+    `detect_trends()` no longer requires a date column. The signature is now
+    `detect_trends(df, value_col, date_col=None, ...)` — when `date_col` is omitted, the
+    DataFrame's own index is used, and any unique, sortable index type is accepted: datetimes,
+    integers, floats, or date-like strings (including weekly and other irregular spacing).
+    Detection runs on an internal contiguous integer index and every segment boundary is remapped
+    back to your external index, so `results.df`, `.print_summary()`, and plots all speak in
+    your units — the `days` column reports "index steps" for non-date indexes.
+    Introduced: [#205](https://github.com/RussellSB/pytrendy/pull/205)
+    Credits: [@ChrisMarsden833](https://github.com/ChrisMarsden833) (weekly-data feature), [@RussellSB](https://github.com/RussellSB) (full integration with code coverage, refactoring and bug fixes)
+
+    ??? example "Code"
+        ```python
+        import pandas as pd
+        import pytrendy as pt
+
+        df = pd.read_csv(url)
+        weekly = df.resample("W", on="date")["gradual"].last().reset_index()
+        results = pt.detect_trends(weekly, value_col="gradual", date_col="date", plot=True)
+        # Up   2025-02-16 → 2025-05-04
+        # Down 2025-05-18 → 2025-06-08
+        ```
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">Weekly dates (YYYY-MM-DD) via `date_col`</span>
+
+    ![Gradual series aggregated to weekly steps and detected through the weekly date column](img/whats-new/pre-release/whats_new_weekly_any_index.png)
+
+    </div>
+    </div>
+
+    !!! warning "Breaking: argument order"
+        The old `(df, date_col, value_col)` positional order is rejected with a `TypeError`.
+        Update positional callers to `detect_trends(df, value_col, date_col=...)` or pass
+        keywords.
 
 ??? note "Gradual trend padding (`gradual_padding`)"
     A new `gradual_padding` option in `method_params` lets gradual Up/Down segments be extended forward into adjacent flat regions.
     Set it to the number of days to pad; the default is `0`, which keeps the existing behaviour. This mirrors the `abrupt_padding` workflow but for gradual trends: each gradual segment's end date is pushed forward, absorbing trailing flat days so a move spans its full natural width instead of stopping at the detected turning point.
     Introduced: [#243](https://github.com/RussellSB/pytrendy/pull/243)
+    Credits: [@barshadeb](https://github.com/barshadeb) (padding feature), [@RussellSB](https://github.com/RussellSB) (clamp guard and tests)
 
     The extension is clamped so it never overlaps the next non-Flat segment and never runs past the end of the series. Padded segments are flagged internally and excluded from reclassification, so padding adjusts boundaries without inflating trend metrics.
 
@@ -66,9 +111,89 @@ v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a ne
         # Down       2026-09-27  2026-09-28
         ```
 
+??? note "New `mltp_change` multiplier metric"
+    Alongside `pct_change`, each segment now reports `mltp_change = value_end / value_start`
+    as a float. While `pct_change` answers "how much relative growth (+367%)", `mltp_change`
+    answers "what multiplier (4.67x)" — the more readable framing once changes exceed +100%.
+    It is NaN when the segment starts at zero.
+    Introduced: [#291](https://github.com/RussellSB/pytrendy/pull/291)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">`results.df` — `pct_change` beside `mltp_change`</span>
+
+    ![Styled results table showing pct_change and mltp_change columns side by side per segment](img/whats-new/pre-release/whats_new_mltp_change_pr291.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+        results = pt.detect_trends(df, date_col="date", value_col="gradual", plot=False)
+        print(results.df[["pct_change", "mltp_change"]])
+        # 2025-04-02 → 2025-05-08 Up: pct_change=3.675, mltp_change=4.675
+        ```
+
+### Customisation
+
+??? note "Plot customisation via `plot_params`"
+    A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
+
+    - **Figure dimensions**: set `figsize` to control width and height.
+    - **Title & labels**: add a domain-specific `title`, `xlabel`, or `ylabel`.
+    - **Colour scheme**: pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
+    - **Grid control**: toggle grid visibility and customise its appearance via the `grid` dict.
+    - **Legend positioning**: move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+
+    For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
+    Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
+    Credits: [@gyr0tron](https://github.com/gyr0tron) (plot_params feature), [@RussellSB](https://github.com/RussellSB) (integration and review), [@alexbthundiyil-spec](https://github.com/alexbthundiyil-spec) (early plot_params fixes)
+
+    <div class="before-after-grid" markdown>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label before-label">Before: no `plot_params` (default)</span>
+
+    ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
+
+    </div>
+    <div class="before-after-panel" markdown>
+    <span class="before-after-label after-label">After: custom `plot_params`</span>
+
+    ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
+
+    </div>
+    </div>
+
+    ??? example "Code"
+        ```python
+        import pytrendy as pt
+
+        df = pt.load_data("series_synthetic")
+
+        # Default appearance
+        pt.detect_trends(df, date_col="date", value_col="gradual")
+
+        # Custom appearance: black grid at 0.8 opacity, legend in bottom left
+        pt.detect_trends(
+            df, date_col="date", value_col="gradual",
+            plot_params=dict(
+                figsize=(20, 6),
+                title="Gradual Trend: Custom Visual",
+                grid={"visible": True, "color": "black", "alpha": 0.8},
+                legend_loc="lower left",
+            ),
+        )
+        ```
+
+### Bug fixes
+
 ??? note "Long gradual ramps no longer truncated by false flat detection"
     A 90-day gradual ramp was being chopped into shorter segments because the flat-detection threshold was too aggressive during sustained uptrends. The threshold has been tuned so that long, steady ramps are recognised as a single continuous Up segment.
     Fixed: [#195](https://github.com/RussellSB/pytrendy/issues/195)
+    Fixed by: [#224](https://github.com/RussellSB/pytrendy/pull/224)
 
     <div class="before-after-grid" markdown>
     <div class="before-after-panel" markdown>
@@ -113,55 +238,23 @@ v1.4.0-dev.4 adds `gradual_padding` to `method_params` and `plot_params` as a ne
     - **Padded flag guard**: the pad loop now checks each segment's `padded` flag instead of relying on a pass counter, giving more reliable protection against double-padding.
 
     These changes are internal and do not require new user code. Existing `abrupt_padding` behaviour is preserved; only edge cases where padding was over-applied are corrected.
+    Fixed: [#224](https://github.com/RussellSB/pytrendy/pull/224)
 
-??? note "Plot customisation via `plot_params`"
-    A new `plot_params` dictionary, accepted by both `detect_trends()` and `plot_pytrendy()`, lets you override every visual aspect of the trend-detection plot. Key capabilities:
+### Refactoring
 
-    - **Figure dimensions**: set `figsize` to control width and height.
-    - **Title & labels**: add a domain-specific `title`, `xlabel`, or `ylabel`.
-    - **Colour scheme**: pass a `colors` dict mapping `'Up'`, `'Down'`, `'Flat'`, `'Noise'` to any matplotlib colour.
-    - **Grid control**: toggle grid visibility and customise its appearance via the `grid` dict.
-    - **Legend positioning**: move the legend with `legend_loc` and `legend_bbox_to_anchor`.
+??? note "Removed the redundant `change` column (breaking)"
+    `results.df` no longer contains a `change` column: it always duplicated `total_change`
+    (a telescoping sum of daily differences equals the net end-to-start change).
+    Reading `results.df["change"]` now raises a `KeyError` — use `total_change`, which holds
+    the identical value. Segment dictionaries and `.df_summary` are unaffected.
+    Introduced: [#294](https://github.com/RussellSB/pytrendy/pull/294)
 
-    For the full list of supported keys, see the [plot_params reference](reference/pytrendy/detect_trends/#pytrendy.detect_trends.detect_trends(plot_params)).
-    Introduced: [#122](https://github.com/RussellSB/pytrendy/issues/122)
-
-    <div class="before-after-grid" markdown>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label before-label">Before: no `plot_params` (default)</span>
-
-    ![Default plot appearance](img/whats-new/pre-release/whats_new_plot_params_default_pr122.png)
-
-    </div>
-    <div class="before-after-panel" markdown>
-    <span class="before-after-label after-label">After: custom `plot_params`</span>
-
-    ![Custom plot with black grid at 0.8 opacity, title, and legend in bottom left](img/whats-new/pre-release/whats_new_plot_params_custom_pr122.png)
-
-    </div>
-    </div>
-
-    ??? example "Code"
-        ```python
-        import pytrendy as pt
-
-        df = pt.load_data("series_synthetic")
-
-        # Default appearance
-        pt.detect_trends(df, date_col="date", value_col="gradual")
-
-        # Custom appearance: black grid at 0.8 opacity, legend in bottom left
-        pt.detect_trends(
-            df, date_col="date", value_col="gradual",
-            plot_params=dict(
-                figsize=(20, 6),
-                title="Gradual Trend: Custom Visual",
-                grid={"visible": True, "color": "black", "alpha": 0.8},
-                legend_loc="lower left",
-            ),
-        )
-        ```
-
+??? note "Test coverage hardened alongside the index rework"
+    Support work for the index rework carried a parallel test effort under the hood:
+    `detect_trends` integration tests now cover date, string, integer, and float indexes,
+    `plot_pytrendy`'s index-type branches gained edge-case tests with image baselines, and
+    overall coverage sits at 99.9% (a single known dead branch is tracked in [#279](https://github.com/RussellSB/pytrendy/issues/279)).
+    Added: [#278](https://github.com/RussellSB/pytrendy/pull/278), building on [#271](https://github.com/RussellSB/pytrendy/pull/271)
 ---
 
 ## Released in v1.3.0
@@ -173,7 +266,7 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
 ??? note "Bug Fixes - Zero Baseline Edgecases"
     Multiple fixes since v1.2.0 have improved trend detection on zero baseline edgecases. These fixes address edge cases where the algorithm incorrectly suppressed trends or introduced spurious noise segments on series that start at zero.
 
-    #### Up trend detection on smaller ramps
+    **Up trend detection on smaller ramps.**
     Short-lived Up trends (≥3 days) emerging from a long zero baseline were lost due to an off-by-one error in `get_segments()` that failed to count the first point of a new direction segment. This primarily affected smaller ramps (e.g. 10→125 over 5 days) on zero baseline edgecase series. The same fix also preserves `total_change` values for Down segments - the `expand_contract` step no longer skips the peak value when the preceding segment ends exactly at the turning point, preventing the first day of the drop (value change of 171) from being excluded from the Down segment.
     [#171](https://github.com/RussellSB/pytrendy/issues/171) [#177](https://github.com/RussellSB/pytrendy/pull/177)
 
@@ -209,7 +302,7 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
         print(result.df[["direction", "start", "end", "total_change"]])
         ```
 
-    #### False noise suppression on zero-baseline leading edge
+    **False noise suppression on zero-baseline leading edge.**
     The centred rolling mean in noise detection looks ahead at abrupt transitions, producing `signal ≈ noise` and a false low SNR on the last few zero days before the jump. This created a spurious Noise segment at the leading edge of the transition. A guard now suppresses `noise_flag` when `value=0`, `previous value=0`, and `signal!=0` - the signature of an imminent abrupt change inside a run of zeros.
     [#163](https://github.com/RussellSB/pytrendy/issues/163) [#170](https://github.com/RussellSB/pytrendy/pull/170)
 
@@ -228,7 +321,7 @@ v1.3.0 fixes several edge cases in zero-baseline trend detection, including a fa
     </div>
     </div>
 
-    #### Abrupt padding fix
+    **Abrupt padding fix.**
     When `abrupt_padding` is set, the Up segment is now correctly extended by the padding window instead of being collapsed to Flat. Before the fix, the entire series was misclassified as Flat.
     Fixed: [#142](https://github.com/RussellSB/pytrendy/issues/142)
 
