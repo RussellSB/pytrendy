@@ -102,7 +102,7 @@ def generate():
 
     crossfade_frames = 15  # frames for each crossfade
     hold_ms = 50  # ms per frame during crossfade
-    result_hold_ms = 800  # ms to hold each result
+    result_hold_ms = 1000  # ms to hold each result
 
     for idx, num in enumerate(spike_states):
         print(f"  Phase {idx + 1}: {num} spike(s)")
@@ -123,7 +123,7 @@ def generate():
 
     # Hold final state (all spikes) longer
     frames.append(key_frames[spike_states[-1]])
-    hold(1000)
+    hold(1700)
 
     # Fade from final state back to starting frame for seamless loop
     for i in range(15):
