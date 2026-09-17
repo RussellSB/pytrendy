@@ -209,6 +209,84 @@ class TestPlotPytrendyEdgeCases:
         assert major == set(pd.DatetimeIndex(fortnightly['date']).normalize())
         return fig
 
+    def _long_daily_series(self, periods=731):
+        """Build a deterministic daily series of *periods* points by tiling synthetic data."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 6, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        return long.iloc[:periods].reset_index(drop=True)
+
+    def _fortnightly_series(self, periods):
+        """Build a fortnightly series of *periods* observations from tiled synthetic data."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 6, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        weekly = long.set_index('date')['gradual'].resample('W').last()
+        return pd.DataFrame({
+            'date': pd.date_range('2024-01-07', periods=periods, freq='14D'),
+            'gradual': weekly.iloc[::2].values[:periods],
+        })
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_two_year_daily_tick_thinning.png', style='default')
+    def test_plot_two_year_daily_tick_thinning(self):
+        """A ~2-year daily series coarsens majors to months and drops daily minors.
+
+        Weekly majors (and a daily minor ruler) previously produced a wall of
+        ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density keeps
+        ~24 month majors and no minors without changing any shorter baseline.
+        """
+        two_years = self._long_daily_series(731)  # ~2 years daily
+        results = pt.detect_trends(two_years, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(two_years, 'gradual', results.segments)
+
+        ax = fig.axes[0]
+        assert len(ax.get_xticks()) <= 30
+        assert len(ax.xaxis.get_minorticklocs()) == 0
+        return fig
+
+    def test_daily_short_span_keeps_weekly_majors(self):
+        """180-day daily data keeps the original weekly majors (baseline guard)."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(df, 'gradual', results.segments)
+
+        locator = fig.axes[0].xaxis.get_major_locator()
+        assert isinstance(locator, mdates.WeekdayLocator)
+        assert locator._get_interval() == 1
+
+    def test_daily_medium_span_biweekly_majors(self):
+        """~1-year daily data coarsens majors to biweekly (interval=2)."""
+        one_year = self._long_daily_series(366)
+        results = pt.detect_trends(one_year, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(one_year, 'gradual', results.segments)
+
+        locator = fig.axes[0].xaxis.get_major_locator()
+        assert isinstance(locator, mdates.WeekdayLocator)
+        assert locator._get_interval() == 2
+
+    def test_long_fortnightly_ticks_thinned_to_every_second_point(self):
+        """52-point fortnightly data pins majors, thinned to every 2nd observation.
+
+        The <=40-point pinned baselines stay byte-identical; beyond 40 points the
+        pinned majors are subsampled to bound the label count.
+        """
+        fortnightly = self._fortnightly_series(52)
+        results = pt.detect_trends(fortnightly, date_col='date', value_col='gradual',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        plot_df = fortnightly.set_index('date')[['gradual']]
+        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
+                            index_type='datetime64', suppress_show=True)
+
+        major = [
+            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
+            for t in fig.axes[0].get_xticks()
+        ]
+        expected = list(pd.DatetimeIndex(fortnightly['date']).normalize()[::2])
+        assert major == expected
+
     def test_plot_show_behavior(self, monkeypatch):
         """
         Test that plot_pytrendy triggers plt.show() when suppress_show=False.
