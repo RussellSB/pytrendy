@@ -10,7 +10,7 @@ import pytest
 import numpy as np
 import pandas as pd
 from copy import deepcopy
-from conftest import build_internal_index
+from conftest import build_internal_index, assert_segments_in_a_haystack
 import pytrendy as pt
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 from pytrendy.process_signals import process_signals
@@ -382,161 +382,149 @@ class TestPlotCustomization:
 
 
 # =============================================================================
-# plot_pytrendy: prev fill branch (lines 172-178, 182)
+# plot_pytrendy: displacement branches sourced from detect_trends
 # =============================================================================
 
-class TestPlotPrevFillDirect:
-    """Test the prev fill branch in plot_pytrendy when start displacement is invalid.
+class TestPlotPrevFillBranches:
+    """Prev-fill displacement branch, driven by detection.
 
-    TODO: these examples use hand-crafted segment lists that are a bit contrived
-    to force the specific displacement conditions. Redo with more realistic
-    synthetic scenarios when a natural dataset produces these patterns.
+    A Flat (non-trend) segment adjacent to a trend whose start displacement is
+    invalid triggers the prev-fill body. The noise-heavy ``noisy_edgecase_4``
+    series produces that topology; date, string, and integer lookups each take a
+    different sub-branch of the displacement logic.
     """
 
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_string_prev_fill_direct.png',
-                                    style='default')
-    def test_string_prev_fill_direct(self):
-        """Lines 172-176, 182: string index, Flat→Up adjacent, invalid start displacement."""
-        # Custom data with a dip so Up start value < Flat end value
-        values = list(range(40))
-        values[19] = 25  # Flat end value (high)
-        values[20] = 15  # Up start value (low) — displacement invalid
-        df = pd.DataFrame({'date': [f'S{i}' for i in range(40)], 'gradual': values})
-        pt.detect_trends(df, date_col='date', value_col='gradual',
-                         plot=False, method_params={'abrupt_padding': 0})
+    def _detect(self, index_kind: str):
+        """Detect on noisy_edgecase_4 for the requested lookup index kind."""
+        df = pd.read_csv(
+            'tests/tests_crashes_edgecases/data/noisy_edgecases.csv'
+        )[['noisy_edgecase_4']].copy()
 
-        # Craft segments: Flat S10-S19 (value 25 at end), adjacent Up S20-S35
-        # Up start value (15) < Flat end value (25) makes displacement invalid
-        str_idx = [f'S{i}' for i in range(40)]
-        plot_df = pd.DataFrame({'gradual': values}, index=str_idx)
-        segments = [
-            {'start': 'S10', 'end': 'S19', 'direction': 'Flat',
-             'change_rank': 1},
-            {'start': 'S20', 'end': 'S35', 'direction': 'Up',
-             'trend_class': 'gradual', 'change_rank': 2},
-        ]
+        if index_kind == 'date':
+            df.insert(0, 'idx', pd.date_range('2025-01-01', periods=len(df), freq='D'))
+        elif index_kind == 'string':
+            df.insert(0, 'idx', [f'S{i}' for i in range(len(df))])
+        else:
+            df.insert(0, 'idx', np.arange(len(df)))
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='string', suppress_show=True)
-        return fig
+        results = pt.detect_trends(df, value_col='noisy_edgecase_4', date_col='idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        return df, results
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_integer_prev_fill_direct.png',
-                                    style='default')
-    def test_integer_prev_fill_direct(self):
-        """Lines 177-178: integer index, Flat→Up adjacent, invalid start displacement."""
-        values = list(range(40))
-        values[19] = 25  # Flat end value (high)
-        values[20] = 15  # Up start value (low) — displacement invalid
-        df = pd.DataFrame({'gradual': values})
-        pt.detect_trends(df, value_col='gradual',
-                         plot=False, method_params={'abrupt_padding': 0})
+                                   filename='test_plot_prev_fill_date.png',
+                                   style='default')
+    def test_prev_fill_date(self):
+        """Date lookup: prev-fill branch from detected segments."""
+        df, results = self._detect('date')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': pd.Timestamp('2025-03-22'), 'end': pd.Timestamp('2025-04-06')},
+            {'direction': 'Up', 'start': pd.Timestamp('2025-04-11'), 'end': pd.Timestamp('2025-05-05')},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_4']], 'noisy_edgecase_4',
+                             results.segments, index_type=results.index_type, suppress_show=True)
 
-        plot_df = df[['gradual']]
-        segments = [
-            {'start': 10, 'end': 19, 'direction': 'Flat',
-             'change_rank': 1},
-            {'start': 20, 'end': 35, 'direction': 'Up',
-             'trend_class': 'gradual', 'change_rank': 2},
-        ]
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_prev_fill_string.png',
+                                   style='default')
+    def test_prev_fill_string(self):
+        """String lookup: prev-fill branch from detected segments."""
+        df, results = self._detect('string')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': 'S80', 'end': 'S95'},
+            {'direction': 'Up', 'start': 'S100', 'end': 'S124'},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_4']], 'noisy_edgecase_4',
+                             results.segments, index_type='string', suppress_show=True)
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='integer', suppress_show=True)
-        return fig
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_prev_fill_integer.png',
+                                   style='default')
+    def test_prev_fill_integer(self):
+        """Integer lookup: prev-fill branch from detected segments."""
+        df, results = self._detect('integer')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': 80, 'end': 95},
+            {'direction': 'Up', 'start': 100, 'end': 124},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_4']], 'noisy_edgecase_4',
+                             results.segments, index_type='integer', suppress_show=True)
 
 
 # =============================================================================
-# plot_pytrendy: next noise fill branch (lines 210-216)
+# plot_pytrendy: next-noise displacement branch
 # =============================================================================
 
-class TestPlotNextNoiseFillDirect:
-    """Test the next noise fill branch in plot_pytrendy when end displacement is invalid.
+class TestPlotNextNoiseBranches:
+    """Next-noise displacement branch, driven by detection.
 
-    TODO: these examples use hand-crafted segment lists that are a bit contrived
-    to force the specific displacement conditions. Redo with more realistic
-    synthetic scenarios when a natural dataset produces these patterns.
+    A trend segment followed by an adjacent Noise segment whose end displacement
+    is invalid triggers the next-noise body. ``noisy_edgecase_6`` produces a
+    gradual Down run running straight into a Noise block; date, string, and
+    integer lookups each take a different sub-branch.
     """
 
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_date_next_noise_fill_direct.png',
-                                    style='default')
-    def test_date_next_noise_fill_direct(self):
-        """Line 211: date index, Down→Noise adjacent, invalid end displacement."""
-        # Custom data where Down end value < next value (invalid for Down)
-        values = list(range(40))
-        values[24] = 10  # Down end value (low)
-        values[25] = 35  # Noise start value (high) — displacement invalid
-        df = pd.DataFrame({'date': pd.date_range('2025-01-01', periods=40, freq='D'),
-                           'gradual': values})
-        pt.detect_trends(df, date_col='date', value_col='gradual',
-                         plot=False, method_params={'abrupt_padding': 0})
+    def _detect(self, index_kind: str):
+        """Detect on noisy_edgecase_6 for the requested lookup index kind."""
+        df = pd.read_csv(
+            'tests/tests_crashes_edgecases/data/noisy_edgecases.csv'
+        )[['noisy_edgecase_6']].copy()
 
-        plot_df = df.set_index('date')[['gradual']]
-        segments = [
-            {'start': pd.Timestamp('2025-01-02'), 'end': pd.Timestamp('2025-01-25'),
-             'direction': 'Down', 'trend_class': 'gradual', 'change_rank': 1},
-            {'start': pd.Timestamp('2025-01-26'), 'end': pd.Timestamp('2025-02-05'),
-             'direction': 'Noise', 'change_rank': 2},
-        ]
+        if index_kind == 'date':
+            df.insert(0, 'idx', pd.date_range('2025-01-01', periods=len(df), freq='D'))
+        elif index_kind == 'string':
+            df.insert(0, 'idx', [f'S{i}' for i in range(len(df))])
+        else:
+            df.insert(0, 'idx', np.arange(len(df)))
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='date', suppress_show=True)
-        return fig
+        results = pt.detect_trends(df, value_col='noisy_edgecase_6', date_col='idx',
+                                   plot=False, method_params={'abrupt_padding': 0})
+        return df, results
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_string_next_noise_fill_direct.png',
-                                    style='default')
-    def test_string_next_noise_fill_direct(self):
-        """Lines 213-214: string index, Down→Noise adjacent, invalid end displacement."""
-        values = list(range(40))
-        values[24] = 10  # Down end value (low)
-        values[25] = 35  # Noise start value (high) — displacement invalid
-        df = pd.DataFrame({'date': [f'S{i}' for i in range(40)], 'gradual': values})
-        pt.detect_trends(df, date_col='date', value_col='gradual',
-                         plot=False, method_params={'abrupt_padding': 0})
-
-        str_idx = [f'S{i}' for i in range(40)]
-        plot_df = pd.DataFrame({'gradual': values}, index=str_idx)
-        segments = [
-            {'start': 'S1', 'end': 'S24', 'direction': 'Down',
-             'trend_class': 'gradual', 'change_rank': 1},
-            {'start': 'S25', 'end': 'S35', 'direction': 'Noise',
-             'change_rank': 2},
-        ]
-
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='string', suppress_show=True)
-        return fig
+                                   filename='test_plot_next_noise_date.png',
+                                   style='default')
+    def test_next_noise_date(self):
+        """Date lookup: next-noise branch from detected segments."""
+        df, results = self._detect('date')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': pd.Timestamp('2025-03-10'), 'end': pd.Timestamp('2025-03-25')},
+            {'direction': 'Noise', 'start': pd.Timestamp('2025-03-26'), 'end': pd.Timestamp('2025-04-11')},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_6']], 'noisy_edgecase_6',
+                             results.segments, index_type=results.index_type, suppress_show=True)
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_integer_next_noise_fill_direct.png',
-                                    style='default')
-    def test_integer_next_noise_fill_direct(self):
-        """Line 216: integer index, Down→Noise adjacent, invalid end displacement."""
-        values = list(range(40))
-        values[24] = 10  # Down end value (low)
-        values[25] = 35  # Noise start value (high) — displacement invalid
-        df = pd.DataFrame({'gradual': values})
-        pt.detect_trends(df, value_col='gradual',
-                         plot=False, method_params={'abrupt_padding': 0})
+                                   filename='test_plot_next_noise_string.png',
+                                   style='default')
+    def test_next_noise_string(self):
+        """String lookup: next-noise branch from detected segments."""
+        df, results = self._detect('string')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': 'S68', 'end': 'S83'},
+            {'direction': 'Noise', 'start': 'S84', 'end': 'S100'},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_6']], 'noisy_edgecase_6',
+                             results.segments, index_type='string', suppress_show=True)
 
-        plot_df = df[['gradual']]
-        segments = [
-            {'start': 1, 'end': 24, 'direction': 'Down',
-             'trend_class': 'gradual', 'change_rank': 1},
-            {'start': 25, 'end': 35, 'direction': 'Noise',
-             'change_rank': 2},
-        ]
-
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='integer', suppress_show=True)
-        return fig
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_next_noise_integer.png',
+                                   style='default')
+    def test_next_noise_integer(self):
+        """Integer lookup: next-noise branch from detected segments."""
+        df, results = self._detect('integer')
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Down', 'start': 68, 'end': 83},
+            {'direction': 'Noise', 'start': 84, 'end': 100},
+        ])
+        return plot_pytrendy(df.set_index('idx')[['noisy_edgecase_6']], 'noisy_edgecase_6',
+                             results.segments, index_type='integer', suppress_show=True)
 
 
 # =============================================================================
