@@ -11,11 +11,27 @@ from .io.results_pytrendy import PyTrendyResults
 from .io import prepare_index
 
 
+# Signal-processing constants. Windows and minimum lengths are in points;
+# `grouping_distance` is in index steps; thresholds are in dB / fraction.
+# `window_flat` and `window_noise` are intentionally absent: they derive from
+# `window_smooth` unless explicitly overridden.
+_SIGNAL_PARAMS_DEFAULTS = {
+    'window_smooth': 15,
+    'grouping_distance': 7,
+    'min_trend_length': 3,
+    'min_flat_noise_length': 1,
+    'threshold_noise': 2.5,
+    'threshold_smooth': 0.001,
+    'threshold_flat': 0.835,
+}
+
+
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
                   date_col: str|None=None,
                   plot: bool=True, 
                   method_params: dict|None=None, 
+                  signal_params: dict|None=None,
                   plot_params: dict|None=None,
                   debug: bool=False
                   ) -> PyTrendyResults:
@@ -51,6 +67,20 @@ def detect_trends(df: pd.DataFrame,
             - **abrupt_padding** (`int`): Number of days to pad after abrupt transitions. Defaults to `0`.
             - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict, optional):
+            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
+
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
+            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
+            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment to be retained. Defaults to `3`.
+            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment to be retained. Defaults to `1`.
+            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.
+            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.
+            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
+
+            This surface is independent from `method_params`, which controls the padding and noise heuristics instead.
+            Window and length values are in points; at non-daily spacing a given point count spans a different
+            real-time duration (see #303/#309 for the cadence-aware view).
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
 
@@ -102,10 +132,14 @@ def detect_trends(df: pd.DataFrame,
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 
+    # Configures signal-processing constants. Unknown keys are accepted and
+    # forwarded (validation is deliberately out of scope for now).
+    signal_params = {**_SIGNAL_PARAMS_DEFAULTS, **(signal_params or {})}
+
     # Core 5-step pipeline
-    df = process_signals(df, value_col, method_params, debug)
-    segments = get_segments(df)
-    segments = refine_segments(df, value_col, segments, method_params)
+    df = process_signals(df, value_col, method_params, signal_params, debug)
+    segments = get_segments(df, signal_params)
+    segments = refine_segments(df, value_col, segments, method_params, signal_params)
     segments = analyse_segments(df, value_col, segments)
 
     # Translate internal segment boundaries back to the user's external index values.
