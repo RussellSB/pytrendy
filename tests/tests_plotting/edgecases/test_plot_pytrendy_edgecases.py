@@ -237,8 +237,18 @@ class TestPlotPytrendyEdgeCases:
 # =============================================================================
 
 class TestPlotBoundarySegments:
-    """Segment positioning at the edges of the index and gaps between segments."""
+    """Segment positioning at the edges of the index and gaps between segments.
 
+    Detection fills every uncovered range with a Flat segment, so the plotted
+    index is always fully covered and these first/last/gap placements cannot be
+    produced end-to-end; the hand-built lists exercise them directly at the
+    plotting layer.
+    """
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_boundary_first_segment_string.png',
+                                   style='default')
     def test_first_segment_at_boundary_string(self):
         """String index: first segment starts at index[0] (no prev)."""
         df = pt.load_data('series_synthetic')
@@ -251,11 +261,13 @@ class TestPlotBoundarySegments:
              'trend_class': 'gradual', 'change_rank': 1},
         ]
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='string', suppress_show=True)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', segments,
+                             index_type='string', suppress_show=True)
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_boundary_last_segment_string.png',
+                                   style='default')
     def test_last_segment_at_boundary_string(self):
         """String index: last segment ends at index[-1] (no next)."""
         df = pt.load_data('series_synthetic')
@@ -268,11 +280,13 @@ class TestPlotBoundarySegments:
              'trend_class': 'gradual', 'change_rank': 1},
         ]
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='string', suppress_show=True)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', segments,
+                             index_type='string', suppress_show=True)
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_boundary_non_neighbouring_string.png',
+                                   style='default')
     def test_non_neighbouring_segments_string(self):
         """String index: segments with gaps (not adjacent)."""
         df = pt.load_data('series_synthetic')
@@ -287,10 +301,9 @@ class TestPlotBoundarySegments:
              'trend_class': 'gradual', 'change_rank': 2},
         ]
 
-        fig = plot_pytrendy(plot_df, 'gradual', segments,
-                            index_type='string', suppress_show=True)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', segments,
+                             index_type='string', suppress_show=True)
+
 
 # =============================================================================
 # plot_pytrendy: plot customisation (plot_params branches)
@@ -305,12 +318,20 @@ class TestPlotCustomization:
         df['date'] = pd.to_datetime(df['date'])
         return df.set_index('date')[['gradual']]
 
+    def _date_results(self):
+        """Detect trends on the gradual synthetic series for plotting."""
+        df = pt.load_data('series_synthetic')
+        return pt.detect_trends(df, value_col='gradual', date_col='date',
+                                plot=False, method_params={'abrupt_padding': 0})
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_custom_params.png',
+                                   style='default')
     def test_plot_with_custom_params(self):
         """Test plot_params path for date index type."""
         plot_df = self._date_plot_df()
-        df = pt.load_data('series_synthetic')
-        results = pt.detect_trends(df, value_col='gradual', date_col='date',
-                                   plot=False, method_params={'abrupt_padding': 0})
+        results = self._date_results()
 
         plot_params = {
             'figsize': (10, 3),
@@ -320,45 +341,44 @@ class TestPlotCustomization:
             'grid': {'visible': False},
         }
 
-        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
-                            index_type='date',
-                            suppress_show=True, plot_params=plot_params)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', results.segments,
+                             index_type='date',
+                             suppress_show=True, plot_params=plot_params)
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_custom_legend.png',
+                                   style='default')
     def test_plot_with_custom_legend(self):
         """Test legend customisation path."""
         plot_df = self._date_plot_df()
-        df = pt.load_data('series_synthetic')
-        results = pt.detect_trends(df, value_col='gradual', date_col='date',
-                                   plot=False, method_params={'abrupt_padding': 0})
+        results = self._date_results()
 
         plot_params = {
             'legend_loc': 'lower right',
         }
 
-        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
-                            index_type='date',
-                            suppress_show=True, plot_params=plot_params)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', results.segments,
+                             index_type='date',
+                             suppress_show=True, plot_params=plot_params)
 
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                   filename='test_plot_custom_colors.png',
+                                   style='default')
     def test_plot_with_custom_colors(self):
         """Test custom colors path."""
         plot_df = self._date_plot_df()
-        df = pt.load_data('series_synthetic')
-        results = pt.detect_trends(df, value_col='gradual', date_col='date',
-                                   plot=False, method_params={'abrupt_padding': 0})
+        results = self._date_results()
 
         plot_params = {
             'colors': {'Up': 'lightgreen', 'Down': 'lightcoral'},
         }
 
-        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
-                            index_type='date',
-                            suppress_show=True, plot_params=plot_params)
-        assert fig is not None
-        plt.close(fig)
+        return plot_pytrendy(plot_df, 'gradual', results.segments,
+                             index_type='date',
+                             suppress_show=True, plot_params=plot_params)
+
 
 
 # =============================================================================
