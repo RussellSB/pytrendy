@@ -2,8 +2,8 @@
 Tests for plot visualization functionality.
 
 These tests verify that the plot_pytrendy function generates consistent
-visualizations for different types of trends using pytest-mpl for image comparison.
-One extra test included to assess plt.show() behaviour only... for test coverage
+visualizations for different trend types using pytest-mpl for image comparison,
+plus a test that asserts the plt.show() behaviour.
 """
 
 import pytest
@@ -48,7 +48,7 @@ class TestPlotPytrendyEdgeCases:
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_abrupt_base_no_spikes.png', style='default')
     def test_plot_abrupt_base_no_spikes(self):
-        """Test visualization of abrupt trends synthetic with no spikes (synth 1), for plot code coverage."""
+        """Test visualization of abrupt trends synthetic with no spikes (synth 1)."""
         df = self._synth_1_data()
         results = pt.detect_trends(
             df,
@@ -108,7 +108,7 @@ class TestPlotPytrendyEdgeCases:
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_noisy_edgecase_7.png', style='default')
     def test_plot_noisy_edgecase_7(self):
-        """Test visualization of noisy edgecase 7, for plot code coverage."""
+        """Test visualization of noisy edgecase 7."""
         edgecases_df = pd.read_csv('tests/tests_crashes_edgecases/data/noisy_edgecases.csv')
         results = pt.detect_trends(
             edgecases_df,
@@ -581,12 +581,12 @@ class TestPlotFloatIndexSpacing:
 # =============================================================================
 
 class TestAdjacentToGuards:
-    """Direct-call coverage for the ``_adjacent_to`` None-guards.
+    """Direct-call tests for the ``_adjacent_to`` None-guards.
 
-    TODO: these use hand-crafted segment lists to hit guards the integration
-    pipeline cannot produce (boundaries absent from / duplicated in the plotted
-    index); redo with realistic scenarios if unsorted/duplicate input ever
-    becomes supported (#284).
+    These use hand-crafted segment lists to hit guards the integration pipeline
+    cannot produce: a boundary absent from the plotted index (``KeyError``) and a
+    duplicated index value (non-int ``get_loc``). They are the honest coverage
+    for ``plot_pytrendy`` lines 38-41 and stay direct by design (#284).
     """
 
     @pytest.mark.plot
