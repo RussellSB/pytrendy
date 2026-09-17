@@ -107,7 +107,7 @@ class TestPlotStringIndex:
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                   filename='test_plot_string_index_noise.png',
+                                   filename='test_plot_prev_fill_string.png',
                                    style='default')
     def test_string_index_noise_segment(self):
         """String index: noise segments trigger the noise branches."""
@@ -276,7 +276,7 @@ class TestPlotNoiseNeighbour:
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                   filename='test_plot_noise_neighbour_integer.png',
+                                   filename='test_plot_prev_fill_integer.png',
                                    style='default')
     def test_trend_next_noise_integer(self):
         """Integer index: trend followed by adjacent noise exercises end adjustment."""
@@ -293,7 +293,7 @@ class TestPlotNoiseNeighbour:
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                   filename='test_plot_prev_not_trend_string.png',
+                                   filename='test_plot_string_index_basic.png',
                                    style='default')
     def test_prev_not_trend_string(self):
         """String index: Flat (not a trend) followed by adjacent gradual trend."""
