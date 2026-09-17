@@ -215,40 +215,42 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     if debug:
         import matplotlib.pyplot as plt
 
+        from .io.plot_pytrendy import _show_plot
+
         ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
         ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
         plt.title("Signal-Noise Ratio (SNR)")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Noise Flag")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Smoothed")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Smoothed Std")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Flat Flag")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
         ax.right_ax.axhline(y=derivative_limit, color='gray', linestyle='--', linewidth=2)
         ax.right_ax.axhline(y=-derivative_limit, color='gray', linestyle=':', linewidth=2)
         plt.title("Smoothed Derivative")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Trend Flag")
-        plt.show()
+        _show_plot()
 
     return df

@@ -6,6 +6,7 @@ These tests verify that the debug process works as expected.
 
 import pytest
 import pytrendy as pt
+import matplotlib
 import matplotlib.pyplot as plt
 
 
@@ -24,6 +25,9 @@ class TestDebug:
             show_calls.append((args, kwargs))
             plt.close("all")
         monkeypatch.setattr(plt, 'show', fake_show)
+        # Force a GUI-capable backend so the guard in _show_plot() calls plt.show();
+        # the suite otherwise runs on Agg, where show() is a no-op by design.
+        monkeypatch.setattr(matplotlib, 'get_backend', lambda: 'tkagg')
 
         df = pt.load_data('series_synthetic')
         _ = pt.detect_trends(
