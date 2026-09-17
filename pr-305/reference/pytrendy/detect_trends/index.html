@@ -1766,41 +1766,43 @@ Defaults to <code>True</code>.</p>
 <td>Whether to avoid noisy segments in trend detection.</td>
 </tr>
 <tr>
-<td><code>window_smooth</code></td>
-<td><code>int</code></td>
-<td><em>coming in #303</em></td>
-<td>Smoothing window size.</td>
+<td>Any additional keys are forwarded to the pipeline stages that consume</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
-<td><code>window_flat</code></td>
-<td><code>int</code></td>
-<td><em>coming in #303</em></td>
-<td>Flat-region detection window size.</td>
+<td><code>method_params</code>, so custom values can drive stage behaviour. A key that looks</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
-<td><code>window_noise</code></td>
-<td><code>int</code></td>
-<td><em>coming in #303</em></td>
-<td>Noise-detection window size.</td>
+<td>like a typo of a core key emits a single <code>UserWarning</code> naming the likely</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
-<td><code>grouping_distance</code></td>
-<td><code>int</code></td>
-<td><em>coming in #303</em></td>
-<td>Distance for grouping nearby segments.</td>
+<td>intended key; genuinely custom keys never warn.</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 <tr>
-<td><code>min_trend_length</code></td>
-<td><code>int</code></td>
-<td><em>coming in #303</em></td>
-<td>Minimum length for a segment to count as a trend.</td>
+<td><code>is_abrupt_padded</code> is deprecated (use <code>abrupt_padding</code> instead) and emits a</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td><code>DeprecationWarning</code>.</td>
+<td></td>
+<td></td>
+<td></td>
 </tr>
 </tbody>
 </table>
-<p>Any unrecognised key triggers a single <code>UserWarning</code> listing the supported keys;
-it is ignored rather than raising, so typos do not hard-fail detection.
-<code>is_abrupt_padded</code> is deprecated (use <code>abrupt_padding</code> instead) and emits a
-<code>DeprecationWarning</code>.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1853,7 +1855,12 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/detect_trends.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 30</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
 <span class="normal"> 31</span>
 <span class="normal"> 32</span>
 <span class="normal"> 33</span>
@@ -1975,17 +1982,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">149</span>
 <span class="normal">150</span>
 <span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">152</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2027,14 +2024,10 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            | `abrupt_padding` | `int` | `0` | Number of days to pad after abrupt transitions. |</span>
 <span class="sd">            | `gradual_padding` | `int` | `0` | Number of days to pad after a gradual trend ends. |</span>
 <span class="sd">            | `avoid_noise` | `bool` | `True` | Whether to avoid noisy segments in trend detection. |</span>
-<span class="sd">            | `window_smooth` | `int` | *coming in #303* | Smoothing window size. |</span>
-<span class="sd">            | `window_flat` | `int` | *coming in #303* | Flat-region detection window size. |</span>
-<span class="sd">            | `window_noise` | `int` | *coming in #303* | Noise-detection window size. |</span>
-<span class="sd">            | `grouping_distance` | `int` | *coming in #303* | Distance for grouping nearby segments. |</span>
-<span class="sd">            | `min_trend_length` | `int` | *coming in #303* | Minimum length for a segment to count as a trend. |</span>
-
-<span class="sd">            Any unrecognised key triggers a single `UserWarning` listing the supported keys;</span>
-<span class="sd">            it is ignored rather than raising, so typos do not hard-fail detection.</span>
+<span class="sd">            Any additional keys are forwarded to the pipeline stages that consume</span>
+<span class="sd">            `method_params`, so custom values can drive stage behaviour. A key that looks</span>
+<span class="sd">            like a typo of a core key emits a single `UserWarning` naming the likely</span>
+<span class="sd">            intended key; genuinely custom keys never warn.</span>
 <span class="sd">            `is_abrupt_padded` is deprecated (use `abrupt_padding` instead) and emits a</span>
 <span class="sd">            `DeprecationWarning`.</span>
 <span class="sd">        plot_params (dict, optional):</span>
@@ -2081,26 +2074,25 @@ Use this object to access segment statistics, rankings, and export utilities.</p
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>
 
-    <span class="c1"># Warn (once) on unrecognised keys. Done after the deprecation check so</span>
-    <span class="c1"># 'is_abrupt_padded' emits only its DeprecationWarning, and so #303's planned</span>
-    <span class="c1"># keys (in the allowlist) stay quiet. Ignored rather than raised: typos</span>
-    <span class="c1"># should not hard-fail detection.</span>
-    <span class="n">unknown_keys</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">method_params</span><span class="p">)</span> <span class="o">-</span> <span class="nb">set</span><span class="p">(</span><span class="n">_SUPPORTED_METHOD_PARAMS</span><span class="p">))</span>
-    <span class="k">if</span> <span class="n">unknown_keys</span><span class="p">:</span>
-        <span class="n">supported</span> <span class="o">=</span> <span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_SUPPORTED_METHOD_PARAMS</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s1">'is_abrupt_padded'</span><span class="p">)</span>
-        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"Unrecognised method_params key(s): </span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">unknown_keys</span><span class="p">)</span><span class="si">}</span><span class="s2">. "</span>
-            <span class="sa">f</span><span class="s2">"Supported keys: </span><span class="si">{</span><span class="n">supported</span><span class="si">}</span><span class="s2">. Unrecognised keys are ignored."</span><span class="p">,</span>
-            <span class="ne">UserWarning</span><span class="p">,</span>
-            <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
+    <span class="c1"># Typo guardrail without closing the channel to custom keys: warn (once per key)</span>
+    <span class="c1"># only when a supplied key is a near-miss of a core key. Done after the</span>
+    <span class="c1"># deprecation check so 'is_abrupt_padded' emits only its DeprecationWarning.</span>
+    <span class="c1"># Genuinely custom keys (no near-match) are forwarded silently.</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">method_params</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">_METHOD_PARAMS_DEFAULTS</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">'is_abrupt_padded'</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">difflib</span><span class="o">.</span><span class="n">get_close_matches</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">_METHOD_PARAMS_DEFAULTS</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Unrecognised method_params key '</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">'; did you mean '</span><span class="si">{</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">'? "</span>
+                <span class="s2">"Other keys are forwarded to pipeline stages."</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+                <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="p">)</span>
 
-    <span class="c1"># Configures trend detection heuristics</span>
-    <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">'gradual_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-    <span class="p">}</span>
+    <span class="c1"># Configures trend detection heuristics. Merge (not replace) so custom keys</span>
+    <span class="c1"># survive through to the stages that consume method_params.</span>
+    <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">_METHOD_PARAMS_DEFAULTS</span><span class="p">,</span> <span class="o">**</span><span class="n">method_params</span><span class="p">}</span>
 
     <span class="c1"># Core 5-step pipeline</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>

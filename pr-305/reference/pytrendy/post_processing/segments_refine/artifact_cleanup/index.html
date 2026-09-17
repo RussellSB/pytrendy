@@ -2156,7 +2156,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
     <span class="c1"># Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise</span>
     <span class="c1"># Only runs post-processing cleanup logic when avoid_noise is True, enabled by default.</span>
-    <span class="k">if</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">'avoid_noise'</span><span class="p">]:</span>
+    <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
         <span class="n">segments</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
         <span class="n">segments_refined</span> <span class="o">=</span> <span class="p">[]</span> 
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
@@ -2287,7 +2287,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
                 <span class="n">trend_too_flat</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">min_in_last_section</span>
 
         <span class="c1"># Reclassify as noise if either edge cases met</span>
-        <span class="k">if</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">'avoid_noise'</span><span class="p">]</span> <span class="ow">and</span> \
+        <span class="k">if</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> \
             <span class="p">(</span><span class="n">too_noisy</span> <span class="ow">or</span> <span class="p">(</span><span class="n">is_abrupt_near_noise</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">trend_ends_too_close</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_small_gradual_in_noise</span><span class="p">):</span>
             <span class="n">segment</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Noise'</span> 
             <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">:</span> <span class="k">del</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span>
