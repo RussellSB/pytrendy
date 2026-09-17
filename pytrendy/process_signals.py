@@ -7,7 +7,7 @@ from scipy.signal import savgol_filter
 from scipy.stats import iqr
 from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
-def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug: bool=False) -> pd.DataFrame:
+def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, signal_params: dict|None=None, debug: bool=False) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 
@@ -37,6 +37,16 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             Optional parameters to customize detection heuristics. Supported keys:
 
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict, optional):
+            Optional signal-processing constants. Supported keys:
+
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
+            - **window_flat** (`int`): Window for rolling flat statistics. Defaults to half of `window_smooth`.
+            - **window_noise** (`int`): Window for the noise SNR estimate. Defaults to half of `window_smooth`.
+            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby noise segments. Defaults to `7`.
+            - **threshold_noise** (`float`): SNR threshold (dB). Defaults to `2.5`.
+            - **threshold_smooth** (`float`): Derivative threshold as a fraction of the signal IQR. Defaults to `0.001`.
+            - **threshold_flat** (`float`): Flat sensitivity as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
 
@@ -46,13 +56,17 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             - `'smoothed'`, `'smoothed_std'`, `'snr'`, `'smoothed_deriv'`
             - `'flat_flag'`, `'noise_flag'`, `'trend_flag'`
     """
-    WINDOW_SMOOTH = 15
-    WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
-    WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
+    signal_params = signal_params or {}
 
-    THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
-    THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
-    THRESHOLD_FLAT = 0.835 # Sensitivity to detecting flats as a fraction of min std (non-zero)
+    WINDOW_SMOOTH = signal_params.get('window_smooth', 15)
+    WINDOW_FLAT = signal_params.get('window_flat') or int(WINDOW_SMOOTH*0.5)
+    WINDOW_NOISE = signal_params.get('window_noise') or int(WINDOW_SMOOTH*0.5)
+
+    THRESHOLD_NOISE = signal_params.get('threshold_noise', 2.5) # Sensitivity to detecting noise (recommended 0-10)
+    THRESHOLD_SMOOTH = signal_params.get('threshold_smooth', 0.001) # Sensitivity to detecting trends as fraction of iqr
+    THRESHOLD_FLAT = signal_params.get('threshold_flat', 0.835) # Sensitivity to detecting flats as a fraction of min std (non-zero)
+
+    grouping_distance = signal_params.get('grouping_distance', GROUPING_DISTANCE)
 
     assert pd.api.types.is_integer_dtype(df.index.dtype), f"Supplied Index has type {df.index.dtype}"
 
@@ -106,7 +120,7 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         prev_seg = noise_segments[0].copy()
         for i, seg in enumerate(noise_segments[1:]):
             width = (seg['start'] - prev_seg['end'])
-            if width <= GROUPING_DISTANCE:
+            if width <= grouping_distance:
                 new_seg = {'start': prev_seg['start'], 'end': seg['end']}
                 noise_segments_grouped.append(new_seg)
             else:

@@ -182,7 +182,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
     # Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise
     # Only runs post-processing cleanup logic when avoid_noise is True, enabled by default.
-    if method_params['avoid_noise']:
+    if method_params.get('avoid_noise', True):
         segments = deepcopy(segments_refined)
         segments_refined = [] 
         for i, segment in enumerate(segments):
@@ -313,7 +313,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if method_params['avoid_noise'] and \
+        if method_params.get('avoid_noise', True) and \
             (too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise):
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']

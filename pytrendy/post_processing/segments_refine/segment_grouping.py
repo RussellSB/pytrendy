@@ -8,20 +8,21 @@ import pandas as pd
 GROUPING_DISTANCE = 7  # Distance for grouping segments of same type in group_segments
 
 
-def group_segments(segments: list[dict]) -> list[dict]:
+def group_segments(segments: list[dict], grouping_distance: int = GROUPING_DISTANCE) -> list[dict]:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
     Segments are grouped if:
 
         - They share the same `'direction'`
-        - Their gap is ≤ `GROUPING_DISTANCE`
+        - Their gap is ≤ `grouping_distance`
         - They are not classified as `'abrupt'`
 
     This reduces fragmentation caused by short, noisy segments.
 
     Args:
         segments (list): List of segment dictionaries.
+        grouping_distance (int, optional): Maximum gap, in index steps, for grouping. Defaults to `7`.
 
     Returns:
         list: Grouped segment list.
@@ -50,7 +51,7 @@ def group_segments(segments: list[dict]) -> list[dict]:
         if (
             direction == direction_prev
             and segment_history
-            and (segment['start'] - segment_history[-1]['end']) <= GROUPING_DISTANCE
+            and (segment['start'] - segment_history[-1]['end']) <= grouping_distance
             and ((not 'trend_class' in segment) or ('trend_class' in segment and segment['trend_class'] != 'abrupt')) # dont group up abrupt trends
         ):
             # same direction and within allowed distance -> extend history
