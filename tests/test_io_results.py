@@ -280,7 +280,7 @@ class TestResultsSetDataFrame:
         assert isinstance(gradual_results.df, pd.DataFrame)
         
         # Check that df has expected columns
-        expected_cols = ['direction', 'start', 'end', 'days']
+        expected_cols = ['direction', 'start', 'end', 'steps']
         for col in expected_cols:
             assert col in gradual_results.df.columns
         
@@ -312,7 +312,7 @@ class TestResultsSetDataFrame:
         assert isinstance(gradual_results.df_summary, pd.DataFrame)
         
         # Check basic columns exist
-        expected_cols = ['direction', 'start', 'end', 'days']
+        expected_cols = ['direction', 'start', 'end', 'steps']
         for col in expected_cols:
             assert col in gradual_results.df_summary.columns
         
@@ -334,7 +334,7 @@ class TestResultsSetDataFrame:
     @pytest.mark.core
     def test_df_has_required_cols(self, gradual_results):
         """Test that DataFrame has required columns."""
-        required_cols = ['direction', 'start', 'end', 'days']
+        required_cols = ['direction', 'start', 'end', 'steps']
         
         for col in required_cols:
             assert col in gradual_results.df.columns, f"DataFrame missing column: {col}"
@@ -513,7 +513,7 @@ class TestResultsFilterSegments:
         assert len(segments_df) == 8
         
         # Check that DataFrame has expected columns
-        expected_cols = ['direction', 'start', 'end', 'days']
+        expected_cols = ['direction', 'start', 'end', 'steps']
         for col in expected_cols:
             assert col in segments_df.columns
 
@@ -755,7 +755,7 @@ class TestResultsDataStructures:
     @pytest.mark.core
     def test_segments_have_required_fields(self, gradual_results):
         """Test that all segments have required fields."""
-        required_fields = ['direction', 'start', 'end', 'time_index', 'days']
+        required_fields = ['direction', 'start', 'end', 'time_index', 'steps']
         
         for i, segment in enumerate(gradual_results.segments):
             for field in required_fields:
@@ -776,3 +776,41 @@ class TestChangeColumnRemoved:
             results.df['change']
         for seg in results.segments:
             assert 'change' not in seg
+
+
+class TestDaysColumnRenamed:
+    """The `days` column was renamed to `steps`: it counts positional index steps, not days."""
+
+    @pytest.mark.core
+    def test_steps_column_date_index(self):
+        """Date index: `steps` present; `days` absent from .df, .df_summary and segment dicts."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        assert 'steps' in results.df.columns
+        assert 'days' not in results.df.columns
+        assert 'steps' in results.df_summary.columns
+        assert 'days' not in results.df_summary.columns
+        with pytest.raises(KeyError):
+            results.df['days']
+        for seg in results.segments:
+            assert 'steps' in seg
+            assert 'days' not in seg
+
+    @pytest.mark.core
+    def test_steps_column_non_date_indexes(self):
+        """Integer/string indexes get `steps` uniformly — no `days` / `index steps` relabel."""
+        value = [90 + i for i in range(10)] + [100] * 10 + [80 - i for i in range(5)] + [60 + i for i in range(15)]
+        df_int = pd.DataFrame({'value': value})
+        df_str = pd.DataFrame({'date': [f'S{i}' for i in range(40)], 'value': value})
+
+        for df, kwargs in [(df_int, {}), (df_str, {'date_col': 'date'})]:
+            results = pt.detect_trends(df, value_col='value', plot=False,
+                                       method_params={'abrupt_padding': 0}, **kwargs)
+            assert 'steps' in results.df.columns, f'{results.index_type} index: steps missing from .df'
+            assert 'days' not in results.df.columns
+            assert 'index steps' not in results.df_summary.columns
+            assert 'steps' in results.df_summary.columns
+            assert 'days' not in results.df_summary.columns
+            for seg in results.segments:
+                assert 'steps' in seg
+                assert 'days' not in seg
