@@ -29,7 +29,7 @@ Plot tests use `@pytest.mark.mpl_image_compare(baseline_dir='./', filename='test
 
 `baseline_dir='./'` resolves relative to the test file, so the PNG must be in the same directory as the `.py`.
 
-**matplotlib is pinned to 3.10.8** in `pyproject.toml`. Baselines are only valid for that version — different matplotlib renders differently and tests fail on pixel diff. Don't regenerate on another version.
+**matplotlib is pinned to 3.11.2** in `pyproject.toml`. Baselines are only valid for that version — different matplotlib renders differently and tests fail on pixel diff. Don't regenerate on another version.
 
 Regenerate baselines after an *intentional* plot change:
 
