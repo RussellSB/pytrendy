@@ -21,6 +21,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
 
             - **grouping_distance** (`int`): Maximum gap, in index steps, for considering neighbouring segments noise.
+            - **threshold_noise** (`float`): SNR threshold (dB) below which a trend is considered too noisy to retain.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
@@ -270,7 +271,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         signal_power = np.mean(df_segment['signal']**2)
         noise_power = np.mean(df_segment['noise']**2)
         snr = float(10 * np.log10(signal_power / noise_power)) if noise_power != 0 else np.nan
-        threshold_noise = 2.5 
+        threshold_noise = signal_params['threshold_noise']
         if is_gradual: threshold_noise = 5
         if is_flat: threshold_noise = 0
         too_noisy = (snr < threshold_noise)
