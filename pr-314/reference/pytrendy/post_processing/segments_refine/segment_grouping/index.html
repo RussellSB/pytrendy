@@ -674,6 +674,8 @@
       
         
       
+        
+      
     
     
     
@@ -786,14 +788,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../../../io/prepare_index/" class="md-nav__link">
+      <a href="../../../io/prep_index/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
+    <code class='doc-symbol doc-symbol-nav'></code>prep_index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../io/prep_signal_params/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prep_signal_params
   
 
     
@@ -1218,6 +1248,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.segment_grouping.group_segments(grouping_distance)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;grouping_distance
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1478,6 +1519,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.segment_grouping.group_segments(grouping_distance)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;grouping_distance
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1543,15 +1595,15 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Groups consecutive segments with the same direction if their gap is small.</p>
 <p>Segments are grouped when they share the same direction, their gap is ≤
-<code>GROUPING_DISTANCE</code>, and neither is classified as abrupt. This reduces fragmentation
-caused by short, noisy segments.</p>
+<code>grouping_distance</code>, and neither is classified as abrupt. This reduces
+fragmentation caused by short, noisy segments.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1562,6 +1614,14 @@ caused by short, noisy segments.</p>
           –
           <div class="doc-md-description">
             <p>List of segment dictionaries.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.segment_grouping.group_segments(grouping_distance)" class="doc doc-heading doc-heading-parameter">              <b><code>grouping_distance</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Maximum gap, in index steps, for grouping.</p>
           </div>
         </li>
     </ul>
@@ -1581,7 +1641,9 @@ caused by short, noisy segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/segment_grouping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
 <span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>
@@ -1641,17 +1703,17 @@ caused by short, noisy segments.</p>
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">grouping_distance</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Groups consecutive segments with the same direction if their gap is small.</span>
 
 <span class="sd">    Segments are grouped when they share the same direction, their gap is ≤</span>
-<span class="sd">    ``GROUPING_DISTANCE``, and neither is classified as abrupt. This reduces fragmentation</span>
-<span class="sd">    caused by short, noisy segments.</span>
+<span class="sd">    ``grouping_distance``, and neither is classified as abrupt. This reduces</span>
+<span class="sd">    fragmentation caused by short, noisy segments.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        segments (list): List of segment dictionaries.</span>
+<span class="sd">        grouping_distance (int): Maximum gap, in index steps, for grouping.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Grouped segment list.</span>
@@ -1680,7 +1742,7 @@ caused by short, noisy segments.</p>
         <span class="k">if</span> <span class="p">(</span>
             <span class="n">direction</span> <span class="o">==</span> <span class="n">direction_prev</span>
             <span class="ow">and</span> <span class="n">segment_history</span>
-            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment_history</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">grouping_distance</span>
             <span class="ow">and</span> <span class="p">((</span><span class="ow">not</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">segment</span> <span class="ow">and</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span> <span class="o">!=</span> <span class="s1">'abrupt'</span><span class="p">))</span> <span class="c1"># dont group up abrupt trends</span>
         <span class="p">):</span>
             <span class="c1"># same direction and within allowed distance -&gt; extend history</span>

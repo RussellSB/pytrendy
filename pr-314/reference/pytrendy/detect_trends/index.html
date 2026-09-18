@@ -759,6 +759,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -805,6 +816,8 @@
       
         
           
+        
+      
         
       
         
@@ -927,14 +940,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../io/prepare_index/" class="md-nav__link">
+      <a href="../io/prep_index/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
+    <code class='doc-symbol doc-symbol-nav'></code>prep_index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/prep_signal_params/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prep_signal_params
   
 
     
@@ -1585,6 +1626,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1670,7 +1722,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1742,6 +1794,30 @@ Defaults to <code>True</code>.</p>
 <li><strong>gradual_padding</strong> (<code>int</code>): Number of days to pad after gradual trend ends. Defaults to <code>0</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
 </ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.detect_trends.detect_trends(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Optional parameters to customize the signal-processing constants. Supported keys (independent from <code>method_params</code>):</p>
+<ul>
+<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to <code>15</code>.</li>
+<li><strong>smooth_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_flat</code> window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
+<li><strong>noise_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_noise</code> window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments. Defaults to <code>7</code>.</li>
+<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to <code>3</code>.</li>
+<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to <code>1</code>.</li>
+<li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB) below which a region is classified as noise. Defaults to <code>2.5</code>.</li>
+<li><strong>threshold_smooth</strong> (<code>float</code>): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to <code>0.001</code>.</li>
+<li><strong>threshold_flat</strong> (<code>float</code>): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to <code>0.835</code>.</li>
+</ul>
+<p>This surface is independent from <code>method_params</code>, which controls the padding and noise heuristics instead.
+Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
+different real-time duration.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1900,11 +1976,33 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
-<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
                   <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span>
                   <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
@@ -1940,6 +2038,22 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad after abrupt transitions. Defaults to `0`.</span>
 <span class="sd">            - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
+<span class="sd">        signal_params (dict, optional):</span>
+<span class="sd">            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):</span>
+
+<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.</span>
+<span class="sd">            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.</span>
+<span class="sd">            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.</span>
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.</span>
+<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.</span>
+<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.</span>
+<span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.</span>
+<span class="sd">            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.</span>
+<span class="sd">            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.</span>
+
+<span class="sd">            This surface is independent from `method_params`, which controls the padding and noise heuristics instead.</span>
+<span class="sd">            Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a</span>
+<span class="sd">            different real-time duration.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
 
@@ -1962,7 +2076,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            Use this object to access segment statistics, rankings, and export utilities.</span>
 <span class="sd">    """</span>
     <span class="c1"># Reject the deprecated positional order detect_trends(df, date_col, value_col).</span>
-    <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">is_legacy_positional_order</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">is_legacy_positional_order</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="s2">"detect_trends received arguments in the deprecated (date_col, value_col) order. "</span>
             <span class="s2">"Pass value_col first: detect_trends(df, value_col, date_col=...)."</span>
@@ -1970,7 +2084,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
     <span class="c1"># Stage the DataFrame on an internal integer index, keeping the external index</span>
     <span class="c1"># values and a lookup so boundaries can be remapped back later.</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">,</span> <span class="n">index_type</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">prepare_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">,</span> <span class="n">index_type</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">prep_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">method_params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">method_params</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1"># Avoid mutable default argument by accepting None and constructing a new dict here</span>
@@ -1991,18 +2105,22 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
+    <span class="c1"># Configures signal-processing constants. Unknown keys are accepted and</span>
+    <span class="c1"># forwarded (validation is deliberately out of scope for now).</span>
+    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">prep_signal_params</span><span class="o">.</span><span class="n">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">)</span>
+
     <span class="c1"># Core 5-step pipeline</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
 
     <span class="c1"># Translate internal segment boundaries back to the user's external index values.</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">remap_boundaries</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">remap_boundaries</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="c1"># Restore the external index for plotting before rendering the segments.</span>
-        <span class="n">plot_df</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">prepare_plot_frame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_type</span><span class="p">)</span>
+        <span class="n">plot_df</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">prepare_plot_frame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_type</span><span class="p">)</span>
         <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">plot_df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="n">plot_params</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">)</span>
