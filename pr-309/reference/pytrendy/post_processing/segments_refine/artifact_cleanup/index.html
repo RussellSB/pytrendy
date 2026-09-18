@@ -1729,6 +1729,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
             <p>Signal-processing constants, populated by <code>detect_trends</code> (no defaults applied here). Supported keys:</p>
 <ul>
 <li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in index steps, for considering neighbouring segments noise.</li>
+<li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB) below which a trend is considered too noisy to retain.</li>
 </ul>
           </div>
         </li>
@@ -2079,7 +2080,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">328</span>
 <span class="normal">329</span>
 <span class="normal">330</span>
-<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">331</span>
+<span class="normal">332</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Removes segments any invalid segments, such as inversions or overlaps.</span>
 <span class="sd">    Typically to clean up after boundary adjustments introduced from noise or trend refinements.</span>
@@ -2092,6 +2094,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="sd">        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:</span>
 
 <span class="sd">            - **grouping_distance** (`int`): Maximum gap, in index steps, for considering neighbouring segments noise.</span>
+<span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB) below which a trend is considered too noisy to retain.</span>
 <span class="sd">        inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.</span>
 
 <span class="sd">    Returns:</span>
@@ -2341,7 +2344,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
         <span class="n">signal_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'signal'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">noise_power</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="s1">'noise'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">snr</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">signal_power</span> <span class="o">/</span> <span class="n">noise_power</span><span class="p">))</span> <span class="k">if</span> <span class="n">noise_power</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span>
-        <span class="n">threshold_noise</span> <span class="o">=</span> <span class="mf">2.5</span> 
+        <span class="n">threshold_noise</span> <span class="o">=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'threshold_noise'</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">is_gradual</span><span class="p">:</span> <span class="n">threshold_noise</span> <span class="o">=</span> <span class="mi">5</span>
         <span class="k">if</span> <span class="n">is_flat</span><span class="p">:</span> <span class="n">threshold_noise</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="n">too_noisy</span> <span class="o">=</span> <span class="p">(</span><span class="n">snr</span> <span class="o">&lt;</span> <span class="n">threshold_noise</span><span class="p">)</span>
@@ -2428,8 +2431,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/artifact_cleanup.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">334</span>
-<span class="normal">335</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">335</span>
 <span class="normal">336</span>
 <span class="normal">337</span>
 <span class="normal">338</span>
@@ -2486,7 +2488,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">389</span>
 <span class="normal">390</span>
 <span class="normal">391</span>
-<span class="normal">392</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">392</span>
+<span class="normal">393</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Fill uncovered time gaps with Flat segments using df's Index.</span>
 
 <span class="sd">    Adds Flat segments for:</span>
