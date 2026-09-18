@@ -23,8 +23,8 @@ class PyTrendyResults:
                 List of dictionaries representing individual trend segments.
             index_type (str):
                 The type of the index used for the segments (``'date'``, ``'datetime64'``,
-                ``'integer'``, ``'float'``, or ``'string'``). Used to render summaries with the
-                appropriate descriptor (e.g. ``'days'`` vs ``'index steps'``). Defaults to ``'date'``.
+                ``'integer'``, ``'float'``, or ``'string'``). Used to label segment boundaries
+                in ``print_summary`` (e.g. ``'dates'`` vs ``'indexes'``). Defaults to ``'date'``.
         """
         self.segments = segments
         self.trend_segments = [seg for seg in self.segments if 'trend_class' in seg] # Get segments that are trends (exclude flats and noise)
@@ -77,16 +77,7 @@ class PyTrendyResults:
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
 
-        unit_descriptor = {
-            'date': 'days',
-            'integer': 'index steps',
-            'float': 'index steps',
-            'string': 'index steps',
-        }.get(self.index_type, 'days')
-
-        df = df.rename({'days' : unit_descriptor}, axis = 1)
-
-        cols = ['time_index', 'direction', 'start', 'end', unit_descriptor, 'total_change', 'change_rank']
+        cols = ['time_index', 'direction', 'start', 'end', 'steps', 'total_change', 'change_rank']
         if len(changes) > 1:  #  only include trend_class if atleast one trend exists
             cols += ['trend_class']
         df = df[cols]
