@@ -13,6 +13,8 @@ assumes :func:`prep_signal_params` returns a fully-populated dict.
 
 _SIGNAL_PARAMS_DEFAULTS = {
     'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
+    'smooth_factor': 0.5,       # Fraction of window_smooth spanned by window_flat: raise to widen it (smoother flat baseline, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional.
+    'noise_factor': 0.5,        # Fraction of window_smooth spanned by window_noise: raise to widen it (smoother SNR estimate, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional.
     'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
     'min_trend_length': 3,      # Minimum length, in steps, for an Up/Down segment to be retained.
     'min_flat_noise_length': 1, # Minimum length, in steps, for a Flat/Noise segment to be retained.
@@ -37,6 +39,6 @@ def prep_signal_params(signal_params: dict|None=None) -> dict:
         dict: Fully-populated signal_params with every key the stages read.
     """
     resolved = {**_SIGNAL_PARAMS_DEFAULTS, **(signal_params or {})}
-    resolved.setdefault('window_flat', int(resolved['window_smooth'] * 0.5))
-    resolved.setdefault('window_noise', int(resolved['window_smooth'] * 0.5))
+    resolved.setdefault('window_flat', int(resolved['window_smooth'] * resolved['smooth_factor']))
+    resolved.setdefault('window_noise', int(resolved['window_smooth'] * resolved['noise_factor']))
     return resolved

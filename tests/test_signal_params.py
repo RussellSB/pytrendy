@@ -66,6 +66,12 @@ class TestSignalParams:
         assert explicit['window_flat'] == 3
         assert explicit['window_noise'] == 5
 
+    def test_smooth_and_noise_factor_override_derived_windows(self):
+        """smooth_factor/noise_factor scale the derived windows off window_smooth."""
+        derived = prep_signal_params.prep_signal_params({'window_smooth': 20, 'smooth_factor': 0.7, 'noise_factor': 0.3})
+        assert derived['window_flat'] == 14
+        assert derived['window_noise'] == 6
+
     def test_min_trend_length_override_honoured(self):
         """Raising min_trend_length drops the shorter trend segments."""
         default = _run('gradual')

@@ -56,6 +56,8 @@ def detect_trends(df: pd.DataFrame,
             Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
 
             - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
+            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
+            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
             - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
             - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.
             - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.
