@@ -2,12 +2,12 @@ coverage:
   status:
     project:
       default:
-        # Absolute floor: the combined report must stay at/above 99.9%, so
+        # Absolute floor: the combined report must stay at exactly 100%, so
         # coverage cannot silently degrade between PRs.
-        target: 99.9%
+        target: 100%
         threshold: 0%
     patch:
       default:
-        # New/changed lines must be essentially fully covered too.
-        target: 99.9%
+        # New/changed lines must be fully covered too.
+        target: 100%
         threshold: 0%
