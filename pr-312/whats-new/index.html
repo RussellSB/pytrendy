@@ -1826,7 +1826,7 @@ Switch to the <strong>main</strong> docs via the badge in the header to see only
 <li><strong>Enhanced Capability</strong> — detection accepts any index type with an optional <code>date_col</code>; gradual trends gain <code>gradual_padding</code>; a new <code>mltp_change</code> multiplier view sits alongside <code>pct_change</code>.</li>
 <li><strong>Customisation</strong> — <code>plot_params</code> restyles every visual aspect of the detection plot.</li>
 <li><strong>Bug fixes</strong> — false flat detection on long ramps fixed; over-applied abrupt padding fixed.</li>
-<li><strong>Refactoring</strong> — redundant <code>change</code> column removed in favour of <code>total_change</code>.</li>
+<li><strong>Refactoring</strong> — redundant <code>change</code> column removed in favour of <code>total_change</code>; the <code>days</code> column renamed to <code>steps</code>.</li>
 </ul>
 <h3 id="enhanced-capability">Enhanced Capability</h3>
 <details class="note">
@@ -2030,6 +2030,16 @@ Fixed: <a href="https://github.com/RussellSB/pytrendy/pull/224">#224</a></p>
 Reading <code>results.df["change"]</code> now raises a <code>KeyError</code> — use <code>total_change</code>, which holds
 the identical value. Segment dictionaries and <code>.df_summary</code> are unaffected.
 Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/294">#294</a></p>
+</details>
+<details class="note">
+<summary>Renamed the <code>days</code> column to <code>steps</code> (breaking)</summary>
+<p><code>results.df</code>, <code>results.df_summary</code>, and segment dictionaries no longer contain a <code>days</code>
+column. It has been renamed to <code>steps</code>, because the value is <code>end − start</code> on the internal
+contiguous integer index — a count of positional index steps rather than calendar days.
+The name is now accurate for any index granularity, so the <code>days</code> / <code>"index steps"</code>
+relabelling in <code>.df_summary</code> is gone. Reading <code>results.df["days"]</code> now raises a <code>KeyError</code>
+— use <code>steps</code>, which holds the identical value.
+Introduced: <a href="https://github.com/RussellSB/pytrendy/pull/312">#312</a></p>
 </details>
 <details class="note">
 <summary>Test coverage hardened alongside the index rework</summary>
