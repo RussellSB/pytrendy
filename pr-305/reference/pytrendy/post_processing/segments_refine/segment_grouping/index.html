@@ -1565,7 +1565,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="o">=</span><span class="n">GROUPING_DISTANCE</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1588,12 +1588,10 @@ fragmentation caused by short, noisy segments.</p>
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.segment_grouping.group_segments(grouping_distance)" class="doc doc-heading doc-heading-parameter">              <b><code>grouping_distance</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>, default:
-                  <code><span title="pytrendy.post_processing.segments_refine.segment_grouping.GROUPING_DISTANCE">GROUPING_DISTANCE</span></code>
-)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>)
           –
           <div class="doc-md-description">
-            <p>Maximum gap, in index steps, for grouping. Defaults to <code>7</code>.</p>
+            <p>Maximum gap, in index steps, for grouping.</p>
           </div>
         </li>
     </ul>
@@ -1613,7 +1611,9 @@ fragmentation caused by short, noisy segments.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/segment_grouping.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">11</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 9</span>
+<span class="normal">10</span>
+<span class="normal">11</span>
 <span class="normal">12</span>
 <span class="normal">13</span>
 <span class="normal">14</span>
@@ -1673,9 +1673,7 @@ fragmentation caused by short, noisy segments.</p>
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">grouping_distance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">GROUPING_DISTANCE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">grouping_distance</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Groups consecutive segments with the same direction if their gap is small.</span>
 
@@ -1685,7 +1683,7 @@ fragmentation caused by short, noisy segments.</p>
 
 <span class="sd">    Args:</span>
 <span class="sd">        segments (list): List of segment dictionaries.</span>
-<span class="sd">        grouping_distance (int, optional): Maximum gap, in index steps, for grouping. Defaults to `7`.</span>
+<span class="sd">        grouping_distance (int): Maximum gap, in index steps, for grouping.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Grouped segment list.</span>

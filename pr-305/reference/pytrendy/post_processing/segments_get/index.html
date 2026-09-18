@@ -1562,7 +1562,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1580,8 +1580,8 @@ constraints to ensure meaningful segments are retained.</p>
 </ul>
 <p>Only segments meeting the following minimum lengths are retained:</p>
 <ul>
-<li>Up/Down: ≥ 3 points (<code>min_trend_length</code>)</li>
-<li>Flat/Noise: ≥ 1 point (<code>min_flat_noise_length</code>)</li>
+<li>Up/Down: ≥ 3 steps (<code>min_trend_length</code>)</li>
+<li>Flat/Noise: ≥ 1 step (<code>min_flat_noise_length</code>)</li>
 </ul>
 
 
@@ -1597,15 +1597,13 @@ constraints to ensure meaningful segments are retained.</p>
         </li>
         <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_get.get_segments(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
-</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>, default:
-                  <code>None</code>
-)
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
           –
           <div class="doc-md-description">
-            <p>Optional signal-processing constants. Supported keys:</p>
+            <p>Signal-processing constants, populated by <code>detect_trends</code> (no defaults applied here). Supported keys:</p>
 <ul>
-<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in points, for an Up/Down segment. Defaults to <code>3</code>.</li>
-<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in points, for a Flat/Noise segment. Defaults to <code>1</code>.</li>
+<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment.</li>
+<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment.</li>
 </ul>
           </div>
         </li>
@@ -1716,8 +1714,7 @@ constraints to ensure meaningful segments are retained.</p>
 <span class="normal">86</span>
 <span class="normal">87</span>
 <span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">89</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Extracts contiguous segments from a flagged series.</span>
 
@@ -1735,17 +1732,17 @@ constraints to ensure meaningful segments are retained.</p>
 
 <span class="sd">    Only segments meeting the following minimum lengths are retained:</span>
 
-<span class="sd">    - Up/Down: ≥ 3 points (``min_trend_length``)</span>
-<span class="sd">    - Flat/Noise: ≥ 1 point (``min_flat_noise_length``)</span>
+<span class="sd">    - Up/Down: ≥ 3 steps (``min_trend_length``)</span>
+<span class="sd">    - Flat/Noise: ≥ 1 step (``min_flat_noise_length``)</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): </span>
 <span class="sd">            Time series DataFrame containing a `trend_flag` column.</span>
-<span class="sd">        signal_params (dict, optional):</span>
-<span class="sd">            Optional signal-processing constants. Supported keys:</span>
+<span class="sd">        signal_params (dict):</span>
+<span class="sd">            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:</span>
 
-<span class="sd">            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment. Defaults to `3`.</span>
-<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment. Defaults to `1`.</span>
+<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment.</span>
+<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: </span>
@@ -1765,9 +1762,8 @@ constraints to ensure meaningful segments are retained.</p>
         <span class="p">,</span> <span class="o">-</span><span class="mi">3</span><span class="p">:</span> <span class="s1">'Noise'</span>
     <span class="p">}</span>
 
-    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">signal_params</span> <span class="ow">or</span> <span class="p">{}</span>
-    <span class="n">min_trend_length</span> <span class="o">=</span> <span class="n">signal_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'min_trend_length'</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-    <span class="n">min_flat_noise_length</span> <span class="o">=</span> <span class="n">signal_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'min_flat_noise_length'</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">min_trend_length</span> <span class="o">=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'min_trend_length'</span><span class="p">]</span>
+    <span class="n">min_flat_noise_length</span> <span class="o">=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'min_flat_noise_length'</span><span class="p">]</span>
 
     <span class="n">segment_length</span> <span class="o">=</span> <span class="mi">0</span>
     <span class="n">segment_length_prev</span> <span class="o">=</span> <span class="mi">0</span>

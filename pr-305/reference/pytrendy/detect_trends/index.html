@@ -1777,15 +1777,15 @@ Defaults to <code>True</code>.</p>
 <ul>
 <li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to <code>15</code>.</li>
 <li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments. Defaults to <code>7</code>.</li>
-<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in points, for an Up/Down segment to be retained. Defaults to <code>3</code>.</li>
-<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in points, for a Flat/Noise segment to be retained. Defaults to <code>1</code>.</li>
+<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to <code>3</code>.</li>
+<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to <code>1</code>.</li>
 <li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB) below which a region is classified as noise. Defaults to <code>2.5</code>.</li>
 <li><strong>threshold_smooth</strong> (<code>float</code>): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to <code>0.001</code>.</li>
 <li><strong>threshold_flat</strong> (<code>float</code>): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to <code>0.835</code>.</li>
 </ul>
 <p>This surface is independent from <code>method_params</code>, which controls the padding and noise heuristics instead.
-Window and length values are in points; at non-daily spacing a given point count spans a different
-real-time duration (see #303/#309 for the cadence-aware view).</p>
+Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
+different real-time duration (see #303/#309 for the cadence-aware view).</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1838,25 +1838,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/detect_trends.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 29</span>
-<span class="normal"> 30</span>
-<span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
-<span class="normal"> 40</span>
-<span class="normal"> 41</span>
-<span class="normal"> 42</span>
-<span class="normal"> 43</span>
-<span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
-<span class="normal"> 47</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 47</span>
 <span class="normal"> 48</span>
 <span class="normal"> 49</span>
 <span class="normal"> 50</span>
@@ -1963,7 +1945,25 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">151</span>
 <span class="normal">152</span>
 <span class="normal">153</span>
-<span class="normal">154</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2009,15 +2009,15 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
 <span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.</span>
 <span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.</span>
-<span class="sd">            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment to be retained. Defaults to `3`.</span>
-<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment to be retained. Defaults to `1`.</span>
+<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.</span>
+<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.</span>
 <span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.</span>
 <span class="sd">            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.</span>
 <span class="sd">            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.</span>
 
 <span class="sd">            This surface is independent from `method_params`, which controls the padding and noise heuristics instead.</span>
-<span class="sd">            Window and length values are in points; at non-daily spacing a given point count spans a different</span>
-<span class="sd">            real-time duration (see #303/#309 for the cadence-aware view).</span>
+<span class="sd">            Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a</span>
+<span class="sd">            different real-time duration (see #303/#309 for the cadence-aware view).</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
 
@@ -2071,7 +2071,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
     <span class="c1"># Configures signal-processing constants. Unknown keys are accepted and</span>
     <span class="c1"># forwarded (validation is deliberately out of scope for now).</span>
-    <span class="n">signal_params</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">signal_params</span> <span class="ow">or</span> <span class="p">{})}</span>
+    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">_resolve_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">)</span>
 
     <span class="c1"># Core 5-step pipeline</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
