@@ -19,7 +19,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
     
     - Percent change (based on start/end values)
 
-    - Duration in days
+    - Duration in index steps
 
     - Cumulative total change (sum of diffs)
 
@@ -40,7 +40,7 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
     Returns:
         list: 
             A list of enhanced segment dictionaries with additional keys:
-            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'days'`, `'SNR'`, `'change_rank'`
+            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'steps'`, `'SNR'`, `'change_rank'`
     """
     segments_enhanced = []
     for segment in segments:
@@ -53,11 +53,11 @@ def analyse_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> 
         segment_enhanced['pct_change'] = (float(val_end / val_start - 1) if val_start != 0 else np.nan)
         segment_enhanced['mltp_change'] = (float(val_end / val_start) if val_start != 0 else np.nan)
 
-        # Calculate days & cumulative total change
-        days = segment['end'] - segment['start']
-        if days == 0: 
-            days = 1 # edge case for 1 day flat between noise spike & trend
-        segment_enhanced['days'] = days # set days
+        # Calculate steps & cumulative total change
+        steps = segment['end'] - segment['start']
+        if steps == 0: 
+            steps = 1 # edge case for 1 step flat between noise spike & trend
+        segment_enhanced['steps'] = steps # set steps
 
         # Calculate cumulative total change
         segment_enhanced['total_change'] = float(df_segment[value_col].diff().sum())

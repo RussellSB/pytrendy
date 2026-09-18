@@ -23,8 +23,8 @@ class PyTrendyResults:
                 List of dictionaries representing individual trend segments.
             index_type (str):
                 The type of the index used for the segments (``'date'``, ``'datetime64'``,
-                ``'integer'``, ``'float'``, or ``'string'``). Used to render summaries with the
-                appropriate descriptor (e.g. ``'days'`` vs ``'index steps'``). Defaults to ``'date'``.
+                ``'integer'``, ``'float'``, or ``'string'``). Used to label segment boundaries
+                in ``print_summary`` (e.g. ``'dates'`` vs ``'indexes'``). Defaults to ``'date'``.
         """
         self.segments = segments
         self.trend_segments = [seg for seg in self.segments if 'trend_class' in seg] # Get segments that are trends (exclude flats and noise)
@@ -37,11 +37,11 @@ class PyTrendyResults:
 
     def set_best(self) -> None:
         """
-        Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.
-        
-            - `results.best` returns best based on `total_change` (cumulative sum of differences). 
-            - Identifies the best trend segment based on steepness and duration.
-            - The segment with the lowest `change_rank` is selected as the best.
+        Selects the best trend segment by lowest ``change_rank``.
+
+        Sets ``self.best`` to the trend segment with the lowest ``change_rank`` (derived from
+        each segment's cumulative ``total_change``). Sets ``self.best`` to ``None`` when no
+        trend segments exist.
         """
         if len(self.trend_segments) == 0:
             self.best = None
@@ -50,10 +50,11 @@ class PyTrendyResults:
 
     def set_summary(self) -> None:
         """
-        Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.
+        Computes and stores summary statistics for trend segments.
 
-            - Computes summary statistics and stores a compact `DataFrame` of segments.
-            - Includes counts by direction and trend class, highest total change, and a tabular view.
+        Sets ``self.summary`` to counts by direction and trend class, plus the highest total
+        change. Sets ``self.df_summary`` to a tabular overview of the segments, indexed by
+        ``time_index``.
         """
         summary = {}
 
@@ -77,16 +78,7 @@ class PyTrendyResults:
         # Set summary df (without extra details)
         df = pd.DataFrame(self.segments)
 
-        unit_descriptor = {
-            'date': 'days',
-            'integer': 'index steps',
-            'float': 'index steps',
-            'string': 'index steps',
-        }.get(self.index_type, 'days')
-
-        df = df.rename({'days' : unit_descriptor}, axis = 1)
-
-        cols = ['time_index', 'direction', 'start', 'end', unit_descriptor, 'total_change', 'change_rank']
+        cols = ['time_index', 'direction', 'start', 'end', 'steps', 'total_change', 'change_rank']
         if len(changes) > 1:  #  only include trend_class if atleast one trend exists
             cols += ['trend_class']
         df = df[cols]
@@ -129,11 +121,11 @@ class PyTrendyResults:
 
     def set_df(self) -> pd.DataFrame | None:
         """
-        Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.
+        Converts the segment list into a pandas ``DataFrame`` for downstream analysis and export.
 
-            - Converts the segment list into a pandas `DataFrame`.
-            - Useful for downstream analysis and export.
-            - Alternative data representation to segments. In `dataframe` rather than `dict`
+        Returns:
+            pd.DataFrame | None: An empty ``DataFrame`` when there are no segments; otherwise
+                ``None``, with ``self.df`` set as a side effect.
         """
         # Exit if nothing to report on
         if len(self.segments) == 0:
@@ -156,8 +148,7 @@ class PyTrendyResults:
                 Output format. `'df'` returns a DataFrame, `'dict'` returns a list of dictionaries.
 
         Returns:
-            Union[`list`, `pd.DataFrame`]: Filtered and sorted segments in the specified format.
-                
+            list | pd.DataFrame: Filtered and sorted segments in the specified format.
         """
         segments = self.segments
         if len(segments) == 0:

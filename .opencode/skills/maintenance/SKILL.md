@@ -74,7 +74,7 @@ Each stage's output is the next stage's input. See the `pytrendy` skill for the 
 
 ## Segment schema (what tests assume)
 
-Segment dicts have at minimum: `direction` ('Up'/'Down'/'Flat'/'Noise'), `start`, `end`. After `analyse_segments`, also: `days`, `total_change`, `change_rank`, `trend_class` ('gradual'/'abrupt'/NaN). Tests in `tests/conftest.py` assert on `direction`/`start`/`end` — changing the keys or values breaks the whole suite.
+Segment dicts have at minimum: `direction` ('Up'/'Down'/'Flat'/'Noise'), `start`, `end`. After `analyse_segments`, also: `steps`, `total_change`, `change_rank`, `trend_class` ('gradual'/'abrupt'/NaN). Tests in `tests/conftest.py` assert on `direction`/`start`/`end` — changing the keys or values breaks the whole suite.
 
 ## Branch model (enforced by CI)
 

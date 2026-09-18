@@ -379,7 +379,7 @@ class TestNoiseSpikesGradual:
         # Test for missing gaps by asserting for 1-day flats
         # These 1-day flats fill the gaps between noise and adjacent segments
         flat_segments_df = results.filter_segments(direction='Flat', format='df')
-        one_day_flats_df = flat_segments_df[flat_segments_df['days'] == 1]
+        one_day_flats_df = flat_segments_df[flat_segments_df['steps'] == 1]
         # Convert from pandas df to list of dicts for assertion
         one_day_flats = one_day_flats_df.to_dict('records')
         

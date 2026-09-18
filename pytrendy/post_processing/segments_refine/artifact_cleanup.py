@@ -6,10 +6,9 @@ Functions for removing invalid segments and filling in gaps with flat segments.
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-from .segment_grouping import GROUPING_DISTANCE
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, inverse_only: bool = False) -> list[dict]:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, signal_params: dict, inverse_only: bool = False) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -19,6 +18,10 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         method_params (dict): Optional parameters for cleanup behaviour. Supported keys:
 
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
+
+            - **grouping_distance** (`int`): Maximum gap, in index steps, for considering neighbouring segments noise.
+            - **threshold_noise** (`float`): SNR threshold (dB) below which a trend is considered too noisy to retain.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
@@ -97,20 +100,16 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         prev_end = segment_prev['end']
         prev_width = prev_end - prev_start
 
-        # Define conditions # TODO: Cleanup redunant condition statements no longer used.
+        # Define conditions
         is_overlap_prev = (start <= prev_end)
         is_curr_shorter = (width <= prev_width)
-        is_curr_similar = (prev_width <= 1.5 * width) and (prev_width >= 0.5 * width)
 
         is_trend = (dir in ('Up', 'Down'))
         is_prev_noise = (prev_dir == 'Noise')
         is_prev_opposite_trend = (prev_dir in ('Up', 'Down') and prev_dir != dir)
-        is_prev_flat = (prev_dir == 'Flat')
 
         if is_overlap_prev and (is_trend and (is_prev_noise or is_prev_opposite_trend) and is_curr_shorter):
             return True # overlap when curr is trend and prev is noise of larger/equal window
-        if is_overlap_prev and (is_trend and is_prev_flat) and is_curr_similar:
-            return True # overlap when curr is trend and prev is flat (with similar enough size), edge case scenario 11
         return False
     
     def has_partial_overlap_next(segment: dict, segment_next: dict) -> bool:
@@ -247,11 +246,11 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         # Conditions for edge cases
         left_is_noise = any(( # Consider segments within neighbour distance on left
-                0 <= (start - prev_seg['end']) <= GROUPING_DISTANCE
+                0 <= (start - prev_seg['end']) <= signal_params['grouping_distance']
                 and prev_seg.get('direction') == 'Noise'
             ) for k, prev_seg in enumerate(segments) if k != i)
         right_is_noise = any(( # Consider segments within neighbour distance on right
-                0 <= (next_seg['start'] - end) <= GROUPING_DISTANCE
+                0 <= (next_seg['start'] - end) <= signal_params['grouping_distance']
                 and next_seg.get('direction') == 'Noise'
             ) for k, next_seg in enumerate(segments) if k != i)
         
@@ -268,7 +267,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         signal_power = np.mean(df_segment['signal']**2)
         noise_power = np.mean(df_segment['noise']**2)
         snr = float(10 * np.log10(signal_power / noise_power)) if noise_power != 0 else np.nan
-        threshold_noise = 2.5 
+        threshold_noise = signal_params['threshold_noise']
         if is_gradual: threshold_noise = 5
         if is_flat: threshold_noise = 0
         too_noisy = (snr < threshold_noise)
