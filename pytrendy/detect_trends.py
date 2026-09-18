@@ -16,8 +16,8 @@ from .io import prepare_index
 _SIGNAL_PARAMS_DEFAULTS = {
     'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
     'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
-    'min_trend_length': 3,      # Minimum length, in points, for an Up/Down segment to be retained.
-    'min_flat_noise_length': 1, # Minimum length, in points, for a Flat/Noise segment to be retained.
+    'min_trend_length': 3,      # Minimum length, in steps, for an Up/Down segment to be retained.
+    'min_flat_noise_length': 1, # Minimum length, in steps, for a Flat/Noise segment to be retained.
     'threshold_noise': 2.5,     # SNR threshold (dB) below which a region is classified as noise.
     'threshold_smooth': 0.001,  # Derivative threshold as a fraction of the signal IQR, below which motion counts as flat.
     'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
@@ -90,15 +90,15 @@ def detect_trends(df: pd.DataFrame,
 
             - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
             - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
-            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment to be retained. Defaults to `3`.
-            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment to be retained. Defaults to `1`.
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.
+            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.
             - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.
             - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.
             - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
 
             This surface is independent from `method_params`, which controls the padding and noise heuristics instead.
-            Window and length values are in points; at non-daily spacing a given point count spans a different
-            real-time duration (see #303/#309 for the cadence-aware view).
+            Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
+            different real-time duration (see #303/#309 for the cadence-aware view).
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
 

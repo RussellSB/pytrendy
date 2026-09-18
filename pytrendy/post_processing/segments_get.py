@@ -20,8 +20,8 @@ def get_segments(df: pd.DataFrame, signal_params: dict) -> list[dict]:
 
     Only segments meeting the following minimum lengths are retained:
 
-    - Up/Down: ≥ 3 points (``min_trend_length``)
-    - Flat/Noise: ≥ 1 point (``min_flat_noise_length``)
+    - Up/Down: ≥ 3 steps (``min_trend_length``)
+    - Flat/Noise: ≥ 1 step (``min_flat_noise_length``)
 
     Args:
         df (pd.DataFrame): 
@@ -29,8 +29,8 @@ def get_segments(df: pd.DataFrame, signal_params: dict) -> list[dict]:
         signal_params (dict):
             Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
 
-            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment.
-            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment.
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment.
+            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment.
 
     Returns:
         list: 
