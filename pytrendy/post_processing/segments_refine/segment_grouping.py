@@ -12,13 +12,9 @@ def group_segments(segments: list[dict]) -> list[dict]:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
-    Segments are grouped if:
-
-        - They share the same `'direction'`
-        - Their gap is ≤ `GROUPING_DISTANCE`
-        - They are not classified as `'abrupt'`
-
-    This reduces fragmentation caused by short, noisy segments.
+    Segments are grouped when they share the same direction, their gap is ≤
+    ``GROUPING_DISTANCE``, and neither is classified as abrupt. This reduces fragmentation
+    caused by short, noisy segments.
 
     Args:
         segments (list): List of segment dictionaries.
