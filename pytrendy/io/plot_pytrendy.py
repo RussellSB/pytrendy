@@ -6,6 +6,33 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
+from matplotlib import colors as mcolors
+
+
+def _annotation_color(color):
+    """
+    Return a darker annotation colour for a segment fill colour.
+
+    Annotation text and vertical dividers historically derived their colour with
+    ``color[5:]``, which only produced a valid colour for the default ``light*``
+    named colours (``lightgreen`` -> ``green``). Any other matplotlib colour
+    format -- short/full hex, ``tab:*`` names, tuples, ``None`` -- raised or
+    yielded nonsense. This preserves the exact legacy result for ``light*`` names
+    (keeping default plots pixel-identical) and otherwise darkens the colour in
+    RGBA space, which is well-defined for every valid matplotlib colour.
+
+    Args:
+        color: A matplotlib colour, or ``None``.
+
+    Returns:
+        A darker colour, or ``None`` (deferred to matplotlib's default).
+    """
+    if color is None:
+        return None
+    if isinstance(color, str) and color.startswith('light'):
+        return color[5:]
+    r, g, b, _ = mcolors.to_rgba(color)
+    return (r * 0.7, g * 0.7, b * 0.7)
 
 
 def _show_plot() -> None:
@@ -284,7 +311,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             y_pos = ymax - (ymax - ymin) * 0.05
             ax.text(mid_date, y_pos, str(seg['change_rank']), fontsize=12,
                     fontweight='bold', ha='center', va='top',
-                    color=color[5:])
+                    color=_annotation_color(color))
             
         # Add vertical line if next seg is same & touching
         if next_seg and next_neighbouring and next_seg['direction'] == seg['direction']:
@@ -292,7 +319,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 line_date = pd.to_datetime(seg['end'])
             else:
                 line_date = seg['end']
-            ax.axvline(x=line_date, color=color[5:], linewidth=0.5)
+            ax.axvline(x=line_date, color=_annotation_color(color), linewidth=0.5)
 
     # Set limits
     if index_type == 'string':

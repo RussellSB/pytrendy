@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-def get_segments(df: pd.DataFrame) -> list[dict]:
+def get_segments(df: pd.DataFrame, signal_params: dict) -> list[dict]:
     """
     Extracts contiguous segments from a flagged series.
 
@@ -20,12 +20,17 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
 
     Only segments meeting the following minimum lengths are retained:
 
-    - Up/Down: ≥ 3 days
-    - Flat/Noise: ≥ 1 days
+    - Up/Down: ≥ 3 steps (``min_trend_length``)
+    - Flat/Noise: ≥ 1 step (``min_flat_noise_length``)
 
     Args:
         df (pd.DataFrame): 
             Time series DataFrame containing a `trend_flag` column.
+        signal_params (dict):
+            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
+
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment.
+            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment.
 
     Returns:
         list: 
@@ -45,6 +50,9 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
         , -3: 'Noise'
     }
 
+    min_trend_length = signal_params['min_trend_length']
+    min_flat_noise_length = signal_params['min_flat_noise_length']
+
     segment_length = 0
     segment_length_prev = 0
     direction_prev = map_direction[0]
@@ -58,9 +66,9 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
             segment_length += 1
         elif direction != direction_prev: 
             if (    # Save only when satisfies min window for up/down or flat respectively.
-                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= 3)) \
-                    or (direction_prev == 'Noise' and (segment_length_prev >= 1)) \
-                    or (direction_prev == 'Flat' and (segment_length_prev >= 1)) \
+                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= min_trend_length)) \
+                    or (direction_prev == 'Noise' and (segment_length_prev >= min_flat_noise_length)) \
+                    or (direction_prev == 'Flat' and (segment_length_prev >= min_flat_noise_length)) \
                 ):
                 start = index - (segment_length_prev+1)
                 end = index - 1
