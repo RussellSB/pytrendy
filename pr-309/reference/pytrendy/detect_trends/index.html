@@ -856,6 +856,8 @@
       
         
       
+        
+      
     
     
     
@@ -968,14 +970,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../io/prepare_index/" class="md-nav__link">
+      <a href="../io/prep_index/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
+    <code class='doc-symbol doc-symbol-nav'></code>prep_index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/prep_signal_params/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prep_signal_params
   
 
     
@@ -1878,7 +1908,60 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/detect_trends.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
+<span class="normal"> 16</span>
+<span class="normal"> 17</span>
+<span class="normal"> 18</span>
+<span class="normal"> 19</span>
+<span class="normal"> 20</span>
+<span class="normal"> 21</span>
+<span class="normal"> 22</span>
+<span class="normal"> 23</span>
+<span class="normal"> 24</span>
+<span class="normal"> 25</span>
+<span class="normal"> 26</span>
+<span class="normal"> 27</span>
+<span class="normal"> 28</span>
+<span class="normal"> 29</span>
+<span class="normal"> 30</span>
+<span class="normal"> 31</span>
+<span class="normal"> 32</span>
+<span class="normal"> 33</span>
+<span class="normal"> 34</span>
+<span class="normal"> 35</span>
+<span class="normal"> 36</span>
+<span class="normal"> 37</span>
+<span class="normal"> 38</span>
+<span class="normal"> 39</span>
+<span class="normal"> 40</span>
+<span class="normal"> 41</span>
+<span class="normal"> 42</span>
+<span class="normal"> 43</span>
+<span class="normal"> 44</span>
+<span class="normal"> 45</span>
+<span class="normal"> 46</span>
+<span class="normal"> 47</span>
+<span class="normal"> 48</span>
+<span class="normal"> 49</span>
+<span class="normal"> 50</span>
+<span class="normal"> 51</span>
+<span class="normal"> 52</span>
+<span class="normal"> 53</span>
+<span class="normal"> 54</span>
+<span class="normal"> 55</span>
+<span class="normal"> 56</span>
+<span class="normal"> 57</span>
+<span class="normal"> 58</span>
+<span class="normal"> 59</span>
+<span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
 <span class="normal"> 69</span>
 <span class="normal"> 70</span>
 <span class="normal"> 71</span>
@@ -1965,60 +2048,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">152</span>
 <span class="normal">153</span>
 <span class="normal">154</span>
-<span class="normal">155</span>
-<span class="normal">156</span>
-<span class="normal">157</span>
-<span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
-<span class="normal">164</span>
-<span class="normal">165</span>
-<span class="normal">166</span>
-<span class="normal">167</span>
-<span class="normal">168</span>
-<span class="normal">169</span>
-<span class="normal">170</span>
-<span class="normal">171</span>
-<span class="normal">172</span>
-<span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span>
-<span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
-<span class="normal">182</span>
-<span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span>
-<span class="normal">194</span>
-<span class="normal">195</span>
-<span class="normal">196</span>
-<span class="normal">197</span>
-<span class="normal">198</span>
-<span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span>
-<span class="normal">205</span>
-<span class="normal">206</span>
-<span class="normal">207</span>
-<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2105,7 +2135,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            Use this object to access segment statistics, rankings, and export utilities.</span>
 <span class="sd">    """</span>
     <span class="c1"># Reject the deprecated positional order detect_trends(df, date_col, value_col).</span>
-    <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">is_legacy_positional_order</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">date_col</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">is_legacy_positional_order</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
             <span class="s2">"detect_trends received arguments in the deprecated (date_col, value_col) order. "</span>
             <span class="s2">"Pass value_col first: detect_trends(df, value_col, date_col=...)."</span>
@@ -2113,7 +2143,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
     <span class="c1"># Stage the DataFrame on an internal integer index, keeping the external index</span>
     <span class="c1"># values and a lookup so boundaries can be remapped back later.</span>
-    <span class="n">df</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">,</span> <span class="n">index_type</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">prepare_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">,</span> <span class="n">index_type</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">prep_index</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">value_col</span><span class="p">)</span>
 
     <span class="c1"># Median sampling gap drives duration-preserving window scaling. Non-date</span>
     <span class="c1"># index types fall back to 1.0, preserving their point-count behaviour.</span>
@@ -2141,7 +2171,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="c1"># Configures signal-processing constants. Window and length defaults scale</span>
     <span class="c1"># to the index cadence; unknown keys are accepted and forwarded (validation</span>
     <span class="c1"># is deliberately out of scope for now).</span>
-    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">_resolve_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">,</span> <span class="n">gap_days</span><span class="p">)</span>
+    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">prep_signal_params</span><span class="o">.</span><span class="n">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">,</span> <span class="n">gap_days</span><span class="p">)</span>
 
     <span class="c1"># Core 5-step pipeline</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
@@ -2150,11 +2180,11 @@ Use this object to access segment statistics, rankings, and export utilities.</p
     <span class="n">segments</span> <span class="o">=</span> <span class="n">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
 
     <span class="c1"># Translate internal segment boundaries back to the user's external index values.</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">remap_boundaries</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">remap_boundaries</span><span class="p">(</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_lookup</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">plot</span><span class="p">:</span>
         <span class="c1"># Restore the external index for plotting before rendering the segments.</span>
-        <span class="n">plot_df</span> <span class="o">=</span> <span class="n">prepare_index</span><span class="o">.</span><span class="n">prepare_plot_frame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_type</span><span class="p">)</span>
+        <span class="n">plot_df</span> <span class="o">=</span> <span class="n">prep_index</span><span class="o">.</span><span class="n">prepare_plot_frame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">date_col</span><span class="p">,</span> <span class="n">external_index</span><span class="p">,</span> <span class="n">index_type</span><span class="p">)</span>
         <span class="n">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">plot_df</span><span class="p">,</span> <span class="n">value_col</span><span class="o">=</span><span class="n">value_col</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="n">plot_params</span><span class="p">)</span>
 
     <span class="n">results</span> <span class="o">=</span> <span class="n">PyTrendyResults</span><span class="p">(</span><span class="n">segments</span><span class="o">=</span><span class="n">segments</span><span class="p">,</span> <span class="n">index_type</span><span class="o">=</span><span class="n">index_type</span><span class="p">)</span>
