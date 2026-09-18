@@ -101,7 +101,7 @@ def build_index_lookup(external_index) -> dict:
     return dict(zip(internal_index, np.asarray(external_index)))
 
 
-def prepare_index(df: pd.DataFrame, date_col: str | None, value_col: str) -> tuple:
+def prep_index(df: pd.DataFrame, date_col: str | None, value_col: str) -> tuple:
     """
     Prepare the internal index framework used by the pipeline.
 
