@@ -8,11 +8,11 @@ from copy import deepcopy
 from .trend_classify import classify_trends
 from .gradual_expand_contract import expand_contract_segments
 from .abrupt_shaving import shave_abrupt_trends
-from .segment_grouping import group_segments, GROUPING_DISTANCE
+from .segment_grouping import group_segments
 from .artifact_cleanup import clean_artifacts, fill_in_flats
 
 
-def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict, signal_params: dict|None=None) -> list[dict]:
+def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict, signal_params: dict) -> list[dict]:
     """
     Full post-processing pipeline to refine detected trend segments.
 
@@ -31,16 +31,15 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
 
             - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.
             - **gradual_padding** (`int`): Number of days to extend gradual segment ends forward. Defaults to `0`.
-        signal_params (dict, optional): Optional signal-processing constants. Supported keys:
+        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
 
-            - **grouping_distance** (`int`): Maximum gap, in index steps, for grouping. Defaults to `7`.
+            - **grouping_distance** (`int`): Maximum gap, in index steps, for grouping.
 
     Returns:
         list: Final refined segment list.
     """
 
-    signal_params = signal_params or {}
-    grouping_distance = signal_params.get('grouping_distance', GROUPING_DISTANCE)
+    grouping_distance = signal_params['grouping_distance']
 
     segments_refined = deepcopy(segments)
     
@@ -50,9 +49,9 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
     segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params) # for gradual + gradual padding
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
-    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract    
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps etc from expand/contract    
     segments_refined = group_segments(segments_refined, grouping_distance) # grouping 2nd pass: after trend refine and cleanup    
-    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps again after grouping
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps again after grouping
 
     init_segments = deepcopy(segments_refined)
     segments_refined = classify_trends(df, value_col, segments_refined) # reclassify after artifacts cleaned: some graduals to abrupt
@@ -60,10 +59,10 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
         segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params
                                             , second_pass=True, init_segments=init_segments) # abrupt shave 2nd pass: newly converted abrupts 
         segments_refined = group_segments(segments_refined, grouping_distance) # make sure re-classifications are grouped to build strong enough cases for gradual -> abrupts
-        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
+        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)
 
     segments_refined = fill_in_flats(df, segments_refined) # fill uncovered gaps (leading, internal, trailing) with flats
     segments_refined = group_segments(segments_refined, grouping_distance) # grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in
-    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, inverse_only=True) # cleans 1-day flats of any leading/trailing only
+    segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params, inverse_only=True) # cleans 1-day flats of any leading/trailing only
     
     return segments_refined

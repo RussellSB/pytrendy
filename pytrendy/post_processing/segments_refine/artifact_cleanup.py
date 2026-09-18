@@ -6,10 +6,9 @@ Functions for removing invalid segments and filling in gaps with flat segments.
 import pandas as pd
 import numpy as np
 from copy import deepcopy
-from .segment_grouping import GROUPING_DISTANCE
 
 
-def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, inverse_only: bool = False) -> list[dict]:
+def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dict], method_params: dict, signal_params: dict, inverse_only: bool = False) -> list[dict]:
     """
     Removes segments any invalid segments, such as inversions or overlaps.
     Typically to clean up after boundary adjustments introduced from noise or trend refinements.
@@ -19,6 +18,9 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         method_params (dict): Optional parameters for cleanup behaviour. Supported keys:
 
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
+
+            - **grouping_distance** (`int`): Maximum gap, in index steps, for considering neighbouring segments noise.
         inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.
 
     Returns:
@@ -182,7 +184,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
     # Pass 3: Cleans partial overlaps with noise. Don't filter out completely when partial, adjust outside noise
     # Only runs post-processing cleanup logic when avoid_noise is True, enabled by default.
-    if method_params.get('avoid_noise', True):
+    if method_params['avoid_noise']:
         segments = deepcopy(segments_refined)
         segments_refined = [] 
         for i, segment in enumerate(segments):
@@ -247,11 +249,11 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
 
         # Conditions for edge cases
         left_is_noise = any(( # Consider segments within neighbour distance on left
-                0 <= (start - prev_seg['end']) <= GROUPING_DISTANCE
+                0 <= (start - prev_seg['end']) <= signal_params['grouping_distance']
                 and prev_seg.get('direction') == 'Noise'
             ) for k, prev_seg in enumerate(segments) if k != i)
         right_is_noise = any(( # Consider segments within neighbour distance on right
-                0 <= (next_seg['start'] - end) <= GROUPING_DISTANCE
+                0 <= (next_seg['start'] - end) <= signal_params['grouping_distance']
                 and next_seg.get('direction') == 'Noise'
             ) for k, next_seg in enumerate(segments) if k != i)
         
@@ -313,7 +315,7 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
                 trend_too_flat = not min_in_last_section
 
         # Reclassify as noise if either edge cases met
-        if method_params.get('avoid_noise', True) and \
+        if method_params['avoid_noise'] and \
             (too_noisy or (is_abrupt_near_noise and not trend_ends_too_close) or is_small_gradual_in_noise):
             segment['direction'] = 'Noise' 
             if 'trend_class' in segment: del segment['trend_class']

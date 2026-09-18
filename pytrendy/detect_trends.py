@@ -26,6 +26,26 @@ _SIGNAL_PARAMS_DEFAULTS = {
 }
 
 
+def _resolve_signal_params(signal_params: dict|None=None) -> dict:
+    """
+    Merge user-supplied `signal_params` over the defaults and derive window sizes.
+
+    `window_flat` and `window_noise` are not top-level defaults: unless explicitly
+    overridden they derive from `window_smooth`. Every stage downstream assumes
+    this returns a fully-populated dict.
+
+    Args:
+        signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.
+
+    Returns:
+        dict: Fully-populated signal_params with every key the stages read.
+    """
+    resolved = {**_SIGNAL_PARAMS_DEFAULTS, **(signal_params or {})}
+    resolved.setdefault('window_flat', int(resolved['window_smooth'] * 0.5))
+    resolved.setdefault('window_noise', int(resolved['window_smooth'] * 0.5))
+    return resolved
+
+
 def detect_trends(df: pd.DataFrame, 
                   value_col: str,
                   date_col: str|None=None,
@@ -134,7 +154,7 @@ def detect_trends(df: pd.DataFrame,
 
     # Configures signal-processing constants. Unknown keys are accepted and
     # forwarded (validation is deliberately out of scope for now).
-    signal_params = {**_SIGNAL_PARAMS_DEFAULTS, **(signal_params or {})}
+    signal_params = _resolve_signal_params(signal_params)
 
     # Core 5-step pipeline
     df = process_signals(df, value_col, method_params, signal_params, debug)

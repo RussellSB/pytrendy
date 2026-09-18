@@ -5,10 +5,8 @@ Functions for grouping consecutive segments with the same direction.
 
 import pandas as pd
 
-GROUPING_DISTANCE = 7  # Distance for grouping segments of same type in group_segments
 
-
-def group_segments(segments: list[dict], grouping_distance: int = GROUPING_DISTANCE) -> list[dict]:
+def group_segments(segments: list[dict], grouping_distance: int) -> list[dict]:
     """
     Groups consecutive segments with the same direction if their gap is small.
 
@@ -18,7 +16,7 @@ def group_segments(segments: list[dict], grouping_distance: int = GROUPING_DISTA
 
     Args:
         segments (list): List of segment dictionaries.
-        grouping_distance (int, optional): Maximum gap, in index steps, for grouping. Defaults to `7`.
+        grouping_distance (int): Maximum gap, in index steps, for grouping.
 
     Returns:
         list: Grouped segment list.

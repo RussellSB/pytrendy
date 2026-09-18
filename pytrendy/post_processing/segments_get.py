@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-def get_segments(df: pd.DataFrame, signal_params: dict|None=None) -> list[dict]:
+def get_segments(df: pd.DataFrame, signal_params: dict) -> list[dict]:
     """
     Extracts contiguous segments from a flagged series.
 
@@ -26,11 +26,11 @@ def get_segments(df: pd.DataFrame, signal_params: dict|None=None) -> list[dict]:
     Args:
         df (pd.DataFrame): 
             Time series DataFrame containing a `trend_flag` column.
-        signal_params (dict, optional):
-            Optional signal-processing constants. Supported keys:
+        signal_params (dict):
+            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
 
-            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment. Defaults to `3`.
-            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment. Defaults to `1`.
+            - **min_trend_length** (`int`): Minimum length, in points, for an Up/Down segment.
+            - **min_flat_noise_length** (`int`): Minimum length, in points, for a Flat/Noise segment.
 
     Returns:
         list: 
@@ -50,9 +50,8 @@ def get_segments(df: pd.DataFrame, signal_params: dict|None=None) -> list[dict]:
         , -3: 'Noise'
     }
 
-    signal_params = signal_params or {}
-    min_trend_length = signal_params.get('min_trend_length', 3)
-    min_flat_noise_length = signal_params.get('min_flat_noise_length', 1)
+    min_trend_length = signal_params['min_trend_length']
+    min_flat_noise_length = signal_params['min_flat_noise_length']
 
     segment_length = 0
     segment_length_prev = 0
