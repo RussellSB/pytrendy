@@ -2,6 +2,7 @@
 
 import pandas as pd
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.patches as mpatches
@@ -32,6 +33,19 @@ def _annotation_color(color):
         return color[5:]
     r, g, b, _ = mcolors.to_rgba(color)
     return (r * 0.7, g * 0.7, b * 0.7)
+
+
+def _show_plot() -> None:
+    """Display the current figure, skipping backends that cannot show a window.
+
+    Non-interactive backends (e.g. Agg under CI or a headless environment) emit
+    a ``UserWarning`` from ``plt.show()``; callers such as ``suppress_show=False``
+    still expect the figure to be drawn to its canvas, so only skip the display
+    call itself.
+    """
+    from matplotlib.backends.registry import BackendFilter, backend_registry
+    if matplotlib.get_backend().lower() not in backend_registry.list_builtin(BackendFilter.NON_INTERACTIVE):
+        plt.show()
 
 
 def _safe_adjacent(index, pos, offset):
@@ -385,5 +399,5 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
     plt.tight_layout()
     if not suppress_show:
-        plt.show()
+        _show_plot()
     return fig

@@ -9,6 +9,7 @@ One extra test included to assess plt.show() behaviour only... for test coverage
 import pytest
 import numpy as np
 import pandas as pd
+import warnings
 from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
@@ -21,6 +22,7 @@ from pytrendy.post_processing.segments_refine.trend_classify import classify_tre
 from pytrendy.post_processing.segments_refine.gradual_expand_contract import expand_contract_segments
 from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
 from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
+import matplotlib
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
@@ -222,6 +224,9 @@ class TestPlotPytrendyEdgeCases:
         def fake_show(*args, **kwargs):
             show_calls.append((args, kwargs))
         monkeypatch.setattr(plt, 'show', fake_show)
+        # Force a GUI-capable backend so the guard in _show_plot() invokes plt.show();
+        # the suite otherwise runs on Agg, where show() is a no-op by design.
+        monkeypatch.setattr(matplotlib, 'get_backend', lambda: 'tkagg')
 
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(
@@ -232,6 +237,27 @@ class TestPlotPytrendyEdgeCases:
         )
         self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False) # False, triggers plt.show()
         assert len(show_calls) == 1
+
+    def test_plot_show_skipped_on_non_interactive_backend(self, monkeypatch):
+        """
+        suppress_show=False on a non-interactive backend (Agg) must not call
+        plt.show(), which would emit "FigureCanvasAgg is non-interactive, and thus
+        cannot be shown" as a UserWarning.
+        """
+        monkeypatch.setattr(matplotlib, 'get_backend', lambda: 'agg')
+
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(
+            df,
+            date_col='date',
+            value_col='gradual',
+            plot=False
+        )
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter('always')
+            self._prepare_and_plot(df, 'gradual', results.segments, suppress_show=False)
+
+        assert not [w for w in caught if 'cannot be shown' in str(w.message)]
 
 
 
