@@ -12,6 +12,7 @@ import pandas as pd
 from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
+from pytrendy.io import prep_signal_params
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
@@ -78,9 +79,10 @@ class TestPlotPytrendyEdgeCases:
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
         method_params = {'abrupt_padding': 28, 'avoid_noise': True}
+        signal_params = prep_signal_params.prep_signal_params()
 
-        df = process_signals(df, value_col, method_params)
-        segments = get_segments(df)
+        df = process_signals(df, value_col, method_params, signal_params)
+        segments = get_segments(df, signal_params)
 
         # ------------------ refine_segments()
         # unwrapped-equivalent to disable grouping at a lower level  
@@ -89,7 +91,7 @@ class TestPlotPytrendyEdgeCases:
         # No grouping code in between these steps
         segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params) # for gradual
         segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
-        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params) # cleans overlaps etc from expand/contract
+        segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps etc from expand/contract
         # No grouping code & further post-processing after these steps
 
         # ------ pt.detect_trends() [part 2]
@@ -656,7 +658,7 @@ class TestAdjacentToGuards:
 
         On a non-unique index ``index.get_loc(value)`` returns a slice rather
         than an int, which the guard treats as "no well-defined adjacent point".
-        Duplicate dates are not validated upstream (``prepare_index`` never
+        Duplicate dates are not validated upstream (``prep_index`` never
         checks uniqueness), so a duplicated boundary is this guard's real
         trigger.
         """

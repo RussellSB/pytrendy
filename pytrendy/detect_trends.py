@@ -8,7 +8,7 @@ from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
-from .io import prepare_index
+from .io import prep_index, prep_signal_params
 
 
 def detect_trends(df: pd.DataFrame, 
@@ -16,6 +16,7 @@ def detect_trends(df: pd.DataFrame,
                   date_col: str|None=None,
                   plot: bool=True, 
                   method_params: dict|None=None, 
+                  signal_params: dict|None=None,
                   plot_params: dict|None=None,
                   debug: bool=False
                   ) -> PyTrendyResults:
@@ -51,6 +52,22 @@ def detect_trends(df: pd.DataFrame,
             - **abrupt_padding** (`int`): Number of days to pad after abrupt transitions. Defaults to `0`.
             - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict, optional):
+            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
+
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
+            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
+            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
+            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.
+            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.
+            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.
+            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.
+            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
+
+            This surface is independent from `method_params`, which controls the padding and noise heuristics instead.
+            Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
+            different real-time duration.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
 
@@ -73,7 +90,7 @@ def detect_trends(df: pd.DataFrame,
             Use this object to access segment statistics, rankings, and export utilities.
     """
     # Reject the deprecated positional order detect_trends(df, date_col, value_col).
-    if date_col is not None and prepare_index.is_legacy_positional_order(df, value_col, date_col):
+    if date_col is not None and prep_index.is_legacy_positional_order(df, value_col, date_col):
         raise TypeError(
             "detect_trends received arguments in the deprecated (date_col, value_col) order. "
             "Pass value_col first: detect_trends(df, value_col, date_col=...)."
@@ -81,7 +98,7 @@ def detect_trends(df: pd.DataFrame,
 
     # Stage the DataFrame on an internal integer index, keeping the external index
     # values and a lookup so boundaries can be remapped back later.
-    df, external_index, index_lookup, index_type = prepare_index.prepare_index(df, date_col, value_col)
+    df, external_index, index_lookup, index_type = prep_index.prep_index(df, date_col, value_col)
 
     if method_params is None:
         method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
@@ -102,18 +119,22 @@ def detect_trends(df: pd.DataFrame,
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 
+    # Configures signal-processing constants. Unknown keys are accepted and
+    # forwarded (validation is deliberately out of scope for now).
+    signal_params = prep_signal_params.prep_signal_params(signal_params)
+
     # Core 5-step pipeline
-    df = process_signals(df, value_col, method_params, debug)
-    segments = get_segments(df)
-    segments = refine_segments(df, value_col, segments, method_params)
+    df = process_signals(df, value_col, method_params, signal_params, debug)
+    segments = get_segments(df, signal_params)
+    segments = refine_segments(df, value_col, segments, method_params, signal_params)
     segments = analyse_segments(df, value_col, segments)
 
     # Translate internal segment boundaries back to the user's external index values.
-    segments = prepare_index.remap_boundaries(segments, index_lookup)
+    segments = prep_index.remap_boundaries(segments, index_lookup)
 
     if plot:
         # Restore the external index for plotting before rendering the segments.
-        plot_df = prepare_index.prepare_plot_frame(df, date_col, external_index, index_type)
+        plot_df = prep_index.prepare_plot_frame(df, date_col, external_index, index_type)
         plot_pytrendy(df=plot_df, value_col=value_col, segments_enhanced=segments, index_type=index_type, plot_params=plot_params)
 
     results = PyTrendyResults(segments=segments, index_type=index_type)
