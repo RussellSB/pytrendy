@@ -361,23 +361,35 @@ class TestPlotCustomization:
         assert fig is not None
         plt.close(fig)
 
-    def test_plot_with_mixed_color_formats(self):
-        """Issue #194: named/short-hex/full-hex custom colours must not crash."""
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_inverted_default_colors.png',
+                                    style='default')
+    def test_plot_inverted_default_colors(self):
+        """Issue #194: inverted-defaults palette exercises every colour format.
+
+        Up is a named colour, Down short hex, Flat full hex and Noise a
+        ``tab:*`` colour, so one figure covers all four matplotlib colour
+        formats that previously crashed the annotation colour derivation.
+        """
+        plot_df = self._date_plot_df()
         df = pt.load_data('series_synthetic')
-        results = pt.detect_trends(
-            df, value_col='gradual', date_col='date', plot=True,
-            method_params={'abrupt_padding': 0},
-            plot_params={'colors': {
-                'Up': '#ff0000',      # full hex
-                'Down': 'red',        # named
-                'Flat': '#F00',       # short hex
-                'Noise': 'tab:blue',  # non-'light' named
-            }},
-        )
-        assert results is not None
-        fig = plt.gcf()
-        assert isinstance(fig, plt.Figure)
-        plt.close('all')
+        results = pt.detect_trends(df, value_col='gradual', date_col='date',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_params = {
+            'colors': {
+                'Up': 'lightcoral',    # named
+                'Down': '#9e9',        # short hex
+                'Flat': '#D8BFD8',     # full hex
+                'Noise': 'tab:blue',   # non-'light' named
+            },
+        }
+
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='date',
+                            suppress_show=True, plot_params=plot_params)
+        return fig
 
     def test_annotation_color_formats(self):
         """Issue #194: colour derivation preserves defaults and accepts every format."""
