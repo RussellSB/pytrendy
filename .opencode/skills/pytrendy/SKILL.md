@@ -137,7 +137,7 @@ pytest tests/ -m "not core" --cov-append    # the rest
 ```
 
 - 15s per-test timeout (`pytest-timeout`).
-- Plot tests use **pytest-mpl** with baselines pinned to **matplotlib==3.10.8** (hard pin in `pyproject.toml`). Regenerating baselines on another version = false failures. See the `test` skill.
+- Plot tests use **pytest-mpl** with baselines pinned to **matplotlib==3.11.2** (hard pin in `pyproject.toml`). Regenerating baselines on another version = false failures. See the `test` skill.
 - `coverage.xml` + `.coverage` are gitignored artifacts; don't commit.
 
 ## Docs
