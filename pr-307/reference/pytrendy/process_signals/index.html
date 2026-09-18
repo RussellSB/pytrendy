@@ -674,6 +674,8 @@
       
         
       
+        
+      
     
     
     
@@ -786,14 +788,42 @@
   
   
     <li class="md-nav__item">
-      <a href="../io/prepare_index/" class="md-nav__link">
+      <a href="../io/prep_index/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    <code class='doc-symbol doc-symbol-nav'></code>prepare_index
+    <code class='doc-symbol doc-symbol-nav'></code>prep_index
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../io/prep_signal_params/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    <code class='doc-symbol doc-symbol-nav'></code>prep_signal_params
   
 
     
@@ -1337,6 +1367,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.process_signals.process_signals(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.process_signals.process_signals(debug)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1530,6 +1571,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.process_signals.process_signals(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.process_signals.process_signals(debug)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1604,7 +1656,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1662,6 +1714,23 @@
           </div>
         </li>
         <li class="doc-section-item field-body">
+<h3 id="pytrendy.process_signals.process_signals(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Signal-processing constants, populated by <code>detect_trends</code> (no defaults applied here). Supported keys:</p>
+<ul>
+<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points.</li>
+<li><strong>window_flat</strong> (<code>int</code>): Window for rolling flat statistics, derived from <code>window_smooth</code>.</li>
+<li><strong>window_noise</strong> (<code>int</code>): Window for the noise SNR estimate, derived from <code>window_smooth</code>.</li>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby noise segments.</li>
+<li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB).</li>
+<li><strong>threshold_smooth</strong> (<code>float</code>): Derivative threshold as a fraction of the signal IQR.</li>
+<li><strong>threshold_flat</strong> (<code>float</code>): Flat sensitivity as a fraction of the minimum non-zero rolling std.</li>
+</ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
 <h3 id="pytrendy.process_signals.process_signals(debug)" class="doc doc-heading doc-heading-parameter">              <b><code>debug</code></b>
 </h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></code>, default:
                   <code>False</code>
@@ -1692,7 +1761,8 @@
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/process_signals.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 10</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">  9</span>
+<span class="normal"> 10</span>
 <span class="normal"> 11</span>
 <span class="normal"> 12</span>
 <span class="normal"> 13</span>
@@ -1938,7 +2008,8 @@
 <span class="normal">253</span>
 <span class="normal">254</span>
 <span class="normal">255</span>
-<span class="normal">256</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">256</span>
+<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Applies signal processing techniques to classify regions of a time series.</span>
 
@@ -1968,6 +2039,16 @@
 <span class="sd">            Optional parameters to customize detection heuristics. Supported keys:</span>
 
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
+<span class="sd">        signal_params (dict):</span>
+<span class="sd">            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:</span>
+
+<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points.</span>
+<span class="sd">            - **window_flat** (`int`): Window for rolling flat statistics, derived from `window_smooth`.</span>
+<span class="sd">            - **window_noise** (`int`): Window for the noise SNR estimate, derived from `window_smooth`.</span>
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby noise segments.</span>
+<span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB).</span>
+<span class="sd">            - **threshold_smooth** (`float`): Derivative threshold as a fraction of the signal IQR.</span>
+<span class="sd">            - **threshold_flat** (`float`): Flat sensitivity as a fraction of the minimum non-zero rolling std.</span>
 <span class="sd">        debug (bool, optional):</span>
 <span class="sd">            If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.</span>
 
@@ -1977,25 +2058,17 @@
 <span class="sd">            - `'smoothed'`, `'smoothed_std'`, `'snr'`, `'smoothed_deriv'`</span>
 <span class="sd">            - `'flat_flag'`, `'noise_flag'`, `'trend_flag'`</span>
 <span class="sd">    """</span>
-    <span class="n">WINDOW_SMOOTH</span> <span class="o">=</span> <span class="mi">15</span>
-    <span class="n">WINDOW_FLAT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">WINDOW_SMOOTH</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span>
-    <span class="n">WINDOW_NOISE</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">WINDOW_SMOOTH</span><span class="o">*</span><span class="mf">0.5</span><span class="p">)</span>
-
-    <span class="n">THRESHOLD_NOISE</span> <span class="o">=</span> <span class="mf">2.5</span> <span class="c1"># Sensitivity to detecting noise (recommended 0-10)</span>
-    <span class="n">THRESHOLD_SMOOTH</span> <span class="o">=</span> <span class="mf">0.001</span> <span class="c1"># Sensitivity to detecting trends as fraction of iqr</span>
-    <span class="n">THRESHOLD_FLAT</span> <span class="o">=</span> <span class="mf">0.835</span> <span class="c1"># Sensitivity to detecting flats as a fraction of min std (non-zero)</span>
-
     <span class="k">assert</span> <span class="n">pd</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">types</span><span class="o">.</span><span class="n">is_integer_dtype</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="p">),</span> <span class="sa">f</span><span class="s2">"Supplied Index has type </span><span class="si">{</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">dtype</span><span class="si">}</span><span class="s2">"</span>
 
     <span class="c1"># 1. Noise detection via SNR. </span>
     <span class="c1"># 1.1 Compute the SNR</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'signal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">WINDOW_NOISE</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'signal'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_noise'</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">min_periods</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">'noise'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span> <span class="o">-</span> <span class="n">df</span><span class="p">[</span><span class="s1">'signal'</span><span class="p">]</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">'snr'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'signal'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">df</span><span class="p">[</span><span class="s1">'noise'</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
 
     <span class="c1"># 1.2 Define noise flag when SNR &amp; not all zero</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">'noise_flag'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">'snr'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">THRESHOLD_NOISE</span><span class="p">),</span> <span class="s1">'noise_flag'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">'snr'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'threshold_noise'</span><span class="p">]),</span> <span class="s1">'noise_flag'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
 
     <span class="c1"># Skip noise detection when user opts out.</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">method_params</span><span class="p">[</span><span class="s1">'avoid_noise'</span><span class="p">]:</span>
@@ -2037,7 +2110,7 @@
         <span class="n">prev_seg</span> <span class="o">=</span> <span class="n">noise_segments</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">noise_segments</span><span class="p">[</span><span class="mi">1</span><span class="p">:]):</span>
             <span class="n">width</span> <span class="o">=</span> <span class="p">(</span><span class="n">seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span>
-            <span class="k">if</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="n">GROUPING_DISTANCE</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">width</span> <span class="o">&lt;=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'grouping_distance'</span><span class="p">]:</span>
                 <span class="n">new_seg</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'start'</span><span class="p">:</span> <span class="n">prev_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">],</span> <span class="s1">'end'</span><span class="p">:</span> <span class="n">seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]}</span>
                 <span class="n">noise_segments_grouped</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_seg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -2112,23 +2185,23 @@
     <span class="c1"># with leading and trailing to cater for periods centred windows doesnt cover</span>
 
     <span class="c1"># 3.1 Compute smoothed signal rolling std to be used by following logic</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">WINDOW_SMOOTH</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_leading'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">WINDOW_FLAT</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_trailing'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">],</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_flat'</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_leading'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">window</span><span class="o">=</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_flat'</span><span class="p">])</span><span class="o">.</span><span class="n">std</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_trailing'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_flat'</span><span class="p">])</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_leading'</span><span class="p">])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std_trailing'</span><span class="p">])</span>
 
     <span class="c1"># 3.2 Compute derivative early so flat detection can check both smoothness and motion.</span>
-    <span class="n">derivative_limit</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]))</span> <span class="o">*</span> <span class="n">THRESHOLD_SMOOTH</span>
-    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_deriv'</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">WINDOW_SMOOTH</span><span class="p">,</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">derivative_limit</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">iqr</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">]))</span> <span class="o">*</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'threshold_smooth'</span><span class="p">]</span>
+    <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_deriv'</span><span class="p">]</span> <span class="o">=</span> <span class="n">savgol_filter</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">value_col</span><span class="p">],</span> <span class="n">window_length</span><span class="o">=</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">],</span> <span class="n">polyorder</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">deriv</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="c1"># 3.3 Compute Flat Flag using both std and deriv limits</span>
     <span class="n">df</span><span class="p">[</span><span class="s1">'flat_flag'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="n">rolling_std</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">WINDOW_FLAT</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+    <span class="n">rolling_std</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">]</span><span class="o">.</span><span class="n">rolling</span><span class="p">(</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'window_flat'</span><span class="p">],</span> <span class="n">center</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
     <span class="n">nonzero_std</span> <span class="o">=</span> <span class="n">rolling_std</span><span class="p">[</span><span class="n">rolling_std</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">min_nonzero_std</span> <span class="o">=</span> <span class="n">nonzero_std</span><span class="o">.</span><span class="n">min</span><span class="p">()</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">nonzero_std</span><span class="o">.</span><span class="n">empty</span> <span class="k">else</span> <span class="mf">0.0</span>
     <span class="n">derivative_near_zero</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_deriv'</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">derivative_limit</span>
-    <span class="n">extremely_smooth</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">min_nonzero_std</span> <span class="o">*</span> <span class="n">THRESHOLD_FLAT</span><span class="p">)</span>
+    <span class="n">extremely_smooth</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">&lt;</span> <span class="p">(</span><span class="n">min_nonzero_std</span> <span class="o">*</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'threshold_flat'</span><span class="p">])</span>
     <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[(</span><span class="n">df</span><span class="p">[</span><span class="s1">'smoothed_std'</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">min_nonzero_std</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'noise_flag'</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">derivative_near_zero</span> <span class="o">|</span> <span class="n">extremely_smooth</span><span class="p">),</span> <span class="s1">'flat_flag'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> 
 
     <span class="c1"># 4. Detect up/down trend.</span>
@@ -2149,7 +2222,7 @@
         <span class="kn">from</span><span class="w"> </span><span class="nn">.io.plot_pytrendy</span><span class="w"> </span><span class="kn">import</span> <span class="n">_show_plot</span>
 
         <span class="n">ax</span> <span class="o">=</span> <span class="n">df</span><span class="p">[[</span><span class="n">value_col</span><span class="p">,</span> <span class="s1">'snr'</span><span class="p">]]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span><span class="mi">3</span><span class="p">),</span> <span class="n">secondary_y</span><span class="o">=</span><span class="s1">'snr'</span><span class="p">)</span>
-        <span class="n">ax</span><span class="o">.</span><span class="n">right_ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">THRESHOLD_NOISE</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">right_ax</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">signal_params</span><span class="p">[</span><span class="s1">'threshold_noise'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'--'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">"Signal-Noise Ratio (SNR)"</span><span class="p">)</span>
         <span class="n">_show_plot</span><span class="p">()</span>
 
