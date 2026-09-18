@@ -789,6 +789,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1615,6 +1626,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.detect_trends.detect_trends(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.detect_trends.detect_trends(plot_params)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1700,7 +1722,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">date_col</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">method_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">plot_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1771,22 +1793,39 @@ Defaults to <code>True</code>.</p>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad after abrupt transitions. Defaults to <code>0</code>.</li>
 <li><strong>gradual_padding</strong> (<code>int</code>): Number of days to pad after gradual trend ends. Defaults to <code>0</code>.</li>
 <li><strong>avoid_noise</strong> (<code>bool</code>): Whether to avoid noisy segments in trend detection. Defaults to <code>True</code>.</li>
-<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to a
-  duration-calibrated value (15 days; 15 points on daily data).</li>
-<li><strong>window_flat</strong> (<code>int</code>): Flat-detection rolling window, in points. Defaults to a
-  duration-calibrated value (7 days; 7 points on daily data).</li>
-<li><strong>window_noise</strong> (<code>int</code>): SNR rolling window, in points. Defaults to a
-  duration-calibrated value (7 days; 7 points on daily data).</li>
-<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in points, for merging same-direction
-  segments and for noise-neighbour cleanup. Defaults to a duration-calibrated value
-  (7 days; 7 points on daily data).</li>
-<li><strong>min_trend_length</strong> (<code>int</code>): Minimum Up/Down segment length, in points. Defaults to a
-  duration-calibrated value (3 days; 3 points on daily data).</li>
 </ul>
-<p>Unspecified window and length parameters are derived from the median spacing of the
-supplied index, so the same duration-calibrated defaults apply to daily, weekly,
-fortnightly, monthly and other cadences. Overriding any of them uses the given value
-as a raw point count, bypassing the cadence scaling.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.detect_trends.detect_trends(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Optional parameters to customize the signal-processing constants. Supported keys (independent from <code>method_params</code>):</p>
+<ul>
+<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to the
+  duration-calibrated value (15 days; 15 points on daily data).</li>
+<li><strong>window_flat</strong> (<code>int</code>): Window for rolling flat statistics, in points. Defaults to half
+  of the resolved <code>window_smooth</code> (7 points on daily data).</li>
+<li><strong>window_noise</strong> (<code>int</code>): Window for the noise SNR estimate, in points. Defaults to half
+  of the resolved <code>window_smooth</code> (7 points on daily data).</li>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments.
+  Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</li>
+<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be
+  retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</li>
+<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to
+  be retained. Defaults to <code>1</code>.</li>
+<li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB) below which a region is classified as noise. Defaults to <code>2.5</code>.</li>
+<li><strong>threshold_smooth</strong> (<code>float</code>): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to <code>0.001</code>.</li>
+<li><strong>threshold_flat</strong> (<code>float</code>): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to <code>0.835</code>.</li>
+</ul>
+<p>Window and minimum-length defaults are derived from the median sampling interval of the
+supplied index, so the same real-time durations apply to daily, weekly, fortnightly and
+monthly cadences. Overriding any of them uses the given value as a raw point count,
+bypassing the cadence scaling. This surface is independent from <code>method_params</code>, which
+controls the padding and noise heuristics instead.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -1839,60 +1878,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/detect_trends.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 15</span>
-<span class="normal"> 16</span>
-<span class="normal"> 17</span>
-<span class="normal"> 18</span>
-<span class="normal"> 19</span>
-<span class="normal"> 20</span>
-<span class="normal"> 21</span>
-<span class="normal"> 22</span>
-<span class="normal"> 23</span>
-<span class="normal"> 24</span>
-<span class="normal"> 25</span>
-<span class="normal"> 26</span>
-<span class="normal"> 27</span>
-<span class="normal"> 28</span>
-<span class="normal"> 29</span>
-<span class="normal"> 30</span>
-<span class="normal"> 31</span>
-<span class="normal"> 32</span>
-<span class="normal"> 33</span>
-<span class="normal"> 34</span>
-<span class="normal"> 35</span>
-<span class="normal"> 36</span>
-<span class="normal"> 37</span>
-<span class="normal"> 38</span>
-<span class="normal"> 39</span>
-<span class="normal"> 40</span>
-<span class="normal"> 41</span>
-<span class="normal"> 42</span>
-<span class="normal"> 43</span>
-<span class="normal"> 44</span>
-<span class="normal"> 45</span>
-<span class="normal"> 46</span>
-<span class="normal"> 47</span>
-<span class="normal"> 48</span>
-<span class="normal"> 49</span>
-<span class="normal"> 50</span>
-<span class="normal"> 51</span>
-<span class="normal"> 52</span>
-<span class="normal"> 53</span>
-<span class="normal"> 54</span>
-<span class="normal"> 55</span>
-<span class="normal"> 56</span>
-<span class="normal"> 57</span>
-<span class="normal"> 58</span>
-<span class="normal"> 59</span>
-<span class="normal"> 60</span>
-<span class="normal"> 61</span>
-<span class="normal"> 62</span>
-<span class="normal"> 63</span>
-<span class="normal"> 64</span>
-<span class="normal"> 65</span>
-<span class="normal"> 66</span>
-<span class="normal"> 67</span>
-<span class="normal"> 68</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 68</span>
 <span class="normal"> 69</span>
 <span class="normal"> 70</span>
 <span class="normal"> 71</span>
@@ -1972,11 +1958,72 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">145</span>
 <span class="normal">146</span>
 <span class="normal">147</span>
-<span class="normal">148</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span>
+<span class="normal">164</span>
+<span class="normal">165</span>
+<span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
+<span class="normal">207</span>
+<span class="normal">208</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
                   <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+                  <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">debug</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">False</span>
                   <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PyTrendyResults</span><span class="p">:</span>
@@ -2012,22 +2059,30 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad after abrupt transitions. Defaults to `0`.</span>
 <span class="sd">            - **gradual_padding** (`int`): Number of days to pad after gradual trend ends. Defaults to `0`.</span>
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
-<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to a</span>
-<span class="sd">              duration-calibrated value (15 days; 15 points on daily data).</span>
-<span class="sd">            - **window_flat** (`int`): Flat-detection rolling window, in points. Defaults to a</span>
-<span class="sd">              duration-calibrated value (7 days; 7 points on daily data).</span>
-<span class="sd">            - **window_noise** (`int`): SNR rolling window, in points. Defaults to a</span>
-<span class="sd">              duration-calibrated value (7 days; 7 points on daily data).</span>
-<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in points, for merging same-direction</span>
-<span class="sd">              segments and for noise-neighbour cleanup. Defaults to a duration-calibrated value</span>
-<span class="sd">              (7 days; 7 points on daily data).</span>
-<span class="sd">            - **min_trend_length** (`int`): Minimum Up/Down segment length, in points. Defaults to a</span>
-<span class="sd">              duration-calibrated value (3 days; 3 points on daily data).</span>
+<span class="sd">        signal_params (dict, optional):</span>
+<span class="sd">            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):</span>
 
-<span class="sd">            Unspecified window and length parameters are derived from the median spacing of the</span>
-<span class="sd">            supplied index, so the same duration-calibrated defaults apply to daily, weekly,</span>
-<span class="sd">            fortnightly, monthly and other cadences. Overriding any of them uses the given value</span>
-<span class="sd">            as a raw point count, bypassing the cadence scaling.</span>
+<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to the</span>
+<span class="sd">              duration-calibrated value (15 days; 15 points on daily data).</span>
+<span class="sd">            - **window_flat** (`int`): Window for rolling flat statistics, in points. Defaults to half</span>
+<span class="sd">              of the resolved `window_smooth` (7 points on daily data).</span>
+<span class="sd">            - **window_noise** (`int`): Window for the noise SNR estimate, in points. Defaults to half</span>
+<span class="sd">              of the resolved `window_smooth` (7 points on daily data).</span>
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments.</span>
+<span class="sd">              Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</span>
+<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be</span>
+<span class="sd">              retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</span>
+<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to</span>
+<span class="sd">              be retained. Defaults to `1`.</span>
+<span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.</span>
+<span class="sd">            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.</span>
+<span class="sd">            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.</span>
+
+<span class="sd">            Window and minimum-length defaults are derived from the median sampling interval of the</span>
+<span class="sd">            supplied index, so the same real-time durations apply to daily, weekly, fortnightly and</span>
+<span class="sd">            monthly cadences. Overriding any of them uses the given value as a raw point count,</span>
+<span class="sd">            bypassing the cadence scaling. This surface is independent from `method_params`, which</span>
+<span class="sd">            controls the padding and noise heuristics instead.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
 
@@ -2077,23 +2132,21 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="p">)</span>
 
     <span class="c1"># Configures trend detection heuristics</span>
-    <span class="n">raw_params</span> <span class="o">=</span> <span class="n">method_params</span>
     <span class="n">method_params</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">raw_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">'gradual_padding'</span><span class="p">:</span> <span class="n">raw_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
-        <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">raw_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
-        <span class="s1">'_gap_days'</span><span class="p">:</span> <span class="n">gap_days</span><span class="p">,</span>
+        <span class="s1">'abrupt_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'abrupt_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'gradual_padding'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'gradual_padding'</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="c1"># Window / length overrides are passed through as raw point counts.</span>
-    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">'window_smooth'</span><span class="p">,</span> <span class="s1">'window_flat'</span><span class="p">,</span> <span class="s1">'window_noise'</span><span class="p">,</span> <span class="s1">'grouping_distance'</span><span class="p">,</span> <span class="s1">'min_trend_length'</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">raw_params</span><span class="p">:</span>
-            <span class="n">method_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">raw_params</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+    <span class="c1"># Configures signal-processing constants. Window and length defaults scale</span>
+    <span class="c1"># to the index cadence; unknown keys are accepted and forwarded (validation</span>
+    <span class="c1"># is deliberately out of scope for now).</span>
+    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">_resolve_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">,</span> <span class="n">gap_days</span><span class="p">)</span>
 
     <span class="c1"># Core 5-step pipeline</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
-    <span class="n">segments</span> <span class="o">=</span> <span class="n">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">get_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
+    <span class="n">segments</span> <span class="o">=</span> <span class="n">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">analyse_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">)</span>
 
     <span class="c1"># Translate internal segment boundaries back to the user's external index values.</span>

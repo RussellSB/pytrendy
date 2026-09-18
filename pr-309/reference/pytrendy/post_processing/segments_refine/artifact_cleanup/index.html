@@ -1204,6 +1204,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(inverse_only)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1553,6 +1564,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(inverse_only)" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1639,7 +1661,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">inverse_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">inverse_only</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1670,6 +1692,17 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
           </div>
         </li>
         <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Signal-processing constants, populated by <code>detect_trends</code> (no defaults applied here). Supported keys:</p>
+<ul>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in index steps, for considering neighbouring segments noise.</li>
+</ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
 <h3 id="pytrendy.post_processing.segments_refine.artifact_cleanup.clean_artifacts(inverse_only)" class="doc doc-heading doc-heading-parameter">              <b><code>inverse_only</code></b>
 </h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#bool">bool</a></code>, default:
                   <code>False</code>
@@ -1696,7 +1729,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/artifact_cleanup.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 12</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 11</span>
+<span class="normal"> 12</span>
 <span class="normal"> 13</span>
 <span class="normal"> 14</span>
 <span class="normal"> 15</span>
@@ -2014,7 +2048,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">327</span>
 <span class="normal">328</span>
 <span class="normal">329</span>
-<span class="normal">330</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">330</span>
+<span class="normal">331</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Removes segments any invalid segments, such as inversions or overlaps.</span>
 <span class="sd">    Typically to clean up after boundary adjustments introduced from noise or trend refinements.</span>
@@ -2024,6 +2059,9 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="sd">        method_params (dict): Optional parameters for cleanup behaviour. Supported keys:</span>
 
 <span class="sd">            - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.</span>
+<span class="sd">        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:</span>
+
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in index steps, for considering neighbouring segments noise.</span>
 <span class="sd">        inverse_only (bool): If True, only perform inverse checks and skip other artifact cleanups. Useful for final cleanup pass after flat fill ins.</span>
 
 <span class="sd">    Returns:</span>
@@ -2244,8 +2282,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
     <span class="c1"># - Sets trends to noise when they have too low an SNR, too susceptible to noise, or not trendy enough (enabled when avoid_noise is True)</span>
     <span class="c1"># - Sets trends to flat when too flat.</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">grouping_distance</span> <span class="o">=</span> <span class="n">resolve_grouping_distance</span><span class="p">(</span><span class="n">method_params</span><span class="p">)</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="p">[]</span> 
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">segment</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">):</span>
         <span class="n">start</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
         <span class="n">end</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span>
@@ -2253,11 +2290,11 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
         <span class="c1"># Conditions for edge cases</span>
         <span class="n">left_is_noise</span> <span class="o">=</span> <span class="nb">any</span><span class="p">((</span> <span class="c1"># Consider segments within neighbour distance on left</span>
-                <span class="mi">0</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">grouping_distance</span>
+                <span class="mi">0</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">start</span> <span class="o">-</span> <span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'grouping_distance'</span><span class="p">]</span>
                 <span class="ow">and</span> <span class="n">prev_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'direction'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'Noise'</span>
             <span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">prev_seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
         <span class="n">right_is_noise</span> <span class="o">=</span> <span class="nb">any</span><span class="p">((</span> <span class="c1"># Consider segments within neighbour distance on right</span>
-                <span class="mi">0</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">end</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">grouping_distance</span>
+                <span class="mi">0</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">next_seg</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span> <span class="o">-</span> <span class="n">end</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'grouping_distance'</span><span class="p">]</span>
                 <span class="ow">and</span> <span class="n">next_seg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'direction'</span><span class="p">)</span> <span class="o">==</span> <span class="s1">'Noise'</span>
             <span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">next_seg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">i</span><span class="p">)</span>
 
@@ -2361,8 +2398,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/artifact_cleanup.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">333</span>
-<span class="normal">334</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">334</span>
 <span class="normal">335</span>
 <span class="normal">336</span>
 <span class="normal">337</span>
@@ -2419,7 +2455,8 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">388</span>
 <span class="normal">389</span>
 <span class="normal">390</span>
-<span class="normal">391</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">391</span>
+<span class="normal">392</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Fill uncovered time gaps with Flat segments using df's Index.</span>
 
 <span class="sd">    Adds Flat segments for:</span>

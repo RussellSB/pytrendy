@@ -1466,6 +1466,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.refine_segments(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1531,7 +1542,7 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1580,6 +1591,17 @@
 <ul>
 <li><strong>abrupt_padding</strong> (<code>int</code>): Number of days to pad. Defaults to <code>0</code>.</li>
 <li><strong>gradual_padding</strong> (<code>int</code>): Number of days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
+</ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.refine_segments(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Signal-processing constants, populated by <code>detect_trends</code> (no defaults applied here). Supported keys:</p>
+<ul>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in index steps, for grouping.</li>
 </ul>
           </div>
         </li>
@@ -1649,7 +1671,11 @@
 <span class="normal">61</span>
 <span class="normal">62</span>
 <span class="normal">63</span>
-<span class="normal">64</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">64</span>
+<span class="normal">65</span>
+<span class="normal">66</span>
+<span class="normal">67</span>
+<span class="normal">68</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">refine_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Full post-processing pipeline to refine detected trend segments.</span>
 
@@ -1668,13 +1694,17 @@
 
 <span class="sd">            - **abrupt_padding** (`int`): Number of days to pad. Defaults to `0`.</span>
 <span class="sd">            - **gradual_padding** (`int`): Number of days to extend gradual segment ends forward. Defaults to `0`.</span>
+<span class="sd">        signal_params (dict): Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:</span>
+
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in index steps, for grouping.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Final refined segment list.</span>
 <span class="sd">    """</span>
 
+    <span class="n">grouping_distance</span> <span class="o">=</span> <span class="n">signal_params</span><span class="p">[</span><span class="s1">'grouping_distance'</span><span class="p">]</span>
+
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
-    <span class="n">grouping_distance</span> <span class="o">=</span> <span class="n">resolve_grouping_distance</span><span class="p">(</span><span class="n">method_params</span><span class="p">)</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span> <span class="c1"># grouping 1st pass: sporadic flats &amp; noises</span>
@@ -1682,9 +1712,9 @@
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for gradual + gradual padding</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># for abrupt</span>
 
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from expand/contract    </span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from expand/contract    </span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span> <span class="c1"># grouping 2nd pass: after trend refine and cleanup    </span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps again after grouping</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span> <span class="c1"># cleans overlaps again after grouping</span>
 
     <span class="n">init_segments</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">)</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">classify_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># reclassify after artifacts cleaned: some graduals to abrupt</span>
@@ -1692,11 +1722,11 @@
         <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">shave_abrupt_trends</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span>
                                             <span class="p">,</span> <span class="n">second_pass</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">init_segments</span><span class="o">=</span><span class="n">init_segments</span><span class="p">)</span> <span class="c1"># abrupt shave 2nd pass: newly converted abrupts </span>
         <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span> <span class="c1"># make sure re-classifications are grouped to build strong enough cases for gradual -&gt; abrupts</span>
-        <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)</span>
+        <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span> <span class="c1"># cleans overlaps etc from shave abrupt (precaution even though second_pass=True handles this)</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">)</span> <span class="c1"># fill uncovered gaps (leading, internal, trailing) with flats</span>
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">group_segments</span><span class="p">(</span><span class="n">segments_refined</span><span class="p">,</span> <span class="n">grouping_distance</span><span class="p">)</span> <span class="c1"># grouping 3rd pass (final): after abrupt shave 2nd pass and/or flat fill in</span>
-    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">inverse_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># cleans 1-day flats of any leading/trailing only</span>
+    <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">inverse_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="c1"># cleans 1-day flats of any leading/trailing only</span>
 
     <span class="k">return</span> <span class="n">segments_refined</span>
 </code></pre></div></td></tr></table></div>
