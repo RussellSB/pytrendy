@@ -1837,25 +1837,21 @@ Defaults to <code>True</code>.</p>
 <ul>
 <li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to the
   duration-calibrated value (15 days; 15 points on daily data).</li>
-<li><strong>window_flat</strong> (<code>int</code>): Window for rolling flat statistics, in points. Defaults to half
-  of the resolved <code>window_smooth</code> (7 points on daily data).</li>
-<li><strong>window_noise</strong> (<code>int</code>): Window for the noise SNR estimate, in points. Defaults to half
-  of the resolved <code>window_smooth</code> (7 points on daily data).</li>
-<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments.
-  Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</li>
-<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be
-  retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</li>
-<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to
-  be retained. Defaults to <code>1</code>.</li>
+<li><strong>smooth_factor</strong> (<code>float</code>): Fraction of the cadence-derived <code>window_smooth</code> spanned by the derived <code>window_flat</code> window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
+<li><strong>noise_factor</strong> (<code>float</code>): Fraction of the cadence-derived <code>window_smooth</code> spanned by the derived <code>window_noise</code> window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
+<li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments. Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</li>
+<li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</li>
+<li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to <code>1</code>.</li>
 <li><strong>threshold_noise</strong> (<code>float</code>): SNR threshold (dB) below which a region is classified as noise. Defaults to <code>2.5</code>.</li>
 <li><strong>threshold_smooth</strong> (<code>float</code>): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to <code>0.001</code>.</li>
 <li><strong>threshold_flat</strong> (<code>float</code>): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to <code>0.835</code>.</li>
 </ul>
 <p>Window and minimum-length defaults are derived from the median sampling interval of the
 supplied index, so the same real-time durations apply to daily, weekly, fortnightly and
-monthly cadences. Overriding any of them uses the given value as a raw point count,
-bypassing the cadence scaling. This surface is independent from <code>method_params</code>, which
-controls the padding and noise heuristics instead.</p>
+monthly cadences. <code>smooth_factor</code> and <code>noise_factor</code> scale the cadence-derived <code>window_smooth</code>
+to derive <code>window_flat</code> and <code>window_noise</code>. Overriding any of them uses the given value as a
+raw point count and bypasses the cadence scaling. This surface is independent from
+<code>method_params</code>, which controls the padding and noise heuristics instead.</p>
           </div>
         </li>
         <li class="doc-section-item field-body">
@@ -2044,11 +2040,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">148</span>
 <span class="normal">149</span>
 <span class="normal">150</span>
-<span class="normal">151</span>
-<span class="normal">152</span>
-<span class="normal">153</span>
-<span class="normal">154</span>
-<span class="normal">155</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">151</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2094,25 +2086,21 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 
 <span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to the</span>
 <span class="sd">              duration-calibrated value (15 days; 15 points on daily data).</span>
-<span class="sd">            - **window_flat** (`int`): Window for rolling flat statistics, in points. Defaults to half</span>
-<span class="sd">              of the resolved `window_smooth` (7 points on daily data).</span>
-<span class="sd">            - **window_noise** (`int`): Window for the noise SNR estimate, in points. Defaults to half</span>
-<span class="sd">              of the resolved `window_smooth` (7 points on daily data).</span>
-<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments.</span>
-<span class="sd">              Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</span>
-<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be</span>
-<span class="sd">              retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</span>
-<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to</span>
-<span class="sd">              be retained. Defaults to `1`.</span>
+<span class="sd">            - **smooth_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.</span>
+<span class="sd">            - **noise_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.</span>
+<span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to the duration-calibrated value (7 days; 7 steps on daily data).</span>
+<span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).</span>
+<span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.</span>
 <span class="sd">            - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.</span>
 <span class="sd">            - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.</span>
 <span class="sd">            - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.</span>
 
 <span class="sd">            Window and minimum-length defaults are derived from the median sampling interval of the</span>
 <span class="sd">            supplied index, so the same real-time durations apply to daily, weekly, fortnightly and</span>
-<span class="sd">            monthly cadences. Overriding any of them uses the given value as a raw point count,</span>
-<span class="sd">            bypassing the cadence scaling. This surface is independent from `method_params`, which</span>
-<span class="sd">            controls the padding and noise heuristics instead.</span>
+<span class="sd">            monthly cadences. `smooth_factor` and `noise_factor` scale the cadence-derived `window_smooth`</span>
+<span class="sd">            to derive `window_flat` and `window_noise`. Overriding any of them uses the given value as a</span>
+<span class="sd">            raw point count and bypasses the cadence scaling. This surface is independent from</span>
+<span class="sd">            `method_params`, which controls the padding and noise heuristics instead.</span>
 <span class="sd">        plot_params (dict, optional):</span>
 <span class="sd">            Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:</span>
 
