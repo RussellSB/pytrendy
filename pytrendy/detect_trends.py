@@ -67,7 +67,7 @@ def detect_trends(df: pd.DataFrame,
 
             This surface is independent from `method_params`, which controls the padding and noise heuristics instead.
             Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
-            different real-time duration (see #303/#309 for the cadence-aware view).
+            different real-time duration.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
 
