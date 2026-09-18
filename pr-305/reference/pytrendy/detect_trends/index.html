@@ -1806,6 +1806,8 @@ Defaults to <code>True</code>.</p>
             <p>Optional parameters to customize the signal-processing constants. Supported keys (independent from <code>method_params</code>):</p>
 <ul>
 <li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to <code>15</code>.</li>
+<li><strong>smooth_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_flat</code> window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
+<li><strong>noise_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_noise</code> window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
 <li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments. Defaults to <code>7</code>.</li>
 <li><strong>min_trend_length</strong> (<code>int</code>): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to <code>3</code>.</li>
 <li><strong>min_flat_noise_length</strong> (<code>int</code>): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to <code>1</code>.</li>
@@ -1993,7 +1995,9 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
-<span class="normal">139</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2038,6 +2042,8 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):</span>
 
 <span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.</span>
+<span class="sd">            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.</span>
+<span class="sd">            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.</span>
 <span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.</span>
 <span class="sd">            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.</span>
 <span class="sd">            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.</span>
