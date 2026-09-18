@@ -9,8 +9,7 @@ the deliberate decision to accept unknown keys without validation.
 
 import pytrendy as pt
 
-from pytrendy.detect_trends import _resolve_signal_params
-from pytrendy.io import prep_index
+from pytrendy.io import prep_index, prep_signal_params
 from pytrendy.process_signals import process_signals
 
 
@@ -51,19 +50,19 @@ class TestSignalParams:
         df = pt.load_data('series_synthetic')
         df_int, _, _, _ = prep_index.prep_index(df.copy(), 'date', 'gradual-noisy-20')
 
-        default = process_signals(df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, _resolve_signal_params())
+        default = process_signals(df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, prep_signal_params.prep_signal_params())
         overridden = process_signals(
-            df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, _resolve_signal_params({'grouping_distance': 0})
+            df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, prep_signal_params.prep_signal_params({'grouping_distance': 0})
         )
         # Disabling grouping must keep (at least as many) separate noise regions.
         assert int(overridden['noise_flag'].sum()) >= int(default['noise_flag'].sum())
 
     def test_window_flat_and_noise_derive_from_window_smooth(self):
         """window_flat/window_noise default to half window_smooth unless overridden."""
-        derived = _resolve_signal_params({'window_smooth': 20})
+        derived = prep_signal_params.prep_signal_params({'window_smooth': 20})
         assert derived['window_flat'] == 10
         assert derived['window_noise'] == 10
-        explicit = _resolve_signal_params({'window_smooth': 20, 'window_flat': 3, 'window_noise': 5})
+        explicit = prep_signal_params.prep_signal_params({'window_smooth': 20, 'window_flat': 3, 'window_noise': 5})
         assert explicit['window_flat'] == 3
         assert explicit['window_noise'] == 5
 

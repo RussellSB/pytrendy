@@ -12,7 +12,7 @@ import pandas as pd
 from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
-from pytrendy.detect_trends import _resolve_signal_params
+from pytrendy.io import prep_signal_params
 from pytrendy.io.plot_pytrendy import plot_pytrendy
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
@@ -78,7 +78,7 @@ class TestPlotPytrendyEdgeCases:
         df.set_index(date_col, inplace=True)
         df = df[[value_col]]
         method_params = {'abrupt_padding': 28, 'avoid_noise': True}
-        signal_params = _resolve_signal_params()
+        signal_params = prep_signal_params.prep_signal_params()
 
         df = process_signals(df, value_col, method_params, signal_params)
         segments = get_segments(df, signal_params)

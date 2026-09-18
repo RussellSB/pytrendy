@@ -34,7 +34,7 @@ class TestAbruptShaving:
 
     def test_abrupt_shaving_leading_subsegment(self):
         """shave_abrupt_trends processes abrupt segments and returns the refined list."""
-        from pytrendy.detect_trends import _resolve_signal_params
+        from pytrendy.io import prep_signal_params
         from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt_trends
         from pytrendy.process_signals import process_signals
         from pytrendy.post_processing.segments_get import get_segments
@@ -43,7 +43,7 @@ class TestAbruptShaving:
         df = pt.load_data('series_synthetic')
         df_int = df.set_index(np.arange(len(df)))[['abrupt']]
         method_params = {'abrupt_padding': 0, 'avoid_noise': True}
-        signal_params = _resolve_signal_params()
+        signal_params = prep_signal_params.prep_signal_params()
 
         df_processed = process_signals(df_int, 'abrupt', method_params, signal_params)
         segments = get_segments(df_processed, signal_params)

@@ -8,40 +8,7 @@ from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
-from .io import prep_index
-
-
-# Signal-processing constants. `detect_trends` is the single public entry point,
-# so this is the one place every key is defaulted before the pipeline runs.
-_SIGNAL_PARAMS_DEFAULTS = {
-    'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
-    'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
-    'min_trend_length': 3,      # Minimum length, in steps, for an Up/Down segment to be retained.
-    'min_flat_noise_length': 1, # Minimum length, in steps, for a Flat/Noise segment to be retained.
-    'threshold_noise': 2.5,     # SNR threshold (dB) below which a region is classified as noise.
-    'threshold_smooth': 0.001,  # Derivative threshold as a fraction of the signal IQR, below which motion counts as flat.
-    'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
-}
-
-
-def _resolve_signal_params(signal_params: dict|None=None) -> dict:
-    """
-    Merge user-supplied `signal_params` over the defaults and derive window sizes.
-
-    `window_flat` and `window_noise` are not top-level defaults: unless explicitly
-    overridden they derive from `window_smooth`. Every stage downstream assumes
-    this returns a fully-populated dict.
-
-    Args:
-        signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.
-
-    Returns:
-        dict: Fully-populated signal_params with every key the stages read.
-    """
-    resolved = {**_SIGNAL_PARAMS_DEFAULTS, **(signal_params or {})}
-    resolved.setdefault('window_flat', int(resolved['window_smooth'] * 0.5))
-    resolved.setdefault('window_noise', int(resolved['window_smooth'] * 0.5))
-    return resolved
+from .io import prep_index, prep_signal_params
 
 
 def detect_trends(df: pd.DataFrame, 
@@ -152,7 +119,7 @@ def detect_trends(df: pd.DataFrame,
 
     # Configures signal-processing constants. Unknown keys are accepted and
     # forwarded (validation is deliberately out of scope for now).
-    signal_params = _resolve_signal_params(signal_params)
+    signal_params = prep_signal_params.prep_signal_params(signal_params)
 
     # Core 5-step pipeline
     df = process_signals(df, value_col, method_params, signal_params, debug)
