@@ -61,8 +61,8 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 | `.segments` | `list[dict]` | Raw segment dicts (all directions including Flat/Noise). |
 | `.trend_segments` | `list[dict]` | Subset with a `trend_class` key (Up/Down only — Flats/Noise excluded). |
 | `.best` | `dict \| None` | Segment with lowest `change_rank` among `trend_segments`; `None` if no trends. Picked on `total_change` magnitude (steepness × length). |
-| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, pct_change, mltp_change, days, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0` or `gradual_padding>0`). |
-| `.df_summary` | `pd.DataFrame` | Slimmer view: `direction, start, end, days, total_change, change_rank, trend_class`. What `.print_summary()` prints. |
+| `.df` | `pd.DataFrame` | Full segment table, indexed by `time_index`. All columns: `direction, start, end, trend_class, pct_change, mltp_change, steps, total_change, SNR, change_rank` (+ `padded` when `abrupt_padding>0` or `gradual_padding>0`). |
+| `.df_summary` | `pd.DataFrame` | Slimmer view: `direction, start, end, steps, total_change, change_rank, trend_class`. What `.print_summary()` prints. |
 | `.summary` | `dict` | `direction_counts` (Counter→dict over Up/Down/Flat/Noise), `trend_class_counts` (gradual/abrupt), `highest_total_change`. |
 
 ### Methods
@@ -89,7 +89,7 @@ Returned by `detect_trends()`. Constructed from the segment list and auto-popula
 - `total_change` — net change across the segment; sum of day-over-day diffs (telescopes to end − start).
 - `pct_change` — relative change; equals `(value_end / value_start) - 1`; e.g. `3.67` = +367%. Equals `mltp_change - 1`.
 - `mltp_change` — multiplier change; equals `value_end / value_start`; e.g. `4.67` = 4.67x. Equals `pct_change + 1`; more readable when the change exceeds +100%.
-- `days` — segment length.
+- `steps` — segment length in index steps.
 - `SNR` — signal-to-noise ratio. **Lower SNR ≈ noisier segment.** Noise segments typically have SNR < ~7; clean gradual trends sit around 17-22. Borderline trends (e.g. SNR ~5.9) show up with high `change_rank` numbers — still detected but flagged as weak.
 - `change_rank` — 1 = strongest trend by `abs(total_change)`. Lower is stronger. Artifact trends (short, low-magnitude) get high rank numbers and are effectively de-prioritized.
 - `padded` — `True` only when `abrupt_padding>0` extended an abrupt segment's end date; `NaN` for gradual/flat/noise.
