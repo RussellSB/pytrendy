@@ -12,7 +12,7 @@ import pandas as pd
 from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
-from pytrendy.io.plot_pytrendy import plot_pytrendy
+from pytrendy.io.plot_pytrendy import plot_pytrendy, _pinned_tick_positions
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
 from pytrendy.post_processing.segments_analyse import analyse_segments
@@ -235,8 +235,9 @@ class TestPlotPytrendyEdgeCases:
         """A ~2-year daily series coarsens majors to months and drops daily minors.
 
         Weekly majors (and a daily minor ruler) previously produced a wall of
-        ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density keeps
-        ~24 month majors and no minors without changing any shorter baseline.
+        ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density,
+        keyed on ``span_steps`` (730 index steps here), keeps ~24 month majors
+        and no minors without changing any shorter baseline.
         """
         two_years = self._long_daily_series(731)  # ~2 years daily
         results = pt.detect_trends(two_years, date_col='date', value_col='gradual', plot=False)
@@ -248,7 +249,7 @@ class TestPlotPytrendyEdgeCases:
         return fig
 
     def test_daily_short_span_keeps_weekly_majors(self):
-        """180-day daily data keeps the original weekly majors (baseline guard)."""
+        """180-step daily data keeps the original weekly majors (baseline guard)."""
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
         fig = self._prepare_and_plot(df, 'gradual', results.segments)
@@ -258,7 +259,7 @@ class TestPlotPytrendyEdgeCases:
         assert locator._get_interval() == 1
 
     def test_daily_medium_span_biweekly_majors(self):
-        """~1-year daily data coarsens majors to biweekly (interval=2)."""
+        """~1-year daily data (365 steps) coarsens majors to biweekly (interval=2)."""
         one_year = self._long_daily_series(366)
         results = pt.detect_trends(one_year, date_col='date', value_col='gradual', plot=False)
         fig = self._prepare_and_plot(one_year, 'gradual', results.segments)
@@ -286,6 +287,82 @@ class TestPlotPytrendyEdgeCases:
         ]
         expected = list(pd.DatetimeIndex(fortnightly['date']).normalize()[::2])
         assert major == expected
+
+    @staticmethod
+    def _pinned_ticks(index, index_type):
+        """Plot *index* with no segments and return ``(major ticks, locator)``."""
+        df = pd.DataFrame({'value': np.arange(len(index), dtype=float)}, index=index)
+        fig = plot_pytrendy(df=df, value_col='value', segments_enhanced=[],
+                            index_type=index_type, suppress_show=True)
+        ax = fig.axes[0]
+        if index_type in ('date', 'datetime64'):
+            ticks = [
+                pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
+                for t in ax.get_xticks()
+            ]
+        else:
+            ticks = list(ax.get_xticks())
+        return ticks, ax.xaxis.get_major_locator()
+
+    def test_monthly_series_pins_ticks_to_observations(self):
+        """A ~24-point monthly series stays pinned to every observation.
+
+        Monthly spacing is non-daily (median gap ~30 days), so it must not fall
+        through to the daily 200/400-step locator thresholds; the positional
+        pin/thin rule leaves all 24 month-ends as majors.
+        """
+        monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
+        ticks, _ = self._pinned_ticks(monthly, 'datetime64')
+        assert ticks == list(monthly)
+
+    def test_five_year_monthly_series_thins_pinned_ticks(self):
+        """A ~5-year, ~60-point monthly series pins but thins positional ticks.
+
+        Past the 40-point cap the rule is ``index[::ceil(n/40)]``; with n=60
+        that is every 2nd month-end -> 30 majors.
+        """
+        monthly = pd.date_range('2020-01-31', periods=60, freq='ME')
+        step = int(np.ceil(len(monthly) / 40))
+        assert step == 2
+        ticks, _ = self._pinned_ticks(monthly, 'datetime64')
+        assert ticks == list(monthly[::step])
+
+    def test_yearly_series_pins_ticks_to_observations(self):
+        """A yearly series (median gap ~365 days) pins every observation."""
+        yearly = pd.date_range('2015-01-01', periods=8, freq='YS')
+        ticks, _ = self._pinned_ticks(yearly, 'datetime64')
+        assert ticks == list(yearly)
+
+    def test_weekly_one_year_stays_pinned_not_monthly_locator(self):
+        """52 weekly points pin to observations, not a MonthLocator.
+
+        The daily branch is gated on a median calendar gap of one day; weekly
+        spacing (~7 days) fails that gate, so the 200/400-step coarsening
+        thresholds must not apply. 52 points exceeds the 40-point cap, giving
+        every ``ceil(52/40)=2``nd observation, all of them real samples.
+        """
+        weekly = pd.date_range('2020-01-05', periods=52, freq='7D')
+        ticks, locator = self._pinned_ticks(weekly, 'datetime64')
+        assert not isinstance(locator, mdates.MonthLocator)
+        step = int(np.ceil(len(weekly) / 40))
+        assert step == 2
+        assert ticks == list(weekly[::step])
+        assert set(ticks) <= set(weekly)
+
+    def test_integer_index_thins_past_40(self):
+        """The positional pin/thin rule is agnostic to index granularity.
+
+        A numerical index is just another positional index: up to 40 points
+        every value is a tick, past it every ``ceil(n/40)``th value is. Covered
+        on the helper directly, because the numeric plot baselines
+        (``TestPlotFloatIndexSpacing``) intentionally keep matplotlib's own
+        ticks; this guards the shared rule the non-daily date path uses.
+        """
+        index = pd.Index(np.arange(181))
+        step = int(np.ceil(len(index) / 40))
+        assert step == 5
+        assert list(_pinned_tick_positions(index)) == list(index[::step])
+        assert list(_pinned_tick_positions(pd.Index(np.arange(30)))) == list(range(30))
 
     def test_plot_show_behavior(self, monkeypatch):
         """
