@@ -11,18 +11,16 @@ from .io.results_pytrendy import PyTrendyResults
 from .io import prepare_index
 
 
-# Signal-processing constants. Windows and minimum lengths are in points;
-# `grouping_distance` is in index steps; thresholds are in dB / fraction.
-# `window_flat` and `window_noise` are intentionally absent: they derive from
-# `window_smooth` unless explicitly overridden.
+# Signal-processing constants. `detect_trends` is the single public entry point,
+# so this is the one place every key is defaulted before the pipeline runs.
 _SIGNAL_PARAMS_DEFAULTS = {
-    'window_smooth': 15,
-    'grouping_distance': 7,
-    'min_trend_length': 3,
-    'min_flat_noise_length': 1,
-    'threshold_noise': 2.5,
-    'threshold_smooth': 0.001,
-    'threshold_flat': 0.835,
+    'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
+    'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
+    'min_trend_length': 3,      # Minimum length, in points, for an Up/Down segment to be retained.
+    'min_flat_noise_length': 1, # Minimum length, in points, for a Flat/Noise segment to be retained.
+    'threshold_noise': 2.5,     # SNR threshold (dB) below which a region is classified as noise.
+    'threshold_smooth': 0.001,  # Derivative threshold as a fraction of the signal IQR, below which motion counts as flat.
+    'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
 }
 
 
