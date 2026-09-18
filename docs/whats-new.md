@@ -26,7 +26,7 @@ v2.0.0 has major changes both in terms of features and user-facing API, grouped 
 - **Enhanced Capability** — detection accepts any index type with an optional `date_col`; gradual trends gain `gradual_padding`; a new `mltp_change` multiplier view sits alongside `pct_change`.
 - **Customisation** — `plot_params` restyles every visual aspect of the detection plot.
 - **Bug fixes** — false flat detection on long ramps fixed; over-applied abrupt padding fixed.
-- **Refactoring** — redundant `change` column removed in favour of `total_change`.
+- **Refactoring** — redundant `change` column removed in favour of `total_change`; the `days` column renamed to `steps`.
 
 ### Enhanced Capability
 
@@ -37,7 +37,7 @@ v2.0.0 has major changes both in terms of features and user-facing API, grouped 
     integers, floats, or date-like strings (including weekly and other irregular spacing).
     Detection runs on an internal contiguous integer index and every segment boundary is remapped
     back to your external index, so `results.df`, `.print_summary()`, and plots all speak in
-    your units — the `days` column reports "index steps" for non-date indexes.
+    your units — segment lengths are reported as `steps` (positional index steps), which is accurate for any index granularity.
     Introduced: [#205](https://github.com/RussellSB/pytrendy/pull/205)
     Credits: [@ChrisMarsden833](https://github.com/ChrisMarsden833) (weekly-data feature), [@RussellSB](https://github.com/RussellSB) (full integration with code coverage, refactoring and bug fixes)
 
@@ -248,6 +248,15 @@ v2.0.0 has major changes both in terms of features and user-facing API, grouped 
     Reading `results.df["change"]` now raises a `KeyError` — use `total_change`, which holds
     the identical value. Segment dictionaries and `.df_summary` are unaffected.
     Introduced: [#294](https://github.com/RussellSB/pytrendy/pull/294)
+
+??? note "Renamed the `days` column to `steps` (breaking)"
+    `results.df`, `results.df_summary`, and segment dictionaries no longer contain a `days`
+    column. It has been renamed to `steps`, because the value is `end − start` on the internal
+    contiguous integer index — a count of positional index steps rather than calendar days.
+    The name is now accurate for any index granularity, so the `days` / `"index steps"`
+    relabelling in `.df_summary` is gone. Reading `results.df["days"]` now raises a `KeyError`
+    — use `steps`, which holds the identical value.
+    Introduced: [#312](https://github.com/RussellSB/pytrendy/pull/312)
 
 ??? note "Test coverage hardened alongside the index rework"
     Support work for the index rework carried a parallel test effort under the hood:
