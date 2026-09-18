@@ -1601,7 +1601,7 @@ helping to validate the significance of each detected segment.</p>
 <p>Percent change (based on start/end values)</p>
 </li>
 <li>
-<p>Duration in days</p>
+<p>Duration in index steps</p>
 </li>
 <li>
 <p>Cumulative total change (sum of diffs)</p>
@@ -1652,7 +1652,7 @@ helping to validate the significance of each detected segment.</p>
 )          –
           <div class="doc-md-description">
             <p>A list of enhanced segment dictionaries with additional keys:
-- <code>'total_change'</code>, <code>'pct_change'</code>, <code>'mltp_change'</code>, <code>'days'</code>, <code>'SNR'</code>, <code>'change_rank'</code></p>
+- <code>'total_change'</code>, <code>'pct_change'</code>, <code>'mltp_change'</code>, <code>'steps'</code>, <code>'SNR'</code>, <code>'change_rank'</code></p>
           </div>
         </li>
     </ul>
@@ -1749,7 +1749,7 @@ helping to validate the significance of each detected segment.</p>
 
 <span class="sd">    - Percent change (based on start/end values)</span>
 
-<span class="sd">    - Duration in days</span>
+<span class="sd">    - Duration in index steps</span>
 
 <span class="sd">    - Cumulative total change (sum of diffs)</span>
 
@@ -1770,7 +1770,7 @@ helping to validate the significance of each detected segment.</p>
 <span class="sd">    Returns:</span>
 <span class="sd">        list: </span>
 <span class="sd">            A list of enhanced segment dictionaries with additional keys:</span>
-<span class="sd">            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'days'`, `'SNR'`, `'change_rank'`</span>
+<span class="sd">            - `'total_change'`, `'pct_change'`, `'mltp_change'`, `'steps'`, `'SNR'`, `'change_rank'`</span>
 <span class="sd">    """</span>
     <span class="n">segments_enhanced</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">segment</span> <span class="ow">in</span> <span class="n">segments</span><span class="p">:</span>
@@ -1783,11 +1783,11 @@ helping to validate the significance of each detected segment.</p>
         <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">'pct_change'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_end</span> <span class="o">/</span> <span class="n">val_start</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">val_start</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
         <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">'mltp_change'</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">val_end</span> <span class="o">/</span> <span class="n">val_start</span><span class="p">)</span> <span class="k">if</span> <span class="n">val_start</span> <span class="o">!=</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
 
-        <span class="c1"># Calculate days &amp; cumulative total change</span>
-        <span class="n">days</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">days</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
-            <span class="n">days</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># edge case for 1 day flat between noise spike &amp; trend</span>
-        <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">'days'</span><span class="p">]</span> <span class="o">=</span> <span class="n">days</span> <span class="c1"># set days</span>
+        <span class="c1"># Calculate steps &amp; cumulative total change</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span> <span class="o">-</span> <span class="n">segment</span><span class="p">[</span><span class="s1">'start'</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">steps</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span> 
+            <span class="n">steps</span> <span class="o">=</span> <span class="mi">1</span> <span class="c1"># edge case for 1 step flat between noise spike &amp; trend</span>
+        <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">'steps'</span><span class="p">]</span> <span class="o">=</span> <span class="n">steps</span> <span class="c1"># set steps</span>
 
         <span class="c1"># Calculate cumulative total change</span>
         <span class="n">segment_enhanced</span><span class="p">[</span><span class="s1">'total_change'</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">diff</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
