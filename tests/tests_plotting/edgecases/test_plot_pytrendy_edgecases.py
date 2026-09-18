@@ -610,7 +610,7 @@ class TestAdjacentToGuards:
 
         On a non-unique index ``index.get_loc(value)`` returns a slice rather
         than an int, which the guard treats as "no well-defined adjacent point".
-        Duplicate dates are not validated upstream (``prepare_index`` never
+        Duplicate dates are not validated upstream (``prep_index`` never
         checks uniqueness), so a duplicated boundary is this guard's real
         trigger.
         """

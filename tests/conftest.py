@@ -8,14 +8,14 @@ across multiple test files.
 import pandas as pd
 import numpy as np
 
-from pytrendy.io import prepare_index
+from pytrendy.io import prep_index
 
 
 def build_internal_index(df: pd.DataFrame, date_col: str) -> tuple:
     """
     Build the internal index framework for unwrapped-pipeline tests.
 
-    Uses the production ``prepare_index.build_index_lookup`` helper so tests that
+    Uses the production ``prep_index.build_index_lookup`` helper so tests that
     bypass the main entry point stay in sync with the detection logic in a single place.
 
     Args:
@@ -30,7 +30,7 @@ def build_internal_index(df: pd.DataFrame, date_col: str) -> tuple:
     """
     external_index = pd.to_datetime(df[date_col])
     internal_index = np.arange(len(df))
-    index_lookup = prepare_index.build_index_lookup(external_index)
+    index_lookup = prep_index.build_index_lookup(external_index)
     return external_index, internal_index, index_lookup
 
 

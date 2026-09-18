@@ -8,7 +8,7 @@ from .post_processing.segments_refine import refine_segments
 from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
-from .io import prepare_index
+from .io import prep_index
 
 
 # Signal-processing constants. `detect_trends` is the single public entry point,
@@ -121,7 +121,7 @@ def detect_trends(df: pd.DataFrame,
             Use this object to access segment statistics, rankings, and export utilities.
     """
     # Reject the deprecated positional order detect_trends(df, date_col, value_col).
-    if date_col is not None and prepare_index.is_legacy_positional_order(df, value_col, date_col):
+    if date_col is not None and prep_index.is_legacy_positional_order(df, value_col, date_col):
         raise TypeError(
             "detect_trends received arguments in the deprecated (date_col, value_col) order. "
             "Pass value_col first: detect_trends(df, value_col, date_col=...)."
@@ -129,7 +129,7 @@ def detect_trends(df: pd.DataFrame,
 
     # Stage the DataFrame on an internal integer index, keeping the external index
     # values and a lookup so boundaries can be remapped back later.
-    df, external_index, index_lookup, index_type = prepare_index.prepare_index(df, date_col, value_col)
+    df, external_index, index_lookup, index_type = prep_index.prep_index(df, date_col, value_col)
 
     if method_params is None:
         method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
@@ -161,11 +161,11 @@ def detect_trends(df: pd.DataFrame,
     segments = analyse_segments(df, value_col, segments)
 
     # Translate internal segment boundaries back to the user's external index values.
-    segments = prepare_index.remap_boundaries(segments, index_lookup)
+    segments = prep_index.remap_boundaries(segments, index_lookup)
 
     if plot:
         # Restore the external index for plotting before rendering the segments.
-        plot_df = prepare_index.prepare_plot_frame(df, date_col, external_index, index_type)
+        plot_df = prep_index.prepare_plot_frame(df, date_col, external_index, index_type)
         plot_pytrendy(df=plot_df, value_col=value_col, segments_enhanced=segments, index_type=index_type, plot_params=plot_params)
 
     results = PyTrendyResults(segments=segments, index_type=index_type)

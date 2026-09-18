@@ -10,7 +10,7 @@ the deliberate decision to accept unknown keys without validation.
 import pytrendy as pt
 
 from pytrendy.detect_trends import _resolve_signal_params
-from pytrendy.io import prepare_index
+from pytrendy.io import prep_index
 from pytrendy.process_signals import process_signals
 
 
@@ -49,7 +49,7 @@ class TestSignalParams:
     def test_grouping_distance_override_honoured_on_noise_path(self):
         """grouping_distance controls the noise-segment grouping in process_signals."""
         df = pt.load_data('series_synthetic')
-        df_int, _, _, _ = prepare_index.prepare_index(df.copy(), 'date', 'gradual-noisy-20')
+        df_int, _, _, _ = prep_index.prep_index(df.copy(), 'date', 'gradual-noisy-20')
 
         default = process_signals(df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, _resolve_signal_params())
         overridden = process_signals(
