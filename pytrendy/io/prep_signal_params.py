@@ -11,8 +11,6 @@ explicitly overridden they derive from ``window_smooth``. Every stage downstream
 assumes :func:`prep_signal_params` returns a fully-populated dict.
 """
 
-# Signal-processing constants. `detect_trends` is the single public entry point,
-# so this is the one place every key is defaulted before the pipeline runs.
 _SIGNAL_PARAMS_DEFAULTS = {
     'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
     'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
