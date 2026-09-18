@@ -41,32 +41,50 @@ def _adjacent_to(index, value, offset):
         return None  # non-unique index: no well-defined adjacent point
     return _safe_adjacent(index, pos, offset)
 
-def _date_tick_spec(index, gap_days):
-    """Pick date-axis tick strategy from sampling cadence and total span.
+def _pinned_tick_positions(index):
+    """Pick tick positions pinned to observations, thinned past 40 points.
 
-    Daily data coarsens weekly -> biweekly -> monthly as span grows, bounding
-    major labels at ~30 regardless of length. Non-daily data stays pinned to
-    observations, thinned only once there are more than 40 points.
+    Purely positional (``index[::ceil(n/40)]``), so it is agnostic to index
+    granularity: non-daily dates (weekly, fortnightly, month-end, yearly) and
+    numerical indexes all follow the same rule. Up to the 40-point cap every
+    observation is a tick, keeping the existing pinned baselines unchanged.
+    """
+    if len(index) <= 40:
+        return index
+    step = int(np.ceil(len(index) / 40))
+    return index[::step]
+
+def _date_tick_spec(index, span_steps):
+    """Pick date-axis tick strategy from sampling cadence and span in steps.
+
+    *span_steps* is the positional span ``len(index) - 1``: index steps rather
+    than calendar days, matching the ``days`` -> ``steps`` terminology and
+    keeping the rule index-granularity-agnostic. A daily index has a median
+    calendar gap of one day, so one step spans one day and the weekly ->
+    biweekly -> monthly coarsening thresholds are stated in steps too, bounding
+    major labels at ~30 regardless of length. Non-daily indexes (one step > one
+    day: weekly, fortnightly, month-end, yearly, ...) never reach those
+    thresholds; they stay pinned to observations, thinned past 40 points.
 
     Returns ``(major_locator, minor_locator, pinned_positions)``; locators are
     None when positions are pinned, and vice versa.
     """
-    span_days = (index.max() - index.min()) / pd.Timedelta(days=1) if len(index) > 1 else 0
+    # The one calendar read left: the daily/non-daily gate. Everything else is
+    # positional, so non-daily cadences cannot fall through to the daily branch.
+    diffs = np.diff(index.values)
+    step_days = np.median(diffs) / np.timedelta64(1, 'D') if len(diffs) else 1
 
-    # ponytail: span/cap thresholds are the calibration knob; widen the span
-    # thresholds if reviewers want less coarsening at ~1 year, raise the cap for
-    # denser non-daily labels.
-    if gap_days <= 1:
-        if span_days <= 200:          # <= ~6.5 months: unchanged (all daily fixtures)
+    # ponytail: step thresholds and the 40-point cap are the calibration knob;
+    # widen the thresholds if reviewers want less coarsening at ~1 year, raise
+    # the cap for denser non-daily labels.
+    if step_days <= 1:
+        if span_steps <= 200:         # <= ~6.5 months at daily cadence: unchanged
             return mdates.WeekdayLocator(interval=1), mdates.DayLocator(), None
-        if span_days <= 400:          # <= ~13 months
+        if span_steps <= 400:         # <= ~13 months
             return mdates.WeekdayLocator(interval=2), mdates.DayLocator(), None
         return mdates.MonthLocator(), None, None
 
-    if len(index) <= 40:              # existing pinned baselines (26-39 pts) unchanged
-        return None, None, index
-    step = int(np.ceil(len(index) / 40))
-    return None, None, index[::step]
+    return None, None, _pinned_tick_positions(index)
 
 def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
@@ -320,12 +338,9 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
 
     if index_type in ('date', 'datetime64'):
         index = df.index
-        gap_days = (
-            np.median(np.diff(index.values)) / np.timedelta64(1, 'D')
-            if len(index) > 1 else 1
-        )
+        span_steps = len(index) - 1
 
-        major, minor, pinned = _date_tick_spec(index, gap_days)
+        major, minor, pinned = _date_tick_spec(index, span_steps)
         if pinned is not None:
             # Non-daily spacing: pin majors to the data's own index positions so
             # every major (and its 'major' gridline) lands exactly on an
