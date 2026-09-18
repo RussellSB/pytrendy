@@ -1571,15 +1571,9 @@
     <div class="doc doc-contents ">
 
         <p>Groups consecutive segments with the same direction if their gap is small.</p>
-<p>Segments are grouped if:</p>
-<div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>- They share the same `'direction'`
-- Their gap is ≤ `grouping_distance`
-- They are not classified as `'abrupt'`
-</code></pre></div></td></tr></table></div>
-
-<p>This reduces fragmentation caused by short, noisy segments.</p>
+<p>Segments are grouped when they share the same direction, their gap is ≤
+<code>grouping_distance</code>, and neither is classified as abrupt. This reduces
+fragmentation caused by short, noisy segments.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1681,21 +1675,13 @@
 <span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span>
-<span class="normal">75</span>
-<span class="normal">76</span>
-<span class="normal">77</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">grouping_distance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">GROUPING_DISTANCE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">73</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">group_segments</span><span class="p">(</span><span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">grouping_distance</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">GROUPING_DISTANCE</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Groups consecutive segments with the same direction if their gap is small.</span>
 
-<span class="sd">    Segments are grouped if:</span>
-
-<span class="sd">        - They share the same `'direction'`</span>
-<span class="sd">        - Their gap is ≤ `grouping_distance`</span>
-<span class="sd">        - They are not classified as `'abrupt'`</span>
-
-<span class="sd">    This reduces fragmentation caused by short, noisy segments.</span>
+<span class="sd">    Segments are grouped when they share the same direction, their gap is ≤</span>
+<span class="sd">    ``grouping_distance``, and neither is classified as abrupt. This reduces</span>
+<span class="sd">    fragmentation caused by short, noisy segments.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        segments (list): List of segment dictionaries.</span>
