@@ -23,6 +23,7 @@ from pytrendy.post_processing.segments_refine.abrupt_shaving import shave_abrupt
 from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_artifacts
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 
 
 class TestPlotPytrendyEdgeCases:
@@ -361,6 +362,53 @@ class TestPlotCustomization:
                             suppress_show=True, plot_params=plot_params)
         assert fig is not None
         plt.close(fig)
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_inverted_default_colors.png',
+                                    style='default')
+    def test_plot_inverted_default_colors(self):
+        """Issue #194: inverted-defaults palette exercises every colour format.
+
+        Up is a named colour, Down short hex, Flat full hex and Noise a
+        ``tab:*`` colour, so one figure covers all four matplotlib colour
+        formats that previously crashed the annotation colour derivation.
+        """
+        plot_df = self._date_plot_df()
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, value_col='gradual', date_col='date',
+                                   plot=False, method_params={'abrupt_padding': 0})
+
+        plot_params = {
+            'colors': {
+                'Up': 'lightcoral',    # named
+                'Down': '#9e9',        # short hex
+                'Flat': '#D8BFD8',     # full hex
+                'Noise': 'tab:blue',   # non-'light' named
+            },
+        }
+
+        fig = plot_pytrendy(plot_df, 'gradual', results.segments,
+                            index_type='date',
+                            suppress_show=True, plot_params=plot_params)
+        return fig
+
+    def test_annotation_color_formats(self):
+        """Issue #194: colour derivation preserves defaults and accepts every format."""
+        from pytrendy.io.plot_pytrendy import _annotation_color
+
+        # Default 'light*' names keep the exact legacy result (baselines unchanged)
+        assert _annotation_color('lightgreen') == 'green'
+        assert _annotation_color('lightgray') == 'gray'
+
+        # Every other valid matplotlib colour yields a valid, darker RGBA colour
+        for color in ['#ff0000', '#F00', 'red', 'tab:blue',
+                      (0.1, 0.2, 0.3), (0.1, 0.2, 0.3, 0.5)]:
+            r, g, b, a = mcolors.to_rgba(_annotation_color(color))
+            assert 0 <= r <= 1 and 0 <= g <= 1 and 0 <= b <= 1
+
+        # None defers to matplotlib's own default rather than raising
+        assert _annotation_color(None) is None
 
 
 # =============================================================================
