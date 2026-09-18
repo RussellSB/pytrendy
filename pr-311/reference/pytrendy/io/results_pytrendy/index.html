@@ -1783,8 +1783,8 @@ enhanced metrics such as rankings and signal-to-noise ratios.</p>
           –
           <div class="doc-md-description">
             <p>The type of the index used for the segments (<code>'date'</code>, <code>'datetime64'</code>,
-<code>'integer'</code>, <code>'float'</code>, or <code>'string'</code>). Used to render summaries with the
-appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>). Defaults to <code>'date'</code>.</p>
+<code>'integer'</code>, <code>'float'</code>, or <code>'string'</code>). Used to label segment boundaries
+in <code>print_summary</code> (e.g. <code>'dates'</code> vs <code>'indexes'</code>). Defaults to <code>'date'</code>.</p>
           </div>
         </li>
     </ul>
@@ -1826,8 +1826,8 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="sd">            List of dictionaries representing individual trend segments.</span>
 <span class="sd">        index_type (str):</span>
 <span class="sd">            The type of the index used for the segments (``'date'``, ``'datetime64'``,</span>
-<span class="sd">            ``'integer'``, ``'float'``, or ``'string'``). Used to render summaries with the</span>
-<span class="sd">            appropriate descriptor (e.g. ``'days'`` vs ``'index steps'``). Defaults to ``'date'``.</span>
+<span class="sd">            ``'integer'``, ``'float'``, or ``'string'``). Used to label segment boundaries</span>
+<span class="sd">            in ``print_summary`` (e.g. ``'dates'`` vs ``'indexes'``). Defaults to ``'date'``.</span>
 <span class="sd">    """</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">segments</span> <span class="o">=</span> <span class="n">segments</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">trend_segments</span> <span class="o">=</span> <span class="p">[</span><span class="n">seg</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments</span> <span class="k">if</span> <span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">seg</span><span class="p">]</span> <span class="c1"># Get segments that are trends (exclude flats and noise)</span>
@@ -1910,7 +1910,7 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
               <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#list">list</a> | <span title="pandas.DataFrame">DataFrame</span></code>
           –
           <div class="doc-md-description">
-            <p>Union[<code>list</code>, <code>pd.DataFrame</code>]: Filtered and sorted segments in the specified format.</p>
+            <p>list | pd.DataFrame: Filtered and sorted segments in the specified format.</p>
           </div>
         </li>
     </ul>
@@ -1918,7 +1918,15 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">146</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
@@ -1956,16 +1964,7 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
-<span class="normal">184</span>
-<span class="normal">185</span>
-<span class="normal">186</span>
-<span class="normal">187</span>
-<span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'Any'</span><span class="p">,</span> <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'time_index'</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'df'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="normal">184</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">filter_segments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'Any'</span><span class="p">,</span> <span class="n">sort_by</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'time_index'</span><span class="p">,</span> <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s1">'df'</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Filters and sorts segments based on direction and ranking.</span>
 
@@ -1978,8 +1977,7 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="sd">            Output format. `'df'` returns a DataFrame, `'dict'` returns a list of dictionaries.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Union[`list`, `pd.DataFrame`]: Filtered and sorted segments in the specified format.</span>
-
+<span class="sd">        list | pd.DataFrame: Filtered and sorted segments in the specified format.</span>
 <span class="sd">    """</span>
     <span class="n">segments</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">segments</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2038,7 +2036,15 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">100</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
 <span class="normal">103</span>
@@ -2058,15 +2064,7 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="normal">117</span>
 <span class="normal">118</span>
 <span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span>
-<span class="normal">123</span>
-<span class="normal">124</span>
-<span class="normal">125</span>
-<span class="normal">126</span>
-<span class="normal">127</span>
-<span class="normal">128</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">120</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">print_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Prints a readable summary of detected trends.</span>
 
@@ -2114,13 +2112,10 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 
     <div class="doc doc-contents ">
 
-        <p>Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.</p>
-<div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>- `results.best` returns best based on `total_change` (cumulative sum of differences). 
-- Identifies the best trend segment based on steepness and duration.
-- The segment with the lowest `change_rank` is selected as the best.
-</code></pre></div></td></tr></table></div>
+        <p>Selects the best trend segment by lowest <code>change_rank</code>.</p>
+<p>Sets <code>self.best</code> to the trend segment with the lowest <code>change_rank</code> (derived from
+each segment's cumulative <code>total_change</code>). Sets <code>self.best</code> to <code>None</code> when no
+trend segments exist.</p>
 
 
             <details class="mkdocstrings-source">
@@ -2138,11 +2133,11 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="normal">48</span>
 <span class="normal">49</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_best</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Identifies the best trend segment based on its total cumulative change, selecting the one with the lowest change rank.</span>
+<span class="sd">    Selects the best trend segment by lowest ``change_rank``.</span>
 
-<span class="sd">        - `results.best` returns best based on `total_change` (cumulative sum of differences). </span>
-<span class="sd">        - Identifies the best trend segment based on steepness and duration.</span>
-<span class="sd">        - The segment with the lowest `change_rank` is selected as the best.</span>
+<span class="sd">    Sets ``self.best`` to the trend segment with the lowest ``change_rank`` (derived from</span>
+<span class="sd">    each segment's cumulative ``total_change``). Sets ``self.best`` to ``None`` when no</span>
+<span class="sd">    trend segments exist.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trend_segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">best</span> <span class="o">=</span> <span class="kc">None</span>
@@ -2167,38 +2162,45 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 
     <div class="doc doc-contents ">
 
-        <p>Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.</p>
-<div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span>
-<span class="normal">3</span></pre></div></td><td class="code"><div><pre><span></span><code>- Converts the segment list into a pandas `DataFrame`.
-- Useful for downstream analysis and export.
-- Alternative data representation to segments. In `dataframe` rather than `dict`
-</code></pre></div></td></tr></table></div>
+        <p>Converts the segment list into a pandas <code>DataFrame</code> for downstream analysis and export.</p>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+              <code><span title="pandas.DataFrame">DataFrame</span> | None</code>
+          –
+          <div class="doc-md-description">
+            <p>pd.DataFrame | None: An empty <code>DataFrame</code> when there are no segments; otherwise
+<code>None</code>, with <code>self.df</code> set as a side effect.</p>
+          </div>
+        </li>
+    </ul>
 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/results_pytrendy.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">122</span>
+<span class="normal">123</span>
+<span class="normal">124</span>
+<span class="normal">125</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span>
 <span class="normal">131</span>
 <span class="normal">132</span>
 <span class="normal">133</span>
 <span class="normal">134</span>
 <span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">136</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_df</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Converts a list of trend segments into a pandas DataFrame for easier downstream analysis and data representation.</span>
+<span class="sd">    Converts the segment list into a pandas ``DataFrame`` for downstream analysis and export.</span>
 
-<span class="sd">        - Converts the segment list into a pandas `DataFrame`.</span>
-<span class="sd">        - Useful for downstream analysis and export.</span>
-<span class="sd">        - Alternative data representation to segments. In `dataframe` rather than `dict`</span>
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame | None: An empty ``DataFrame`` when there are no segments; otherwise</span>
+<span class="sd">            ``None``, with ``self.df`` set as a side effect.</span>
 <span class="sd">    """</span>
     <span class="c1"># Exit if nothing to report on</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
@@ -2226,11 +2228,10 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 
     <div class="doc doc-contents ">
 
-        <p>Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.</p>
-<div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span class="normal">1</span>
-<span class="normal">2</span></pre></div></td><td class="code"><div><pre><span></span><code>- Computes summary statistics and stores a compact `DataFrame` of segments.
-- Includes counts by direction and trend class, highest total change, and a tabular view.
-</code></pre></div></td></tr></table></div>
+        <p>Computes and stores summary statistics for trend segments.</p>
+<p>Sets <code>self.summary</code> to counts by direction and trend class, plus the highest total
+change. Sets <code>self.df_summary</code> to a tabular overview of the segments, indexed by
+<code>time_index</code>.</p>
 
 
             <details class="mkdocstrings-source">
@@ -2274,20 +2275,13 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
 <span class="normal">87</span>
 <span class="normal">88</span>
 <span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span>
-<span class="normal">98</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">set_summary</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Computes and stores summary statistics for trend segments, including a tabular overview and counts by direction.</span>
+<span class="sd">    Computes and stores summary statistics for trend segments.</span>
 
-<span class="sd">        - Computes summary statistics and stores a compact `DataFrame` of segments.</span>
-<span class="sd">        - Includes counts by direction and trend class, highest total change, and a tabular view.</span>
+<span class="sd">    Sets ``self.summary`` to counts by direction and trend class, plus the highest total</span>
+<span class="sd">    change. Sets ``self.df_summary`` to a tabular overview of the segments, indexed by</span>
+<span class="sd">    ``time_index``.</span>
 <span class="sd">    """</span>
     <span class="n">summary</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -2311,16 +2305,7 @@ appropriate descriptor (e.g. <code>'days'</code> vs <code>'index steps'</code>).
     <span class="c1"># Set summary df (without extra details)</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">segments</span><span class="p">)</span>
 
-    <span class="n">unit_descriptor</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'date'</span><span class="p">:</span> <span class="s1">'days'</span><span class="p">,</span>
-        <span class="s1">'integer'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
-        <span class="s1">'float'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
-        <span class="s1">'string'</span><span class="p">:</span> <span class="s1">'index steps'</span><span class="p">,</span>
-    <span class="p">}</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">index_type</span><span class="p">,</span> <span class="s1">'days'</span><span class="p">)</span>
-
-    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s1">'days'</span> <span class="p">:</span> <span class="n">unit_descriptor</span><span class="p">},</span> <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'time_index'</span><span class="p">,</span> <span class="s1">'direction'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">,</span> <span class="n">unit_descriptor</span><span class="p">,</span> <span class="s1">'total_change'</span><span class="p">,</span> <span class="s1">'change_rank'</span><span class="p">]</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'time_index'</span><span class="p">,</span> <span class="s1">'direction'</span><span class="p">,</span> <span class="s1">'start'</span><span class="p">,</span> <span class="s1">'end'</span><span class="p">,</span> <span class="s1">'steps'</span><span class="p">,</span> <span class="s1">'total_change'</span><span class="p">,</span> <span class="s1">'change_rank'</span><span class="p">]</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">changes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1">#  only include trend_class if atleast one trend exists</span>
         <span class="n">cols</span> <span class="o">+=</span> <span class="p">[</span><span class="s1">'trend_class'</span><span class="p">]</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span>
