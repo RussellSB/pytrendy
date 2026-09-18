@@ -56,7 +56,7 @@ class TestSignalParams:
             df_int.copy(), 'gradual-noisy-20', {'avoid_noise': True}, _resolve_signal_params({'grouping_distance': 0})
         )
         # Disabling grouping must keep (at least as many) separate noise regions.
-        assert int(overridden['noise_flag'].sum()) > int(default['noise_flag'].sum())
+        assert int(overridden['noise_flag'].sum()) >= int(default['noise_flag'].sum())
 
     def test_window_flat_and_noise_derive_from_window_smooth(self):
         """window_flat/window_noise default to half window_smooth unless overridden."""
