@@ -1014,8 +1014,11 @@ class TestTickGranularityMatrix:
     """One mpl baseline per datetime granularity: the x-axis adapts to cadence.
 
     Frames are deterministic tiles of the packaged ``series_synthetic`` gradual
-    column, resampled to each cadence, with ``segments_enhanced=[]`` so each
-    baseline isolates the tick strategy (segment shading is covered elsewhere).
+    column, resampled to each cadence. Shading is real ``detect_trends`` output
+    (not a hand-drawn band), so these baselines also record detection quality at
+    each cadence. Expect churn on the weekly/fortnightly/monthly shapes once the
+    spacing-aware detection work (#309 / #303) lands: at fortnightly and monthly
+    spacing the sample-count windows currently collapse the signal to Flat/Noise.
     """
 
     @staticmethod
@@ -1035,11 +1038,13 @@ class TestTickGranularityMatrix:
         return daily if freq is None else daily.resample(freq).last()
 
     @staticmethod
-    def _axis(series):
-        """Plot *series* with no segments; return the measured axis properties."""
+    def _axis(series, title):
+        """Detect trends on *series*, plot them, and return the axis properties."""
         series = series[~series.index.duplicated(keep='first')]
         plot_df = pd.DataFrame({'value': series.values}, index=series.index)
-        fig = plot_pytrendy(plot_df, 'value', [], index_type='date', suppress_show=True)
+        results = pt.detect_trends(plot_df, value_col='value', plot=False)
+        fig = plot_pytrendy(plot_df, 'value', results.segments, index_type='date',
+                            suppress_show=True, plot_params={'title': title})
         ax = fig.axes[0]
         return (fig, ax.xaxis.get_major_locator(), ax.xaxis.get_minor_locator(),
                 len(ax.get_xticks()), len(ax.xaxis.get_minorticklocs()),
@@ -1055,7 +1060,7 @@ class TestTickGranularityMatrix:
         A 365-day span crosses the 200-day weekly-major threshold, so the weekday
         interval is 2; the daily minor ruler stays and the formatter is date-only.
         """
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366), 'one_year_daily_ticks')
         assert isinstance(major, mdates.WeekdayLocator)
         assert major._get_interval() == 2
         assert 20 <= n_major <= 30
@@ -1070,7 +1075,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_one_year_weekly_ticks(self):
         """~1 year weekly: snapped month majors, weekly positional minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366, 'W'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366, 'W'), 'one_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
         assert 10 <= n_major <= 16
         assert isinstance(minor, FixedLocator)
@@ -1084,7 +1089,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_three_year_weekly_ticks(self):
         """~3 years weekly: snapped month majors (~36), weekly positional minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'W'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'W'), 'three_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
         assert 30 <= n_major <= 40
         assert isinstance(minor, FixedLocator)
@@ -1098,7 +1103,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_ten_year_weekly_ticks(self):
         """~10 years weekly: coarser scaled month majors with weekly minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'W'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'W'), 'ten_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
         assert 25 <= n_major <= 40
         assert isinstance(minor, FixedLocator)
@@ -1112,7 +1117,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_thirty_year_weekly_ticks(self):
         """~30 years weekly: majors stay <=~40 labels, minors thin under the cap."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(30 * 366, 'W'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(30 * 366, 'W'), 'thirty_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
         assert n_major <= 40
         assert 30 <= n_major <= 40
@@ -1128,7 +1133,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_three_year_monthly_ticks(self):
         """~3 years monthly: every-other-month snapped majors, monthly minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'ME'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'ME'), 'three_year_monthly_ticks')
         assert isinstance(major, FixedLocator)
         assert 15 <= n_major <= 22
         assert isinstance(minor, FixedLocator)
@@ -1142,7 +1147,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_ten_year_monthly_ticks(self):
         """~10 years monthly: snapped year majors with monthly minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'ME'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'ME'), 'ten_year_monthly_ticks')
         assert isinstance(major, FixedLocator)
         assert 8 <= n_major <= 14
         assert isinstance(minor, FixedLocator)
@@ -1156,7 +1161,7 @@ class TestTickGranularityMatrix:
                                     style='default')
     def test_fifty_year_yearly_ticks(self):
         """~50 years yearly: year majors scanned to <=~40 labels, yearly minors."""
-        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(50 * 366, 'YS'))
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(50 * 366, 'YS'), 'fifty_year_yearly_ticks')
         assert isinstance(major, FixedLocator)
         assert n_major <= 40
         assert 20 <= n_major <= 40
