@@ -68,12 +68,14 @@ def _adjacent_to(index, value, offset):
         return None  # non-unique index: no well-defined adjacent point
     return _safe_adjacent(index, pos, offset)
 
-# Tick-density calibration knobs: major coarsening thresholds (in steps/days)
-# and the caps that keep label and minor-tick counts sane. Widen the thresholds
-# if reviewers want less coarsening at ~1 year; raise the caps for denser labels.
+# Tick-density calibration knobs. The two caps keep label and minor-tick counts
+# sane: _MAX_PINNED_TICKS for pinned non-daily majors, _MAX_MINOR_TICKS for the
+# granularity ruler. The span thresholds (calendar days) widen the major unit at
+# ~half a year and ~a year. Widen the thresholds for less coarsening at ~1 year;
+# raise the caps for denser labels.
 _MAX_PINNED_TICKS = 40
-_DAILY_WEEKLY_MAX_STEPS = 200
-_DAILY_BIWEEKLY_MAX_STEPS = 400
+_WEEKLY_MAX_SPAN_DAYS = 200
+_BIWEEKLY_MAX_SPAN_DAYS = 400
 _MAX_MINOR_TICKS = 900
 
 
@@ -88,8 +90,8 @@ def _pinned_tick_positions(index):
     """
     if len(index) <= _MAX_PINNED_TICKS:
         return index
-    step = int(np.ceil(len(index) / _MAX_PINNED_TICKS))
-    return index[::step]
+    take_every = int(np.ceil(len(index) / _MAX_PINNED_TICKS))
+    return index[::take_every]
 
 def _sampling_locator(interval_days):
     """Locator marking every *interval_days*, or None when unexpressible.
@@ -161,9 +163,9 @@ def _intraday_major_locator(step_days, span_days):
         return mdates.HourLocator(interval=6) if _divides(step_days, 6 / 24) else None
     if span_days <= 7:
         return mdates.DayLocator() if _divides(step_days, 1) else None
-    if span_days <= _DAILY_WEEKLY_MAX_STEPS:
+    if span_days <= _WEEKLY_MAX_SPAN_DAYS:
         return mdates.WeekdayLocator(interval=1) if _divides(step_days, 1) else None
-    if span_days <= _DAILY_BIWEEKLY_MAX_STEPS:
+    if span_days <= _BIWEEKLY_MAX_SPAN_DAYS:
         return mdates.WeekdayLocator(interval=2) if _divides(step_days, 1) else None
     return mdates.MonthLocator() if _divides(step_days, 1) else None
 
@@ -200,30 +202,31 @@ def _date_tick_spec(index, span_steps):
     Returns ``(major_locator, minor_locator, pinned_positions, date_format)``;
     locators are None when positions are pinned, and vice versa.
     """
-    # The one calendar read left: the cadence gate. Everything else is
-    # positional, so non-daily cadences cannot fall through to the daily branch.
+    # The one calendar read: the series' sampling cadence in days, taken as the
+    # median calendar gap between observations. Median (not mean) so DST shifts
+    # and occasional gaps don't skew it.
     diffs = np.diff(index.values)
-    step_days = np.median(diffs) / np.timedelta64(1, 'D') if len(diffs) else 1
+    median_step_days = np.median(diffs) / np.timedelta64(1, 'D') if len(diffs) else 1
+    span_days = span_steps * median_step_days
 
-    # ponytail: step thresholds and the 40-point cap are the calibration knob;
-    # widen the thresholds if reviewers want less coarsening at ~1 year, raise
-    # the cap for denser non-daily labels.
-    if step_days > 1:
+    # ponytail: the span thresholds and the 40-point cap are the calibration
+    # knob; widen the thresholds for less coarsening at ~1 year, raise the cap
+    # for denser non-daily labels.
+    if median_step_days > 1:
         return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
 
-    if np.isclose(step_days, 1):
-        if span_steps <= _DAILY_WEEKLY_MAX_STEPS:
+    if np.isclose(median_step_days, 1):
+        if span_days <= _WEEKLY_MAX_SPAN_DAYS:
             return mdates.WeekdayLocator(interval=1), mdates.DayLocator(), None, '%Y-%m-%d'
-        if span_steps <= _DAILY_BIWEEKLY_MAX_STEPS:
+        if span_days <= _BIWEEKLY_MAX_SPAN_DAYS:
             return mdates.WeekdayLocator(interval=2), mdates.DayLocator(), None, '%Y-%m-%d'
         # Beyond ~13 months: month majors, still with the daily minor ruler.
-        return mdates.MonthLocator(), _minor_locator(step_days, span_steps), None, '%Y-%m-%d'
+        return mdates.MonthLocator(), _minor_locator(median_step_days, span_steps), None, '%Y-%m-%d'
 
-    span_days = span_steps * step_days
-    major = _intraday_major_locator(step_days, span_days)
+    major = _intraday_major_locator(median_step_days, span_days)
     if major is None:
         return None, None, _pinned_tick_positions(index), _intraday_format(span_days)
-    return major, _minor_locator(step_days, span_steps), None, _intraday_format(span_days)
+    return major, _minor_locator(median_step_days, span_steps), None, _intraday_format(span_days)
 
 def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
