@@ -347,16 +347,6 @@ class TestPlotPytrendyEdgeCases:
         assert major is None and len(pinned) == 25
         assert len(minor) == len(yearly)
 
-    def test_non_daily_falls_back_to_pinned_without_a_calendar_unit(self, monkeypatch):
-        """The positional fallback is retained for when no calendar unit fits."""
-        monkeypatch.setattr('pytrendy.io.plot_pytrendy._calendar_major_locator',
-                            lambda *args, **kwargs: None)
-        monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
-        major, _, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
-        assert major is None and pinned is not None
-        ticks, _ = self._pinned_ticks(monthly, 'datetime64')
-        assert ticks == list(monthly)
-
     def test_integer_index_thins_past_40(self):
         """The positional pin/thin rule is agnostic to index granularity.
 

@@ -230,31 +230,19 @@ def _format_for(major_locator):
     return '%Y-%m-%d'
 
 
-def _calendar_major_locator(step_days, span_days):
-    """Calendar-unit majors for multi-day cadences, scaled to the label cap.
+def _calendar_major_positions(index, step_days, span_days):
+    """Calendar-unit majors, snapped to the first available observation.
 
     Majors step up from the cadence to a calendar unit: weekly-ish cadences
     (< 15 days) read month by month; monthly-or-coarser cadences use year majors
     once the span reaches ~3 years (shorter monthly series stay month-based);
     yearly cadences always use year majors. The interval scales so the label
-    count stays near ``_MAX_PINNED_TICKS``.
+    count stays near ``_MAX_PINNED_TICKS``, and each period's tick lands on the
+    first observed point in it.
     """
-    use_years, interval = _calendar_major_scale(step_days, span_days)
-    if use_years:
-        return mdates.YearLocator(base=interval)
-    return mdates.MonthLocator(interval=interval)
-
-
-def _calendar_major_scale(step_days, span_days):
-    """Return the calendar unit and interval for a multi-day major ruler."""
     use_years = step_days >= 200 or (step_days >= 15 and span_days >= _YEAR_MAJOR_MIN_SPAN_DAYS)
     units = span_days / (365.25 if use_years else 30.44)
-    return use_years, max(1, int(np.ceil(units / _MAX_PINNED_TICKS)))
-
-
-def _calendar_major_positions(index, step_days, span_days):
-    """Snap calendar-period majors to the first available observation."""
-    use_years, interval = _calendar_major_scale(step_days, span_days)
+    interval = max(1, int(np.ceil(units / _MAX_PINNED_TICKS)))
     periods = index.to_period('Y' if use_years else 'M')
     starts = np.r_[True, periods[1:] != periods[:-1]]
     return index[np.flatnonzero(starts)[::interval]]
@@ -272,8 +260,7 @@ def _date_tick_spec(index, span_steps):
       reaches ~3 years (yearly cadences always) -- scaled to keep labels near
       ``_MAX_PINNED_TICKS`` and snapped to the first available observation in
       each period. Minors are the data's own granularity as positional ticks at
-      the observations, thinned to ``_MAX_MINOR_TICKS``. Positional pinning is
-      the fallback when no calendar unit fits.
+      the observations, thinned to ``_MAX_MINOR_TICKS``.
     * Daily (gap of one day): the original span-in-steps ladder -- weekly ->
       biweekly -> month majors, with a daily minor ruler.
     * Sub-daily: minors follow the true sampling granularity (30-minute bars ->
@@ -301,9 +288,6 @@ def _date_tick_spec(index, span_steps):
     span_days = span_steps * median_step_days
 
     if median_step_days > 1:
-        major = _calendar_major_locator(median_step_days, span_days)
-        if major is None:
-            return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
         pinned = _calendar_major_positions(index, median_step_days, span_days)
         return None, _thinned_positions(index, _MAX_MINOR_TICKS), pinned, '%Y-%m-%d'
 
