@@ -22,8 +22,8 @@ _BIWEEKLY_MAX_SPAN_DAYS = 400
 # ceiling is MAXTICKS (1000). Lower = sparser ruler, higher = denser.
 _MAX_MINOR_TICKS = 900
 # _YEAR_MAJOR_MIN_SPAN_DAYS: monthly-or-coarser cadences switch from month to
-# year majors once the span reaches ~3 years. Lower = earlier switch.
-_YEAR_MAJOR_MIN_SPAN_DAYS = 1000
+# year majors once the span reaches ~4 years. Lower = earlier switch.
+_YEAR_MAJOR_MIN_SPAN_DAYS = 1460
 # Explicit observation ticks need more length at the standard wide, short figure
 # size; keep majors visibly dominant without touching locator-based rulers.
 _MULTI_DAY_MAJOR_TICK_LENGTH = 6
@@ -235,7 +235,7 @@ def _calendar_major_positions(index, step_days, span_days):
 
     Majors step up from the cadence to a calendar unit: weekly-ish cadences
     (< 15 days) read month by month; monthly-or-coarser cadences use year majors
-    once the span reaches ~3 years (shorter monthly series stay month-based);
+    once the span reaches ~4 years (shorter monthly series stay month-based);
     yearly cadences always use year majors. The interval scales so the label
     count stays near ``_MAX_PINNED_TICKS``, and each period's tick lands on the
     first observed point in it.
@@ -243,6 +243,8 @@ def _calendar_major_positions(index, step_days, span_days):
     use_years = step_days >= 200 or (step_days >= 15 and span_days >= _YEAR_MAJOR_MIN_SPAN_DAYS)
     units = span_days / (365.25 if use_years else 30.44)
     interval = max(1, int(np.ceil(units / _MAX_PINNED_TICKS)))
+    if not use_years and step_days >= 15:
+        interval = max(2, interval)
     periods = index.to_period('Y' if use_years else 'M')
     starts = np.r_[True, periods[1:] != periods[:-1]]
     return index[np.flatnonzero(starts)[::interval]]
@@ -257,7 +259,7 @@ def _date_tick_spec(index, span_steps):
     * Non-daily (gap > 1 day: weekly, fortnightly, month-end, yearly, ...):
       majors step up to a calendar unit -- month periods for weekly-ish
       cadences, year periods for monthly-or-coarser cadences once the span
-      reaches ~3 years (yearly cadences always) -- scaled to keep labels near
+      reaches ~4 years (yearly cadences always) -- scaled to keep labels near
       ``_MAX_PINNED_TICKS`` and snapped to the first available observation in
       each period. Minors are the data's own granularity as positional ticks at
       the observations, thinned to ``_MAX_MINOR_TICKS``.

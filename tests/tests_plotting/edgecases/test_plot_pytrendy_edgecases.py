@@ -299,14 +299,28 @@ class TestPlotPytrendyEdgeCases:
     def test_two_year_monthly_gets_month_majors_and_minors(self):
         """A ~2-year monthly series keeps month majors with monthly minors.
 
-        Below the ~3-year switch, monthly spacing stays on ``MonthLocator(1)``
-        and the 24 month-ends become the positional minor ruler.
+        Below the ~4-year switch, monthly spacing labels every other month and
+        the 24 month-ends remain the positional minor ruler.
         """
         monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
         _, locator = self._pinned_ticks(monthly, 'datetime64')
         assert isinstance(locator, FixedLocator)
         _, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
-        assert len(pinned) == len(monthly) and len(minor) == len(monthly)
+        assert len(pinned) == len(monthly) // 2 and len(minor) == len(monthly)
+
+    def test_three_year_monthly_labels_every_other_month(self):
+        """A ~3-year monthly series has two-month majors and monthly minors."""
+        monthly = pd.date_range('2020-01-31', periods=36, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and len(pinned) == 18
+        assert len(minor) == len(monthly)
+
+    def test_four_year_monthly_stays_two_monthly_at_boundary(self):
+        """A 48-point monthly span remains below the four-year threshold."""
+        monthly = pd.date_range('2020-01-31', periods=48, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and len(pinned) == 24
+        assert len(minor) == len(monthly)
 
     def test_five_year_monthly_gets_year_majors_and_minors(self):
         """A ~5-year monthly series steps up to year majors with monthly minors."""
