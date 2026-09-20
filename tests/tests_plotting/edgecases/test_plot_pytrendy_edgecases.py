@@ -13,7 +13,9 @@ from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
 from pytrendy.io import prep_signal_params
-from pytrendy.io.plot_pytrendy import plot_pytrendy, _pinned_tick_positions
+from pytrendy.io.plot_pytrendy import (plot_pytrendy, _pinned_tick_positions,
+                                       _date_tick_spec, _sampling_locator,
+                                       _minor_locator, _intraday_format)
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
 from pytrendy.post_processing.segments_analyse import analyse_segments
@@ -235,12 +237,13 @@ class TestPlotPytrendyEdgeCases:
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_two_year_daily_tick_thinning.png', style='default')
     def test_plot_two_year_daily_tick_thinning(self):
-        """A ~2-year daily series coarsens majors to months and drops daily minors.
+        """A ~2-year daily series coarsens majors to months, keeping daily minors.
 
         Weekly majors (and a daily minor ruler) previously produced a wall of
         ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density,
-        keyed on ``span_steps`` (730 index steps here), keeps ~24 month majors
-        and no minors without changing any shorter baseline.
+        keyed on ``span_steps`` (730 index steps here), keeps ~24 month majors;
+        the daily minor ruler stays, now expressing the data's own daily
+        granularity (option B) instead of being dropped.
         """
         two_years = self._long_daily_series(731)  # ~2 years daily
         results = pt.detect_trends(two_years, date_col='date', value_col='gradual', plot=False)
@@ -248,7 +251,7 @@ class TestPlotPytrendyEdgeCases:
 
         ax = fig.axes[0]
         assert len(ax.get_xticks()) <= 30
-        assert len(ax.xaxis.get_minorticklocs()) == 0
+        assert len(ax.xaxis.get_minorticklocs()) > 0
         return fig
 
     def test_daily_short_span_keeps_weekly_majors(self):
@@ -830,3 +833,138 @@ class TestAdjacentToGuards:
                             index_type='date', suppress_show=True)
         assert fig is not None
         plt.close(fig)
+
+
+
+# =============================================================================
+# plot_pytrendy: intraday tick granularity (cadence-anchored minors)
+# =============================================================================
+
+class TestIntradayTickGranularity:
+    """Sub-daily cadences get true-granularity minors and span-widened majors.
+
+    Minors mark the data's own sampling gap (30-minute bars -> every 30 minutes,
+    hourly -> every hour), thinned under matplotlib's tick limit; majors widen
+    with the span in calendar days and pick a time-bearing label format.
+    """
+
+    @staticmethod
+    def _intraday_plot_df(periods, freq):
+        """Deterministic sub-daily frame with the given cadence."""
+        index = pd.date_range('2026-01-01', periods=periods, freq=freq)
+        values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
+        return pd.DataFrame({'value': values}, index=index)
+
+    def _plot(self, periods, freq):
+        """Plot one frame with a single mid-span Up segment; return (fig, index)."""
+        plot_df = self._intraday_plot_df(periods, freq)
+        n = len(plot_df)
+        segments = [{'start': plot_df.index[n // 4], 'end': plot_df.index[3 * n // 4],
+                     'direction': 'Up', 'trend_class': 'gradual', 'change_rank': 1}]
+        fig = plot_pytrendy(plot_df, 'value', segments,
+                            index_type='date', suppress_show=True)
+        return fig, plot_df.index
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_one_day_30min.png',
+                                    style='default')
+    def test_plot_intraday_one_day_30min(self):
+        """1 day of 30-minute bars: 2-hour majors, 30-minute minors, time-only labels."""
+        fig, _ = self._plot(48, '30min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
+        assert isinstance(ax.xaxis.get_minor_locator(), mdates.MinuteLocator)
+        assert ax.xaxis.get_major_formatter().fmt == '%H:%M'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_three_day_30min.png',
+                                    style='default')
+    def test_plot_intraday_three_day_30min(self):
+        """3 days of 30-minute bars: 6-hour majors, 30-minute minors, date+time labels."""
+        fig, _ = self._plot(145, '30min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
+        assert isinstance(ax.xaxis.get_minor_locator(), mdates.MinuteLocator)
+        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_sixty_day_30min.png',
+                                    style='default')
+    def test_plot_intraday_sixty_day_30min(self):
+        """60 days of 30-minute bars: weekly majors, thinned 2-hour minors.
+
+        2880 projected 30-minute minors exceed matplotlib's 1000-tick limit, so
+        the interval is coarsened x4 to 2 hours (~720 ticks) and no MAXTICKS
+        warning is raised.
+        """
+        fig, _ = self._plot(2881, '30min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.WeekdayLocator)
+        assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
+        assert len(ax.xaxis.get_minorticklocs()) <= 900
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_three_day_hourly.png',
+                                    style='default')
+    def test_plot_intraday_three_day_hourly(self):
+        """3 days of hourly bars: 6-hour majors, true hourly minors."""
+        fig, _ = self._plot(73, 'h')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
+        assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
+        return fig
+
+
+class TestIntradayTickSpec:
+    """Direct coverage for the cadence ladder and its fiddly fallbacks."""
+
+    @staticmethod
+    def _spec(periods, freq):
+        index = pd.date_range('2026-01-01', periods=periods, freq=freq)
+        return _date_tick_spec(index, len(index) - 1)
+
+    def test_intraday_ladder_widens_with_span(self):
+        """30-minute bars step through hours -> 6 hours -> days -> weeks -> months."""
+        assert isinstance(self._spec(48, '30min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(145, '30min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(337, '30min')[0], mdates.DayLocator)
+        assert isinstance(self._spec(9601, '30min')[0], mdates.WeekdayLocator)
+        assert isinstance(self._spec(14401, '30min')[0], mdates.WeekdayLocator)
+        assert isinstance(self._spec(24001, '30min')[0], mdates.MonthLocator)
+
+    def test_unexpressible_intraday_gaps_fall_back_to_pinned(self):
+        """45-, 90-minute and one-day-span 2-hour bars have no major unit -> pinned."""
+        for periods, freq in [(33, '45min'), (17, '90min'), (13, '2h')]:
+            major, minor, pinned, _ = self._spec(periods, freq)
+            assert major is None and minor is None and pinned is not None
+
+    def test_sampling_locator_rejects_unexpressible_gaps(self):
+        """No locator can mark 45-/90-minute, 7-hour or sub-minute gaps."""
+        assert _sampling_locator(45 / 1440) is None
+        assert _sampling_locator(90 / 1440) is None
+        assert _sampling_locator(7 / 24) is None
+        assert _sampling_locator(90 / 86400) is None  # 90 seconds
+        assert _sampling_locator(0) is None
+
+    def test_minor_thinning_lands_on_expressible_interval(self):
+        """Coarsening snaps up to a whole-hour/day multiple, never dropping the ruler."""
+        assert isinstance(_minor_locator(1 / 48, 2880), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 9600), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 48000), mdates.DayLocator)
+        assert _minor_locator(45 / 1440, 1000) is None
+
+    def test_intraday_format_ladder(self):
+        """Labels are time-only to a day, date+time to a week, date-only beyond."""
+        assert _intraday_format(0.5) == '%H:%M'
+        assert _intraday_format(3) == '%Y-%m-%d\n%H:%M'
+        assert _intraday_format(7) == '%Y-%m-%d'
