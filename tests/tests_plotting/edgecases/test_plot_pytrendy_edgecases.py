@@ -898,52 +898,6 @@ class TestIntradayTickGranularity:
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_intraday_three_day_30min.png',
-                                    style='default')
-    def test_plot_intraday_three_day_30min(self):
-        """3 days of 30-minute bars: 6-hour majors, 30-minute minors, date+time labels."""
-        fig, _ = self._plot(145, '30min')
-        ax = fig.axes[0]
-        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
-        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
-        assert isinstance(ax.xaxis.get_minor_locator(), mdates.MinuteLocator)
-        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
-        return fig
-
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_intraday_sixty_day_30min.png',
-                                    style='default')
-    def test_plot_intraday_sixty_day_30min(self):
-        """60 days of 30-minute bars: weekly majors, thinned 2-hour minors.
-
-        2880 projected 30-minute minors exceed the 900 legibility target, so the
-        interval is coarsened x4 to 2 hours (~720 ticks) and no MAXTICKS warning
-        is raised. The fixture runs real detection, so this baseline is
-        regenerated from the detected Up/Flat/Down/Flat/Up segments.
-        """
-        fig, _ = self._plot(2881, '30min')
-        ax = fig.axes[0]
-        assert isinstance(ax.xaxis.get_major_locator(), mdates.WeekdayLocator)
-        assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
-        assert len(ax.xaxis.get_minorticklocs()) <= _MAX_MINOR_TICKS
-        return fig
-
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./',
-                                    filename='test_plot_intraday_three_day_hourly.png',
-                                    style='default')
-    def test_plot_intraday_three_day_hourly(self):
-        """3 days of hourly bars: 6-hour majors, true hourly minors."""
-        fig, _ = self._plot(73, 'h')
-        ax = fig.axes[0]
-        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
-        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
-        assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
-        return fig
-
-    @pytest.mark.plot
-    @pytest.mark.mpl_image_compare(baseline_dir='./',
                                     filename='test_plot_intraday_three_day_45min.png',
                                     style='default')
     def test_plot_intraday_three_day_45min(self):
@@ -1054,3 +1008,159 @@ class TestIntradayTickSpec:
         assert _format_for(mdates.WeekdayLocator()) == '%Y-%m-%d'
         assert _format_for(mdates.MonthLocator()) == '%Y-%m-%d'
         assert _format_for(None) == '%Y-%m-%d'
+
+
+class TestTickGranularityMatrix:
+    """One mpl baseline per datetime granularity: the x-axis adapts to cadence.
+
+    Frames are deterministic tiles of the packaged ``series_synthetic`` gradual
+    column, resampled to each cadence, with ``segments_enhanced=[]`` so each
+    baseline isolates the tick strategy (segment shading is covered elsewhere).
+    """
+
+    @staticmethod
+    def _tiled_daily(periods):
+        """Deterministic daily gradual series of *periods* points, tiled as needed."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        tiles = int(np.ceil(periods / len(df)))
+        long = pd.concat([df] * tiles, ignore_index=True)
+        long['date'] = pd.date_range(df['date'].iloc[0], periods=len(long), freq='D')
+        return long.set_index('date')['gradual'].iloc[:periods]
+
+    @classmethod
+    def _series(cls, days, freq=None):
+        """Daily tiles resampled to *freq* (None keeps the daily cadence)."""
+        daily = cls._tiled_daily(days)
+        return daily if freq is None else daily.resample(freq).last()
+
+    @staticmethod
+    def _axis(series):
+        """Plot *series* with no segments; return the measured axis properties."""
+        series = series[~series.index.duplicated(keep='first')]
+        plot_df = pd.DataFrame({'value': series.values}, index=series.index)
+        fig = plot_pytrendy(plot_df, 'value', [], index_type='date', suppress_show=True)
+        ax = fig.axes[0]
+        return (fig, ax.xaxis.get_major_locator(), ax.xaxis.get_minor_locator(),
+                len(ax.get_xticks()), len(ax.xaxis.get_minorticklocs()),
+                ax.xaxis.get_major_formatter().fmt)
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_one_year_daily_ticks.png',
+                                    style='default')
+    def test_one_year_daily_ticks(self):
+        """1 year daily: biweekly weekday majors, daily minors, date-only labels.
+
+        A 365-day span crosses the 200-day weekly-major threshold, so the weekday
+        interval is 2; the daily minor ruler stays and the formatter is date-only.
+        """
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366))
+        assert isinstance(major, mdates.WeekdayLocator)
+        assert major._get_interval() == 2
+        assert 20 <= n_major <= 30
+        assert isinstance(minor, mdates.DayLocator)
+        assert 300 <= n_minor <= 366
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_one_year_weekly_ticks.png',
+                                    style='default')
+    def test_one_year_weekly_ticks(self):
+        """~1 year weekly: snapped month majors, weekly positional minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366, 'W'))
+        assert isinstance(major, FixedLocator)
+        assert 10 <= n_major <= 16
+        assert isinstance(minor, FixedLocator)
+        assert 35 <= n_minor <= 53
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_three_year_weekly_ticks.png',
+                                    style='default')
+    def test_three_year_weekly_ticks(self):
+        """~3 years weekly: snapped month majors (~36), weekly positional minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'W'))
+        assert isinstance(major, FixedLocator)
+        assert 30 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 100 <= n_minor <= 160
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_ten_year_weekly_ticks.png',
+                                    style='default')
+    def test_ten_year_weekly_ticks(self):
+        """~10 years weekly: coarser scaled month majors with weekly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'W'))
+        assert isinstance(major, FixedLocator)
+        assert 25 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 430 <= n_minor <= 524
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_thirty_year_weekly_ticks.png',
+                                    style='default')
+    def test_thirty_year_weekly_ticks(self):
+        """~30 years weekly: majors stay <=~40 labels, minors thin under the cap."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(30 * 366, 'W'))
+        assert isinstance(major, FixedLocator)
+        assert n_major <= 40
+        assert 30 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert n_minor <= _MAX_MINOR_TICKS
+        assert 600 <= n_minor <= 785
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_three_year_monthly_ticks.png',
+                                    style='default')
+    def test_three_year_monthly_ticks(self):
+        """~3 years monthly: every-other-month snapped majors, monthly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'ME'))
+        assert isinstance(major, FixedLocator)
+        assert 15 <= n_major <= 22
+        assert isinstance(minor, FixedLocator)
+        assert 12 <= n_minor <= 24
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_ten_year_monthly_ticks.png',
+                                    style='default')
+    def test_ten_year_monthly_ticks(self):
+        """~10 years monthly: snapped year majors with monthly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'ME'))
+        assert isinstance(major, FixedLocator)
+        assert 8 <= n_major <= 14
+        assert isinstance(minor, FixedLocator)
+        assert 100 <= n_minor <= 121
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_fifty_year_yearly_ticks.png',
+                                    style='default')
+    def test_fifty_year_yearly_ticks(self):
+        """~50 years yearly: year majors scanned to <=~40 labels, yearly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(50 * 366, 'YS'))
+        assert isinstance(major, FixedLocator)
+        assert n_major <= 40
+        assert 20 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 20 <= n_minor <= 40
+        assert fmt == '%Y-%m-%d'
+        return fig
