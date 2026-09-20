@@ -24,6 +24,10 @@ _MAX_MINOR_TICKS = 900
 # _YEAR_MAJOR_MIN_SPAN_DAYS: monthly-or-coarser cadences switch from month to
 # year majors once the span reaches ~3 years. Lower = earlier switch.
 _YEAR_MAJOR_MIN_SPAN_DAYS = 1000
+# Explicit observation ticks need more length at the standard wide, short figure
+# size; keep majors visibly dominant without touching locator-based rulers.
+_MULTI_DAY_MAJOR_TICK_LENGTH = 6
+_MULTI_DAY_MINOR_TICK_LENGTH = 4
 
 
 def _annotation_color(color):
@@ -576,6 +580,13 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                 # Inexpressible cadence: explicit positional ruler, bypassing
                 # Locator.MAXTICKS.
                 ax.set_xticks(minor, minor=True)
+                is_multi_day = (len(index) > 1 and
+                                np.median(np.diff(index.values)) / np.timedelta64(1, 'D') > 1)
+                if is_multi_day:
+                    ax.tick_params(axis='x', which='major', length=_MULTI_DAY_MAJOR_TICK_LENGTH,
+                                   width=1.0)
+                    ax.tick_params(axis='x', which='minor', length=_MULTI_DAY_MINOR_TICK_LENGTH,
+                                   width=0.8)
             else:
                 ax.xaxis.set_minor_locator(minor)
         ax.xaxis.set_major_formatter(mdates.DateFormatter(date_format))
