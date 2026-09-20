@@ -15,7 +15,8 @@ import pytrendy as pt
 from pytrendy.io import prep_signal_params
 from pytrendy.io.plot_pytrendy import (plot_pytrendy, _pinned_tick_positions,
                                        _date_tick_spec, _sampling_locator,
-                                       _minor_locator, _intraday_format)
+                                       _minor_locator, _format_for, _divides,
+                                       _MAX_MINOR_TICKS)
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
 from pytrendy.post_processing.segments_analyse import analyse_segments
@@ -237,13 +238,12 @@ class TestPlotPytrendyEdgeCases:
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_two_year_daily_tick_thinning.png', style='default')
     def test_plot_two_year_daily_tick_thinning(self):
-        """A ~2-year daily series coarsens majors to months, keeping daily minors.
+        """A ~2-year daily series coarsens majors to months, with no minors.
 
         Weekly majors (and a daily minor ruler) previously produced a wall of
         ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density,
         keyed on ``span_steps`` (730 index steps here), keeps ~24 month majors;
-        the daily minor ruler stays, now expressing the data's own daily
-        granularity (option B) instead of being dropped.
+        the minor ruler stops past a year, so the axis reads as a calendar again.
         """
         two_years = self._long_daily_series(731)  # ~2 years daily
         results = pt.detect_trends(two_years, date_col='date', value_col='gradual', plot=False)
@@ -251,7 +251,7 @@ class TestPlotPytrendyEdgeCases:
 
         ax = fig.axes[0]
         assert len(ax.get_xticks()) <= 30
-        assert len(ax.xaxis.get_minorticklocs()) > 0
+        assert len(ax.xaxis.get_minorticklocs()) == 0
         return fig
 
     def test_daily_short_span_keeps_weekly_majors(self):
@@ -870,13 +870,13 @@ class TestIntradayTickGranularity:
                                     filename='test_plot_intraday_one_day_30min.png',
                                     style='default')
     def test_plot_intraday_one_day_30min(self):
-        """1 day of 30-minute bars: 2-hour majors, 30-minute minors, time-only labels."""
+        """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
         fig, _ = self._plot(48, '30min')
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
         assert isinstance(ax.xaxis.get_minor_locator(), mdates.MinuteLocator)
-        assert ax.xaxis.get_major_formatter().fmt == '%H:%M'
+        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
         return fig
 
     @pytest.mark.plot
@@ -900,15 +900,15 @@ class TestIntradayTickGranularity:
     def test_plot_intraday_sixty_day_30min(self):
         """60 days of 30-minute bars: weekly majors, thinned 2-hour minors.
 
-        2880 projected 30-minute minors exceed matplotlib's 1000-tick limit, so
-        the interval is coarsened x4 to 2 hours (~720 ticks) and no MAXTICKS
-        warning is raised.
+        2880 projected 30-minute minors exceed the 900 legibility target, so the
+        interval is coarsened x4 to 2 hours (~720 ticks) and no MAXTICKS warning
+        is raised. This baseline is unchanged from the previous commit.
         """
         fig, _ = self._plot(2881, '30min')
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.WeekdayLocator)
         assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
-        assert len(ax.xaxis.get_minorticklocs()) <= 900
+        assert len(ax.xaxis.get_minorticklocs()) <= _MAX_MINOR_TICKS
         return fig
 
     @pytest.mark.plot
@@ -922,6 +922,25 @@ class TestIntradayTickGranularity:
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
         assert isinstance(ax.xaxis.get_minor_locator(), mdates.HourLocator)
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_three_day_45min.png',
+                                    style='default')
+    def test_plot_intraday_three_day_45min(self):
+        """3 days of 45-minute bars: 6-hour majors, positional 45-minute minors.
+
+        A 45-minute gap has no minute/hour locator, so the true-granularity
+        ruler is emitted as explicit observation positions while the majors
+        still land on the smallest expressible hour multiple (6 h).
+        """
+        fig, _ = self._plot(97, '45min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
+        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
         return fig
 
 
@@ -942,11 +961,26 @@ class TestIntradayTickSpec:
         assert isinstance(self._spec(14401, '30min')[0], mdates.WeekdayLocator)
         assert isinstance(self._spec(24001, '30min')[0], mdates.MonthLocator)
 
-    def test_unexpressible_intraday_gaps_fall_back_to_pinned(self):
-        """45-, 90-minute and one-day-span 2-hour bars have no major unit -> pinned."""
-        for periods, freq in [(33, '45min'), (17, '90min'), (13, '2h')]:
-            major, minor, pinned, _ = self._spec(periods, freq)
-            assert major is None and minor is None and pinned is not None
+    def test_cadences_without_an_expressible_unit_fall_back_to_pinned(self):
+        """A 5- or 7-hour gap divides no hour/day unit, so majors pin to observations."""
+        for periods, freq in [(5, '5h'), (7, '7h')]:
+            major, _, pinned, _ = self._spec(periods, freq)
+            assert major is None and pinned is not None
+
+    def test_per_rung_search_finds_smallest_expressible_interval(self):
+        """45-/90-minute gaps get 3-hour majors within a day, 6-hour within three."""
+        assert isinstance(self._spec(33, '45min')[0], mdates.HourLocator)   # ~1 day
+        assert isinstance(self._spec(97, '45min')[0], mdates.HourLocator)   # 3 days
+        assert isinstance(self._spec(17, '90min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(25, 'h')[0], mdates.HourLocator)       # exactly 1 h
+
+    def test_major_interval_is_the_smallest_expressible(self):
+        """45-minute cadence: 3-hour majors under a day, 6-hour under three days."""
+        for periods, expected in [(33, 3 / 24), (97, 6 / 24)]:
+            index = pd.date_range('2026-01-01', periods=periods, freq='45min')
+            major, _, _, _ = _date_tick_spec(index, len(index) - 1)
+            ticks = major.tick_values(index[0], index[-1])
+            assert np.allclose(np.diff(ticks), expected)
 
     def test_sampling_locator_rejects_unexpressible_gaps(self):
         """No locator can mark 45-/90-minute, 7-hour or sub-minute gaps."""
@@ -956,15 +990,49 @@ class TestIntradayTickSpec:
         assert _sampling_locator(90 / 86400) is None  # 90 seconds
         assert _sampling_locator(0) is None
 
+    def test_divides_rejects_gaps_larger_than_the_unit(self):
+        """A gap wider than the unit cannot divide it (and no unit is <= 0)."""
+        assert _divides(2, 1) is False
+        assert _divides(0, 1) is False
+        assert _divides(0.5, 1) is True
+
     def test_minor_thinning_lands_on_expressible_interval(self):
         """Coarsening snaps up to a whole-hour/day multiple, never dropping the ruler."""
-        assert isinstance(_minor_locator(1 / 48, 2880), mdates.HourLocator)
-        assert isinstance(_minor_locator(1 / 48, 9600), mdates.HourLocator)
-        assert isinstance(_minor_locator(1 / 48, 48000), mdates.DayLocator)
-        assert _minor_locator(45 / 1440, 1000) is None
+        index = pd.date_range('2026-01-01', periods=2881, freq='30min')
+        assert isinstance(_minor_locator(1 / 48, 2880, index), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 9600, index), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 48000, index), mdates.DayLocator)
+        # ceil(2000 / 900) = 3 -> 1.5 h (unexpressible), so it steps up to 2 h.
+        assert isinstance(_minor_locator(1 / 48, 2000, index), mdates.HourLocator)
 
-    def test_intraday_format_ladder(self):
-        """Labels are time-only to a day, date+time to a week, date-only beyond."""
-        assert _intraday_format(0.5) == '%H:%M'
-        assert _intraday_format(3) == '%Y-%m-%d\n%H:%M'
-        assert _intraday_format(7) == '%Y-%m-%d'
+    def test_minor_target_is_900(self):
+        """60 days of 30-minute bars thin x4 to 2-hour minors (~720 ticks)."""
+        index = pd.date_range('2026-01-01', periods=2881, freq='30min')
+        locator = _minor_locator(1 / 48, len(index) - 1, index)
+        assert isinstance(locator, mdates.HourLocator)
+        ticks = locator.tick_values(index[0], index[-1])
+        assert np.allclose(np.diff(ticks), 2 / 24)
+        assert len(ticks) <= _MAX_MINOR_TICKS
+
+    def test_inexpressible_minors_are_positional(self):
+        """45-minute bars emit observation positions, not a locator."""
+        index = pd.date_range('2026-01-01', periods=97, freq='45min')
+        _, minor, pinned, _ = _date_tick_spec(index, len(index) - 1)
+        assert pinned is None
+        assert isinstance(minor, pd.Index)
+        assert len(minor) == len(index)  # under the 900 target -> every observation
+
+    def test_minors_stop_past_a_year(self):
+        """A >365-day intraday span returns to a calendar with no minor ruler."""
+        index = pd.date_range('2026-01-01', periods=8785, freq='h')  # ~366 days
+        _, minor, _, _ = _date_tick_spec(index, len(index) - 1)
+        assert minor is None
+
+    def test_format_keys_to_major_unit_not_span(self):
+        """Hour-or-finer majors show date+time; day-or-coarser read as dates."""
+        assert _format_for(mdates.HourLocator()) == '%Y-%m-%d\n%H:%M'
+        assert _format_for(mdates.MinuteLocator()) == '%Y-%m-%d\n%H:%M'
+        assert _format_for(mdates.DayLocator()) == '%Y-%m-%d'
+        assert _format_for(mdates.WeekdayLocator()) == '%Y-%m-%d'
+        assert _format_for(mdates.MonthLocator()) == '%Y-%m-%d'
+        assert _format_for(None) == '%Y-%m-%d'
