@@ -8,6 +8,20 @@ import matplotlib.patches as mpatches
 from matplotlib import colors as mcolors
 
 
+# Tick-density calibration. All private (no public API).
+# _MAX_PINNED_TICKS caps pinned non-daily majors: above it, observations are
+# thinned to every ceil(n / cap)th point. Lower = sparser labels, higher = denser.
+_MAX_PINNED_TICKS = 40
+# _WEEKLY_MAX_SPAN_DAYS / _BIWEEKLY_MAX_SPAN_DAYS are daily-span thresholds in
+# calendar days: weekly majors up to the first, biweekly to the second, monthly
+# beyond. Raise them to keep a finer major unit for longer spans.
+_WEEKLY_MAX_SPAN_DAYS = 200
+_BIWEEKLY_MAX_SPAN_DAYS = 400
+# _MAX_MINOR_TICKS is the minor-ruler legibility target; matplotlib's hard
+# ceiling is MAXTICKS (1000). Lower = sparser ruler, higher = denser.
+_MAX_MINOR_TICKS = 900
+
+
 def _annotation_color(color):
     """
     Return a darker annotation colour for a segment fill colour.
@@ -67,18 +81,6 @@ def _adjacent_to(index, value, offset):
     if not isinstance(pos, int):
         return None  # non-unique index: no well-defined adjacent point
     return _safe_adjacent(index, pos, offset)
-
-# Tick-density calibration knobs. The two caps keep label and minor-tick counts
-# sane: _MAX_PINNED_TICKS for pinned non-daily majors, _MAX_MINOR_TICKS for the
-# granularity ruler. _MAX_MINOR_TICKS is the legibility target (matplotlib's hard
-# ceiling is MAXTICKS = 1000). The span thresholds (calendar days) widen the
-# major unit at ~half a year and ~a year. Widen the thresholds for less
-# coarsening at ~1 year; raise the caps for denser labels.
-_MAX_PINNED_TICKS = 40
-_WEEKLY_MAX_SPAN_DAYS = 200
-_BIWEEKLY_MAX_SPAN_DAYS = 400
-_MAX_MINOR_TICKS = 900
-
 
 def _pinned_tick_positions(index):
     """Pick tick positions pinned to observations, thinned past the cap.
@@ -166,12 +168,9 @@ def _expressible_hour_interval(step_days, min_hours):
     """
     step_minutes = step_days * 24 * 60
     for hours in range(1, 24):
-        if 24 % hours:
+        if 24 % hours or hours < min_hours:
             continue
-        minutes = hours * 60
-        if minutes < min_hours * 60:
-            continue
-        ratio = minutes / step_minutes
+        ratio = hours * 60 / step_minutes
         if abs(ratio - round(ratio)) < 1e-6:
             return hours
     return None
@@ -187,25 +186,25 @@ def _intraday_major_locator(step_days, span_days):
     (the smallest whole-hour multiple of 45 minutes), then 6-hour over three
     days, and nothing expressible beyond -- where the caller pins positions.
     """
-    if span_days <= 1 and np.isclose(step_days, 1 / 24):
-        return mdates.HourLocator(interval=1)
     if span_days <= 1:
-        hours = _expressible_hour_interval(step_days, 2)
+        # Exactly-hourly keeps HourLocator(1); every other cadence starts at 2 h.
+        floor = 1 if np.isclose(step_days, 1 / 24) else 2
+        hours = _expressible_hour_interval(step_days, floor)
         if hours is not None:
             return mdates.HourLocator(interval=hours)
     if span_days <= 3:
         hours = _expressible_hour_interval(step_days, 6)
         if hours is not None:
             return mdates.HourLocator(interval=hours)
-    if span_days <= 7 and _divides(step_days, 1):
+    if not _divides(step_days, 1):
+        return None
+    if span_days <= 7:
         return mdates.DayLocator()
-    if span_days <= _WEEKLY_MAX_SPAN_DAYS and _divides(step_days, 1):
+    if span_days <= _WEEKLY_MAX_SPAN_DAYS:
         return mdates.WeekdayLocator(interval=1)
-    if span_days <= _BIWEEKLY_MAX_SPAN_DAYS and _divides(step_days, 1):
+    if span_days <= _BIWEEKLY_MAX_SPAN_DAYS:
         return mdates.WeekdayLocator(interval=2)
-    if _divides(step_days, 1):
-        return mdates.MonthLocator()
-    return None
+    return mdates.MonthLocator()
 
 
 def _format_for(major_locator):
@@ -255,23 +254,21 @@ def _date_tick_spec(index, span_steps):
     median_step_days = np.median(diffs) / np.timedelta64(1, 'D') if len(diffs) else 1
     span_days = span_steps * median_step_days
 
-    # ponytail: the span thresholds and the 40-point cap are the calibration
-    # knob; widen the thresholds for less coarsening at ~1 year, raise the cap
-    # for denser non-daily labels.
     if median_step_days > 1:
         return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
+
+    # Minors only while the span is within a year; past that the axis reads as a
+    # calendar.
+    minor = _minor_locator(median_step_days, span_steps, index) if span_days <= 365 else None
 
     if np.isclose(median_step_days, 1):
         if span_days <= _WEEKLY_MAX_SPAN_DAYS:
             return mdates.WeekdayLocator(interval=1), mdates.DayLocator(), None, '%Y-%m-%d'
         if span_days <= _BIWEEKLY_MAX_SPAN_DAYS:
             return mdates.WeekdayLocator(interval=2), mdates.DayLocator(), None, '%Y-%m-%d'
-        # Beyond ~13 months: month majors. The daily minor ruler only while the
-        # span is within a year; past that the axis reads as a calendar.
-        minor = _minor_locator(median_step_days, span_steps, index) if span_days <= 365 else None
+        # Beyond ~13 months: month majors with the year-capped minor ruler.
         return mdates.MonthLocator(), minor, None, '%Y-%m-%d'
 
-    minor = _minor_locator(median_step_days, span_steps, index) if span_days <= 365 else None
     major = _intraday_major_locator(median_step_days, span_days)
     if major is None:
         return None, minor, _pinned_tick_positions(index), _format_for(major)
