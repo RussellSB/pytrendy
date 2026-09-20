@@ -9,25 +9,13 @@ from matplotlib import colors as mcolors
 
 
 # Tick-density calibration. All private (no public API).
-# _MAX_PINNED_TICKS is the label-density target: pinned majors above it are
-# thinned to every ceil(n / cap)th observation, and multi-day calendar majors
-# scale their interval to keep labels near it. Lower = sparser, higher = denser.
-_MAX_PINNED_TICKS = 40
-# _WEEKLY_MAX_SPAN_DAYS / _BIWEEKLY_MAX_SPAN_DAYS are daily-span thresholds in
-# calendar days: weekly majors up to the first, biweekly to the second, monthly
-# beyond. Raise them to keep a finer major unit for longer spans.
-_WEEKLY_MAX_SPAN_DAYS = 200
-_BIWEEKLY_MAX_SPAN_DAYS = 400
-# _MAX_MINOR_TICKS is the minor-ruler legibility target; matplotlib's hard
-# ceiling is MAXTICKS (1000). Lower = sparser ruler, higher = denser.
-_MAX_MINOR_TICKS = 900
-# _YEAR_MAJOR_MIN_SPAN_DAYS: monthly-or-coarser cadences switch from month to
-# year majors once the span reaches ~4 years. Lower = earlier switch.
-_YEAR_MAJOR_MIN_SPAN_DAYS = 1460
-# Explicit observation ticks need more length at the standard wide, short figure
-# size; keep majors visibly dominant without touching locator-based rulers.
-_MULTI_DAY_MAJOR_TICK_LENGTH = 6
-_MULTI_DAY_MINOR_TICK_LENGTH = 4
+_MAX_PINNED_TICKS = 40            # label-density target for pinned and calendar majors (lower = sparser)
+_WEEKLY_MAX_SPAN_DAYS = 200       # daily spans up to here use weekly majors
+_BIWEEKLY_MAX_SPAN_DAYS = 400     # ...to here biweekly majors; beyond, month majors
+_MAX_MINOR_TICKS = 900            # minor-ruler legibility target; matplotlib's hard ceiling is MAXTICKS (1000)
+_YEAR_MAJOR_MIN_SPAN_DAYS = 1460  # monthly-or-coarser spans switch to year majors from ~4 years
+_MULTI_DAY_MAJOR_TICK_LENGTH = 6  # explicit observation ticks need extra length on wide, short figures
+_MULTI_DAY_MINOR_TICK_LENGTH = 4  # long enough to read the ruler, short enough to keep majors dominant
 
 
 def _annotation_color(color):
