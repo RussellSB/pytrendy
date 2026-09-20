@@ -17,7 +17,7 @@ dependencies = [
     "numpy",
     "pandas",
     "scipy",
-    "matplotlib==3.11.2"
+    "matplotlib>=3.10"
 ]
 keywords = [
     "trend detection",
@@ -47,6 +47,9 @@ classifiers = [
 
 [project.optional-dependencies]
 dev = [
+    # Pinned for deterministic pytest-mpl baselines. Development needs Python
+    # >=3.11; the marker keeps Poetry's solver valid over the declared >=3.10 range.
+    "matplotlib==3.11.2; python_version >= '3.11'",
     "pytest",
     "pytest-cov",
     "pytest-mpl",
