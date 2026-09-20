@@ -68,35 +68,139 @@ def _adjacent_to(index, value, offset):
         return None  # non-unique index: no well-defined adjacent point
     return _safe_adjacent(index, pos, offset)
 
-def _pinned_tick_positions(index):
-    """Pick tick positions pinned to observations, thinned past 40 points.
+# Tick-density calibration knobs: major coarsening thresholds (in steps/days)
+# and the caps that keep label and minor-tick counts sane. Widen the thresholds
+# if reviewers want less coarsening at ~1 year; raise the caps for denser labels.
+_MAX_PINNED_TICKS = 40
+_DAILY_WEEKLY_MAX_STEPS = 200
+_DAILY_BIWEEKLY_MAX_STEPS = 400
+_MAX_MINOR_TICKS = 900
 
-    Purely positional (``index[::ceil(n/40)]``), so it is agnostic to index
-    granularity: non-daily dates (weekly, fortnightly, month-end, yearly) and
-    numerical indexes all follow the same rule. Up to the 40-point cap every
-    observation is a tick, keeping the existing pinned baselines unchanged.
+
+def _pinned_tick_positions(index):
+    """Pick tick positions pinned to observations, thinned past the cap.
+
+    Purely positional (``index[::ceil(n/_MAX_PINNED_TICKS)]``), so it is
+    agnostic to index granularity: non-daily dates (weekly, fortnightly,
+    month-end, yearly) and numerical indexes all follow the same rule. Up to the
+    cap every observation is a tick, keeping the existing pinned baselines
+    unchanged.
     """
-    if len(index) <= 40:
+    if len(index) <= _MAX_PINNED_TICKS:
         return index
-    step = int(np.ceil(len(index) / 40))
+    step = int(np.ceil(len(index) / _MAX_PINNED_TICKS))
     return index[::step]
 
-def _date_tick_spec(index, span_steps):
-    """Pick date-axis tick strategy from sampling cadence and span in steps.
+def _sampling_locator(interval_days):
+    """Locator marking every *interval_days*, or None when unexpressible.
 
-    *span_steps* is the positional span ``len(index) - 1``: index steps rather
-    than calendar days, matching the ``days`` -> ``steps`` terminology and
-    keeping the rule index-granularity-agnostic. A daily index has a median
-    calendar gap of one day, so one step spans one day and the weekly ->
-    biweekly -> monthly coarsening thresholds are stated in steps too, bounding
-    major labels at ~30 regardless of length. Non-daily indexes (one step > one
-    day: weekly, fortnightly, month-end, yearly, ...) never reach those
-    thresholds; they stay pinned to observations, thinned past 40 points.
-
-    Returns ``(major_locator, minor_locator, pinned_positions)``; locators are
-    None when positions are pinned, and vice versa.
+    matplotlib's time locators align by minute-of-hour or hour-of-day, so a
+    sampling gap is expressible only if it divides an hour (``MinuteLocator``)
+    or a day (``HourLocator``, ``DayLocator``). 30-minute bars ->
+    ``MinuteLocator(30)``, hourly -> ``HourLocator(1)``, daily ->
+    ``DayLocator()``. A 45- or 90-minute gap has no such locator, so callers
+    fall back to positional ticks.
     """
-    # The one calendar read left: the daily/non-daily gate. Everything else is
+    minutes = interval_days * 24 * 60
+    if abs(minutes - round(minutes)) > 1e-6:
+        return None
+    minutes = int(round(minutes))
+    if minutes < 1:
+        return None
+    if minutes < 60:
+        return mdates.MinuteLocator(interval=minutes) if 60 % minutes == 0 else None
+    if minutes % 60:
+        return None
+    hours = minutes // 60
+    if hours < 24:
+        return mdates.HourLocator(interval=hours) if 24 % hours == 0 else None
+    return mdates.DayLocator(interval=max(1, int(np.ceil(interval_days - 1e-9))))
+
+def _minor_locator(step_days, span_steps):
+    """True-granularity minor locator, thinned under matplotlib's tick limit.
+
+    The interval tracks the data's own sampling gap. When the span projects more
+    than ``_MAX_MINOR_TICKS`` of them -- matplotlib warns and clips at its own
+    ``MAXTICKS`` (1000) -- the interval is coarsened by ``ceil(count / limit)``
+    so the projected count lands back under the limit (e.g. 60 days of
+    30-minute bars: 2880 -> interval x4 -> 720 ticks). Returns None for a gap
+    no locator can express (e.g. 45-minute bars).
+    """
+    base = _sampling_locator(step_days)
+    if base is None or span_steps <= _MAX_MINOR_TICKS:
+        return base
+    # Coarsen to the first expressible multiple, so 30-minute bars thin to whole
+    # hours rather than an unexpressible 5.5 hours (which would drop the ruler).
+    factor = int(np.ceil(span_steps / _MAX_MINOR_TICKS))
+    locator = _sampling_locator(step_days * factor)
+    while locator is None:
+        factor += 1
+        locator = _sampling_locator(step_days * factor)
+    return locator
+
+def _divides(step_days, unit_days):
+    """True if *step_days* is at most *unit_days* and divides it near-exactly."""
+    if step_days <= 0 or step_days > unit_days:
+        return False
+    ratio = unit_days / step_days
+    return abs(ratio - round(ratio)) < 1e-6
+
+def _intraday_major_locator(step_days, span_days):
+    """Major locator for sub-daily data, widening with span; None if no unit fits.
+
+    A unit exists only when the sampling gap is at most it and a whole multiple
+    of it: a 30-minute gap supports the half-hour/hour/day units (2-hour majors
+    under a one-day span, 6-hour under three days, days thereafter); a
+    45-minute gap supports none of the intraday units, so the caller falls back
+    to positional ticks.
+    """
+    if span_days <= 1:
+        hours = 2 if step_days * 24 < 1 else 1
+        return mdates.HourLocator(interval=hours) if _divides(step_days, hours / 24) else None
+    if span_days <= 3:
+        return mdates.HourLocator(interval=6) if _divides(step_days, 6 / 24) else None
+    if span_days <= 7:
+        return mdates.DayLocator() if _divides(step_days, 1) else None
+    if span_days <= _DAILY_WEEKLY_MAX_STEPS:
+        return mdates.WeekdayLocator(interval=1) if _divides(step_days, 1) else None
+    if span_days <= _DAILY_BIWEEKLY_MAX_STEPS:
+        return mdates.WeekdayLocator(interval=2) if _divides(step_days, 1) else None
+    return mdates.MonthLocator() if _divides(step_days, 1) else None
+
+def _intraday_format(span_days):
+    """Time-bearing major label format for a sub-daily span.
+
+    Sub-day spans label times only; up to a week they keep the date too; from a
+    week up they read like daily ones (``DayLocator`` majors there).
+    """
+    if span_days <= 1:
+        return '%H:%M'
+    if span_days < 7:
+        return '%Y-%m-%d\n%H:%M'
+    return '%Y-%m-%d'
+
+def _date_tick_spec(index, span_steps):
+    """Pick date-axis tick strategy from sampling cadence and span.
+
+    *span_steps* is the positional span ``len(index) - 1``. Cadence is read once
+    from the median calendar gap (median is DST-robust for daily data):
+
+    * Non-daily (gap > 1 day: weekly, fortnightly, month-end, yearly, ...):
+      majors are pinned to the data's own observations, thinned past
+      ``_MAX_PINNED_TICKS``, with the date-only formatter.
+    * Daily (gap of one day): the original span-in-steps ladder -- weekly ->
+      biweekly -> month majors, with a daily minor ruler.
+    * Sub-daily: minors follow the true sampling granularity (30-minute bars ->
+      every 30 minutes, hourly -> every hour), thinned below
+      ``_MAX_MINOR_TICKS``; majors widen with the span in calendar days
+      (hours -> 6 hours -> days -> weeks -> months), and the formatter gains the
+      time of day. When no major unit divides the gap (45- or 90-minute bars),
+      the locators fall back to positional ticks.
+
+    Returns ``(major_locator, minor_locator, pinned_positions, date_format)``;
+    locators are None when positions are pinned, and vice versa.
+    """
+    # The one calendar read left: the cadence gate. Everything else is
     # positional, so non-daily cadences cannot fall through to the daily branch.
     diffs = np.diff(index.values)
     step_days = np.median(diffs) / np.timedelta64(1, 'D') if len(diffs) else 1
@@ -104,14 +208,22 @@ def _date_tick_spec(index, span_steps):
     # ponytail: step thresholds and the 40-point cap are the calibration knob;
     # widen the thresholds if reviewers want less coarsening at ~1 year, raise
     # the cap for denser non-daily labels.
-    if step_days <= 1:
-        if span_steps <= 200:         # <= ~6.5 months at daily cadence: unchanged
-            return mdates.WeekdayLocator(interval=1), mdates.DayLocator(), None
-        if span_steps <= 400:         # <= ~13 months
-            return mdates.WeekdayLocator(interval=2), mdates.DayLocator(), None
-        return mdates.MonthLocator(), None, None
+    if step_days > 1:
+        return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
 
-    return None, None, _pinned_tick_positions(index)
+    if np.isclose(step_days, 1):
+        if span_steps <= _DAILY_WEEKLY_MAX_STEPS:
+            return mdates.WeekdayLocator(interval=1), mdates.DayLocator(), None, '%Y-%m-%d'
+        if span_steps <= _DAILY_BIWEEKLY_MAX_STEPS:
+            return mdates.WeekdayLocator(interval=2), mdates.DayLocator(), None, '%Y-%m-%d'
+        # Beyond ~13 months: month majors, still with the daily minor ruler.
+        return mdates.MonthLocator(), _minor_locator(step_days, span_steps), None, '%Y-%m-%d'
+
+    span_days = span_steps * step_days
+    major = _intraday_major_locator(step_days, span_days)
+    if major is None:
+        return None, None, _pinned_tick_positions(index), _intraday_format(span_days)
+    return major, _minor_locator(step_days, span_steps), None, _intraday_format(span_days)
 
 def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict], index_type: str = "date", suppress_show: bool = False, plot_params: dict = None) -> plt.Figure:
     """
@@ -367,24 +479,22 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         index = df.index
         span_steps = len(index) - 1
 
-        major, minor, pinned = _date_tick_spec(index, span_steps)
+        major, minor, pinned, date_format = _date_tick_spec(index, span_steps)
         if pinned is not None:
-            # Non-daily spacing: pin majors to the data's own index positions so
+            # Positional ticks: pin majors to the data's own index positions so
             # every major (and its 'major' gridline) lands exactly on an
             # observation, for any cadence including irregular. A WeekdayLocator
             # anchors its interval grid to the Unix epoch, which lands majors
             # beside fortnightly / month-end observations.
             ax.set_xticks(pinned)
         else:
-            # Daily data: weekly majors on the default weekday, as before,
-            # coarsening with span so long series avoid a wall of labels.
+            # Locator-based majors: coarsen with span so long series avoid a
+            # wall of labels. Minors carry the data's own sampling granularity
+            # where a matplotlib locator can express it, else they are omitted.
             ax.xaxis.set_major_locator(major)
-            # Minor ticks: every day, but only when points are daily-or-finer. A
-            # daily ruler under non-daily data (e.g. weekly points)
-            # misrepresents the sampling, so non-daily spacing gets no minors.
             if minor is not None:
                 ax.xaxis.set_minor_locator(minor)
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        ax.xaxis.set_major_formatter(mdates.DateFormatter(date_format))
 
     # Rotate major tick labels
     plt.setp(ax.get_xticklabels(), rotation=90, ha='right')
