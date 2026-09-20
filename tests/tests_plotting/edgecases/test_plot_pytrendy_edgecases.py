@@ -134,8 +134,8 @@ class TestPlotPytrendyEdgeCases:
 
         Non-daily point spacing previously left ~6-day white bands between
         segments because boundary displacement assumed a one-day step. Weekly
-        majors are also spacing-matched to the data's own weekday (Sundays),
-        rather than the default Tuesday-aligned ``WeekdayLocator``.
+        dates now get month majors with weekly positional minors; the baseline
+        guards the gap-free shading.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -146,23 +146,20 @@ class TestPlotPytrendyEdgeCases:
 
         results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
         fig = self._prepare_and_plot(dfw, 'gradual', results.segments)
-        major_weekdays = {
-            pd.Timestamp(mdates.num2date(t)).strftime('%a')
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major_weekdays == {'Sun'}
+        assert isinstance(fig.axes[0].xaxis.get_major_locator(), mdates.MonthLocator)
         return fig
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_datetime64_ticks.png', style='default')
     def test_plot_weekly_datetime64_ticks(self):
-        """Weekly datetime64 index gets Sunday-aligned majors and no daily minor ticks.
+        """Weekly datetime64 index gets month majors and weekly positional minors.
 
         A real datetime64 column previously skipped the locator block entirely,
         leaving matplotlib's AutoDateLocator to pick a handful of auto ticks. Its
         boundaries also took the integer/float displacement branch (a hard-coded
         one-day step), so weekly points left ~6-day white bands between shaded
-        segments; both are regression-guarded by this baseline.
+        segments; both are regression-guarded by this baseline. The minors are
+        the data's own weekly observations, so the ruler sits on sampled points.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -173,24 +170,21 @@ class TestPlotPytrendyEdgeCases:
         plot_df = weekly.set_index('date')[['gradual']]
         fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
                             index_type='datetime64', suppress_show=True)
-        assert len(fig.axes[0].xaxis.get_minorticklocs()) == 0
-        major_weekdays = {
-            pd.Timestamp(mdates.num2date(t)).strftime('%a')
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major_weekdays == {'Sun'}
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.MonthLocator)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
         return fig
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_fortnightly_pinned_ticks.png', style='default')
-    def test_fortnightly_pinned_ticks(self):
-        """Fortnightly dates get majors pinned to every observation.
+    def test_fortnightly_month_majors_with_positional_minors(self):
+        """Fortnightly dates get month majors and fortnightly positional minors.
 
         A ``WeekdayLocator(interval=2)`` anchors its interval grid to the Unix
-        epoch, so its majors landed one week off the 14-day observations (0/38 on
-        data points). Non-daily spacing now pins majors to the data's own index
-        positions, so every major (and its 'major' gridline) sits on a sampled
-        point.
+        epoch, so its majors landed one week off the 14-day observations. The
+        multi-day path now steps majors up to a calendar unit (month majors here)
+        and emits the data's own spacing as positional minors, so the ruler sits
+        on sampled points.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -208,11 +202,9 @@ class TestPlotPytrendyEdgeCases:
         fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
                             index_type='datetime64', suppress_show=True)
 
-        major = {
-            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major == set(pd.DatetimeIndex(fortnightly['date']).normalize())
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.MonthLocator)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
         return fig
 
     def _long_daily_series(self, periods=731):
@@ -274,25 +266,18 @@ class TestPlotPytrendyEdgeCases:
         assert isinstance(locator, mdates.WeekdayLocator)
         assert locator._get_interval() == 2
 
-    def test_long_fortnightly_ticks_thinned_to_every_second_point(self):
-        """52-point fortnightly data pins majors, thinned to every 2nd observation.
+    def test_long_fortnightly_gets_month_majors_and_positional_minors(self):
+        """52-point fortnightly data gets month majors and every point as minors.
 
-        The <=40-point pinned baselines stay byte-identical; beyond 40 points the
-        pinned majors are subsampled to bound the label count.
+        Fortnightly spacing is non-daily, so majors step up to a calendar unit
+        (``MonthLocator(1)`` over ~2 years) and the data's own points become the
+        positional minor ruler (52, under the 900 cap).
         """
         fortnightly = self._fortnightly_series(52)
-        results = pt.detect_trends(fortnightly, date_col='date', value_col='gradual',
-                                   plot=False, method_params={'abrupt_padding': 0})
-        plot_df = fortnightly.set_index('date')[['gradual']]
-        fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
-                            index_type='datetime64', suppress_show=True)
-
-        major = [
-            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
-            for t in fig.axes[0].get_xticks()
-        ]
-        expected = list(pd.DatetimeIndex(fortnightly['date']).normalize()[::2])
-        assert major == expected
+        major, minor, pinned, _ = _date_tick_spec(
+            pd.DatetimeIndex(fortnightly['date']), len(fortnightly) - 1)
+        assert isinstance(major, mdates.MonthLocator) and major._get_interval() == 1
+        assert pinned is None and len(minor) == len(fortnightly)
 
     @staticmethod
     def _pinned_ticks(index, index_type):
@@ -310,50 +295,66 @@ class TestPlotPytrendyEdgeCases:
             ticks = list(ax.get_xticks())
         return ticks, ax.xaxis.get_major_locator()
 
-    def test_monthly_series_pins_ticks_to_observations(self):
-        """A ~24-point monthly series stays pinned to every observation.
+    def test_two_year_monthly_gets_month_majors_and_minors(self):
+        """A ~2-year monthly series keeps month majors with monthly minors.
 
-        Monthly spacing is non-daily (median gap ~30 days), so it must not fall
-        through to the daily 200/400-step locator thresholds; the positional
-        pin/thin rule leaves all 24 month-ends as majors.
+        Below the ~3-year switch, monthly spacing stays on ``MonthLocator(1)``
+        and the 24 month-ends become the positional minor ruler.
         """
         monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
+        _, locator = self._pinned_ticks(monthly, 'datetime64')
+        assert isinstance(locator, mdates.MonthLocator) and locator._get_interval() == 1
+        _, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert pinned is None and len(minor) == len(monthly)
+
+    def test_five_year_monthly_gets_year_majors_and_minors(self):
+        """A ~5-year monthly series steps up to year majors with monthly minors."""
+        monthly = pd.date_range('2020-01-31', periods=60, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert isinstance(major, mdates.YearLocator) and major._get_interval() == 1
+        assert pinned is None and len(minor) == len(monthly)
+
+    def test_yearly_series_gets_year_majors_and_minors(self):
+        """A yearly series uses year majors with the yearly observations as minors."""
+        yearly = pd.date_range('2015-01-01', periods=8, freq='YS')
+        major, minor, pinned, _ = _date_tick_spec(yearly, len(yearly) - 1)
+        assert isinstance(major, mdates.YearLocator) and major._get_interval() == 1
+        assert len(minor) == len(yearly)
+
+    def test_weekly_one_year_gets_month_majors_and_weekly_minors(self):
+        """52 weekly points get month majors, not a finer daily/weekly locator."""
+        weekly = pd.date_range('2020-01-05', periods=52, freq='7D')
+        major, minor, pinned, _ = _date_tick_spec(weekly, len(weekly) - 1)
+        assert isinstance(major, mdates.MonthLocator) and major._get_interval() == 1
+        assert pinned is None and len(minor) == len(weekly)
+
+    def test_long_weekly_minors_thin_but_do_not_drop(self):
+        """10-year weekly keeps all 522 minors; 30-year thins to the 900 cap."""
+        ten = pd.date_range('2015-01-04', periods=522, freq='7D')
+        major, minor, _, _ = _date_tick_spec(ten, len(ten) - 1)
+        assert isinstance(major, mdates.MonthLocator) and major._get_interval() == 3
+        assert len(minor) == 522  # under the 900 cap -> every observation
+        thirty = pd.date_range('1995-01-01', periods=1566, freq='7D')
+        major, minor, _, _ = _date_tick_spec(thirty, len(thirty) - 1)
+        assert major._get_interval() == 9
+        assert len(minor) == 783  # ceil(1566 / 900) = 2 -> every 2nd observation
+
+    def test_fifty_year_yearly_scales_year_interval(self):
+        """50 yearly points exceed the 40-label cap, so the year interval scales."""
+        yearly = pd.date_range('1975-01-01', periods=50, freq='YS')
+        major, minor, _, _ = _date_tick_spec(yearly, len(yearly) - 1)
+        assert isinstance(major, mdates.YearLocator) and major._get_interval() == 2
+        assert len(minor) == len(yearly)
+
+    def test_non_daily_falls_back_to_pinned_without_a_calendar_unit(self, monkeypatch):
+        """The positional fallback is retained for when no calendar unit fits."""
+        monkeypatch.setattr('pytrendy.io.plot_pytrendy._calendar_major_locator',
+                            lambda *args, **kwargs: None)
+        monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
+        major, _, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and pinned is not None
         ticks, _ = self._pinned_ticks(monthly, 'datetime64')
         assert ticks == list(monthly)
-
-    def test_five_year_monthly_series_thins_pinned_ticks(self):
-        """A ~5-year, ~60-point monthly series pins but thins positional ticks.
-
-        Past the 40-point cap the rule is ``index[::ceil(n/40)]``; with n=60
-        that is every 2nd month-end -> 30 majors.
-        """
-        monthly = pd.date_range('2020-01-31', periods=60, freq='ME')
-        step = int(np.ceil(len(monthly) / 40))
-        assert step == 2
-        ticks, _ = self._pinned_ticks(monthly, 'datetime64')
-        assert ticks == list(monthly[::step])
-
-    def test_yearly_series_pins_ticks_to_observations(self):
-        """A yearly series (median gap ~365 days) pins every observation."""
-        yearly = pd.date_range('2015-01-01', periods=8, freq='YS')
-        ticks, _ = self._pinned_ticks(yearly, 'datetime64')
-        assert ticks == list(yearly)
-
-    def test_weekly_one_year_stays_pinned_not_monthly_locator(self):
-        """52 weekly points pin to observations, not a MonthLocator.
-
-        The daily branch is gated on a median calendar gap of one day; weekly
-        spacing (~7 days) fails that gate, so the 200/400-step coarsening
-        thresholds must not apply. 52 points exceeds the 40-point cap, giving
-        every ``ceil(52/40)=2``nd observation, all of them real samples.
-        """
-        weekly = pd.date_range('2020-01-05', periods=52, freq='7D')
-        ticks, locator = self._pinned_ticks(weekly, 'datetime64')
-        assert not isinstance(locator, mdates.MonthLocator)
-        step = int(np.ceil(len(weekly) / 40))
-        assert step == 2
-        assert ticks == list(weekly[::step])
-        assert set(ticks) <= set(weekly)
 
     def test_integer_index_thins_past_40(self):
         """The positional pin/thin rule is agnostic to index granularity.
@@ -362,7 +363,7 @@ class TestPlotPytrendyEdgeCases:
         every value is a tick, past it every ``ceil(n/40)``th value is. Covered
         on the helper directly, because the numeric plot baselines
         (``TestPlotFloatIndexSpacing``) intentionally keep matplotlib's own
-        ticks; this guards the shared rule the non-daily date path uses.
+        ticks; this guards the positional fallback the non-daily date path uses.
         """
         index = pd.Index(np.arange(181))
         step = int(np.ceil(len(index) / 40))

@@ -9,8 +9,9 @@ from matplotlib import colors as mcolors
 
 
 # Tick-density calibration. All private (no public API).
-# _MAX_PINNED_TICKS caps pinned non-daily majors: above it, observations are
-# thinned to every ceil(n / cap)th point. Lower = sparser labels, higher = denser.
+# _MAX_PINNED_TICKS is the label-density target: pinned majors above it are
+# thinned to every ceil(n / cap)th observation, and multi-day calendar majors
+# scale their interval to keep labels near it. Lower = sparser, higher = denser.
 _MAX_PINNED_TICKS = 40
 # _WEEKLY_MAX_SPAN_DAYS / _BIWEEKLY_MAX_SPAN_DAYS are daily-span thresholds in
 # calendar days: weekly majors up to the first, biweekly to the second, monthly
@@ -20,6 +21,9 @@ _BIWEEKLY_MAX_SPAN_DAYS = 400
 # _MAX_MINOR_TICKS is the minor-ruler legibility target; matplotlib's hard
 # ceiling is MAXTICKS (1000). Lower = sparser ruler, higher = denser.
 _MAX_MINOR_TICKS = 900
+# _YEAR_MAJOR_MIN_SPAN_DAYS: monthly-or-coarser cadences switch from month to
+# year majors once the span reaches ~3 years. Lower = earlier switch.
+_YEAR_MAJOR_MIN_SPAN_DAYS = 1000
 
 
 def _annotation_color(color):
@@ -82,19 +86,21 @@ def _adjacent_to(index, value, offset):
         return None  # non-unique index: no well-defined adjacent point
     return _safe_adjacent(index, pos, offset)
 
+def _thinned_positions(index, cap):
+    """Observation positions thinned to at most *cap* ticks."""
+    if len(index) <= cap:
+        return index
+    return index[::int(np.ceil(len(index) / cap))]
+
 def _pinned_tick_positions(index):
     """Pick tick positions pinned to observations, thinned past the cap.
 
     Purely positional (``index[::ceil(n/_MAX_PINNED_TICKS)]``), so it is
     agnostic to index granularity: non-daily dates (weekly, fortnightly,
-    month-end, yearly) and numerical indexes all follow the same rule. Up to the
-    cap every observation is a tick, keeping the existing pinned baselines
-    unchanged.
+    month-end, yearly) and numerical indexes all follow the same rule. Used as
+    the fallback when no calendar unit fits a multi-day cadence.
     """
-    if len(index) <= _MAX_PINNED_TICKS:
-        return index
-    take_every = int(np.ceil(len(index) / _MAX_PINNED_TICKS))
-    return index[::take_every]
+    return _thinned_positions(index, _MAX_PINNED_TICKS)
 
 def _sampling_locator(interval_days):
     """Locator marking every *interval_days*, or None when unexpressible.
@@ -137,8 +143,7 @@ def _minor_locator(step_days, span_steps, index):
         # Inexpressible cadence -> the true-granularity ruler as explicit
         # observation positions. Fixed ticks bypass Locator.MAXTICKS, so the
         # thinning here is our own legibility choice.
-        take_every = int(np.ceil(len(index) / _MAX_MINOR_TICKS))
-        return index[::take_every]
+        return _thinned_positions(index, _MAX_MINOR_TICKS)
     if span_steps <= _MAX_MINOR_TICKS:
         return base
     # Coarsen to the first expressible multiple, so 30-minute bars thin to whole
@@ -221,6 +226,23 @@ def _format_for(major_locator):
     return '%Y-%m-%d'
 
 
+def _calendar_major_locator(step_days, span_days):
+    """Calendar-unit majors for multi-day cadences, scaled to the label cap.
+
+    Majors step up from the cadence to a calendar unit: weekly-ish cadences
+    (< 15 days) read month by month; monthly-or-coarser cadences use year majors
+    once the span reaches ~3 years (shorter monthly series stay month-based);
+    yearly cadences always use year majors. The interval scales so the label
+    count stays near ``_MAX_PINNED_TICKS``.
+    """
+    use_years = step_days >= 200 or (step_days >= 15 and span_days >= _YEAR_MAJOR_MIN_SPAN_DAYS)
+    units = span_days / (365.25 if use_years else 30.44)
+    interval = max(1, int(np.ceil(units / _MAX_PINNED_TICKS)))
+    if use_years:
+        return mdates.YearLocator(base=interval)
+    return mdates.MonthLocator(interval=interval)
+
+
 def _date_tick_spec(index, span_steps):
     """Pick date-axis tick strategy from sampling cadence and span.
 
@@ -228,8 +250,12 @@ def _date_tick_spec(index, span_steps):
     from the median calendar gap (median is DST-robust for daily data):
 
     * Non-daily (gap > 1 day: weekly, fortnightly, month-end, yearly, ...):
-      majors are pinned to the data's own observations, thinned past
-      ``_MAX_PINNED_TICKS``, with the date-only formatter.
+      majors step up to a calendar unit -- month majors for weekly-ish
+      cadences, year majors for monthly-or-coarser cadences once the span
+      reaches ~3 years (yearly cadences always) -- scaled to keep labels near
+      ``_MAX_PINNED_TICKS``. Minors are the data's own granularity as positional
+      ticks at the observations, thinned to ``_MAX_MINOR_TICKS``. Positional
+      pinning is the fallback when no calendar unit fits.
     * Daily (gap of one day): the original span-in-steps ladder -- weekly ->
       biweekly -> month majors, with a daily minor ruler.
     * Sub-daily: minors follow the true sampling granularity (30-minute bars ->
@@ -240,8 +266,8 @@ def _date_tick_spec(index, span_steps):
       positional ticks; when no minor locator can express the gap, the minor slot
       becomes explicit positions at the observations.
 
-    Minors exist only while the span is within a year; beyond that the axis reads
-    as a calendar.
+    The one-year minor cut-off applies to the daily and sub-daily rulers only;
+    multi-day minors thin (never drop) under ``_MAX_MINOR_TICKS``.
 
     Returns ``(major_locator, minor_locator, pinned_positions, date_format)``.
     The major slot is a locator or None; the minor slot is a locator, an array of
@@ -255,7 +281,10 @@ def _date_tick_spec(index, span_steps):
     span_days = span_steps * median_step_days
 
     if median_step_days > 1:
-        return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
+        major = _calendar_major_locator(median_step_days, span_days)
+        if major is None:
+            return None, None, _pinned_tick_positions(index), '%Y-%m-%d'
+        return major, _thinned_positions(index, _MAX_MINOR_TICKS), None, '%Y-%m-%d'
 
     # Minors only while the span is within a year; past that the axis reads as a
     # calendar.
