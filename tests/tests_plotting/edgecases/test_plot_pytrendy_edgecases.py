@@ -861,13 +861,24 @@ class TestIntradayTickGranularity:
         values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
         return pd.DataFrame({'value': values}, index=index)
 
+    def _detect_and_assert(self, plot_df):
+        """Run real detection and guard the sine fixture's rise-fall-rise shape.
+
+        The fixture is a single sine sweep, so filtering out Flat/Noise must
+        leave Up, Down, Up. Asserting it here keeps every tick baseline anchored
+        to real detection instead of drifting into a hand-drawn band.
+        """
+        results = pt.detect_trends(plot_df, value_col='value', plot=False)
+        directions = [s['direction'] for s in results.segments
+                      if s['direction'] in ('Up', 'Down')]
+        assert directions == ['Up', 'Down', 'Up'], directions
+        return results
+
     def _plot(self, periods, freq):
-        """Plot one frame with a single mid-span Up segment; return (fig, index)."""
+        """Detect trends for one frame and plot the real output; return (fig, index)."""
         plot_df = self._intraday_plot_df(periods, freq)
-        n = len(plot_df)
-        segments = [{'start': plot_df.index[n // 4], 'end': plot_df.index[3 * n // 4],
-                     'direction': 'Up', 'trend_class': 'gradual', 'change_rank': 1}]
-        fig = plot_pytrendy(plot_df, 'value', segments,
+        results = self._detect_and_assert(plot_df)
+        fig = plot_pytrendy(plot_df, 'value', results.segments,
                             index_type='date', suppress_show=True)
         return fig, plot_df.index
 
@@ -908,7 +919,8 @@ class TestIntradayTickGranularity:
 
         2880 projected 30-minute minors exceed the 900 legibility target, so the
         interval is coarsened x4 to 2 hours (~720 ticks) and no MAXTICKS warning
-        is raised. This baseline is unchanged from the previous commit.
+        is raised. The fixture runs real detection, so this baseline is
+        regenerated from the detected Up/Flat/Down/Flat/Up segments.
         """
         fig, _ = self._plot(2881, '30min')
         ax = fig.axes[0]
