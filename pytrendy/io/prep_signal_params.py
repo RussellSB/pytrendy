@@ -53,11 +53,8 @@ _SIGNAL_PARAMS_DEFAULTS = {
     'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
 }
 
-# A Savitzky-Golay smoother and the noise-grouping pass are both meaningless with
-# 1-2 observations, which is what the pure duration rule degenerates to at weekly
-# and coarser cadences (weekly 15 d / 7 d = 2, monthly and yearly = 1). Floor the
-# span-derived smoothing and grouping windows at three observations.
-_MIN_OBSERVATIONS = 3
+# Savitzky-Golay requires window_length > polyorder (1), so scaling never floors below 2 points.
+_MIN_SMOOTH_WINDOW = 2
 
 
 def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0, n_obs: int|None=None) -> dict:
@@ -86,12 +83,12 @@ def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0,
         dict: Fully-populated signal_params with every key the stages read.
     """
     smooth_span_days = _smooth_window_days(index_gap_days)
-    window_smooth = scale_window(smooth_span_days, index_gap_days, minimum=_MIN_OBSERVATIONS)
+    window_smooth = scale_window(smooth_span_days, index_gap_days, minimum=_MIN_SMOOTH_WINDOW)
     if n_obs is not None:
-        window_smooth = max(_MIN_OBSERVATIONS, min(window_smooth, n_obs))
+        window_smooth = max(_MIN_SMOOTH_WINDOW, min(window_smooth, n_obs))
     resolved = {
         'window_smooth': window_smooth,
-        'grouping_distance': scale_window(smooth_span_days * _GROUPING_FRACTION, index_gap_days, minimum=_MIN_OBSERVATIONS),
+        'grouping_distance': scale_window(smooth_span_days * _GROUPING_FRACTION, index_gap_days),
         'min_trend_length': scale_window(smooth_span_days * _MIN_TREND_FRACTION, index_gap_days),
         'min_flat_noise_length': scale_window(smooth_span_days * _MIN_FLAT_NOISE_FRACTION, index_gap_days),
         'smooth_factor': _SIGNAL_PARAMS_DEFAULTS['smooth_factor'],
