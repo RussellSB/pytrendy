@@ -53,8 +53,11 @@ _SIGNAL_PARAMS_DEFAULTS = {
     'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
 }
 
-# Savitzky-Golay requires window_length > polyorder (1), so scaling never floors below 2 points.
-_MIN_SMOOTH_WINDOW = 2
+# Savitzky-Golay requires window_length > polyorder (1). Five is the smallest floor
+# that keeps the derived rolling gates alive: window_flat/window_noise = int(5 * 0.5) = 2,
+# so their rolling std is defined; a 2-point window gave a 1-point (NaN) std, leaving
+# flat_flag/noise_flag stuck at 0 and the savgol derivative a raw one-step diff sign.
+_MIN_SMOOTH_WINDOW = 5
 
 
 def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0, n_obs: int|None=None) -> dict:
@@ -94,7 +97,8 @@ def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0,
         smooth_span_days = min(smooth_span_days, max(3, n_obs // 4) * index_gap_days)
     window_smooth = scale_window(smooth_span_days, index_gap_days, minimum=_MIN_SMOOTH_WINDOW)
     if n_obs is not None:
-        window_smooth = max(_MIN_SMOOTH_WINDOW, min(window_smooth, n_obs))
+        # The floor yields to short frames: never request a window longer than the series.
+        window_smooth = min(window_smooth, n_obs)
     resolved = {
         'window_smooth': window_smooth,
         'grouping_distance': scale_window(smooth_span_days * _GROUPING_FRACTION, index_gap_days),
