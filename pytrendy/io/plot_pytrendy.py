@@ -490,12 +490,20 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
         # A neighbouring abrupt/noise segment keeps its own left edge (see the
         # start block above), so the previous span must be extended onto this
         # segment's start or the band between their two x-vertices is left white.
-        # Flat predecessors already reach this start via the end-extension below;
-        # noise successors are already pulled back onto the previous span.
+        # Flat predecessors already reach this start via the end-extension below,
+        # and noise successors are already pulled back onto the previous span.
+        # Each span is painted exactly once: the previous span already reaches
+        # this start when its own end-extension succeeded, so skip the fill then.
         if (is_abrupt or is_noise) and prev_neighbouring and prev_seg and ('trend_class' in prev_seg):
             prev_end = pd.to_datetime(prev_seg['end']) if is_date_axis else prev_seg['end']
             if start != prev_end:
-                _extend_span_to(prev_seg, start)
+                value_here = df.loc[start, value_col]
+                prev_reached_start = bool(value_here) and (
+                    (prev_seg['direction'] == 'Up' and value_here > df.loc[prev_end, value_col])
+                    or (prev_seg['direction'] == 'Down' and value_here < df.loc[prev_end, value_col])
+                )
+                if not prev_reached_start:
+                    _extend_span_to(prev_seg, start)
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
