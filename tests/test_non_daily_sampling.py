@@ -13,6 +13,7 @@ import pytest
 
 import pytrendy as pt
 from pytrendy._spacing import compute_gap_days, scale_window
+from pytrendy.io import prep_signal_params
 
 
 def _base_daily(n: int = 547, period: float = 52.0, amp: float = 20.0) -> pd.DataFrame:
@@ -84,6 +85,26 @@ class TestSpacingHelpers:
         for base in (7, 7, 3, 1):
             assert scale_window(base, 14.0) == 1
             assert scale_window(base, 31.0) == 1
+
+    def test_intraday_windows_span_a_day(self):
+        """Sub-daily cadences derive from the ~24 h rung (24 steps at 1 h, 48 at 30 min)."""
+        hourly = prep_signal_params.prep_signal_params(None, 1 / 24)
+        assert hourly['window_smooth'] == 24
+        half_hourly = prep_signal_params.prep_signal_params(None, 1 / 48)
+        assert half_hourly['window_smooth'] == 48
+        # Grouping distance and minimum lengths are fractions of the same span.
+        assert half_hourly['grouping_distance'] == 22
+        assert half_hourly['min_trend_length'] == 9
+        assert half_hourly['min_flat_noise_length'] == 3
+
+    def test_window_clamped_to_series_length(self):
+        """A derived window can never exceed a short series."""
+        clamped = prep_signal_params.prep_signal_params(None, 1 / 48, n_obs=20)
+        assert clamped['window_smooth'] == 20
+
+    def test_invalid_gap_falls_back_to_daily_span(self):
+        """A non-finite gap keeps the historical daily window, matching scale_window."""
+        assert prep_signal_params.prep_signal_params(None, float('nan'))['window_smooth'] == 15
 
 
 class TestNonDailySampling:
