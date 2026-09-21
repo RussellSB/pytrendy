@@ -941,6 +941,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(n_obs)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n_obs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1558,6 +1569,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(n_obs)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n_obs
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1597,7 +1619,7 @@
 rolling windows, grouping distance, and the noise/flat thresholds. <code>detect_trends</code>
 is the single public entry point, so this module is the one place those constants
 are defaulted before the pipeline runs.</p>
-<p>Defaults are calibrated in <em>days</em> and scaled to the observed sampling cadence, so a
+<p>Defaults are calibrated as <em>durations</em> and divided by the observed sampling gap, so a
 window spans approximately the same real-time duration regardless of how densely the
 series is sampled; at daily spacing the derived counts equal the historical constants
 exactly. They are then merged with any user-supplied <code>signal_params</code> overrides. The
@@ -1634,16 +1656,18 @@ explicitly overridden they derive from the cadence-scaled <code>window_smooth</c
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Merge user-supplied <code>signal_params</code> over cadence-derived defaults.</p>
-<p>Point-count defaults are the historical day-calibrated constants scaled to
-the index's median sampling gap, so daily inputs reproduce the historical
-values exactly and coarser cadences span the same real-time duration.
-Explicit overrides are raw point counts and bypass the cadence scaling.</p>
+<p>Every point-count default is a real-time duration from <code>_WINDOW_LADDER</code>
+divided by the index's median sampling gap, so a window spans the same
+duration at any cadence: ~24 h for sub-daily data and 15 days for daily and
+coarser, with grouping distance and minimum lengths proportional to the same
+span. Daily inputs reproduce the historical constants exactly. Explicit
+overrides are raw point counts and bypass the cadence scaling.</p>
 <p><code>window_flat</code> and <code>window_noise</code> are not top-level defaults: unless explicitly
 overridden they derive from the cadence-scaled <code>window_smooth</code> via
 <code>smooth_factor</code> and <code>noise_factor</code>. Every stage downstream assumes this returns
@@ -1672,6 +1696,17 @@ a fully-populated dict.</p>
             <p>Median sampling gap of the prepared index, in days.</p>
           </div>
         </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.prep_signal_params.prep_signal_params(n_obs)" class="doc doc-heading doc-heading-parameter">              <b><code>n_obs</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Number of observations; clamps <code>window_smooth</code> so a
+window can never exceed a short series. Defaults to no clamp.</p>
+          </div>
+        </li>
     </ul>
 
 
@@ -1689,49 +1724,59 @@ a fully-populated dict.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/prep_signal_params.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span>
-<span class="normal">45</span>
-<span class="normal">46</span>
-<span class="normal">47</span>
-<span class="normal">48</span>
-<span class="normal">49</span>
-<span class="normal">50</span>
-<span class="normal">51</span>
-<span class="normal">52</span>
-<span class="normal">53</span>
-<span class="normal">54</span>
-<span class="normal">55</span>
-<span class="normal">56</span>
-<span class="normal">57</span>
-<span class="normal">58</span>
-<span class="normal">59</span>
-<span class="normal">60</span>
-<span class="normal">61</span>
-<span class="normal">62</span>
-<span class="normal">63</span>
-<span class="normal">64</span>
-<span class="normal">65</span>
-<span class="normal">66</span>
-<span class="normal">67</span>
-<span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
-<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
+<span class="normal"> 64</span>
+<span class="normal"> 65</span>
+<span class="normal"> 66</span>
+<span class="normal"> 67</span>
+<span class="normal"> 68</span>
+<span class="normal"> 69</span>
+<span class="normal"> 70</span>
+<span class="normal"> 71</span>
+<span class="normal"> 72</span>
+<span class="normal"> 73</span>
+<span class="normal"> 74</span>
+<span class="normal"> 75</span>
+<span class="normal"> 76</span>
+<span class="normal"> 77</span>
+<span class="normal"> 78</span>
+<span class="normal"> 79</span>
+<span class="normal"> 80</span>
+<span class="normal"> 81</span>
+<span class="normal"> 82</span>
+<span class="normal"> 83</span>
+<span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
+<span class="normal"> 88</span>
+<span class="normal"> 89</span>
+<span class="normal"> 90</span>
+<span class="normal"> 91</span>
+<span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge user-supplied `signal_params` over cadence-derived defaults.</span>
 
-<span class="sd">    Point-count defaults are the historical day-calibrated constants scaled to</span>
-<span class="sd">    the index's median sampling gap, so daily inputs reproduce the historical</span>
-<span class="sd">    values exactly and coarser cadences span the same real-time duration.</span>
-<span class="sd">    Explicit overrides are raw point counts and bypass the cadence scaling.</span>
+<span class="sd">    Every point-count default is a real-time duration from `_WINDOW_LADDER`</span>
+<span class="sd">    divided by the index's median sampling gap, so a window spans the same</span>
+<span class="sd">    duration at any cadence: ~24 h for sub-daily data and 15 days for daily and</span>
+<span class="sd">    coarser, with grouping distance and minimum lengths proportional to the same</span>
+<span class="sd">    span. Daily inputs reproduce the historical constants exactly. Explicit</span>
+<span class="sd">    overrides are raw point counts and bypass the cadence scaling.</span>
 
 <span class="sd">    `window_flat` and `window_noise` are not top-level defaults: unless explicitly</span>
 <span class="sd">    overridden they derive from the cadence-scaled `window_smooth` via</span>
@@ -1741,15 +1786,21 @@ a fully-populated dict.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.</span>
 <span class="sd">        index_gap_days (float): Median sampling gap of the prepared index, in days.</span>
+<span class="sd">        n_obs (int, optional): Number of observations; clamps `window_smooth` so a</span>
+<span class="sd">            window can never exceed a short series. Defaults to no clamp.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Fully-populated signal_params with every key the stages read.</span>
 <span class="sd">    """</span>
+    <span class="n">smooth_span_days</span> <span class="o">=</span> <span class="n">_smooth_window_days</span><span class="p">(</span><span class="n">index_gap_days</span><span class="p">)</span>
+    <span class="n">window_smooth</span> <span class="o">=</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">window_smooth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">window_smooth</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">))</span>
     <span class="n">resolved</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s1">'window_smooth'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">],</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">),</span>
-        <span class="s1">'grouping_distance'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'grouping_distance'</span><span class="p">],</span> <span class="n">index_gap_days</span><span class="p">),</span>
-        <span class="s1">'min_trend_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'min_trend_length'</span><span class="p">],</span> <span class="n">index_gap_days</span><span class="p">),</span>
-        <span class="s1">'min_flat_noise_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'min_flat_noise_length'</span><span class="p">],</span> <span class="n">index_gap_days</span><span class="p">),</span>
+        <span class="s1">'window_smooth'</span><span class="p">:</span> <span class="n">window_smooth</span><span class="p">,</span>
+        <span class="s1">'grouping_distance'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_GROUPING_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
+        <span class="s1">'min_trend_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_TREND_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
+        <span class="s1">'min_flat_noise_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_FLAT_NOISE_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'smooth_factor'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'smooth_factor'</span><span class="p">],</span>
         <span class="s1">'noise_factor'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'noise_factor'</span><span class="p">],</span>
         <span class="s1">'threshold_noise'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'threshold_noise'</span><span class="p">],</span>
