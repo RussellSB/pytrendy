@@ -915,6 +915,15 @@ class TestIntradayTickGranularity:
         assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
         return fig
 
+    def test_one_day_hourly_resolves_full_sweep(self):
+        """1 day of hourly bars resolves the sine's rise-fall-rise.
+
+        The final 4-step leg was stamped abrupt by the reclassification pass and
+        then flattened by ``clean_artifacts``, leaving Up/Down/Flat; the trailing
+        monotonic leg is now kept, matching the 30-min and 45-min cases.
+        """
+        self._detect_and_assert(self._intraday_plot_df(24, '1h'), ['Up', 'Down', 'Up'])
+
 
 class TestIntradayTickSpec:
     """Direct coverage for the cadence ladder and its fiddly fallbacks."""

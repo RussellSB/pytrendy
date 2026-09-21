@@ -286,6 +286,12 @@ def clean_artifacts(df: pd.DataFrame, value_col: str, segments_refined: list[dic
         threshold_diff = float(df['value_cleaned'].abs().max()) * 0.01
         if is_abrupt: # make a bit more lenient for abrupt
             threshold_diff = float(df['value_cleaned'].abs().max()) * 0.1
+            # A monotonic final leg (net change ≈ its own swing) genuinely travels
+            # to the series end; don't let the generous abrupt threshold flatten it
+            # (fill_in_flats would otherwise repaint the trailing leg as Flat).
+            seg_range = float(df_segment[value_col].max() - df_segment[value_col].min())
+            if end == df.index[-1] and seg_range > 0 and diff >= 0.9 * seg_range:
+                threshold_diff = 0.0
         trend_ends_too_close = (is_gradual or is_abrupt) and (diff <= threshold_diff)
 
         # Edge case 3.2: Check if total change too small, because noise puts it closer to 0
