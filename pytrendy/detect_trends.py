@@ -57,7 +57,7 @@ def detect_trends(df: pd.DataFrame,
             Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
 
             - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to the
-              duration-calibrated value (15 days; 15 points on daily data).
+              duration-calibrated value (~24 h for sub-daily data; 15 days for daily data, i.e. 15 points).
             - **smooth_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
             - **noise_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
             - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to the duration-calibrated value (7 days; 7 steps on daily data).
@@ -68,8 +68,10 @@ def detect_trends(df: pd.DataFrame,
             - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
 
             Window and minimum-length defaults are derived from the median sampling interval of the
-            supplied index, so the same real-time durations apply to daily, weekly, fortnightly and
-            monthly cadences. `smooth_factor` and `noise_factor` scale the cadence-derived `window_smooth`
+            supplied index, so the same real-time durations apply to sub-daily, daily, weekly,
+            fortnightly and monthly cadences: `window_smooth` targets ~24 h for intraday data and
+            15 days for daily and coarser, with grouping distance and minimum lengths proportional to
+            the same span. `smooth_factor` and `noise_factor` scale the cadence-derived `window_smooth`
             to derive `window_flat` and `window_noise`. Overriding any of them uses the given value as a
             raw point count and bypasses the cadence scaling. This surface is independent from
             `method_params`, which controls the padding and noise heuristics instead.
@@ -131,7 +133,7 @@ def detect_trends(df: pd.DataFrame,
     # Configures signal-processing constants. Window and length defaults scale
     # to the index cadence; unknown keys are accepted and forwarded (validation
     # is deliberately out of scope for now).
-    signal_params = prep_signal_params.prep_signal_params(signal_params, gap_days)
+    signal_params = prep_signal_params.prep_signal_params(signal_params, gap_days, n_obs=len(df))
 
     # Core 5-step pipeline
     df = process_signals(df, value_col, method_params, signal_params, debug)

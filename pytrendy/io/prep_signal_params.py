@@ -5,7 +5,7 @@ rolling windows, grouping distance, and the noise/flat thresholds. ``detect_tren
 is the single public entry point, so this module is the one place those constants
 are defaulted before the pipeline runs.
 
-Defaults are calibrated in *days* and scaled to the observed sampling cadence, so a
+Defaults are calibrated as *durations* and divided by the observed sampling gap, so a
 window spans approximately the same real-time duration regardless of how densely the
 series is sampled; at daily spacing the derived counts equal the historical constants
 exactly. They are then merged with any user-supplied ``signal_params`` overrides. The
@@ -17,13 +17,37 @@ explicitly overridden they derive from the cadence-scaled ``window_smooth`` via
 
 from .._spacing import scale_window
 
+# Duration ladder: the real-time span (days) the smoothing window targets for a
+# cadence, selected by the series' median sampling gap. Sub-daily series smooth
+# across ~24 h (24 steps at 1 h, 48 at 30 min); daily and coarser keep the
+# historical 15-day window, which shrinks to proportionally fewer points as the
+# cadence coarsens. Every other window and minimum length is a fraction of the
+# same span, so all of them stay proportional to the cadence.
+_WINDOW_LADDER = (
+    (1.0, 1.0),             # intraday:    ~24 h
+    (7.0, 15.0),            # daily:       15 d
+    (14.0, 15.0),           # weekly:      15 d
+    (28.0, 15.0),           # fortnightly: 15 d
+    (200.0, 15.0),          # monthly:     15 d
+    (float('inf'), 15.0),   # yearly+:     15 d
+)
+_GROUPING_FRACTION = 7 / 15
+_MIN_TREND_FRACTION = 3 / 15
+_MIN_FLAT_NOISE_FRACTION = 1 / 15
+
+
+def _smooth_window_days(gap_days: float) -> float:
+    """Real-time span (days) the smoothing window targets for a sampling gap."""
+    for max_gap_days, duration_days in _WINDOW_LADDER:
+        if gap_days < max_gap_days:
+            return duration_days
+    return _WINDOW_LADDER[-1][1]
+
+
+# The remaining constants are dimensionless, so they need no cadence conversion.
 _SIGNAL_PARAMS_DEFAULTS = {
-    'window_smooth': 15,        # days: Savitzky-Golay smoothing window.
     'smooth_factor': 0.5,       # Fraction of the cadence-derived window_smooth spanned by window_flat: raise to widen it (smoother flat baseline, fewer flags), lower to narrow it (more sensitive); applied to the scaled window so it stays proportional.
     'noise_factor': 0.5,        # Fraction of the cadence-derived window_smooth spanned by window_noise: raise to widen it (smoother SNR estimate, fewer flags), lower to narrow it (more sensitive); applied to the scaled window so it stays proportional.
-    'grouping_distance': 7,     # days: maximum gap for grouping nearby segments.
-    'min_trend_length': 3,      # days: minimum length for an Up/Down segment to be retained.
-    'min_flat_noise_length': 1, # days: minimum length for a Flat/Noise segment to be retained.
     'threshold_noise': 2.5,     # SNR threshold (dB) below which a region is classified as noise.
     'threshold_smooth': 0.001,  # Derivative threshold as a fraction of the signal IQR, below which motion counts as flat.
     'threshold_flat': 0.835,    # Flat sensitivity as a fraction of the minimum non-zero rolling std.
@@ -33,14 +57,16 @@ _SIGNAL_PARAMS_DEFAULTS = {
 _MIN_SMOOTH_WINDOW = 2
 
 
-def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0) -> dict:
+def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0, n_obs: int|None=None) -> dict:
     """
     Merge user-supplied `signal_params` over cadence-derived defaults.
 
-    Point-count defaults are the historical day-calibrated constants scaled to
-    the index's median sampling gap, so daily inputs reproduce the historical
-    values exactly and coarser cadences span the same real-time duration.
-    Explicit overrides are raw point counts and bypass the cadence scaling.
+    Every point-count default is a real-time duration from `_WINDOW_LADDER`
+    divided by the index's median sampling gap, so a window spans the same
+    duration at any cadence: ~24 h for sub-daily data and 15 days for daily and
+    coarser, with grouping distance and minimum lengths proportional to the same
+    span. Daily inputs reproduce the historical constants exactly. Explicit
+    overrides are raw point counts and bypass the cadence scaling.
 
     `window_flat` and `window_noise` are not top-level defaults: unless explicitly
     overridden they derive from the cadence-scaled `window_smooth` via
@@ -50,15 +76,21 @@ def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0)
     Args:
         signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.
         index_gap_days (float): Median sampling gap of the prepared index, in days.
+        n_obs (int, optional): Number of observations; clamps `window_smooth` so a
+            window can never exceed a short series. Defaults to no clamp.
 
     Returns:
         dict: Fully-populated signal_params with every key the stages read.
     """
+    smooth_span_days = _smooth_window_days(index_gap_days)
+    window_smooth = scale_window(smooth_span_days, index_gap_days, minimum=_MIN_SMOOTH_WINDOW)
+    if n_obs is not None:
+        window_smooth = max(_MIN_SMOOTH_WINDOW, min(window_smooth, n_obs))
     resolved = {
-        'window_smooth': scale_window(_SIGNAL_PARAMS_DEFAULTS['window_smooth'], index_gap_days, minimum=_MIN_SMOOTH_WINDOW),
-        'grouping_distance': scale_window(_SIGNAL_PARAMS_DEFAULTS['grouping_distance'], index_gap_days),
-        'min_trend_length': scale_window(_SIGNAL_PARAMS_DEFAULTS['min_trend_length'], index_gap_days),
-        'min_flat_noise_length': scale_window(_SIGNAL_PARAMS_DEFAULTS['min_flat_noise_length'], index_gap_days),
+        'window_smooth': window_smooth,
+        'grouping_distance': scale_window(smooth_span_days * _GROUPING_FRACTION, index_gap_days),
+        'min_trend_length': scale_window(smooth_span_days * _MIN_TREND_FRACTION, index_gap_days),
+        'min_flat_noise_length': scale_window(smooth_span_days * _MIN_FLAT_NOISE_FRACTION, index_gap_days),
         'smooth_factor': _SIGNAL_PARAMS_DEFAULTS['smooth_factor'],
         'noise_factor': _SIGNAL_PARAMS_DEFAULTS['noise_factor'],
         'threshold_noise': _SIGNAL_PARAMS_DEFAULTS['threshold_noise'],
