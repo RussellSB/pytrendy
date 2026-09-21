@@ -1169,3 +1169,75 @@ class TestTickGranularityMatrix:
         assert 20 <= n_minor <= 40
         assert fmt == '%Y-%m-%d'
         return fig
+
+
+# =============================================================================
+# plot_pytrendy: adjacent spans share an x-vertex
+# =============================================================================
+
+def _capture_fill_spans(monkeypatch, plot_df, segments, index_type):
+    """Run plot_pytrendy, capturing each ax.fill_between x-array.
+
+    Returns the captured x-arrays in draw order, which are exactly the shaded
+    span vertices. No pixels involved.
+    """
+    import matplotlib.axes as maxes
+
+    captured = []
+    original = maxes.Axes.fill_between
+
+    def capture(self, x, *args, **kwargs):
+        captured.append(np.asarray(x))
+        return original(self, x, *args, **kwargs)
+
+    monkeypatch.setattr(maxes.Axes, 'fill_between', capture)
+    fig = plot_pytrendy(plot_df, 'value', deepcopy(segments),
+                        index_type=index_type, suppress_show=True)
+    plt.close(fig)
+    return captured
+
+
+class TestAdjacentSpansShareVertex:
+    """A trend immediately followed by an abrupt segment must not leave a white
+    band: their shaded spans must share an x-vertex.
+
+    Before the fix the abrupt segment kept its own left edge (it skips the
+    left-start displacement) and the preceding trend's end-extension was
+    rejected because the trend ended on its extremum, so the inter-observation
+    band between the two vertices was never painted.
+    """
+
+    @staticmethod
+    def _plot_input(index_type):
+        """Gradual Up ending at its peak, immediately followed by abrupt Down."""
+        values = np.concatenate([
+            np.linspace(10, 50, 20),   # gradual rise, peak at index 19
+            np.linspace(45, 20, 8),    # sharp fall: value[20] < value[19]
+            np.full(10, 20.0),         # trailing flat
+        ])
+        if index_type == 'string':
+            index = [f'S{i}' for i in range(len(values))]
+        else:
+            index = pd.date_range('2025-01-01', periods=len(values), freq='D')
+        plot_df = pd.DataFrame({'value': values}, index=index)
+        segments = [
+            {'start': index[2],  'end': index[19], 'direction': 'Up',
+             'trend_class': 'gradual', 'change_rank': 1},
+            {'start': index[20], 'end': index[26], 'direction': 'Down',
+             'trend_class': 'abrupt', 'change_rank': 2},
+            {'start': index[27], 'end': index[-1], 'direction': 'Flat',
+             'change_rank': 3},
+        ]
+        return plot_df, segments
+
+    @pytest.mark.parametrize('index_type', ['date', 'string'])
+    def test_trend_to_abrupt_spans_are_contiguous(self, monkeypatch, index_type):
+        plot_df, segments = self._plot_input(index_type)
+        spans = _capture_fill_spans(monkeypatch, plot_df, segments, index_type)
+
+        assert len(spans) >= 2, "expected shading spans to be drawn"
+        for previous, current in zip(spans, spans[1:]):
+            assert current[0] <= previous[-1], (
+                "adjacent shading spans do not share a vertex: "
+                f"{previous[-1]} < {current[0]} leaves an unpainted band"
+            )

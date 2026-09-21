@@ -381,6 +381,24 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
     # displaced by the actual point spacing (via _adjacent_to), not a hard-coded
     # one-day step, or non-daily data leaves white gaps between shaded regions.
     is_date_axis = index_type in ('date', 'datetime64')
+
+    def _extend_span_to(span_seg: dict, boundary) -> None:
+        """Fill *span_seg*'s colour from its end through *boundary* (inclusive).
+
+        Keeps adjacent spans sharing an x-vertex when the following segment
+        keeps its own left edge, so no inter-observation band is left unpainted.
+        """
+        from_pos = pd.to_datetime(span_seg['end']) if is_date_axis else span_seg['end']
+        to_pos = pd.to_datetime(boundary) if is_date_axis else boundary
+        if index_type == 'string':
+            lo = df.index.get_loc(from_pos)
+            hi = df.index.get_loc(to_pos)
+            mask = (np.arange(len(df)) >= lo) & (np.arange(len(df)) <= hi)
+        else:
+            mask = (df.index >= from_pos) & (df.index <= to_pos)
+        span_color = color_map.get(span_seg['direction'], 'gray')
+        ax.fill_between(df.index[mask], ymin, ymax, color=span_color, alpha=default_params['alpha'])
+
     for i, seg in enumerate(segments_enhanced):
         
         if is_date_axis:
@@ -468,6 +486,16 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
                             mask = (df.index >= prev_end) & (df.index <= prev_new_end)
                         prev_color = color_map.get(segments_enhanced[i-1]['direction'], 'gray')
                         ax.fill_between(df.index[mask], ymin, ymax, color=prev_color, alpha=default_params['alpha'])
+
+        # A neighbouring abrupt/noise segment keeps its own left edge (see the
+        # start block above), so the previous span must be extended onto this
+        # segment's start or the band between their two x-vertices is left white.
+        # Flat predecessors already reach this start via the end-extension below;
+        # noise successors are already pulled back onto the previous span.
+        if (is_abrupt or is_noise) and prev_neighbouring and prev_seg and ('trend_class' in prev_seg):
+            prev_end = pd.to_datetime(prev_seg['end']) if is_date_axis else prev_seg['end']
+            if start != prev_end:
+                _extend_span_to(prev_seg, start)
 
         # Adjust ends when appropriate
         if (next_seg_abrupt or next_seg_noise) and next_neighbouring:
