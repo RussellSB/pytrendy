@@ -1724,7 +1724,10 @@ window can never exceed a short series. Defaults to no clamp.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/prep_signal_params.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 63</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 60</span>
+<span class="normal"> 61</span>
+<span class="normal"> 62</span>
+<span class="normal"> 63</span>
 <span class="normal"> 64</span>
 <span class="normal"> 65</span>
 <span class="normal"> 66</span>
@@ -1764,10 +1767,7 @@ window can never exceed a short series. Defaults to no clamp.</p>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
-<span class="normal">106</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge user-supplied `signal_params` over cadence-derived defaults.</span>
 
@@ -1793,12 +1793,12 @@ window can never exceed a short series. Defaults to no clamp.</p>
 <span class="sd">        dict: Fully-populated signal_params with every key the stages read.</span>
 <span class="sd">    """</span>
     <span class="n">smooth_span_days</span> <span class="o">=</span> <span class="n">_smooth_window_days</span><span class="p">(</span><span class="n">index_gap_days</span><span class="p">)</span>
-    <span class="n">window_smooth</span> <span class="o">=</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_OBSERVATIONS</span><span class="p">)</span>
+    <span class="n">window_smooth</span> <span class="o">=</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">window_smooth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MIN_OBSERVATIONS</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">window_smooth</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">))</span>
+        <span class="n">window_smooth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">window_smooth</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">))</span>
     <span class="n">resolved</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s1">'window_smooth'</span><span class="p">:</span> <span class="n">window_smooth</span><span class="p">,</span>
-        <span class="s1">'grouping_distance'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_GROUPING_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_OBSERVATIONS</span><span class="p">),</span>
+        <span class="s1">'grouping_distance'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_GROUPING_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'min_trend_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_TREND_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'min_flat_noise_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_FLAT_NOISE_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'smooth_factor'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'smooth_factor'</span><span class="p">],</span>
