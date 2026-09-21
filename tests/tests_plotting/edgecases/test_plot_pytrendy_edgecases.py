@@ -13,7 +13,10 @@ from copy import deepcopy
 from conftest import build_internal_index
 import pytrendy as pt
 from pytrendy.io import prep_signal_params
-from pytrendy.io.plot_pytrendy import plot_pytrendy
+from pytrendy.io.plot_pytrendy import (plot_pytrendy, _pinned_tick_positions,
+                                       _date_tick_spec, _sampling_locator,
+                                       _minor_locator, _format_for, _divides,
+                                       _MAX_MINOR_TICKS)
 from pytrendy.process_signals import process_signals
 from pytrendy.post_processing.segments_get import get_segments
 from pytrendy.post_processing.segments_analyse import analyse_segments
@@ -24,6 +27,7 @@ from pytrendy.post_processing.segments_refine.artifact_cleanup import clean_arti
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 from matplotlib import colors as mcolors
+from matplotlib.ticker import FixedLocator
 
 
 class TestPlotPytrendyEdgeCases:
@@ -131,8 +135,8 @@ class TestPlotPytrendyEdgeCases:
 
         Non-daily point spacing previously left ~6-day white bands between
         segments because boundary displacement assumed a one-day step. Weekly
-        majors are also spacing-matched to the data's own weekday (Sundays),
-        rather than the default Tuesday-aligned ``WeekdayLocator``.
+        dates now get month majors with weekly positional minors; the baseline
+        guards the gap-free shading.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -143,23 +147,20 @@ class TestPlotPytrendyEdgeCases:
 
         results = pt.detect_trends(dfw, date_col='date', value_col='gradual', plot=False)
         fig = self._prepare_and_plot(dfw, 'gradual', results.segments)
-        major_weekdays = {
-            pd.Timestamp(mdates.num2date(t)).strftime('%a')
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major_weekdays == {'Sun'}
+        assert isinstance(fig.axes[0].xaxis.get_major_locator(), FixedLocator)
         return fig
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_weekly_datetime64_ticks.png', style='default')
     def test_plot_weekly_datetime64_ticks(self):
-        """Weekly datetime64 index gets Sunday-aligned majors and no daily minor ticks.
+        """Weekly datetime64 index gets month majors and weekly positional minors.
 
         A real datetime64 column previously skipped the locator block entirely,
         leaving matplotlib's AutoDateLocator to pick a handful of auto ticks. Its
         boundaries also took the integer/float displacement branch (a hard-coded
         one-day step), so weekly points left ~6-day white bands between shaded
-        segments; both are regression-guarded by this baseline.
+        segments; both are regression-guarded by this baseline. The minors are
+        the data's own weekly observations, so the ruler sits on sampled points.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -170,24 +171,21 @@ class TestPlotPytrendyEdgeCases:
         plot_df = weekly.set_index('date')[['gradual']]
         fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
                             index_type='datetime64', suppress_show=True)
-        assert len(fig.axes[0].xaxis.get_minorticklocs()) == 0
-        major_weekdays = {
-            pd.Timestamp(mdates.num2date(t)).strftime('%a')
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major_weekdays == {'Sun'}
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), FixedLocator)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
         return fig
 
     @pytest.mark.plot
     @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_fortnightly_pinned_ticks.png', style='default')
-    def test_fortnightly_pinned_ticks(self):
-        """Fortnightly dates get majors pinned to every observation.
+    def test_fortnightly_month_majors_with_positional_minors(self):
+        """Fortnightly dates get month majors and fortnightly positional minors.
 
         A ``WeekdayLocator(interval=2)`` anchors its interval grid to the Unix
-        epoch, so its majors landed one week off the 14-day observations (0/38 on
-        data points). Non-daily spacing now pins majors to the data's own index
-        positions, so every major (and its 'major' gridline) sits on a sampled
-        point.
+        epoch, so its majors landed one week off the 14-day observations. The
+        multi-day path now steps majors up to a calendar unit (month majors here)
+        and emits the data's own spacing as positional minors, so the ruler sits
+        on sampled points.
         """
         df = pt.load_data('series_synthetic')
         df['date'] = pd.to_datetime(df['date'])
@@ -205,12 +203,178 @@ class TestPlotPytrendyEdgeCases:
         fig = plot_pytrendy(df=plot_df, value_col='gradual', segments_enhanced=results.segments,
                             index_type='datetime64', suppress_show=True)
 
-        major = {
-            pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
-            for t in fig.axes[0].get_xticks()
-        }
-        assert major == set(pd.DatetimeIndex(fortnightly['date']).normalize())
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), FixedLocator)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
         return fig
+
+    def _long_daily_series(self, periods=731):
+        """Build a deterministic daily series of *periods* points by tiling synthetic data."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 6, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        return long.iloc[:periods].reset_index(drop=True)
+
+    def _fortnightly_series(self, periods):
+        """Build a fortnightly series of *periods* observations from tiled synthetic data."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        long = pd.concat([df] * 6, ignore_index=True)
+        long['date'] = pd.date_range(long['date'].iloc[0], periods=len(long), freq='D')
+        weekly = long.set_index('date')['gradual'].resample('W').last()
+        return pd.DataFrame({
+            'date': pd.date_range('2024-01-07', periods=periods, freq='14D'),
+            'gradual': weekly.iloc[::2].values[:periods],
+        })
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./', filename='test_plot_two_year_daily_tick_thinning.png', style='default')
+    def test_plot_two_year_daily_tick_thinning(self):
+        """A ~2-year daily series coarsens majors to months, with no minors.
+
+        Weekly majors (and a daily minor ruler) previously produced a wall of
+        ~104 labels plus ~626 minor ticks at 2 years. Span-adaptive density,
+        keyed on ``span_steps`` (730 index steps here), keeps ~24 month majors;
+        the minor ruler stops past a year, so the axis reads as a calendar again.
+        """
+        two_years = self._long_daily_series(731)  # ~2 years daily
+        results = pt.detect_trends(two_years, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(two_years, 'gradual', results.segments)
+
+        ax = fig.axes[0]
+        assert len(ax.get_xticks()) <= 30
+        assert len(ax.xaxis.get_minorticklocs()) == 0
+        return fig
+
+    def test_daily_short_span_keeps_weekly_majors(self):
+        """180-step daily data keeps the original weekly majors (baseline guard)."""
+        df = pt.load_data('series_synthetic')
+        results = pt.detect_trends(df, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(df, 'gradual', results.segments)
+
+        locator = fig.axes[0].xaxis.get_major_locator()
+        assert isinstance(locator, mdates.WeekdayLocator)
+        assert locator._get_interval() == 1
+
+    def test_daily_medium_span_biweekly_majors(self):
+        """~1-year daily data (365 steps) coarsens majors to biweekly (interval=2)."""
+        one_year = self._long_daily_series(366)
+        results = pt.detect_trends(one_year, date_col='date', value_col='gradual', plot=False)
+        fig = self._prepare_and_plot(one_year, 'gradual', results.segments)
+
+        locator = fig.axes[0].xaxis.get_major_locator()
+        assert isinstance(locator, mdates.WeekdayLocator)
+        assert locator._get_interval() == 2
+
+    def test_long_fortnightly_gets_month_majors_and_positional_minors(self):
+        """52-point fortnightly data gets month majors and every point as minors.
+
+        Fortnightly spacing is non-daily, so majors step up to a calendar unit
+        (``MonthLocator(1)`` over ~2 years) and the data's own points become the
+        positional minor ruler (52, under the 900 cap).
+        """
+        fortnightly = self._fortnightly_series(52)
+        major, minor, pinned, _ = _date_tick_spec(
+            pd.DatetimeIndex(fortnightly['date']), len(fortnightly) - 1)
+        assert major is None and len(pinned) == 24
+        assert len(minor) == len(fortnightly)
+
+    @staticmethod
+    def _pinned_ticks(index, index_type):
+        """Plot *index* with no segments and return ``(major ticks, locator)``."""
+        df = pd.DataFrame({'value': np.arange(len(index), dtype=float)}, index=index)
+        fig = plot_pytrendy(df=df, value_col='value', segments_enhanced=[],
+                            index_type=index_type, suppress_show=True)
+        ax = fig.axes[0]
+        if index_type in ('date', 'datetime64'):
+            ticks = [
+                pd.Timestamp(mdates.num2date(t)).tz_localize(None).normalize()
+                for t in ax.get_xticks()
+            ]
+        else:
+            ticks = list(ax.get_xticks())
+        return ticks, ax.xaxis.get_major_locator()
+
+    def test_two_year_monthly_gets_month_majors_and_minors(self):
+        """A ~2-year monthly series keeps month majors with monthly minors.
+
+        Below the ~4-year switch, monthly spacing labels every other month and
+        the 24 month-ends remain the positional minor ruler.
+        """
+        monthly = pd.date_range('2020-01-31', periods=24, freq='ME')
+        _, locator = self._pinned_ticks(monthly, 'datetime64')
+        assert isinstance(locator, FixedLocator)
+        _, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert len(pinned) == len(monthly) // 2 and len(minor) == len(monthly)
+
+    def test_three_year_monthly_labels_every_other_month(self):
+        """A ~3-year monthly series has two-month majors and monthly minors."""
+        monthly = pd.date_range('2020-01-31', periods=36, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and len(pinned) == 18
+        assert len(minor) == len(monthly)
+
+    def test_four_year_monthly_stays_two_monthly_at_boundary(self):
+        """A 48-point monthly span remains below the four-year threshold."""
+        monthly = pd.date_range('2020-01-31', periods=48, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and len(pinned) == 24
+        assert len(minor) == len(monthly)
+
+    def test_five_year_monthly_gets_year_majors_and_minors(self):
+        """A ~5-year monthly series steps up to year majors with monthly minors."""
+        monthly = pd.date_range('2020-01-31', periods=60, freq='ME')
+        major, minor, pinned, _ = _date_tick_spec(monthly, len(monthly) - 1)
+        assert major is None and len(pinned) == 5
+        assert len(minor) == len(monthly)
+
+    def test_yearly_series_gets_year_majors_and_minors(self):
+        """A yearly series uses year majors with the yearly observations as minors."""
+        yearly = pd.date_range('2015-01-01', periods=8, freq='YS')
+        major, minor, pinned, _ = _date_tick_spec(yearly, len(yearly) - 1)
+        assert major is None and len(pinned) == len(yearly)
+        assert len(minor) == len(yearly)
+
+    def test_weekly_one_year_gets_month_majors_and_weekly_minors(self):
+        """52 weekly points get month majors, not a finer daily/weekly locator."""
+        weekly = pd.date_range('2020-01-05', periods=52, freq='7D')
+        major, minor, pinned, _ = _date_tick_spec(weekly, len(weekly) - 1)
+        assert major is None and len(pinned) == 12
+        assert len(minor) == len(weekly)
+
+    def test_long_weekly_minors_thin_but_do_not_drop(self):
+        """10-year weekly keeps all 522 minors; 30-year thins to the 900 cap."""
+        ten = pd.date_range('2015-01-04', periods=522, freq='7D')
+        major, minor, pinned, _ = _date_tick_spec(ten, len(ten) - 1)
+        assert major is None and len(pinned) <= 40
+        assert len(minor) == 522  # under the 900 cap -> every observation
+        thirty = pd.date_range('1995-01-01', periods=1566, freq='7D')
+        major, minor, pinned, _ = _date_tick_spec(thirty, len(thirty) - 1)
+        assert major is None and len(pinned) <= 40
+        assert len(minor) == 783  # ceil(1566 / 900) = 2 -> every 2nd observation
+
+    def test_fifty_year_yearly_scales_year_interval(self):
+        """50 yearly points exceed the 40-label cap, so the year interval scales."""
+        yearly = pd.date_range('1975-01-01', periods=50, freq='YS')
+        major, minor, pinned, _ = _date_tick_spec(yearly, len(yearly) - 1)
+        assert major is None and len(pinned) == 25
+        assert len(minor) == len(yearly)
+
+    def test_integer_index_thins_past_40(self):
+        """The positional pin/thin rule is agnostic to index granularity.
+
+        A numerical index is just another positional index: up to 40 points
+        every value is a tick, past it every ``ceil(n/40)``th value is. Covered
+        on the helper directly, because the numeric plot baselines
+        (``TestPlotFloatIndexSpacing``) intentionally keep matplotlib's own
+        ticks; this guards the positional fallback the non-daily date path uses.
+        """
+        index = pd.Index(np.arange(181))
+        step = int(np.ceil(len(index) / 40))
+        assert step == 5
+        assert list(_pinned_tick_positions(index)) == list(index[::step])
+        assert list(_pinned_tick_positions(pd.Index(np.arange(30)))) == list(range(30))
 
     def test_plot_show_behavior(self, monkeypatch):
         """
@@ -675,3 +839,333 @@ class TestAdjacentToGuards:
                             index_type='date', suppress_show=True)
         assert fig is not None
         plt.close(fig)
+
+
+
+# =============================================================================
+# plot_pytrendy: intraday tick granularity (cadence-anchored minors)
+# =============================================================================
+
+class TestIntradayTickGranularity:
+    """Sub-daily cadences get true-granularity minors and span-widened majors.
+
+    Minors mark the data's own sampling gap (30-minute bars -> every 30 minutes,
+    hourly -> every hour), thinned under matplotlib's tick limit; majors widen
+    with the span in calendar days and pick a time-bearing label format.
+    """
+
+    @staticmethod
+    def _intraday_plot_df(periods, freq):
+        """Deterministic sub-daily frame with the given cadence."""
+        index = pd.date_range('2026-01-01', periods=periods, freq=freq)
+        values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
+        return pd.DataFrame({'value': values}, index=index)
+
+    def _detect_and_assert(self, plot_df):
+        """Run real detection and guard the sine fixture's rise-fall-rise shape.
+
+        The fixture is a single sine sweep, so filtering out Flat/Noise must
+        leave Up, Down, Up. Asserting it here keeps every tick baseline anchored
+        to real detection instead of drifting into a hand-drawn band.
+        """
+        results = pt.detect_trends(plot_df, value_col='value', plot=False)
+        directions = [s['direction'] for s in results.segments
+                      if s['direction'] in ('Up', 'Down')]
+        assert directions == ['Up', 'Down', 'Up'], directions
+        return results
+
+    def _plot(self, periods, freq):
+        """Detect trends for one frame and plot the real output; return (fig, index)."""
+        plot_df = self._intraday_plot_df(periods, freq)
+        results = self._detect_and_assert(plot_df)
+        fig = plot_pytrendy(plot_df, 'value', results.segments,
+                            index_type='date', suppress_show=True)
+        return fig, plot_df.index
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_one_day_30min.png',
+                                    style='default')
+    def test_plot_intraday_one_day_30min(self):
+        """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
+        fig, _ = self._plot(48, '30min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
+        assert isinstance(ax.xaxis.get_minor_locator(), mdates.MinuteLocator)
+        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_intraday_three_day_45min.png',
+                                    style='default')
+    def test_plot_intraday_three_day_45min(self):
+        """3 days of 45-minute bars: 6-hour majors, positional 45-minute minors.
+
+        A 45-minute gap has no minute/hour locator, so the true-granularity
+        ruler is emitted as explicit observation positions while the majors
+        still land on the smallest expressible hour multiple (6 h).
+        """
+        fig, _ = self._plot(97, '45min')
+        ax = fig.axes[0]
+        assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
+        assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
+        assert len(ax.xaxis.get_minorticklocs()) > 0
+        assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
+        return fig
+
+
+class TestIntradayTickSpec:
+    """Direct coverage for the cadence ladder and its fiddly fallbacks."""
+
+    @staticmethod
+    def _spec(periods, freq):
+        index = pd.date_range('2026-01-01', periods=periods, freq=freq)
+        return _date_tick_spec(index, len(index) - 1)
+
+    def test_intraday_ladder_widens_with_span(self):
+        """30-minute bars step through hours -> 6 hours -> days -> weeks -> months."""
+        assert isinstance(self._spec(48, '30min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(145, '30min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(337, '30min')[0], mdates.DayLocator)
+        assert isinstance(self._spec(9601, '30min')[0], mdates.WeekdayLocator)
+        assert isinstance(self._spec(14401, '30min')[0], mdates.WeekdayLocator)
+        assert isinstance(self._spec(24001, '30min')[0], mdates.MonthLocator)
+
+    def test_cadences_without_an_expressible_unit_fall_back_to_pinned(self):
+        """A 5- or 7-hour gap divides no hour/day unit, so majors pin to observations."""
+        for periods, freq in [(5, '5h'), (7, '7h')]:
+            major, _, pinned, _ = self._spec(periods, freq)
+            assert major is None and pinned is not None
+
+    def test_per_rung_search_finds_smallest_expressible_interval(self):
+        """45-/90-minute gaps get 3-hour majors within a day, 6-hour within three."""
+        assert isinstance(self._spec(33, '45min')[0], mdates.HourLocator)   # ~1 day
+        assert isinstance(self._spec(97, '45min')[0], mdates.HourLocator)   # 3 days
+        assert isinstance(self._spec(17, '90min')[0], mdates.HourLocator)
+        assert isinstance(self._spec(25, 'h')[0], mdates.HourLocator)       # exactly 1 h
+
+    def test_major_interval_is_the_smallest_expressible(self):
+        """45-minute cadence: 3-hour majors under a day, 6-hour under three days."""
+        for periods, expected in [(33, 3 / 24), (97, 6 / 24)]:
+            index = pd.date_range('2026-01-01', periods=periods, freq='45min')
+            major, _, _, _ = _date_tick_spec(index, len(index) - 1)
+            ticks = major.tick_values(index[0], index[-1])
+            assert np.allclose(np.diff(ticks), expected)
+
+    def test_sampling_locator_rejects_unexpressible_gaps(self):
+        """No locator can mark 45-/90-minute, 7-hour or sub-minute gaps."""
+        assert _sampling_locator(45 / 1440) is None
+        assert _sampling_locator(90 / 1440) is None
+        assert _sampling_locator(7 / 24) is None
+        assert _sampling_locator(90 / 86400) is None  # 90 seconds
+        assert _sampling_locator(0) is None
+
+    def test_divides_rejects_gaps_larger_than_the_unit(self):
+        """A gap wider than the unit cannot divide it (and no unit is <= 0)."""
+        assert _divides(2, 1) is False
+        assert _divides(0, 1) is False
+        assert _divides(0.5, 1) is True
+
+    def test_minor_thinning_lands_on_expressible_interval(self):
+        """Coarsening snaps up to a whole-hour/day multiple, never dropping the ruler."""
+        index = pd.date_range('2026-01-01', periods=2881, freq='30min')
+        assert isinstance(_minor_locator(1 / 48, 2880, index), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 9600, index), mdates.HourLocator)
+        assert isinstance(_minor_locator(1 / 48, 48000, index), mdates.DayLocator)
+        # ceil(2000 / 900) = 3 -> 1.5 h (unexpressible), so it steps up to 2 h.
+        assert isinstance(_minor_locator(1 / 48, 2000, index), mdates.HourLocator)
+
+    def test_minor_target_is_900(self):
+        """60 days of 30-minute bars thin x4 to 2-hour minors (~720 ticks)."""
+        index = pd.date_range('2026-01-01', periods=2881, freq='30min')
+        locator = _minor_locator(1 / 48, len(index) - 1, index)
+        assert isinstance(locator, mdates.HourLocator)
+        ticks = locator.tick_values(index[0], index[-1])
+        assert np.allclose(np.diff(ticks), 2 / 24)
+        assert len(ticks) <= _MAX_MINOR_TICKS
+
+    def test_inexpressible_minors_are_positional(self):
+        """45-minute bars emit observation positions, not a locator."""
+        index = pd.date_range('2026-01-01', periods=97, freq='45min')
+        _, minor, pinned, _ = _date_tick_spec(index, len(index) - 1)
+        assert pinned is None
+        assert isinstance(minor, pd.Index)
+        assert len(minor) == len(index)  # under the 900 target -> every observation
+
+    def test_minors_stop_past_a_year(self):
+        """A >365-day intraday span returns to a calendar with no minor ruler."""
+        index = pd.date_range('2026-01-01', periods=8785, freq='h')  # ~366 days
+        _, minor, _, _ = _date_tick_spec(index, len(index) - 1)
+        assert minor is None
+
+    def test_format_keys_to_major_unit_not_span(self):
+        """Hour-or-finer majors show date+time; day-or-coarser read as dates."""
+        assert _format_for(mdates.HourLocator()) == '%Y-%m-%d\n%H:%M'
+        assert _format_for(mdates.MinuteLocator()) == '%Y-%m-%d\n%H:%M'
+        assert _format_for(mdates.DayLocator()) == '%Y-%m-%d'
+        assert _format_for(mdates.WeekdayLocator()) == '%Y-%m-%d'
+        assert _format_for(mdates.MonthLocator()) == '%Y-%m-%d'
+        assert _format_for(None) == '%Y-%m-%d'
+
+
+class TestTickGranularityMatrix:
+    """One mpl baseline per datetime granularity: the x-axis adapts to cadence.
+
+    Frames are deterministic tiles of the packaged ``series_synthetic`` gradual
+    column, resampled to each cadence. Shading is real ``detect_trends`` output
+    (not a hand-drawn band), so these baselines also record detection quality at
+    each cadence. Expect churn on the weekly/fortnightly/monthly shapes once the
+    spacing-aware detection work (#309 / #303) lands: at fortnightly and monthly
+    spacing the sample-count windows currently collapse the signal to Flat/Noise.
+    """
+
+    @staticmethod
+    def _tiled_daily(periods):
+        """Deterministic daily gradual series of *periods* points, tiled as needed."""
+        df = pt.load_data('series_synthetic')
+        df['date'] = pd.to_datetime(df['date'])
+        tiles = int(np.ceil(periods / len(df)))
+        long = pd.concat([df] * tiles, ignore_index=True)
+        long['date'] = pd.date_range(df['date'].iloc[0], periods=len(long), freq='D')
+        return long.set_index('date')['gradual'].iloc[:periods]
+
+    @classmethod
+    def _series(cls, days, freq=None):
+        """Daily tiles resampled to *freq* (None keeps the daily cadence)."""
+        daily = cls._tiled_daily(days)
+        return daily if freq is None else daily.resample(freq).last()
+
+    @staticmethod
+    def _axis(series, title):
+        """Detect trends on *series*, plot them, and return the axis properties."""
+        series = series[~series.index.duplicated(keep='first')]
+        plot_df = pd.DataFrame({'value': series.values}, index=series.index)
+        results = pt.detect_trends(plot_df, value_col='value', plot=False)
+        fig = plot_pytrendy(plot_df, 'value', results.segments, index_type='date',
+                            suppress_show=True, plot_params={'title': title})
+        ax = fig.axes[0]
+        return (fig, ax.xaxis.get_major_locator(), ax.xaxis.get_minor_locator(),
+                len(ax.get_xticks()), len(ax.xaxis.get_minorticklocs()),
+                ax.xaxis.get_major_formatter().fmt)
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_one_year_daily_ticks.png',
+                                    style='default')
+    def test_one_year_daily_ticks(self):
+        """1 year daily: biweekly weekday majors, daily minors, date-only labels.
+
+        A 365-day span crosses the 200-day weekly-major threshold, so the weekday
+        interval is 2; the daily minor ruler stays and the formatter is date-only.
+        """
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366), 'one_year_daily_ticks')
+        assert isinstance(major, mdates.WeekdayLocator)
+        assert major._get_interval() == 2
+        assert 20 <= n_major <= 30
+        assert isinstance(minor, mdates.DayLocator)
+        assert 300 <= n_minor <= 366
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_one_year_weekly_ticks.png',
+                                    style='default')
+    def test_one_year_weekly_ticks(self):
+        """~1 year weekly: snapped month majors, weekly positional minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(366, 'W'), 'one_year_weekly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert 10 <= n_major <= 16
+        assert isinstance(minor, FixedLocator)
+        assert 35 <= n_minor <= 53
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_three_year_weekly_ticks.png',
+                                    style='default')
+    def test_three_year_weekly_ticks(self):
+        """~3 years weekly: snapped month majors (~36), weekly positional minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'W'), 'three_year_weekly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert 30 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 100 <= n_minor <= 160
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_ten_year_weekly_ticks.png',
+                                    style='default')
+    def test_ten_year_weekly_ticks(self):
+        """~10 years weekly: coarser scaled month majors with weekly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'W'), 'ten_year_weekly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert 25 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 430 <= n_minor <= 524
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_thirty_year_weekly_ticks.png',
+                                    style='default')
+    def test_thirty_year_weekly_ticks(self):
+        """~30 years weekly: majors stay <=~40 labels, minors thin under the cap."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(30 * 366, 'W'), 'thirty_year_weekly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert n_major <= 40
+        assert 30 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert n_minor <= _MAX_MINOR_TICKS
+        assert 600 <= n_minor <= 785
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_three_year_monthly_ticks.png',
+                                    style='default')
+    def test_three_year_monthly_ticks(self):
+        """~3 years monthly: every-other-month snapped majors, monthly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'ME'), 'three_year_monthly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert 15 <= n_major <= 22
+        assert isinstance(minor, FixedLocator)
+        assert 12 <= n_minor <= 24
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_ten_year_monthly_ticks.png',
+                                    style='default')
+    def test_ten_year_monthly_ticks(self):
+        """~10 years monthly: snapped year majors with monthly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'ME'), 'ten_year_monthly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert 8 <= n_major <= 14
+        assert isinstance(minor, FixedLocator)
+        assert 100 <= n_minor <= 121
+        assert fmt == '%Y-%m-%d'
+        return fig
+
+    @pytest.mark.plot
+    @pytest.mark.mpl_image_compare(baseline_dir='./',
+                                    filename='test_plot_fifty_year_yearly_ticks.png',
+                                    style='default')
+    def test_fifty_year_yearly_ticks(self):
+        """~50 years yearly: year majors scanned to <=~40 labels, yearly minors."""
+        fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(50 * 366, 'YS'), 'fifty_year_yearly_ticks')
+        assert isinstance(major, FixedLocator)
+        assert n_major <= 40
+        assert 20 <= n_major <= 40
+        assert isinstance(minor, FixedLocator)
+        assert 20 <= n_minor <= 40
+        assert fmt == '%Y-%m-%d'
+        return fig
