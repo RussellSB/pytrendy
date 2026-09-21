@@ -76,13 +76,22 @@ def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0,
     Args:
         signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.
         index_gap_days (float): Median sampling gap of the prepared index, in days.
-        n_obs (int, optional): Number of observations; clamps `window_smooth` so a
-            window can never exceed a short series. Defaults to no clamp.
+        n_obs (int, optional): Number of observations; caps `window_smooth` at a
+            quarter of the frame (and never above the series length) so a window
+            cannot consume most of a short series. Defaults to no clamp.
 
     Returns:
         dict: Fully-populated signal_params with every key the stages read.
     """
     smooth_span_days = _smooth_window_days(index_gap_days)
+    if n_obs is not None and 0 < index_gap_days < 1.0:
+        # Intraday only: keep the target frame-relative as well as duration-relative.
+        # At a 1-day sub-daily span the ~24 h target equals the whole frame (24 steps
+        # at 1 h spacing), which smooths every leg away. Cap the target at a quarter
+        # of the observations; window_flat/noise, grouping and the minimum lengths all
+        # derive from this span, so they shrink with it. Daily and coarser (and
+        # non-date indexes, gap=1.0) keep the historical duration target.
+        smooth_span_days = min(smooth_span_days, max(3, n_obs // 4) * index_gap_days)
     window_smooth = scale_window(smooth_span_days, index_gap_days, minimum=_MIN_SMOOTH_WINDOW)
     if n_obs is not None:
         window_smooth = max(_MIN_SMOOTH_WINDOW, min(window_smooth, n_obs))

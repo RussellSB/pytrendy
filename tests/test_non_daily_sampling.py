@@ -97,10 +97,10 @@ class TestSpacingHelpers:
         assert half_hourly['min_trend_length'] == 9
         assert half_hourly['min_flat_noise_length'] == 3
 
-    def test_window_clamped_to_series_length(self):
-        """A derived window can never exceed a short series."""
+    def test_window_clamped_to_frame(self):
+        """A short frame caps the window at a quarter of its observations."""
         clamped = prep_signal_params.prep_signal_params(None, 1 / 48, n_obs=20)
-        assert clamped['window_smooth'] == 20
+        assert clamped['window_smooth'] == 5  # max(3, 20 // 4), well below the 48-step target
 
     def test_invalid_gap_falls_back_to_daily_span(self):
         """A non-finite gap keeps the historical daily window, matching scale_window."""

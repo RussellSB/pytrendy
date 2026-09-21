@@ -865,10 +865,8 @@ class TestIntradayTickGranularity:
         """Run real detection and guard the fixture's expected Up/Down shape.
 
         Asserting it here keeps every tick baseline anchored to real detection
-        instead of drifting into a hand-drawn band. A 45-minute fixture spans
-        three days, so it resolves the sine's rise-fall-rise; a 30-minute
-        fixture spans exactly one day, which the ~24 h intraday smoothing
-        window covers end-to-end, leaving only the dominant down-leg.
+        instead of drifting into a hand-drawn band. The fixture is a single sine
+        sweep, so a 1-day or 3-day intraday frame resolves its rise-fall-rise.
         """
         results = pt.detect_trends(plot_df, value_col='value', plot=False)
         directions = [s['direction'] for s in results.segments
@@ -890,7 +888,7 @@ class TestIntradayTickGranularity:
                                     style='default')
     def test_plot_intraday_one_day_30min(self):
         """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
-        fig, _ = self._plot(48, '30min', ['Down'])
+        fig, _ = self._plot(48, '30min', ['Up', 'Down', 'Up'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
