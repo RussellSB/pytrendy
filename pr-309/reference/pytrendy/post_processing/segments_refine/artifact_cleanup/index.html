@@ -2077,7 +2077,13 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">325</span>
 <span class="normal">326</span>
 <span class="normal">327</span>
-<span class="normal">328</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">328</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">clean_artifacts</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_refined</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">inverse_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Removes segments any invalid segments, such as inversions or overlaps.</span>
 <span class="sd">    Typically to clean up after boundary adjustments introduced from noise or trend refinements.</span>
@@ -2355,6 +2361,12 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
         <span class="n">threshold_diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">*</span> <span class="mf">0.01</span>
         <span class="k">if</span> <span class="n">is_abrupt</span><span class="p">:</span> <span class="c1"># make a bit more lenient for abrupt</span>
             <span class="n">threshold_diff</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s1">'value_cleaned'</span><span class="p">]</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">())</span> <span class="o">*</span> <span class="mf">0.1</span>
+            <span class="c1"># A monotonic final leg (net change ≈ its own swing) genuinely travels</span>
+            <span class="c1"># to the series end; don't let the generous abrupt threshold flatten it</span>
+            <span class="c1"># (fill_in_flats would otherwise repaint the trailing leg as Flat).</span>
+            <span class="n">seg_range</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">df_segment</span><span class="p">[</span><span class="n">value_col</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+            <span class="k">if</span> <span class="n">end</span> <span class="o">==</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">and</span> <span class="n">seg_range</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">diff</span> <span class="o">&gt;=</span> <span class="mf">0.9</span> <span class="o">*</span> <span class="n">seg_range</span><span class="p">:</span>
+                <span class="n">threshold_diff</span> <span class="o">=</span> <span class="mf">0.0</span>
         <span class="n">trend_ends_too_close</span> <span class="o">=</span> <span class="p">(</span><span class="n">is_gradual</span> <span class="ow">or</span> <span class="n">is_abrupt</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">diff</span> <span class="o">&lt;=</span> <span class="n">threshold_diff</span><span class="p">)</span>
 
         <span class="c1"># Edge case 3.2: Check if total change too small, because noise puts it closer to 0</span>
@@ -2423,13 +2435,7 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/post_processing/segments_refine/artifact_cleanup.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">331</span>
-<span class="normal">332</span>
-<span class="normal">333</span>
-<span class="normal">334</span>
-<span class="normal">335</span>
-<span class="normal">336</span>
-<span class="normal">337</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">337</span>
 <span class="normal">338</span>
 <span class="normal">339</span>
 <span class="normal">340</span>
@@ -2481,7 +2487,13 @@ Typically to clean up after boundary adjustments introduced from noise or trend 
 <span class="normal">386</span>
 <span class="normal">387</span>
 <span class="normal">388</span>
-<span class="normal">389</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">389</span>
+<span class="normal">390</span>
+<span class="normal">391</span>
+<span class="normal">392</span>
+<span class="normal">393</span>
+<span class="normal">394</span>
+<span class="normal">395</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">fill_in_flats</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""Fill uncovered time gaps with Flat segments using df's Index.</span>
 
 <span class="sd">    Adds Flat segments for:</span>
