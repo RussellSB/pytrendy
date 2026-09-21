@@ -1703,8 +1703,9 @@ a fully-populated dict.</p>
 )
           –
           <div class="doc-md-description">
-            <p>Number of observations; clamps <code>window_smooth</code> so a
-window can never exceed a short series. Defaults to no clamp.</p>
+            <p>Number of observations; caps <code>window_smooth</code> at a
+quarter of the frame (and never above the series length) so a window
+cannot consume most of a short series. Defaults to no clamp.</p>
           </div>
         </li>
     </ul>
@@ -1767,7 +1768,16 @@ window can never exceed a short series. Defaults to no clamp.</p>
 <span class="normal">100</span>
 <span class="normal">101</span>
 <span class="normal">102</span>
-<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">103</span>
+<span class="normal">104</span>
+<span class="normal">105</span>
+<span class="normal">106</span>
+<span class="normal">107</span>
+<span class="normal">108</span>
+<span class="normal">109</span>
+<span class="normal">110</span>
+<span class="normal">111</span>
+<span class="normal">112</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge user-supplied `signal_params` over cadence-derived defaults.</span>
 
@@ -1786,13 +1796,22 @@ window can never exceed a short series. Defaults to no clamp.</p>
 <span class="sd">    Args:</span>
 <span class="sd">        signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.</span>
 <span class="sd">        index_gap_days (float): Median sampling gap of the prepared index, in days.</span>
-<span class="sd">        n_obs (int, optional): Number of observations; clamps `window_smooth` so a</span>
-<span class="sd">            window can never exceed a short series. Defaults to no clamp.</span>
+<span class="sd">        n_obs (int, optional): Number of observations; caps `window_smooth` at a</span>
+<span class="sd">            quarter of the frame (and never above the series length) so a window</span>
+<span class="sd">            cannot consume most of a short series. Defaults to no clamp.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Fully-populated signal_params with every key the stages read.</span>
 <span class="sd">    """</span>
     <span class="n">smooth_span_days</span> <span class="o">=</span> <span class="n">_smooth_window_days</span><span class="p">(</span><span class="n">index_gap_days</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;</span> <span class="n">index_gap_days</span> <span class="o">&lt;</span> <span class="mf">1.0</span><span class="p">:</span>
+        <span class="c1"># Intraday only: keep the target frame-relative as well as duration-relative.</span>
+        <span class="c1"># At a 1-day sub-daily span the ~24 h target equals the whole frame (24 steps</span>
+        <span class="c1"># at 1 h spacing), which smooths every leg away. Cap the target at a quarter</span>
+        <span class="c1"># of the observations; window_flat/noise, grouping and the minimum lengths all</span>
+        <span class="c1"># derive from this span, so they shrink with it. Daily and coarser (and</span>
+        <span class="c1"># non-date indexes, gap=1.0) keep the historical duration target.</span>
+        <span class="n">smooth_span_days</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">smooth_span_days</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">n_obs</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">index_gap_days</span><span class="p">)</span>
     <span class="n">window_smooth</span> <span class="o">=</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">n_obs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">window_smooth</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">_MIN_SMOOTH_WINDOW</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">window_smooth</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">))</span>
