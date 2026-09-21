@@ -1778,7 +1778,13 @@ cannot consume most of a short series. Defaults to no clamp.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="normal">116</span>
+<span class="normal">117</span>
+<span class="normal">118</span>
+<span class="normal">119</span>
+<span class="normal">120</span>
+<span class="normal">121</span>
+<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">n_obs</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge user-supplied `signal_params` over cadence-derived defaults.</span>
 
@@ -1822,6 +1828,12 @@ cannot consume most of a short series. Defaults to no clamp.</p>
         <span class="s1">'grouping_distance'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_GROUPING_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'min_trend_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_TREND_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
         <span class="s1">'min_flat_noise_length'</span><span class="p">:</span> <span class="n">scale_window</span><span class="p">(</span><span class="n">smooth_span_days</span> <span class="o">*</span> <span class="n">_MIN_FLAT_NOISE_FRACTION</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">),</span>
+        <span class="c1"># Boundary expansion searches ±7 days at daily cadence; coarser cadences</span>
+        <span class="c1"># get proportionally fewer steps (floored at 2) so it stays a *local*</span>
+        <span class="c1"># search instead of dragging boundaries across neighbouring peaks.</span>
+        <span class="c1"># Sub-daily keeps the historical 7-step window (already local).</span>
+        <span class="s1">'expand_contract_window'</span><span class="p">:</span> <span class="p">(</span><span class="mi">7</span> <span class="k">if</span> <span class="n">index_gap_days</span> <span class="o">&lt;</span> <span class="mi">1</span>
+                                   <span class="k">else</span> <span class="n">scale_window</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">index_gap_days</span><span class="p">,</span> <span class="n">minimum</span><span class="o">=</span><span class="mi">2</span><span class="p">)),</span>
         <span class="s1">'smooth_factor'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'smooth_factor'</span><span class="p">],</span>
         <span class="s1">'noise_factor'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'noise_factor'</span><span class="p">],</span>
         <span class="s1">'threshold_noise'</span><span class="p">:</span> <span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">[</span><span class="s1">'threshold_noise'</span><span class="p">],</span>

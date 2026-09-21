@@ -1283,6 +1283,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1604,6 +1615,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(signal_params)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1669,15 +1691,16 @@
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">segments</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Refines segment boundaries by expanding or contracting based on local extrema.</p>
-<p>Examines ±7 days around each segment's start and end to find stronger turning points.
-Skips segments classified as 'abrupt' to preserve their precision.
-Optionally pads gradual segments into adjacent flat regions when <code>gradual_padding &gt; 0</code>.</p>
+<p>Examines ±<code>expand_contract_window</code> steps around each segment's start and end to
+find stronger turning points. Skips segments classified as 'abrupt' to preserve
+their precision. Optionally pads gradual segments into adjacent flat regions when
+<code>gradual_padding &gt; 0</code>.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1715,6 +1738,15 @@ Optionally pads gradual segments into adjacent flat regions when <code>gradual_p
 <ul>
 <li><strong>gradual_padding</strong> (<code>int</code>): Days to extend gradual segment ends forward. Defaults to <code>0</code>.</li>
 </ul>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.post_processing.segments_refine.gradual_expand_contract.expand_contract_segments(signal_params)" class="doc doc-heading doc-heading-parameter">              <b><code>signal_params</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/stdtypes.html#dict">dict</a></code>)
+          –
+          <div class="doc-md-description">
+            <p>Signal-processing constants; <code>expand_contract_window</code>
+is the cadence-scaled ± search radius in index steps.</p>
           </div>
         </li>
     </ul>
@@ -1849,13 +1881,18 @@ Optionally pads gradual segments into adjacent flat regions when <code>gradual_p
 <span class="normal">123</span>
 <span class="normal">124</span>
 <span class="normal">125</span>
-<span class="normal">126</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="normal">126</span>
+<span class="normal">127</span>
+<span class="normal">128</span>
+<span class="normal">129</span>
+<span class="normal">130</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">expand_contract_segments</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">method_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Refines segment boundaries by expanding or contracting based on local extrema.</span>
 
-<span class="sd">    Examines ±7 days around each segment's start and end to find stronger turning points.</span>
-<span class="sd">    Skips segments classified as 'abrupt' to preserve their precision.</span>
-<span class="sd">    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding &gt; 0``.</span>
+<span class="sd">    Examines ±``expand_contract_window`` steps around each segment's start and end to</span>
+<span class="sd">    find stronger turning points. Skips segments classified as 'abrupt' to preserve</span>
+<span class="sd">    their precision. Optionally pads gradual segments into adjacent flat regions when</span>
+<span class="sd">    ``gradual_padding &gt; 0``.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        df (pd.DataFrame): Time series DataFrame.</span>
@@ -1864,14 +1901,17 @@ Optionally pads gradual segments into adjacent flat regions when <code>gradual_p
 <span class="sd">        method_params (dict): Detection parameters. Supported keys:</span>
 
 <span class="sd">            - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.</span>
+<span class="sd">        signal_params (dict): Signal-processing constants; `expand_contract_window`</span>
+<span class="sd">            is the cadence-scaled ± search radius in index steps.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        list: Refined segment list with updated boundaries.</span>
 <span class="sd">    """</span>
 
     <span class="n">segments_refined</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">segments</span><span class="p">)</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">signal_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'expand_contract_window'</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_window_df</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">7</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_window_df</span><span class="p">(</span><span class="n">center</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">days</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">window</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Return a slice of df around a center date ±days."""</span>
         <span class="n">pre</span> <span class="o">=</span> <span class="n">center</span> <span class="o">-</span> <span class="n">days</span>
         <span class="n">post</span> <span class="o">=</span> <span class="n">center</span> <span class="o">+</span> <span class="n">days</span>
