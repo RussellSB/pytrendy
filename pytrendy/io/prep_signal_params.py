@@ -104,6 +104,12 @@ def prep_signal_params(signal_params: dict|None=None, index_gap_days: float=1.0,
         'grouping_distance': scale_window(smooth_span_days * _GROUPING_FRACTION, index_gap_days),
         'min_trend_length': scale_window(smooth_span_days * _MIN_TREND_FRACTION, index_gap_days),
         'min_flat_noise_length': scale_window(smooth_span_days * _MIN_FLAT_NOISE_FRACTION, index_gap_days),
+        # Boundary expansion searches ±7 days at daily cadence; coarser cadences
+        # get proportionally fewer steps (floored at 2) so it stays a *local*
+        # search instead of dragging boundaries across neighbouring peaks.
+        # Sub-daily keeps the historical 7-step window (already local).
+        'expand_contract_window': (7 if index_gap_days < 1
+                                   else scale_window(7, index_gap_days, minimum=2)),
         'smooth_factor': _SIGNAL_PARAMS_DEFAULTS['smooth_factor'],
         'noise_factor': _SIGNAL_PARAMS_DEFAULTS['noise_factor'],
         'threshold_noise': _SIGNAL_PARAMS_DEFAULTS['threshold_noise'],

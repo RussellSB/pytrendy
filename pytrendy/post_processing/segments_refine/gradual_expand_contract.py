@@ -8,13 +8,14 @@ from copy import deepcopy
 from .update_neighbours import update_prev_segment, update_next_segment
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict, signal_params: dict) -> list[dict]:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
-    Examines ±7 days around each segment's start and end to find stronger turning points.
-    Skips segments classified as 'abrupt' to preserve their precision.
-    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding > 0``.
+    Examines ±``expand_contract_window`` steps around each segment's start and end to
+    find stronger turning points. Skips segments classified as 'abrupt' to preserve
+    their precision. Optionally pads gradual segments into adjacent flat regions when
+    ``gradual_padding > 0``.
 
     Args:
         df (pd.DataFrame): Time series DataFrame.
@@ -23,14 +24,17 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         method_params (dict): Detection parameters. Supported keys:
 
             - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.
+        signal_params (dict): Signal-processing constants; `expand_contract_window`
+            is the cadence-scaled ± search radius in index steps.
 
     Returns:
         list: Refined segment list with updated boundaries.
     """
 
     segments_refined = deepcopy(segments)
+    window = int(signal_params.get('expand_contract_window', 7))
 
-    def _get_window_df(center: int, days: int = 7) -> pd.DataFrame:
+    def _get_window_df(center: int, days: int = window) -> pd.DataFrame:
         """Return a slice of df around a center date ±days."""
         pre = center - days
         post = center + days

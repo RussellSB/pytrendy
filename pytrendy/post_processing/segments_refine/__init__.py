@@ -46,7 +46,7 @@ def refine_segments(df: pd.DataFrame, value_col: str, segments: list[dict], meth
     segments_refined = classify_trends(df, value_col, segments_refined)
     segments_refined = group_segments(segments_refined, grouping_distance) # grouping 1st pass: sporadic flats & noises
 
-    segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params) # for gradual + gradual padding
+    segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params, signal_params) # for gradual + gradual padding
     segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
 
     segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps etc from expand/contract    
