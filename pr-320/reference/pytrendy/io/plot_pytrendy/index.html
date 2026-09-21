@@ -2129,7 +2129,15 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
 <span class="normal">653</span>
 <span class="normal">654</span>
 <span class="normal">655</span>
-<span class="normal">656</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">index_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"date"</span><span class="p">,</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
+<span class="normal">656</span>
+<span class="normal">657</span>
+<span class="normal">658</span>
+<span class="normal">659</span>
+<span class="normal">660</span>
+<span class="normal">661</span>
+<span class="normal">662</span>
+<span class="normal">663</span>
+<span class="normal">664</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">plot_pytrendy</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">segments_enhanced</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">index_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"date"</span><span class="p">,</span> <span class="n">suppress_show</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">plot_params</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Visualizes detected trend segments over the original time series signal.</span>
 
@@ -2320,12 +2328,20 @@ The figure object containing the plot. Can be displayed with <code>plt.show()</c
         <span class="c1"># A neighbouring abrupt/noise segment keeps its own left edge (see the</span>
         <span class="c1"># start block above), so the previous span must be extended onto this</span>
         <span class="c1"># segment's start or the band between their two x-vertices is left white.</span>
-        <span class="c1"># Flat predecessors already reach this start via the end-extension below;</span>
-        <span class="c1"># noise successors are already pulled back onto the previous span.</span>
+        <span class="c1"># Flat predecessors already reach this start via the end-extension below,</span>
+        <span class="c1"># and noise successors are already pulled back onto the previous span.</span>
+        <span class="c1"># Each span is painted exactly once: the previous span already reaches</span>
+        <span class="c1"># this start when its own end-extension succeeded, so skip the fill then.</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">is_abrupt</span> <span class="ow">or</span> <span class="n">is_noise</span><span class="p">)</span> <span class="ow">and</span> <span class="n">prev_neighbouring</span> <span class="ow">and</span> <span class="n">prev_seg</span> <span class="ow">and</span> <span class="p">(</span><span class="s1">'trend_class'</span> <span class="ow">in</span> <span class="n">prev_seg</span><span class="p">):</span>
             <span class="n">prev_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">])</span> <span class="k">if</span> <span class="n">is_date_axis</span> <span class="k">else</span> <span class="n">prev_seg</span><span class="p">[</span><span class="s1">'end'</span><span class="p">]</span>
             <span class="k">if</span> <span class="n">start</span> <span class="o">!=</span> <span class="n">prev_end</span><span class="p">:</span>
-                <span class="n">_extend_span_to</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
+                <span class="n">value_here</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">start</span><span class="p">,</span> <span class="n">value_col</span><span class="p">]</span>
+                <span class="n">prev_reached_start</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">value_here</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Up'</span> <span class="ow">and</span> <span class="n">value_here</span> <span class="o">&gt;</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">prev_end</span><span class="p">,</span> <span class="n">value_col</span><span class="p">])</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="n">prev_seg</span><span class="p">[</span><span class="s1">'direction'</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Down'</span> <span class="ow">and</span> <span class="n">value_here</span> <span class="o">&lt;</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">prev_end</span><span class="p">,</span> <span class="n">value_col</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">prev_reached_start</span><span class="p">:</span>
+                    <span class="n">_extend_span_to</span><span class="p">(</span><span class="n">prev_seg</span><span class="p">,</span> <span class="n">start</span><span class="p">)</span>
 
         <span class="c1"># Adjust ends when appropriate</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">next_seg_abrupt</span> <span class="ow">or</span> <span class="n">next_seg_noise</span><span class="p">)</span> <span class="ow">and</span> <span class="n">next_neighbouring</span><span class="p">:</span>
