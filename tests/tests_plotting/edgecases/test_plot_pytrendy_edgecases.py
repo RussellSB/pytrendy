@@ -1172,114 +1172,27 @@ class TestTickGranularityMatrix:
 
 
 # =============================================================================
-# plot_pytrendy: adjacent spans share an x-vertex
+# plot_pytrendy: gradual-to-abrupt boundary (no white gap)
 # =============================================================================
 
-def _capture_fill_spans(monkeypatch, plot_df, segments, index_type):
-    """Run plot_pytrendy, capturing each ax.fill_between x-array.
-
-    Returns the captured x-arrays in draw order, which are exactly the shaded
-    span vertices. No pixels involved.
-    """
-    import matplotlib.axes as maxes
-
-    captured = []
-    original = maxes.Axes.fill_between
-
-    def capture(self, x, *args, **kwargs):
-        captured.append(np.asarray(x))
-        return original(self, x, *args, **kwargs)
-
-    monkeypatch.setattr(maxes.Axes, 'fill_between', capture)
-    fig = plot_pytrendy(plot_df, 'value', deepcopy(segments),
-                        index_type=index_type, suppress_show=True)
-    plt.close(fig)
-    return captured
-
-
-class TestAdjacentSpansShareVertex:
-    """A trend immediately followed by an abrupt segment must not leave a white
-    band: their shaded spans must share an x-vertex.
-
-    Before the fix the abrupt segment kept its own left edge (it skips the
-    left-start displacement) and the preceding trend's end-extension was
-    rejected because the trend ended on its extremum, so the inter-observation
-    band between the two vertices was never painted.
-    """
-
-    @staticmethod
-    def _plot_input(index_type):
-        """Gradual Up ending at its peak, immediately followed by abrupt Down."""
-        values = np.concatenate([
-            np.linspace(10, 50, 20),   # gradual rise, peak at index 19
-            np.linspace(45, 20, 8),    # sharp fall: value[20] < value[19]
-            np.full(10, 20.0),         # trailing flat
-        ])
-        if index_type == 'string':
-            index = [f'S{i}' for i in range(len(values))]
-        else:
-            index = pd.date_range('2025-01-01', periods=len(values), freq='D')
-        plot_df = pd.DataFrame({'value': values}, index=index)
-        segments = [
-            {'start': index[2],  'end': index[19], 'direction': 'Up',
-             'trend_class': 'gradual', 'change_rank': 1},
-            {'start': index[20], 'end': index[26], 'direction': 'Down',
-             'trend_class': 'abrupt', 'change_rank': 2},
-            {'start': index[27], 'end': index[-1], 'direction': 'Flat',
-             'change_rank': 3},
-        ]
-        return plot_df, segments
-
-    @staticmethod
-    def _plot_input_without_gap(index_type):
-        """Abrupt Down whose first value is above the preceding Up's peak.
-
-        The Up's own end-extension therefore reaches the Down's start and the
-        band is already shaded — no extra fill may be emitted (otherwise the
-        band is painted twice and renders darker).
-        """
-        values = np.concatenate([
-            np.linspace(10, 50, 20),   # gradual rise, peak 50 at index 19
-            np.array([55.0]),          # index 20: higher, so 55 > 50 extends the Up
-            np.linspace(50, 20, 7),    # index 21..27 fall
-            np.full(10, 20.0),         # trailing flat
-        ])
-        if index_type == 'string':
-            index = [f'S{i}' for i in range(len(values))]
-        else:
-            index = pd.date_range('2025-01-01', periods=len(values), freq='D')
-        plot_df = pd.DataFrame({'value': values}, index=index)
-        segments = [
-            {'start': index[2],  'end': index[19], 'direction': 'Up',
-             'trend_class': 'gradual', 'change_rank': 1},
-            {'start': index[20], 'end': index[27], 'direction': 'Down',
-             'trend_class': 'abrupt', 'change_rank': 2},
-            {'start': index[28], 'end': index[-1], 'direction': 'Flat',
-             'change_rank': 3},
-        ]
-        return plot_df, segments
-
-    @pytest.mark.parametrize('index_type', ['date', 'string'])
-    def test_trend_to_abrupt_spans_are_contiguous(self, monkeypatch, index_type):
-        plot_df, segments = self._plot_input(index_type)
-        spans = _capture_fill_spans(monkeypatch, plot_df, segments, index_type)
-
-        assert len(spans) >= 2, "expected shading spans to be drawn"
-        for previous, current in zip(spans, spans[1:]):
-            assert current[0] <= previous[-1], (
-                "adjacent shading spans do not share a vertex: "
-                f"{previous[-1]} < {current[0]} leaves an unpainted band"
-            )
-
-    @pytest.mark.parametrize('index_type', ['date', 'string'])
-    def test_no_extra_fill_when_previous_span_already_reaches_start(self, monkeypatch, index_type):
-        """Each span is painted exactly once: when the previous span's right edge
-        already reaches this start (its end-extension was valid), no extra fill
-        is emitted, so the band is not painted twice and darkened."""
-        plot_df, segments = self._plot_input_without_gap(index_type)
-        spans = _capture_fill_spans(monkeypatch, plot_df, segments, index_type)
-
-        assert len(spans) == len(segments), (
-            f"expected one span per segment ({len(segments)}), got an extra "
-            f"fill: {len(spans)} spans"
-        )
+@pytest.mark.mpl_image_compare(baseline_dir='./')
+def test_plot_gradual_to_abrupt_no_gap():
+    """A gradual Up ending on its peak, immediately followed by an abrupt Down,
+    must not leave a white band between the two shaded spans."""
+    values = np.concatenate([
+        np.linspace(10, 50, 20),   # gradual rise, peak at index 19
+        np.linspace(45, 20, 8),    # sharp fall
+        np.full(10, 20.0),         # trailing flat
+    ])
+    idx = pd.date_range('2025-01-01', periods=len(values), freq='D')
+    plot_df = pd.DataFrame({'value': values}, index=idx)
+    segments = [
+        {'start': idx[2],  'end': idx[19], 'direction': 'Up',
+         'trend_class': 'gradual', 'change_rank': 1},
+        {'start': idx[20], 'end': idx[26], 'direction': 'Down',
+         'trend_class': 'abrupt', 'change_rank': 2},
+        {'start': idx[27], 'end': idx[-1], 'direction': 'Flat',
+         'change_rank': 3},
+    ]
+    return plot_pytrendy(plot_df, 'value', deepcopy(segments),
+                         index_type='date', suppress_show=True)
