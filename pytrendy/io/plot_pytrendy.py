@@ -498,7 +498,7 @@ def plot_pytrendy(df: pd.DataFrame, value_col: str, segments_enhanced: list[dict
             prev_end = pd.to_datetime(prev_seg['end']) if is_date_axis else prev_seg['end']
             if start != prev_end:
                 value_here = df.loc[start, value_col]
-                prev_reached_start = bool(value_here) and (
+                prev_reached_start = value_here == value_here and (
                     (prev_seg['direction'] == 'Up' and value_here > df.loc[prev_end, value_col])
                     or (prev_seg['direction'] == 'Down' and value_here < df.loc[prev_end, value_col])
                 )
