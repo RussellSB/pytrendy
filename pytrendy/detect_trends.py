@@ -9,6 +9,7 @@ from .post_processing.segments_analyse import analyse_segments
 from .io.plot_pytrendy import plot_pytrendy
 from .io.results_pytrendy import PyTrendyResults
 from .io import prep_index, prep_signal_params
+from ._spacing import compute_gap_days
 
 
 def detect_trends(df: pd.DataFrame, 
@@ -55,19 +56,25 @@ def detect_trends(df: pd.DataFrame,
         signal_params (dict, optional):
             Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
 
-            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
-            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
-            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
-            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
-            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to `3`.
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to the
+              duration-calibrated value (~24 h for sub-daily data; 15 days for daily data, i.e. 15 points).
+            - **smooth_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
+            - **noise_factor** (`float`): Fraction of the cadence-derived `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
+            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to the duration-calibrated value (7 days; 7 steps on daily data).
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment to be retained. Defaults to the duration-calibrated value (3 days; 3 steps on daily data).
             - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment to be retained. Defaults to `1`.
             - **threshold_noise** (`float`): SNR threshold (dB) below which a region is classified as noise. Defaults to `2.5`.
             - **threshold_smooth** (`float`): Derivative threshold, as a fraction of the signal IQR, below which motion counts as flat. Defaults to `0.001`.
             - **threshold_flat** (`float`): Flat sensitivity, as a fraction of the minimum non-zero rolling std. Defaults to `0.835`.
 
-            This surface is independent from `method_params`, which controls the padding and noise heuristics instead.
-            Window sizes are in points and minimum lengths in steps; at non-daily spacing a given count spans a
-            different real-time duration.
+            Window and minimum-length defaults are derived from the median sampling interval of the
+            supplied index, so the same real-time durations apply to sub-daily, daily, weekly,
+            fortnightly and monthly cadences: `window_smooth` targets ~24 h for intraday data and
+            15 days for daily and coarser, with grouping distance and minimum lengths proportional to
+            the same span. `smooth_factor` and `noise_factor` scale the cadence-derived `window_smooth`
+            to derive `window_flat` and `window_noise`. Overriding any of them uses the given value as a
+            raw point count and bypasses the cadence scaling. This surface is independent from
+            `method_params`, which controls the padding and noise heuristics instead.
         plot_params (dict, optional):
             Optional dict to customise plot appearance. Only used when `plot` is `True`. Supported keys:
 
@@ -100,6 +107,10 @@ def detect_trends(df: pd.DataFrame,
     # values and a lookup so boundaries can be remapped back later.
     df, external_index, index_lookup, index_type = prep_index.prep_index(df, date_col, value_col)
 
+    # Median sampling gap drives duration-preserving window scaling. Non-date
+    # index types fall back to 1.0, preserving their point-count behaviour.
+    gap_days = compute_gap_days(external_index, index_type)
+
     if method_params is None:
         method_params = {} # Avoid mutable default argument by accepting None and constructing a new dict here
 
@@ -119,9 +130,10 @@ def detect_trends(df: pd.DataFrame,
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 
-    # Configures signal-processing constants. Unknown keys are accepted and
-    # forwarded (validation is deliberately out of scope for now).
-    signal_params = prep_signal_params.prep_signal_params(signal_params)
+    # Configures signal-processing constants. Window and length defaults scale
+    # to the index cadence; unknown keys are accepted and forwarded (validation
+    # is deliberately out of scope for now).
+    signal_params = prep_signal_params.prep_signal_params(signal_params, gap_days, n_obs=len(df))
 
     # Core 5-step pipeline
     df = process_signals(df, value_col, method_params, signal_params, debug)

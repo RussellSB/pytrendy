@@ -107,16 +107,39 @@ class TestNonDateCases:
             method_params={'abrupt_padding': 0}
         )
         
-        # Expected segments based on current behavior
+        # Expected segments with the cadence-derived defaults: weekly spacing scales the
+        # day-calibrated smoothing down to the 5-point floor and the boundary search to
+        # ±2 steps, so the rolling gates stay live and boundaries stay local.
         expected_segments = [
-            {'direction': 'Up',   'start': pd.Timestamp('2026-01-11'),  'end': pd.Timestamp('2026-06-14')},
-            {'direction': 'Down', 'start': pd.Timestamp('2026-06-21'),  'end': pd.Timestamp('2026-09-06')},
-            {'direction': 'Flat', 'start': pd.Timestamp('2026-09-13'),  'end': pd.Timestamp('2026-10-04')},
-            {'direction': 'Up',   'start': pd.Timestamp('2026-10-11'),  'end': pd.Timestamp('2027-06-13')},
-            {'direction': 'Down', 'start': pd.Timestamp('2027-06-20'),  'end': pd.Timestamp('2027-09-26')},
-            {'direction': 'Up',   'start': pd.Timestamp('2027-10-03'),  'end': pd.Timestamp('2028-06-11')},
-            {'direction': 'Down', 'start': pd.Timestamp('2028-06-18'),  'end': pd.Timestamp('2029-03-18')},
-            {'direction': 'Flat', 'start': pd.Timestamp('2029-03-25'),  'end': pd.Timestamp('2029-06-17')},
+            {'direction': 'Up', 'start': pd.Timestamp('2026-01-11'), 'end': pd.Timestamp('2026-05-17')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2026-05-24'), 'end': pd.Timestamp('2026-06-14')},
+            {'direction': 'Down', 'start': pd.Timestamp('2026-06-21'), 'end': pd.Timestamp('2026-08-02')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2026-08-09'), 'end': pd.Timestamp('2026-12-06')},
+            {'direction': 'Up', 'start': pd.Timestamp('2026-12-13'), 'end': pd.Timestamp('2027-02-14')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-02-21'), 'end': pd.Timestamp('2027-05-30')},
+            {'direction': 'Up', 'start': pd.Timestamp('2027-06-06'), 'end': pd.Timestamp('2027-06-13')},
+            {'direction': 'Down', 'start': pd.Timestamp('2027-06-20'), 'end': pd.Timestamp('2027-07-04')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-07-11'), 'end': pd.Timestamp('2027-07-18')},
+            {'direction': 'Down', 'start': pd.Timestamp('2027-07-25'), 'end': pd.Timestamp('2027-08-01')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-08-08'), 'end': pd.Timestamp('2027-10-24')},
+            {'direction': 'Up', 'start': pd.Timestamp('2027-10-31'), 'end': pd.Timestamp('2027-11-14')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-11-21'), 'end': pd.Timestamp('2027-11-28')},
+            {'direction': 'Up', 'start': pd.Timestamp('2027-12-05'), 'end': pd.Timestamp('2027-12-12')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-12-19'), 'end': pd.Timestamp('2027-12-26')},
+            {'direction': 'Up', 'start': pd.Timestamp('2028-01-02'), 'end': pd.Timestamp('2028-01-09')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-01-16'), 'end': pd.Timestamp('2028-01-30')},
+            {'direction': 'Up', 'start': pd.Timestamp('2028-02-06'), 'end': pd.Timestamp('2028-02-13')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-02-20'), 'end': pd.Timestamp('2028-02-27')},
+            {'direction': 'Up', 'start': pd.Timestamp('2028-03-05'), 'end': pd.Timestamp('2028-03-12')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-03-19'), 'end': pd.Timestamp('2028-04-02')},
+            {'direction': 'Up', 'start': pd.Timestamp('2028-04-09'), 'end': pd.Timestamp('2028-05-28')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-06-04'), 'end': pd.Timestamp('2028-06-11')},
+            {'direction': 'Down', 'start': pd.Timestamp('2028-06-18'), 'end': pd.Timestamp('2028-09-24')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-10-01'), 'end': pd.Timestamp('2028-10-22')},
+            {'direction': 'Down', 'start': pd.Timestamp('2028-10-29'), 'end': pd.Timestamp('2028-11-05')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-11-12'), 'end': pd.Timestamp('2028-11-19')},
+            {'direction': 'Down', 'start': pd.Timestamp('2028-11-26'), 'end': pd.Timestamp('2028-12-03')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2028-12-10'), 'end': pd.Timestamp('2029-06-17')},
         ]
 
         assert_segments_match(results.segments, expected_segments)

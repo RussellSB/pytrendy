@@ -93,7 +93,7 @@ class TestPlotPytrendyEdgeCases:
         segments_refined = deepcopy(segments)
         segments_refined = classify_trends(df, value_col, segments_refined)
         # No grouping code in between these steps
-        segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params) # for gradual
+        segments_refined = expand_contract_segments(df, value_col, segments_refined, method_params, signal_params) # for gradual
         segments_refined = shave_abrupt_trends(df, value_col, segments_refined, method_params) # for abrupt
         segments_refined = clean_artifacts(df, value_col, segments_refined, method_params, signal_params) # cleans overlaps etc from expand/contract
         # No grouping code & further post-processing after these steps
@@ -861,23 +861,23 @@ class TestIntradayTickGranularity:
         values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
         return pd.DataFrame({'value': values}, index=index)
 
-    def _detect_and_assert(self, plot_df):
-        """Run real detection and guard the sine fixture's rise-fall-rise shape.
+    def _detect_and_assert(self, plot_df, expected):
+        """Run real detection and guard the fixture's expected Up/Down shape.
 
-        The fixture is a single sine sweep, so filtering out Flat/Noise must
-        leave Up, Down, Up. Asserting it here keeps every tick baseline anchored
-        to real detection instead of drifting into a hand-drawn band.
+        Asserting it here keeps every tick baseline anchored to real detection
+        instead of drifting into a hand-drawn band. The fixture is a single sine
+        sweep, so a 1-day or 3-day intraday frame resolves its rise-fall-rise.
         """
         results = pt.detect_trends(plot_df, value_col='value', plot=False)
         directions = [s['direction'] for s in results.segments
                       if s['direction'] in ('Up', 'Down')]
-        assert directions == ['Up', 'Down', 'Up'], directions
+        assert directions == expected, directions
         return results
 
-    def _plot(self, periods, freq):
+    def _plot(self, periods, freq, expected):
         """Detect trends for one frame and plot the real output; return (fig, index)."""
         plot_df = self._intraday_plot_df(periods, freq)
-        results = self._detect_and_assert(plot_df)
+        results = self._detect_and_assert(plot_df, expected)
         fig = plot_pytrendy(plot_df, 'value', results.segments,
                             index_type='date', suppress_show=True)
         return fig, plot_df.index
@@ -888,7 +888,7 @@ class TestIntradayTickGranularity:
                                     style='default')
     def test_plot_intraday_one_day_30min(self):
         """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
-        fig, _ = self._plot(48, '30min')
+        fig, _ = self._plot(48, '30min', ['Up', 'Down', 'Up'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
@@ -907,13 +907,22 @@ class TestIntradayTickGranularity:
         ruler is emitted as explicit observation positions while the majors
         still land on the smallest expressible hour multiple (6 h).
         """
-        fig, _ = self._plot(97, '45min')
+        fig, _ = self._plot(97, '45min', ['Up', 'Down', 'Up'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
         assert len(ax.xaxis.get_minorticklocs()) > 0
         assert ax.xaxis.get_major_formatter().fmt == '%Y-%m-%d\n%H:%M'
         return fig
+
+    def test_one_day_hourly_resolves_full_sweep(self):
+        """1 day of hourly bars resolves the sine's rise-fall-rise.
+
+        The final 4-step leg was stamped abrupt by the reclassification pass and
+        then flattened by ``clean_artifacts``, leaving Up/Down/Flat; the trailing
+        monotonic leg is now kept, matching the 30-min and 45-min cases.
+        """
+        self._detect_and_assert(self._intraday_plot_df(24, '1h'), ['Up', 'Down', 'Up'])
 
 
 class TestIntradayTickSpec:
