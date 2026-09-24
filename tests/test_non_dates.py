@@ -1,6 +1,4 @@
-"""
-TODO Add description here
-"""
+"""Tests for detect_trends index handling and non-date lookup types."""
 import pytest
 import pytrendy as pt
 import pandas as pd
@@ -121,8 +119,8 @@ class TestNonDateCases:
 
         assert_segments_match(results.segments, expected_segments)
 
-class TestDetectTrendsCoverage:
-    """Test detect_trends uncovered paths across index types."""
+class TestIndexTypeRouting:
+    """detect_trends entry-point routing across index types."""
 
     def test_not_implemented_dtype(self):
         """Line 44: unimplemented dtype raises NotImplementedError."""
@@ -137,7 +135,10 @@ class TestDetectTrendsCoverage:
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, value_col='gradual', date_col='date',
                                    plot=True, method_params={'abrupt_padding': 0})
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
+            {'direction': 'Flat', 'start': '2025-06-18', 'end': '2025-06-30'},
+        ])
         plt.close('all')
 
     def test_plot_true_integer_index(self):
@@ -145,7 +146,10 @@ class TestDetectTrendsCoverage:
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, value_col='gradual', plot=True,
                                    method_params={'abrupt_padding': 0})
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': 1, 'end': 23},
+            {'direction': 'Flat', 'start': 168, 'end': 180},
+        ])
         plt.close('all')
 
     def test_plot_true_float_index(self):
@@ -154,16 +158,22 @@ class TestDetectTrendsCoverage:
         df['float_col'] = np.linspace(0, 1, len(df))
         results = pt.detect_trends(df, value_col='gradual', date_col='float_col',
                                    plot=True, method_params={'abrupt_padding': 0})
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': df['float_col'].iloc[1], 'end': df['float_col'].iloc[23]},
+            {'direction': 'Flat', 'start': df['float_col'].iloc[168], 'end': df['float_col'].iloc[180]},
+        ])
         plt.close('all')
 
     def test_plot_true_string_index(self):
         """Lines 165-167: plot=True path with string index."""
         df = pt.load_data('series_synthetic')
-        df['str_col'] = [f'S{i}' for i in range(len(df))]
+        df['str_col'] = [f'Step {i}' for i in range(len(df))]
         results = pt.detect_trends(df, value_col='gradual', date_col='str_col',
                                    plot=True, method_params={'abrupt_padding': 0})
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': 'Step 1', 'end': 'Step 23'},
+            {'direction': 'Flat', 'start': 'Step 168', 'end': 'Step 180'},
+        ])
         plt.close('all')
 
     def test_plot_true_with_plot_params(self):
@@ -172,8 +182,12 @@ class TestDetectTrendsCoverage:
         results = pt.detect_trends(df, value_col='gradual', plot=True,
                                    method_params={'abrupt_padding': 0},
                                    plot_params={'title': 'Test Plot'})
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': 1, 'end': 23},
+            {'direction': 'Flat', 'start': 168, 'end': 180},
+        ])
         plt.close('all')
+
 
 
 class TestDetectIndexTypeInteger:
@@ -271,7 +285,9 @@ class TestLegacyPositionalOrder:
         """Passing (value_col, date_col) positionally works without error."""
         df = pt.load_data('series_synthetic')
         results = pt.detect_trends(df, 'gradual', 'date', plot=False)
-        assert results is not None
+        assert_segments_in_a_haystack(results.segments, [
+            {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
+        ])
 
 
 class TestIndexSorting:
