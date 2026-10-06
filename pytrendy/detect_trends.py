@@ -55,7 +55,7 @@ def detect_trends(df: pd.DataFrame,
         signal_params (dict, optional):
             Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):
 
-            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. When omitted it is inferred from the index cadence (193/97/49/15/9/25/9/5 for 15min/30min/hourly/daily/weekly/monthly/quarterly/yearly, and 15 for anything unmapped). An explicit value always wins. The resolved window is clamped to the series length.
             - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.
             - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.
             - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.
@@ -119,9 +119,10 @@ def detect_trends(df: pd.DataFrame,
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 
-    # Configures signal-processing constants. Unknown keys are accepted and
+    # Configures signal-processing constants. The external index lets the smoothing
+    # window default to a cadence-aware value; unknown keys are accepted and
     # forwarded (validation is deliberately out of scope for now).
-    signal_params = prep_signal_params.prep_signal_params(signal_params)
+    signal_params = prep_signal_params.prep_signal_params(signal_params, index=external_index)
 
     # Core 5-step pipeline
     df = process_signals(df, value_col, method_params, signal_params, debug)
