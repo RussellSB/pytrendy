@@ -2,7 +2,7 @@
   "jupyter-config-data": {
     "appName": "JupyterLite",
     "appUrl": "./lab",
-    "appVersion": "0.8.3",
+    "appVersion": "0.8.5",
     "baseUrl": "./",
     "contentsAllJsonFile": "all.json",
     "contentsStorageDrivers": [
@@ -413,11 +413,11 @@
     "versionInfo": {
       "@jupyter-notebook/application": {
         "label": "Jupyter Notebook",
-        "version": "7.6.2"
+        "version": "7.6.3"
       },
       "@jupyterlab/application": {
         "label": "JupyterLab",
-        "version": "4.6.3"
+        "version": "4.6.4"
       }
     }
   },
