@@ -9,17 +9,22 @@ are defaulted before the pipeline runs.
 inferred from the index cadence so a single smoothing window spans a comparable
 stretch of the series at every sampling frequency. The inferred point counts are:
 
-| Cadence     | ``window_smooth`` |
-| ----------- | ----------------- |
-| 15 minutes  | 193               |
-| 30 minutes  | 97                |
-| hourly      | 49                |
-| daily       | 15                |
-| weekly      | 9                 |
-| monthly     | 25                |
-| quarterly   | 9                 |
-| yearly      | 5                 |
-| other       | 15                |
+| Cadence     | P (pts/cycle) | window_smooth (= 2P+1) |
+| ----------- | ------------- | ---------------------- |
+| 15 minutes  | 96            | 193                    |
+| 30 minutes  | 48            | 97                     |
+| hourly      | 24            | 49                     |
+| daily       | 7             | 15                     |
+| weekly      | 4             | 9                      |
+| monthly     | 12            | 25                     |
+| quarterly   | 4             | 9                      |
+| yearly      | — (fallback)  | 5                      |
+| other       | —             | 15                     |
+
+The table entries satisfy ``int(window_smooth × 0.5) = P``, so the default
+``smooth_factor``/``noise_factor`` (0.5) make ``window_flat``/``window_noise``
+span one seasonal cycle while ``window_smooth`` spans two. Keep new rows on the
+``2P+1`` ladder.
 
 The table is matched pragmatically against :func:`pandas.infer_freq` labels:
 ``T``/``min`` aliases containing 15 or 30, hourly ``H``/``h``, daily ``D``,
@@ -42,7 +47,10 @@ import pandas as pd
 
 _SIGNAL_PARAMS_DEFAULTS = {
     'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
-    'smooth_factor': 0.5,       # Fraction of window_smooth spanned by window_flat: raise to widen it (smoother flat baseline, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional.
+    'smooth_factor': 0.5,       # Fraction of window_smooth spanned by window_flat: raise to widen it
+                                # (smoother flat baseline, fewer flags), lower to narrow it (more sensitive);
+                                # scaled to window_smooth so it stays proportional. Historical name: it scales
+                                # window_flat, not smoothing; with the 2P+1 table it recovers P.
     'noise_factor': 0.5,        # Fraction of window_smooth spanned by window_noise: raise to widen it (smoother SNR estimate, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional.
     'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
     'min_trend_length': 3,      # Minimum length, in steps, for an Up/Down segment to be retained.
