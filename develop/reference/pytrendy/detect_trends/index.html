@@ -1805,7 +1805,7 @@ Defaults to <code>True</code>.</p>
           <div class="doc-md-description">
             <p>Optional parameters to customize the signal-processing constants. Supported keys (independent from <code>method_params</code>):</p>
 <ul>
-<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. Defaults to <code>15</code>.</li>
+<li><strong>window_smooth</strong> (<code>int</code>): Savitzky-Golay smoothing window, in points. When omitted it is inferred from the index cadence (193/97/49/15/9/25/9/5 for 15min/30min/hourly/daily/weekly/monthly/quarterly/yearly, and 15 for anything unmapped). An explicit value always wins. The resolved window is clamped to the series length.</li>
 <li><strong>smooth_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_flat</code> window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
 <li><strong>noise_factor</strong> (<code>float</code>): Fraction of <code>window_smooth</code> spanned by the derived <code>window_noise</code> window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to <code>0.5</code>.</li>
 <li><strong>grouping_distance</strong> (<code>int</code>): Maximum gap, in steps, for grouping nearby segments. Defaults to <code>7</code>.</li>
@@ -2041,7 +2041,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="sd">        signal_params (dict, optional):</span>
 <span class="sd">            Optional parameters to customize the signal-processing constants. Supported keys (independent from `method_params`):</span>
 
-<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. Defaults to `15`.</span>
+<span class="sd">            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points. When omitted it is inferred from the index cadence (193/97/49/15/9/25/9/5 for 15min/30min/hourly/daily/weekly/monthly/quarterly/yearly, and 15 for anything unmapped). An explicit value always wins. The resolved window is clamped to the series length.</span>
 <span class="sd">            - **smooth_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_flat` window. Raising it smooths the flat baseline (fewer flat flags); lowering it responds more locally. Defaults to `0.5`.</span>
 <span class="sd">            - **noise_factor** (`float`): Fraction of `window_smooth` spanned by the derived `window_noise` window. Raising it smooths the noise (SNR) estimate (fewer noise flags); lowering it responds more locally. Defaults to `0.5`.</span>
 <span class="sd">            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby segments. Defaults to `7`.</span>
@@ -2105,9 +2105,9 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="c1"># Configures signal-processing constants. Unknown keys are accepted and</span>
-    <span class="c1"># forwarded (validation is deliberately out of scope for now).</span>
-    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">prep_signal_params</span><span class="o">.</span><span class="n">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">)</span>
+    <span class="c1"># Configures signal-processing constants. The external index lets the smoothing window default to a</span>
+    <span class="c1"># cadence-aware value; unknown keys are accepted and forwarded (validation is deliberately out of scope for now).</span>
+    <span class="n">signal_params</span> <span class="o">=</span> <span class="n">prep_signal_params</span><span class="o">.</span><span class="n">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">external_index</span><span class="p">)</span>
 
     <span class="c1"># Core 5-step pipeline</span>
     <span class="n">df</span> <span class="o">=</span> <span class="n">process_signals</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">value_col</span><span class="p">,</span> <span class="n">method_params</span><span class="p">,</span> <span class="n">signal_params</span><span class="p">,</span> <span class="n">debug</span><span class="p">)</span>

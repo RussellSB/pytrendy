@@ -878,6 +878,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;infer_window_smooth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" infer_window_smooth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth(index)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth(n)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pytrendy.io.prep_signal_params.prep_signal_params" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -894,6 +933,28 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(index)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(n)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n
       
     </span>
   </a>
@@ -1484,6 +1545,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-function"></code>&nbsp;infer_window_smooth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" infer_window_smooth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth(index)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.infer_window_smooth(n)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#pytrendy.io.prep_signal_params.prep_signal_params" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1500,6 +1600,28 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;signal_params
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(index)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;index
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pytrendy.io.prep_signal_params.prep_signal_params(n)" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-parameter"></code>&nbsp;n
       
     </span>
   </a>
@@ -1545,6 +1667,76 @@
 rolling windows, grouping distance, and the noise/flat thresholds. <code>detect_trends</code>
 is the single public entry point, so this module is the one place those constants
 are defaulted before the pipeline runs.</p>
+<p><code>window_smooth</code> is granularity-aware: when the caller does not override it, it is
+inferred from the index cadence so a single smoothing window spans a comparable
+stretch of the series at every sampling frequency. The inferred point counts are:</p>
+<table>
+<thead>
+<tr>
+<th>Cadence</th>
+<th>P (pts/cycle)</th>
+<th>window_smooth (= 2P+1)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15 minutes</td>
+<td>96</td>
+<td>193</td>
+</tr>
+<tr>
+<td>30 minutes</td>
+<td>48</td>
+<td>97</td>
+</tr>
+<tr>
+<td>hourly</td>
+<td>24</td>
+<td>49</td>
+</tr>
+<tr>
+<td>daily</td>
+<td>7</td>
+<td>15</td>
+</tr>
+<tr>
+<td>weekly</td>
+<td>4</td>
+<td>9</td>
+</tr>
+<tr>
+<td>monthly</td>
+<td>12</td>
+<td>25</td>
+</tr>
+<tr>
+<td>quarterly</td>
+<td>4</td>
+<td>9</td>
+</tr>
+<tr>
+<td>yearly</td>
+<td>— (fallback)</td>
+<td>5</td>
+</tr>
+<tr>
+<td>other</td>
+<td>—</td>
+<td>15</td>
+</tr>
+</tbody>
+</table>
+<p>The table entries satisfy <code>int(window_smooth × 0.5) = P</code>, so the default
+<code>smooth_factor</code>/<code>noise_factor</code> (0.5) make <code>window_flat</code>/<code>window_noise</code>
+span one seasonal cycle while <code>window_smooth</code> spans two. Keep new rows on the
+<code>2P+1</code> ladder.</p>
+<p>The table is matched pragmatically against :func:<code>pandas.infer_freq</code> labels:
+<code>T</code>/<code>min</code> aliases containing 15 or 30, hourly <code>H</code>/<code>h</code>, daily <code>D</code>,
+weekly <code>W...</code>, monthly <code>M</code>/<code>ME</code>/<code>MS</code>,
+quarterly <code>Q...</code> and yearly <code>Y</code>/<code>A</code>/<code>YE</code>/<code>YS</code>. An explicit user <code>window_smooth</code> always wins and
+skips inference. The resolved window is finally clamped to the series length
+(decrementing by two to stay odd) with a floor of 3, so Savitzky-Golay always
+receives a valid window.</p>
 <p>Defaults are merged with any user-supplied <code>signal_params</code> overrides. The derived
 windows <code>window_flat</code> and <code>window_noise</code> are not top-level defaults: unless
 explicitly overridden they derive from <code>window_smooth</code>. Every stage downstream
@@ -1573,20 +1765,141 @@ assumes :func:<code>prep_signal_params</code> returns a fully-populated dict.</p
 <div class="doc doc-object doc-function">
 
 
+<h2 id="pytrendy.io.prep_signal_params.infer_window_smooth" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">infer_window_smooth</span>
+
+
+</h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">infer_window_smooth</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Infer a smoothing window from the sampling cadence of an index.</p>
+<p>Converts <code>index</code> to a <code>DatetimeIndex</code> (date-like values only), asks
+:func:<code>pandas.infer_freq</code> for its frequency label, and maps that label through
+the cadence table. Anything unmapped — a non-datetime index, an irregular or
+unparseable one, or an exotic frequency such as <code>'45T'</code>/<code>'5H'</code>/<code>'14D'</code> —
+falls back to 15. Degenerate inputs (<code>None</code>, ragged sequences, or indexes
+<code>infer_freq</code> rejects) now raise instead of falling back. The result is clamped
+to <code>n</code> when provided.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.prep_signal_params.infer_window_smooth(index)" class="doc doc-heading doc-heading-parameter">              <b><code>index</code></b>
+</h3>          –
+          <div class="doc-md-description">
+            <p>External index values (pandas Index/Series, or array-like).</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.prep_signal_params.infer_window_smooth(n)" class="doc doc-heading doc-heading-parameter">              <b><code>n</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Series length used to clamp the inferred window.</p>
+          </div>
+        </li>
+    </ul>
+
+
+<p><span class="doc-section-title">Returns:</span></p>
+    <ul>
+        <li class="doc-section-item field-body">
+<b><code>int</code></b> (              <code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>
+)          –
+          <div class="doc-md-description">
+            <p>Inferred smoothing window (clamped to <code>n</code> when given).</p>
+          </div>
+        </li>
+    </ul>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>pytrendy/io/prep_signal_params.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span>
+<span class="normal">141</span>
+<span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
+<span class="normal">147</span>
+<span class="normal">148</span>
+<span class="normal">149</span>
+<span class="normal">150</span>
+<span class="normal">151</span>
+<span class="normal">152</span>
+<span class="normal">153</span>
+<span class="normal">154</span>
+<span class="normal">155</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span>
+<span class="normal">162</span>
+<span class="normal">163</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">infer_window_smooth</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Infer a smoothing window from the sampling cadence of an index.</span>
+
+<span class="sd">    Converts ``index`` to a ``DatetimeIndex`` (date-like values only), asks</span>
+<span class="sd">    :func:`pandas.infer_freq` for its frequency label, and maps that label through</span>
+<span class="sd">    the cadence table. Anything unmapped — a non-datetime index, an irregular or</span>
+<span class="sd">    unparseable one, or an exotic frequency such as ``'45T'``/``'5H'``/``'14D'`` —</span>
+<span class="sd">    falls back to 15. Degenerate inputs (``None``, ragged sequences, or indexes</span>
+<span class="sd">    ``infer_freq`` rejects) now raise instead of falling back. The result is clamped</span>
+<span class="sd">    to ``n`` when provided.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        index: External index values (pandas Index/Series, or array-like).</span>
+<span class="sd">        n (int, optional): Series length used to clamp the inferred window.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        int: Inferred smoothing window (clamped to ``n`` when given).</span>
+<span class="sd">    """</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">_DEFAULT_WINDOW</span>
+    <span class="n">dt_index</span> <span class="o">=</span> <span class="n">_as_datetime_index</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">dt_index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">dt_index</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">freq</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">infer_freq</span><span class="p">(</span><span class="n">dt_index</span><span class="p">)</span>
+        <span class="n">label_window</span> <span class="o">=</span> <span class="n">_window_from_label</span><span class="p">(</span><span class="n">freq</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">label_window</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">window</span> <span class="o">=</span> <span class="n">label_window</span>
+    <span class="k">return</span> <span class="n">_clamp_window</span><span class="p">(</span><span class="n">window</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+</code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h2 id="pytrendy.io.prep_signal_params.prep_signal_params" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-function"></code>            <span class="doc doc-object-name doc-function-name">prep_signal_params</span>
 
 
 </h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 </code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Merge user-supplied <code>signal_params</code> over the defaults and derive window sizes.</p>
-<p><code>window_flat</code> and <code>window_noise</code> are not top-level defaults: unless explicitly
-overridden they derive from <code>window_smooth</code>. Every stage downstream assumes
-this returns a fully-populated dict.</p>
+<p><code>window_smooth</code> is inferred from <code>index</code>'s cadence when the user does not
+explicitly set it; an explicit value always wins. The resolved window is then
+clamped to the series length. <code>window_flat</code> and <code>window_noise</code> are not
+top-level defaults: unless explicitly overridden they derive from the clamped
+<code>window_smooth</code>. Every stage downstream assumes this returns a fully-populated
+dict.</p>
 
 
 <p><span class="doc-section-title">Parameters:</span></p>
@@ -1599,6 +1912,28 @@ this returns a fully-populated dict.</p>
           –
           <div class="doc-md-description">
             <p>User overrides. Unknown keys are forwarded silently.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.prep_signal_params.prep_signal_params(index)" class="doc doc-heading doc-heading-parameter">              <b><code>index</code></b>
+</h3>              (<code><span title="optional">optional</span></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>External index; its cadence infers <code>window_smooth</code> when the
+user does not supply one.</p>
+          </div>
+        </li>
+        <li class="doc-section-item field-body">
+<h3 id="pytrendy.io.prep_signal_params.prep_signal_params(n)" class="doc doc-heading doc-heading-parameter">              <b><code>n</code></b>
+</h3>              (<code><a class="autorefs autorefs-external" href="https://docs.python.org/3/builtins/functions.html#int">int</a></code>, default:
+                  <code>None</code>
+)
+          –
+          <div class="doc-md-description">
+            <p>Series length used to clamp <code>window_smooth</code>. Defaults to
+<code>len(index)</code> when <code>index</code> is given.</p>
           </div>
         </li>
     </ul>
@@ -1618,38 +1953,80 @@ this returns a fully-populated dict.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>pytrendy/io/prep_signal_params.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">27</span>
-<span class="normal">28</span>
-<span class="normal">29</span>
-<span class="normal">30</span>
-<span class="normal">31</span>
-<span class="normal">32</span>
-<span class="normal">33</span>
-<span class="normal">34</span>
-<span class="normal">35</span>
-<span class="normal">36</span>
-<span class="normal">37</span>
-<span class="normal">38</span>
-<span class="normal">39</span>
-<span class="normal">40</span>
-<span class="normal">41</span>
-<span class="normal">42</span>
-<span class="normal">43</span>
-<span class="normal">44</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">166</span>
+<span class="normal">167</span>
+<span class="normal">168</span>
+<span class="normal">169</span>
+<span class="normal">170</span>
+<span class="normal">171</span>
+<span class="normal">172</span>
+<span class="normal">173</span>
+<span class="normal">174</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span>
+<span class="normal">180</span>
+<span class="normal">181</span>
+<span class="normal">182</span>
+<span class="normal">183</span>
+<span class="normal">184</span>
+<span class="normal">185</span>
+<span class="normal">186</span>
+<span class="normal">187</span>
+<span class="normal">188</span>
+<span class="normal">189</span>
+<span class="normal">190</span>
+<span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
+<span class="normal">196</span>
+<span class="normal">197</span>
+<span class="normal">198</span>
+<span class="normal">199</span>
+<span class="normal">200</span>
+<span class="normal">201</span>
+<span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">:</span> <span class="nb">dict</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n</span><span class="p">:</span> <span class="nb">int</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Merge user-supplied `signal_params` over the defaults and derive window sizes.</span>
 
-<span class="sd">    `window_flat` and `window_noise` are not top-level defaults: unless explicitly</span>
-<span class="sd">    overridden they derive from `window_smooth`. Every stage downstream assumes</span>
-<span class="sd">    this returns a fully-populated dict.</span>
+<span class="sd">    `window_smooth` is inferred from `index`'s cadence when the user does not</span>
+<span class="sd">    explicitly set it; an explicit value always wins. The resolved window is then</span>
+<span class="sd">    clamped to the series length. `window_flat` and `window_noise` are not</span>
+<span class="sd">    top-level defaults: unless explicitly overridden they derive from the clamped</span>
+<span class="sd">    `window_smooth`. Every stage downstream assumes this returns a fully-populated</span>
+<span class="sd">    dict.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        signal_params (dict, optional): User overrides. Unknown keys are forwarded silently.</span>
+<span class="sd">        index (optional): External index; its cadence infers `window_smooth` when the</span>
+<span class="sd">            user does not supply one.</span>
+<span class="sd">        n (int, optional): Series length used to clamp `window_smooth`. Defaults to</span>
+<span class="sd">            `len(index)` when `index` is given.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        dict: Fully-populated signal_params with every key the stages read.</span>
 <span class="sd">    """</span>
-    <span class="n">resolved</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">signal_params</span> <span class="ow">or</span> <span class="p">{})}</span>
+    <span class="n">user_params</span> <span class="o">=</span> <span class="n">signal_params</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">_SIGNAL_PARAMS_DEFAULTS</span><span class="p">,</span> <span class="o">**</span><span class="n">user_params</span><span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">n</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">'window_smooth'</span> <span class="ow">in</span> <span class="n">user_params</span><span class="p">:</span>
+        <span class="c1"># Explicit value wins; still clamp it to a Savitzky-Golay-valid window.</span>
+        <span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_clamp_window</span><span class="p">(</span><span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">index</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">infer_window_smooth</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">n</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">]</span> <span class="o">=</span> <span class="n">_clamp_window</span><span class="p">(</span><span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">],</span> <span class="n">n</span><span class="p">)</span>
+
+    <span class="c1"># Derive the factor-based windows *after* clamping, and only when the user did not set them explicitly.</span>
     <span class="n">resolved</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'window_flat'</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">]</span> <span class="o">*</span> <span class="n">resolved</span><span class="p">[</span><span class="s1">'smooth_factor'</span><span class="p">]))</span>
     <span class="n">resolved</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">'window_noise'</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">resolved</span><span class="p">[</span><span class="s1">'window_smooth'</span><span class="p">]</span> <span class="o">*</span> <span class="n">resolved</span><span class="p">[</span><span class="s1">'noise_factor'</span><span class="p">]))</span>
     <span class="k">return</span> <span class="n">resolved</span>
