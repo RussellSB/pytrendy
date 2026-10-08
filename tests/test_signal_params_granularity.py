@@ -122,8 +122,7 @@ class TestSignalParamsGranularity:
             'date': pd.date_range('2020-01-01', periods=8, freq='YE'),
             'value': 100 + np.arange(8) * 5 + rng.normal(0, 0.1, 8),
         })
-        # The inferred window (5) is clamped below the frame length; without the
-        # clamp an unclamped window would make Savitzky-Golay raise a ValueError.
+        # The inferred window (5) is clamped below the frame length; unclamped, Savitzky-Golay raises a ValueError.
         results = pt.detect_trends(df, value_col='value', date_col='date', plot=False)
         assert_segments_in_a_haystack(results.segments, [
             {'direction': 'Up',

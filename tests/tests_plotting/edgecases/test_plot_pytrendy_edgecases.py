@@ -861,7 +861,7 @@ class TestIntradayTickGranularity:
         values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
         return pd.DataFrame({'value': values}, index=index)
 
-    def _detect_and_assert(self, plot_df, directions=('Up', 'Down', 'Up')):
+    def _detect_and_assert(self, plot_df, directions):
         """Run real detection and guard the sine fixture's expected directions.
 
         The fixture is a single sine sweep, so filtering out Flat/Noise normally
@@ -878,7 +878,7 @@ class TestIntradayTickGranularity:
         assert found == list(directions), found
         return results
 
-    def _plot(self, periods, freq, directions=('Up', 'Down', 'Up')):
+    def _plot(self, periods, freq, directions):
         """Detect trends for one frame and plot the real output; return (fig, index)."""
         plot_df = self._intraday_plot_df(periods, freq)
         results = self._detect_and_assert(plot_df, directions=directions)
@@ -892,8 +892,7 @@ class TestIntradayTickGranularity:
                                     style='default')
     def test_plot_intraday_one_day_30min(self):
         """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
-        # 30-min infers window 97 (~2 days of smoothing on a 1-day frame), so the
-        # sine's rise/fall edges read as Flat; the Down core is the assertion.
+        # 30-min infers window 97 (~2 days on a 1-day frame), so rise/fall edges read Flat; the Down core is asserted.
         fig, _ = self._plot(48, '30min', directions=['Down'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
@@ -913,7 +912,7 @@ class TestIntradayTickGranularity:
         ruler is emitted as explicit observation positions while the majors
         still land on the smallest expressible hour multiple (6 h).
         """
-        fig, _ = self._plot(97, '45min')
+        fig, _ = self._plot(97, '45min', directions=['Up', 'Down', 'Up'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)

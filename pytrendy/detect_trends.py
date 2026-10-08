@@ -119,9 +119,8 @@ def detect_trends(df: pd.DataFrame,
         'avoid_noise': method_params.get('avoid_noise', True),
     }
 
-    # Configures signal-processing constants. The external index lets the smoothing
-    # window default to a cadence-aware value; unknown keys are accepted and
-    # forwarded (validation is deliberately out of scope for now).
+    # Configures signal-processing constants. The external index lets the smoothing window default to a
+    # cadence-aware value; unknown keys are accepted and forwarded (validation is deliberately out of scope for now).
     signal_params = prep_signal_params.prep_signal_params(signal_params, index=external_index)
 
     # Core 5-step pipeline

@@ -47,10 +47,8 @@ import pandas as pd
 
 _SIGNAL_PARAMS_DEFAULTS = {
     'window_smooth': 15,        # Savitzky-Golay smoothing window, in points.
-    'smooth_factor': 0.5,       # Fraction of window_smooth spanned by window_flat: raise to widen it
-                                # (smoother flat baseline, fewer flags), lower to narrow it (more sensitive);
-                                # scaled to window_smooth so it stays proportional. Historical name: it scales
-                                # window_flat, not smoothing; with the 2P+1 table it recovers P.
+    'smooth_factor': 0.5,       # Fraction of window_smooth spanned by window_flat: raise to widen it (smoother flat
+                                # baseline, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional. Historical name: it scales window_flat, not smoothing; with the 2P+1 table it recovers P.
     'noise_factor': 0.5,        # Fraction of window_smooth spanned by window_noise: raise to widen it (smoother SNR estimate, fewer flags), lower to narrow it (more sensitive); scaled to window_smooth so it stays proportional.
     'grouping_distance': 7,     # Maximum gap, in index steps, for grouping nearby segments.
     'min_trend_length': 3,      # Minimum length, in steps, for an Up/Down segment to be retained.
@@ -200,8 +198,7 @@ def prep_signal_params(signal_params: dict|None=None, index=None, n: int|None=No
     else:
         resolved['window_smooth'] = _clamp_window(resolved['window_smooth'], n)
 
-    # Derive the factor-based windows *after* clamping, and only when the user did
-    # not set them explicitly.
+    # Derive the factor-based windows *after* clamping, and only when the user did not set them explicitly.
     resolved.setdefault('window_flat', int(resolved['window_smooth'] * resolved['smooth_factor']))
     resolved.setdefault('window_noise', int(resolved['window_smooth'] * resolved['noise_factor']))
     return resolved
