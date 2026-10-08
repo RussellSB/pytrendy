@@ -861,23 +861,27 @@ class TestIntradayTickGranularity:
         values = 50 + 10 * np.sin(np.arange(periods) / (periods / 6.0))
         return pd.DataFrame({'value': values}, index=index)
 
-    def _detect_and_assert(self, plot_df):
-        """Run real detection and guard the sine fixture's rise-fall-rise shape.
+    def _detect_and_assert(self, plot_df, directions):
+        """Run real detection and guard the sine fixture's expected directions.
 
-        The fixture is a single sine sweep, so filtering out Flat/Noise must
-        leave Up, Down, Up. Asserting it here keeps every tick baseline anchored
-        to real detection instead of drifting into a hand-drawn band.
+        The fixture is a single sine sweep, so filtering out Flat/Noise normally
+        leaves Up, Down, Up. Cadence-aware smoothing can flatten the edges of a
+        short frame: at 30-minute spacing the inferred window (97 points, ~2 days)
+        spans the whole 1-day fixture, so the rise/fall read as Flat and only the
+        Down core survives. Callers pass the expected `directions` for their
+        cadence. Asserting it here keeps every tick baseline anchored to real
+        detection instead of drifting into a hand-drawn band.
         """
         results = pt.detect_trends(plot_df, value_col='value', plot=False)
-        directions = [s['direction'] for s in results.segments
-                      if s['direction'] in ('Up', 'Down')]
-        assert directions == ['Up', 'Down', 'Up'], directions
+        found = [s['direction'] for s in results.segments
+                 if s['direction'] in ('Up', 'Down')]
+        assert found == list(directions), found
         return results
 
-    def _plot(self, periods, freq):
+    def _plot(self, periods, freq, directions):
         """Detect trends for one frame and plot the real output; return (fig, index)."""
         plot_df = self._intraday_plot_df(periods, freq)
-        results = self._detect_and_assert(plot_df)
+        results = self._detect_and_assert(plot_df, directions=directions)
         fig = plot_pytrendy(plot_df, 'value', results.segments,
                             index_type='date', suppress_show=True)
         return fig, plot_df.index
@@ -888,7 +892,8 @@ class TestIntradayTickGranularity:
                                     style='default')
     def test_plot_intraday_one_day_30min(self):
         """1 day of 30-minute bars: 2-hour majors, 30-minute minors, date+time labels."""
-        fig, _ = self._plot(48, '30min')
+        # 30-min infers window 97 (~2 days on a 1-day frame), so rise/fall edges read Flat; the Down core is asserted.
+        fig, _ = self._plot(48, '30min', directions=['Down'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 2 / 24)
@@ -907,7 +912,7 @@ class TestIntradayTickGranularity:
         ruler is emitted as explicit observation positions while the majors
         still land on the smallest expressible hour multiple (6 h).
         """
-        fig, _ = self._plot(97, '45min')
+        fig, _ = self._plot(97, '45min', directions=['Up', 'Down', 'Up'])
         ax = fig.axes[0]
         assert isinstance(ax.xaxis.get_major_locator(), mdates.HourLocator)
         assert np.allclose(np.diff(ax.get_xticks()), 6 / 24)
@@ -1087,7 +1092,7 @@ class TestTickGranularityMatrix:
     @pytest.mark.mpl_image_compare(baseline_dir='./',
                                     filename='test_plot_three_year_weekly_ticks.png',
                                     style='default')
-    def test_three_year_weekly_ticks(self):
+    def test_three_year_weekly_ticks(self): # TODO: Improve, either up/down consistently on cycles, or collapse to flat consistently since seasonal
         """~3 years weekly: snapped month majors (~36), weekly positional minors."""
         fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(3 * 366, 'W'), 'three_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
@@ -1101,7 +1106,7 @@ class TestTickGranularityMatrix:
     @pytest.mark.mpl_image_compare(baseline_dir='./',
                                     filename='test_plot_ten_year_weekly_ticks.png',
                                     style='default')
-    def test_ten_year_weekly_ticks(self):
+    def test_ten_year_weekly_ticks(self): #TODO: Improve, either should up/down on cycles with no flats, or collapse to flat consistently
         """~10 years weekly: coarser scaled month majors with weekly minors."""
         fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(10 * 366, 'W'), 'ten_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
@@ -1115,7 +1120,7 @@ class TestTickGranularityMatrix:
     @pytest.mark.mpl_image_compare(baseline_dir='./',
                                     filename='test_plot_thirty_year_weekly_ticks.png',
                                     style='default')
-    def test_thirty_year_weekly_ticks(self):
+    def test_thirty_year_weekly_ticks(self): # TODO: Improve, either up/down consistently on cycles, or collapse to flat consistently since seasonal
         """~30 years weekly: majors stay <=~40 labels, minors thin under the cap."""
         fig, major, minor, n_major, n_minor, fmt = self._axis(self._series(30 * 366, 'W'), 'thirty_year_weekly_ticks')
         assert isinstance(major, FixedLocator)
