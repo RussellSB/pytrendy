@@ -90,38 +90,27 @@ def _as_datetime_index(index):
     as epoch timestamps by :func:`pandas.to_datetime`. Only datetime dtypes and
     genuinely parseable string/object labels are accepted.
     """
-    if index is None:
-        return None
-    try:
-        if isinstance(index, pd.DatetimeIndex):
-            return index
-        if isinstance(index, pd.Series):
-            dtype = index.dtype
-        else:
-            arr = np.asarray(index)
-            if arr.ndim == 0:
-                return None
-            if np.issubdtype(arr.dtype, np.datetime64):
-                return pd.DatetimeIndex(arr)
-            dtype = arr.dtype
+    if isinstance(index, pd.Series):
+        dtype = index.dtype
+    else:
+        arr = np.asarray(index)
+        if np.issubdtype(arr.dtype, np.datetime64):
+            return pd.DatetimeIndex(arr)
+        dtype = arr.dtype
 
-        if pd.api.types.is_datetime64_any_dtype(dtype):
-            return pd.DatetimeIndex(index)
-        if pd.api.types.is_object_dtype(dtype) or pd.api.types.is_string_dtype(dtype):
-            with warnings.catch_warnings():
-                warnings.filterwarnings("ignore", message="Could not infer format.*")
-                parsed = pd.to_datetime(index, errors='coerce')
-            if parsed.notna().all():
-                return pd.DatetimeIndex(parsed)
-    except (TypeError, ValueError):
-        return None
+    if pd.api.types.is_datetime64_any_dtype(dtype):
+        return pd.DatetimeIndex(index)
+    if pd.api.types.is_object_dtype(dtype) or pd.api.types.is_string_dtype(dtype):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="Could not infer format.*")
+            parsed = pd.to_datetime(index, errors='coerce')
+        if parsed.notna().all():
+            return pd.DatetimeIndex(parsed)
     return None
 
 
 def _window_from_label(label: str|None) -> int|None:
     """Map a ``pandas.infer_freq`` label to its smoothing window, or ``None`` if unmapped."""
-    if label is None:
-        return None
     lab = str(label)
     low = lab.lower()
 
@@ -155,7 +144,9 @@ def infer_window_smooth(index, n: int|None=None) -> int:
     :func:`pandas.infer_freq` for its frequency label, and maps that label through
     the cadence table. Anything unmapped — a non-datetime index, an irregular or
     unparseable one, or an exotic frequency such as ``'45T'``/``'5H'``/``'14D'`` —
-    falls back to 15. The result is clamped to ``n`` when provided.
+    falls back to 15. Degenerate inputs (``None``, ragged sequences, or indexes
+    ``infer_freq`` rejects) now raise instead of falling back. The result is clamped
+    to ``n`` when provided.
 
     Args:
         index: External index values (pandas Index/Series, or array-like).
@@ -167,10 +158,7 @@ def infer_window_smooth(index, n: int|None=None) -> int:
     window = _DEFAULT_WINDOW
     dt_index = _as_datetime_index(index)
     if dt_index is not None and len(dt_index) >= 3:
-        try:
-            freq = pd.infer_freq(dt_index)
-        except ValueError:
-            freq = None
+        freq = pd.infer_freq(dt_index)
         label_window = _window_from_label(freq)
         if label_window is not None:
             window = label_window
