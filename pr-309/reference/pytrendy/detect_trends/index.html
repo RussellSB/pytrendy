@@ -1997,8 +1997,7 @@ Use this object to access segment statistics, rankings, and export utilities.</p
 <span class="normal">138</span>
 <span class="normal">139</span>
 <span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
+<span class="normal">141</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_trends</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> 
                   <span class="n">value_col</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
                   <span class="n">date_col</span><span class="p">:</span> <span class="nb">str</span><span class="o">|</span><span class="kc">None</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                   <span class="n">plot</span><span class="p">:</span> <span class="nb">bool</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
@@ -2106,9 +2105,8 @@ Use this object to access segment statistics, rankings, and export utilities.</p
         <span class="s1">'avoid_noise'</span><span class="p">:</span> <span class="n">method_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'avoid_noise'</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
     <span class="p">}</span>
 
-    <span class="c1"># Configures signal-processing constants. The external index lets the smoothing</span>
-    <span class="c1"># window default to a cadence-aware value; unknown keys are accepted and</span>
-    <span class="c1"># forwarded (validation is deliberately out of scope for now).</span>
+    <span class="c1"># Configures signal-processing constants. The external index lets the smoothing window default to a</span>
+    <span class="c1"># cadence-aware value; unknown keys are accepted and forwarded (validation is deliberately out of scope for now).</span>
     <span class="n">signal_params</span> <span class="o">=</span> <span class="n">prep_signal_params</span><span class="o">.</span><span class="n">prep_signal_params</span><span class="p">(</span><span class="n">signal_params</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">external_index</span><span class="p">)</span>
 
     <span class="c1"># Core 5-step pipeline</span>
