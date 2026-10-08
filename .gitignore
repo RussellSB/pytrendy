@@ -18,3 +18,5 @@ temp.csv
 .slim/worktrees/
 .slim/worktrees.json
 interview/
+viz-skin.json
+ocv-debug.log
