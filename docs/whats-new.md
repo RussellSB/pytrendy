@@ -13,15 +13,11 @@ Stay up to date with every PyTrendy release - user-facing improvements, bug fixe
 
 <!-- WHATS_NEW_CONTENT_START -->
 
-## Coming in v2.0.0 <span class="version-prerelease">pre-release</span>
+## Released in v2.0.0
 
-*Staged on the `develop` branch; it will land in the next stable release. Currently available as the latest pre-release:*
+> Released 2026-11-18
 
-```bash
-pip install --pre pytrendy
-```
-
-v2.0.0 has major changes both in terms of features and user-facing API, grouped into four sections below:
+v2.0.0 is a major release: detection now accepts any index type with an optional `date_col`, smoothing windows adapt to the series' cadence, and the plot is fully customisable through `plot_params`. Three breaking changes ship with it — the `detect_trends` argument order, removal of the `change` column, and the `days` to `steps` rename — alongside fixes for long-ramp truncation and over-applied abrupt padding. The four sections below group the details:
 
 - **Enhanced Capability** — detection accepts any index type with an optional `date_col`; gradual trends gain `gradual_padding`; a new `mltp_change` multiplier view sits alongside `pct_change`.
 - **Customisation** — `plot_params` restyles every visual aspect of the detection plot.
