@@ -1,66 +1,30 @@
 # AGENTS.md
 
-Compact context for OpenCode sessions. Deeper topics live in `.opencode/skills/` (auto-loaded by trigger).
-
-## What this is
-
-PyTrendy: trend detection lib for time series. One public entrypoint: `pytrendy.detect_trends(df, date_col, value_col, ...)` → `PyTrendyResults`. Python ≥3.10, CI on 3.12.
+PyTrendy: trend detection for time series. One entrypoint —
+`pytrendy.detect_trends(df, value_col, date_col=None, ...)` → `PyTrendyResults`.
+Python ≥3.10, CI on 3.12.
 
 ## Skills (load before ANY code work)
 
-Load these before making code changes, commits, or PRs — they contain the conventions, architecture, and rules this project enforces:
+Before making changes, commits, or PRs, load these — they hold the conventions,
+architecture and rules:
 
-- `maintenance` — commit format, branch model, deprecation policy, API surface, diff rules, remote session behaviour.
-- `pytrendy` — 5-stage pipeline, module map, install/verify, datasets, `PyTrendyResults`, docs tooling.
-- `test` — pytest-mpl baseline workflow, markers, conftest helpers, CSV data conventions, regression-test migration.
-- `cicd` — full release pipeline, docs deploy gating, whats-new agentic flow, branch-channel mapping.
-- `debug` — two-phase debug workflow (`process_signals` diagnostic plots, `segments_refine` stage bisect), `tests/test.py` sandbox, regression handoff.
-- `pr-plots` — before/after plot generation for fix/feature PR bodies, guard rail plots, human-in-the-loop image upload, zero-commit cleanup.
+1. **`maintenance`** — commit format, branch model, deprecation policy, API surface, diff rules, remote session behaviour
+2. **`pytrendy`** — 5-stage pipeline, module map, install/verify, datasets, `PyTrendyResults`, docs tooling
+
+Other skills load on demand: `test` (pytest-mpl baselines), `cicd` (release pipeline),
+`debug` (pipeline bisects), `pr-plots` (before/after evidence).
 
 ## Branch model (enforced by CI)
 
-- **Default: branch off `develop` and target `develop`.** Unless a change is explicitly CI/CD-only, or the user says otherwise, assume `develop`. `check-base-branch.yml` hard-fails PRs to `main` that don't qualify.
-- **Targeting `main` is fine for CI/CD-only changes** — e.g. a fix to the AI PR-agent workflow (`opencode.yml`) intended specifically for `main`, or a quick CI/CD fix. Keep it scoped to CI/CD config, not library code or docs.
-- `main` = stable release branch. `develop` = prerelease (`dev` channel). `develop`→`main` release PRs and automated `docs/whats-new-*` PRs also bypass the base-branch check.
-- Branch off: `git checkout -b my-feature origin/develop`.
+- Default: branch off `develop`, target `develop`. `check-base-branch.yml` fails PRs to `main` that don't qualify.
+- CI/CD-only or agentic-config changes (`.github/`, `.opencode/`, `AGENTS.md`, `pyproject.toml`, `opencode.json`, `.releaserc`) may target `main` directly for urgent fixes; library code and docs go through `develop`.
+- `main` = stable, `develop` = prerelease. `develop`→`main` release PRs and `docs/whats-new-*` bypass the check.
 
-## Commits & PR titles (Conventional Commits, enforced)
+## Critical rules (details in skills)
 
-- **Commits must use Conventional Commits** (`feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `perf:`, `test:`, `build:`, `ci:`, `chore:`, `revert:`) — lowercase, imperative, <72 chars, no trailing period.
-- This applies to all commit messages you generate, including auto-generated summaries.
-- `lint-pr-title.yml` rejects titles not matching `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`; **PR titles use this same pattern** and non-conforming titles are blocked in CI.
-- semantic-release maps: `feat`→minor, `fix`→patch, `!`/`BREAKING CHANGE:`→major, others→no bump.
-- Deprecating a public API param = `feat:` (minor), *not* `refactor:`. See `maintenance` skill.
-- **`chore` vs `fix`**: `fix:` triggers a **patch release** via semantic-release. Use `chore:` or `ci:` for maintenance-only changes with zero user-facing code impact — `fix:` on non-bugfix work causes accidental auto-releases.
-
-## Install & verify
-
-```bash
-pip install -e ".[dev]"           # dev: pytest, pytest-cov, pytest-mpl, pytest-timeout
-pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs work
-```
-
-Development needs **Python >=3.11**: `matplotlib` is pinned to `3.11.2` in the `dev` extra for pytest-mpl baseline determinism.
-
-**Verify before push** — CI runs core first, then non-core with `--cov-append`:
-
-```bash
-pytest tests/ -m core                       # essential, must pass
-pytest tests/ -m "not core" --cov-append    # the rest
-# or just: pytest  (pyproject addopts already set --mpl --cov=pytrendy)
-```
-
-- 15s per-test timeout (`pytest-timeout`).
-- Plot tests use **pytest-mpl** with baselines pinned to **matplotlib==3.11.2** (hard pin in `pyproject.toml`). Regenerating baselines on another version = false failures. See `test` skill.
-- `coverage.xml` + `.coverage` are gitignored artifacts; don't commit.
-
-## Don't touch these manually
-
-- `pyproject.toml` version — bumped by semantic-release via `poetry version`. Editing it by hand breaks releases.
-- `CHANGELOG.md` — generated by semantic-release on `main`.
-
-## Docs
-
-- MkDocs Material + mkdocstrings (Google-style). New page → register under `nav:` in `mkdocs.yml`.
-- `mkdocs serve` for local preview. PRs touching `docs/`, `mkdocs.yml`, or `pytrendy/` auto-deploy a preview at `russellsb.github.io/pytrendy/pr-<N>/` (bot comments the URL; removed on PR close; fork PRs skipped).
-- JupyterLite notebooks in `docs/examples/` — run `scripts/normalize_notebooks.sh` before building docs (works around a JupyterLite text-output rendering bug).
+- **Conventional Commits** on commits and PR titles — `^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\(.+\))?!?: .+`, lowercase, imperative, <72 chars, no trailing period.
+- `feat`→minor, `fix`→patch, `!`→major. Deprecating a public param is `feat:`, never `refactor:`.
+- **`chore`/`ci` vs `fix`**: `fix:` triggers a patch release — don't use it for maintenance-only work.
+- Never hand-edit `pyproject.toml` version or `CHANGELOG.md`.
+- Verify with `pytest` before pushing; plot baselines are pinned to `matplotlib==3.11.2`.
