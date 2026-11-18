@@ -1,3 +1,48 @@
+# [2.0.0](https://github.com/RussellSB/pytrendy/compare/v1.3.1...v2.0.0) (2026-11-18)
+
+
+* feat!: remove redundant change column ([#294](https://github.com/RussellSB/pytrendy/issues/294)) ([a43471b](https://github.com/RussellSB/pytrendy/commit/a43471bad45aa42dbab405c462c0b54b7e31619d))
+
+
+### Bug Fixes
+
+* close plot shading gaps for non-daily spacing ([#301](https://github.com/RussellSB/pytrendy/issues/301)) ([bf36445](https://github.com/RussellSB/pytrendy/commit/bf36445e2076d0c5688364d5fa841236329a24c3))
+* detect long gradual ramps truncated by false flat detection ([e749f82](https://github.com/RussellSB/pytrendy/commit/e749f8222bad3e78215881b84c3c666d59e62b0d)), closes [#195](https://github.com/RussellSB/pytrendy/issues/195)
+* **plot:** honor grid and legend parameters ([#255](https://github.com/RussellSB/pytrendy/issues/255)) ([e7a9b6e](https://github.com/RussellSB/pytrendy/commit/e7a9b6ee896f716f7c91782ad59fad2064aadc65)), closes [#250](https://github.com/RussellSB/pytrendy/issues/250)
+* prevent double-padding of abrupt segments in second shave pass ([04e9671](https://github.com/RussellSB/pytrendy/commit/04e967101b080cee44af25c7a7c85877d27dc47a))
+* spacing-aware x-axis ticks for non-daily dates ([#302](https://github.com/RussellSB/pytrendy/issues/302)) ([2665858](https://github.com/RussellSB/pytrendy/commit/2665858ddf7339334470452f6798eb849d4c7499))
+* tune flat threshold to 0.835, gradual start is more accurate, but at the cost of flat sensitivity on core gradual test case ([75957b8](https://github.com/RussellSB/pytrendy/commit/75957b8965d38f7627a6e90f14e7eedcd8fa54c1))
+* use padded flag guard instead of not second_pass in pad loop ([1b3ef11](https://github.com/RussellSB/pytrendy/commit/1b3ef11d4518eccc8025a1e2eb1a907d263f96d9))
+
+
+### Code Refactoring
+
+* rename results days column to steps ([#312](https://github.com/RussellSB/pytrendy/issues/312)) ([05e2bff](https://github.com/RussellSB/pytrendy/commit/05e2bff3b58992c28eba957625aabc28921612a8))
+
+
+### Features
+
+* adaptive x-axis tick density for long series ([#311](https://github.com/RussellSB/pytrendy/issues/311)) ([94f29cf](https://github.com/RussellSB/pytrendy/commit/94f29cfb49f3146381f563bbe191baa367aaed6e)), closes [#312](https://github.com/RussellSB/pytrendy/issues/312)
+* add gradual padding for gradual trends ([#243](https://github.com/RussellSB/pytrendy/issues/243)) ([c384fc6](https://github.com/RussellSB/pytrendy/commit/c384fc68cd3bff3b5174963c9b5d749434b4d7c6))
+* add mltp_change multiplier metric alongside pct_change ([#291](https://github.com/RussellSB/pytrendy/issues/291)) ([3475b70](https://github.com/RussellSB/pytrendy/commit/3475b701c9cfa8e1e0641b8dcb99614957cdf364))
+* add plot_params dict to plot_pytrendy for customisation ([#122](https://github.com/RussellSB/pytrendy/issues/122)) ([5b9959c](https://github.com/RussellSB/pytrendy/commit/5b9959c200a4f3b5af26650bfa920948342940f0))
+* add signal_params for signal-processing constants ([#305](https://github.com/RussellSB/pytrendy/issues/305)) ([0c7b167](https://github.com/RussellSB/pytrendy/commit/0c7b167ef5d64e7c8261a95de928fa02518b99aa)), closes [#312](https://github.com/RussellSB/pytrendy/issues/312)
+* add weekly data support and rework date logic ([#205](https://github.com/RussellSB/pytrendy/issues/205)) ([10a86c3](https://github.com/RussellSB/pytrendy/commit/10a86c34ac9d9b601325e3a7600c995a77923c7e)), closes [#279](https://github.com/RussellSB/pytrendy/issues/279)
+* granularity-aware smoothing-window defaults ([#309](https://github.com/RussellSB/pytrendy/issues/309)) ([4ef4f98](https://github.com/RussellSB/pytrendy/commit/4ef4f98f40c5f1b10ccf356f16bf01543748154d)), closes [#303](https://github.com/RussellSB/pytrendy/issues/303)
+
+
+### BREAKING CHANGES
+
+* results.df, results.df_summary and segment dicts now use
+`steps` instead of `days`; the `days` key is removed.
+
+* test: update expectations for the steps rename
+
+* docs: refresh steps references across quickstart, homepage, notebooks and skills
+* the change key/column is no longer produced.
+
+* docs: note detect_trends argument-order change in maintenance skill
+
 ## [1.3.1](https://github.com/RussellSB/pytrendy/compare/v1.3.0...v1.3.1) (2026-07-15)
 
 
