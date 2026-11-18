@@ -42,8 +42,8 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
             continue
 
         # Assume some padding for abrupt cases
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=2)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=2)
+        start = segment['start'] - 2
+        end = segment['end'] + 2
 
         df_segment = df.loc[start:end]
         df_segment = (df_segment - df_segment.min()) / (df_segment.max() - df_segment.min())
@@ -76,7 +76,7 @@ def classify_trends(df: pd.DataFrame, value_col: str, segments: list[dict]) -> l
                 segments_classified[i]['trend_class'] = 'abrupt'
 
         # Final condition, hard-classify graduals as abrupt if too short
-        segment_length = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
+        segment_length = segment['end'] - segment['start']
         if segment_length < 3:
             segments_classified[i]['trend_class'] = 'abrupt'
 

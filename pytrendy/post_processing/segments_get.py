@@ -2,9 +2,9 @@
 
 import pandas as pd
 
-def get_segments(df: pd.DataFrame) -> list[dict]:
+def get_segments(df: pd.DataFrame, signal_params: dict) -> list[dict]:
     """
-    Extracts contiguous segments from a flagged time series.
+    Extracts contiguous segments from a flagged series.
 
     This function scans the `trend_flag` column in the input DataFrame and groups
     consecutive values into segments based on direction. It applies minimum length
@@ -20,22 +20,27 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
 
     Only segments meeting the following minimum lengths are retained:
 
-    - Up/Down: ≥ 3 days
-    - Flat/Noise: ≥ 1 days
+    - Up/Down: ≥ 3 steps (``min_trend_length``)
+    - Flat/Noise: ≥ 1 step (``min_flat_noise_length``)
 
     Args:
         df (pd.DataFrame): 
             Time series DataFrame containing a `trend_flag` column.
+        signal_params (dict):
+            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
+
+            - **min_trend_length** (`int`): Minimum length, in steps, for an Up/Down segment.
+            - **min_flat_noise_length** (`int`): Minimum length, in steps, for a Flat/Noise segment.
 
     Returns:
         list: 
             A list of dictionaries, each representing a segment with keys:
 
             - `'direction'`: Segment type (e.g., `'Up'`, `'Down'`)
-            - `'start'`: Start date of the segment
-            - `'end'`: End date of the segment
-            - `'segmenth_length'`: Duration in days
-            - `'time_index'`: Sequential index of the segment
+            - `'start'`: Start time of the segment
+            - `'end'`: End time of the segment
+            - `'segmenth_length'`: Duration of the segment, in elements.
+    
     """
     map_direction = {
         0: 'Unknown'
@@ -44,6 +49,9 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
         , -2: 'Flat'
         , -3: 'Noise'
     }
+
+    min_trend_length = signal_params['min_trend_length']
+    min_flat_noise_length = signal_params['min_flat_noise_length']
 
     segment_length = 0
     segment_length_prev = 0
@@ -58,18 +66,18 @@ def get_segments(df: pd.DataFrame) -> list[dict]:
             segment_length += 1
         elif direction != direction_prev: 
             if (    # Save only when satisfies min window for up/down or flat respectively.
-                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= 3)) \
-                    or (direction_prev == 'Noise' and (segment_length_prev >= 1)) \
-                    or (direction_prev == 'Flat' and (segment_length_prev >= 1)) \
+                    (direction_prev in ['Up', 'Down'] and (segment_length_prev >= min_trend_length)) \
+                    or (direction_prev == 'Noise' and (segment_length_prev >= min_flat_noise_length)) \
+                    or (direction_prev == 'Flat' and (segment_length_prev >= min_flat_noise_length)) \
                 ):
-                start = (pd.to_datetime(index) - pd.Timedelta(days=segment_length_prev+1))
-                end = (pd.to_datetime(index) - pd.Timedelta(days=1))
+                start = index - (segment_length_prev+1)
+                end = index - 1
 
                 # Save the segment
                 segments.append({
                     'direction': direction_prev
-                    , 'start': start.strftime('%Y-%m-%d')
-                    , 'end': end.strftime('%Y-%m-%d')
+                    , 'start': start
+                    , 'end': end
                 })
                 segment_length=0
             else:

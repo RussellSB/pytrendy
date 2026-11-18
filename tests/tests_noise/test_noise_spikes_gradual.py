@@ -108,7 +108,7 @@ class TestNoiseSpikesGradual:
         # Validate uptrends are properly detected
         expected_uptrends = [
             {'direction': 'Up', 'start': '2025-01-02', 'end': '2025-01-24'},
-            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-14'},
+            {'direction': 'Up', 'start': '2025-02-10', 'end': '2025-03-17'},
             {'direction': 'Up', 'start': '2025-04-11', 'end': '2025-05-08'},
         ]
         uptrend_segments = results.filter_segments(direction='Up', format='dict')
@@ -379,7 +379,7 @@ class TestNoiseSpikesGradual:
         # Test for missing gaps by asserting for 1-day flats
         # These 1-day flats fill the gaps between noise and adjacent segments
         flat_segments_df = results.filter_segments(direction='Flat', format='df')
-        one_day_flats_df = flat_segments_df[flat_segments_df['days'] == 1]
+        one_day_flats_df = flat_segments_df[flat_segments_df['steps'] == 1]
         # Convert from pandas df to list of dicts for assertion
         one_day_flats = one_day_flats_df.to_dict('records')
         

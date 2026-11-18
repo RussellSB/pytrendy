@@ -2,11 +2,11 @@
 
 import pandas as pd
 import numpy as np
+import math
 from scipy.signal import savgol_filter
 from scipy.stats import iqr
-from .post_processing.segments_refine.segment_grouping import GROUPING_DISTANCE
 
-def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug: bool=False) -> pd.DataFrame:
+def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, signal_params: dict, debug: bool=False) -> pd.DataFrame:
     """
     Applies signal processing techniques to classify regions of a time series.
 
@@ -35,9 +35,17 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         method_params (dict, optional):
             Optional parameters to customize detection heuristics. Supported keys:
 
-            - **is_abrupt_padded** (`bool`): Whether to pad abrupt transitions between segments. Defaults to `False`.
-            - **abrupt_padding** (`int`): Number of days to pad around abrupt transitions. Only referenced when `is_abrupt_padded` is `True`. Defaults to `28`.
             - **avoid_noise** (`bool`): Whether to avoid noisy segments in trend detection. Defaults to `True`.
+        signal_params (dict):
+            Signal-processing constants, populated by `detect_trends` (no defaults applied here). Supported keys:
+
+            - **window_smooth** (`int`): Savitzky-Golay smoothing window, in points.
+            - **window_flat** (`int`): Window for rolling flat statistics, derived from `window_smooth`.
+            - **window_noise** (`int`): Window for the noise SNR estimate, derived from `window_smooth`.
+            - **grouping_distance** (`int`): Maximum gap, in steps, for grouping nearby noise segments.
+            - **threshold_noise** (`float`): SNR threshold (dB).
+            - **threshold_smooth** (`float`): Derivative threshold as a fraction of the signal IQR.
+            - **threshold_flat** (`float`): Flat sensitivity as a fraction of the minimum non-zero rolling std.
         debug (bool, optional):
             If `True` will run in debug mode, outputting various additional plots and print statements. Only recommended for developers of pytrendy. Defaults to `False`.
 
@@ -47,22 +55,17 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
             - `'smoothed'`, `'smoothed_std'`, `'snr'`, `'smoothed_deriv'`
             - `'flat_flag'`, `'noise_flag'`, `'trend_flag'`
     """
-    WINDOW_SMOOTH = 15
-    WINDOW_FLAT = int(WINDOW_SMOOTH*0.5)
-    WINDOW_NOISE = int(WINDOW_SMOOTH*0.5)
+    assert pd.api.types.is_integer_dtype(df.index.dtype), f"Supplied Index has type {df.index.dtype}"
 
-    THRESHOLD_NOISE = 2.5 # Sensitivity to detecting noise (recommended 0-10)
-    THRESHOLD_SMOOTH = 0.001 # Sensitivity to detecting trends as fraction of iqr
-
-    # 1. Noise detection via SNR.
+    # 1. Noise detection via SNR. 
     # 1.1 Compute the SNR
-    df['signal'] = df[value_col].rolling(window=WINDOW_NOISE, center=True, min_periods=1).mean()
+    df['signal'] = df[value_col].rolling(window=signal_params['window_noise'], center=True, min_periods=1).mean()
     df['noise'] = df[value_col] - df['signal']
     df['snr'] = 10 * np.log10(df['signal']**2 / df['noise']**2)
 
     # 1.2 Define noise flag when SNR & not all zero
     df['noise_flag'] = 0
-    df.loc[(df['snr'] <= THRESHOLD_NOISE), 'noise_flag'] = 1
+    df.loc[(df['snr'] <= signal_params['threshold_noise']), 'noise_flag'] = 1
 
     # Skip noise detection when user opts out.
     if not method_params['avoid_noise']:
@@ -85,15 +88,16 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         if len(after_ends) > 0:
             noise_end = after_ends[0]
         else:
-            noise_end = min(noise_start + pd.Timedelta(days=1), df.index[-1])
-        noise_segments.append(dict(start=noise_start, end=noise_end))
+            noise_end = min(noise_start + 1, df.index[-1])
+        noise_segments.append({'start': noise_start, 'end': noise_end})
+
 
     if len(noise_ends) > 0: # Adds noise end with no start if at beginning
         noise_end = noise_ends[0]
         early_starts = [start for start in noise_starts if start < noise_end]
         if len(early_starts) == 0:
-            noise_start = max(noise_end - pd.Timedelta(days=1), df.index[0])
-            noise_segments.insert(0, dict(start=noise_start, end=noise_end))
+            noise_start = max(noise_end - 1, df.index[0])
+            noise_segments.insert(0, {'start': noise_start, 'end': noise_end})
 
     # 1.4.2 Group noise segments if within a close enough distance of each other
     if len(noise_segments) <= 1:
@@ -102,8 +106,8 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         noise_segments_grouped = []
         prev_seg = noise_segments[0].copy()
         for i, seg in enumerate(noise_segments[1:]):
-            width = (seg['start'] - prev_seg['end']).days
-            if width <= GROUPING_DISTANCE:
+            width = (seg['start'] - prev_seg['end'])
+            if width <= signal_params['grouping_distance']:
                 new_seg = {'start': prev_seg['start'], 'end': seg['end']}
                 noise_segments_grouped.append(new_seg)
             else:
@@ -121,9 +125,9 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
     # 1.4.4 Refine the noise segments early
     for segment in noise_segments_grouped:
 
-        width = (pd.to_datetime(segment['end']) - pd.to_datetime(segment['start'])).days
-        start = pd.to_datetime(segment['start']) - pd.Timedelta(days=1)
-        end = pd.to_datetime(segment['end']) + pd.Timedelta(days=1)
+        width = (segment['end'] - segment['start'])
+        start = segment['start'] - 1
+        end = segment['end'] + 1
 
         # Cap to bounds of df in case at beginning or end.
         start = max(start, df.index.min())
@@ -146,25 +150,27 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
         ts_max = df.loc[start:end, value_col].abs().idxmax()
 
         # Define center as 30% - 70% of window.
-        center_start = (start + (0.3 * width_padded)).floor('D')
-        center_end   = (start + (0.7 * width_padded)).floor('D')
+        center_start = math.floor(start + (0.3 * width_padded))
+        center_end   = math.floor(start + (0.7 * width_padded))
+
         is_central = ts_max >= center_start and ts_max <= center_end
 
         # Identify spike-type noise by peak in center, then shave for precision
         if is_central or not abrupt_ends:
-            df_left = df.loc[:ts_max+pd.Timedelta(days=1)].copy()
+            df_left = df.loc[:ts_max+1].copy()
             df_left['diff'] = df_left[value_col].diff(periods=-1).shift(-2)
             lowers = df_left.loc[df_left['diff'] > 0]
             if len(lowers) > 0:
                 noise_start = lowers.index[-1]
                 df.loc[start:noise_start, 'noise_flag'] = 0
 
-            df_right = df.loc[ts_max-pd.Timedelta(days=1):].copy()
+            df_right = df.loc[ts_max-1:].copy()
             df_right['diff'] = df_right[value_col].diff().shift(2)
             highers = df_right.loc[df_right['diff'] > 0]
             if len(highers) > 0:
                 noise_end = highers.index[0]
                 df.loc[noise_end:end, 'noise_flag'] = 0
+
 
     # 2. Create a temporary signal with no noise
     # Following flat & trend detection logic assumes no noise in the signals it depends on
@@ -174,71 +180,78 @@ def process_signals(df: pd.DataFrame, value_col: str, method_params: dict, debug
 
     # 3. Flat detection using rolling std of savgol filter.
     # with leading and trailing to cater for periods centred windows doesnt cover
-    df['smoothed'] = savgol_filter(df['value_cleaned'], window_length=WINDOW_SMOOTH, polyorder=1)
-    df['smoothed_std'] = df['smoothed'].rolling(WINDOW_FLAT, center=True).std()
-    df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=WINDOW_FLAT).std().iloc[::-1]
-    df['smoothed_std_trailing'] = df['smoothed'].rolling(WINDOW_FLAT).std()
+
+    # 3.1 Compute smoothed signal rolling std to be used by following logic
+    df['smoothed'] = savgol_filter(df['value_cleaned'], window_length=signal_params['window_smooth'], polyorder=1)
+    df['smoothed_std'] = df['smoothed'].rolling(signal_params['window_flat'], center=True).std()
+    df['smoothed_std_leading'] = df['smoothed'].iloc[::-1].rolling(window=signal_params['window_flat']).std().iloc[::-1]
+    df['smoothed_std_trailing'] = df['smoothed'].rolling(signal_params['window_flat']).std()
     df['smoothed_std'] = df['smoothed_std'].fillna(df['smoothed_std_leading']).fillna(df['smoothed_std_trailing'])
 
-    df['flat_flag'] = 0
-    rolling_std = df['value_cleaned'].rolling(WINDOW_FLAT, center=True).std()
-    min_nonzero_std = rolling_std[rolling_std > 0].min()
-    df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0), 'flat_flag'] = 1 
+    # 3.2 Compute derivative early so flat detection can check both smoothness and motion.
+    derivative_limit = abs(iqr(df[value_col])) * signal_params['threshold_smooth']
+    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=signal_params['window_smooth'], polyorder=1, deriv=1)
 
-    # 4. Detect up/down trend. Uses first derivates of savgol filter (like diff). 
-    # Savgol filter (rolling avg improvement). Caters for seasonality with tightness to day.
-    # Results in signal that's uptrend > 0, else down. As long as its not on a flat or noise.
+    # 3.3 Compute Flat Flag using both std and deriv limits
+    df['flat_flag'] = 0
+    rolling_std = df['value_cleaned'].rolling(signal_params['window_flat'], center=True).std()
+    nonzero_std = rolling_std[rolling_std > 0]
+    min_nonzero_std = nonzero_std.min() if not nonzero_std.empty else 0.0
+    derivative_near_zero = df['smoothed_deriv'].abs() <= derivative_limit
+    extremely_smooth = df['smoothed_std'] < (min_nonzero_std * signal_params['threshold_flat'])
+    df.loc[(df['smoothed_std'] <= min_nonzero_std) & (df['noise_flag'] == 0) & (derivative_near_zero | extremely_smooth), 'flat_flag'] = 1 
+
+    # 4. Detect up/down trend.
     df['trend_flag'] = 0
     df.loc[df['flat_flag'] == 1, 'trend_flag'] = -2
     df.loc[df['noise_flag'] == 1, 'trend_flag'] = -3
 
-    # Important condition to establish non-trend segments to avoid detecting trends over
-    avoid_condition = (df['flat_flag'] == 0) # flat is always avoided
-    if method_params['avoid_noise']: # noise can be optionally avoided, up to the user
+    avoid_condition = (df['flat_flag'] == 0)
+    if method_params['avoid_noise']:
         avoid_condition &= (df['noise_flag'] == 0)
 
-    derivative_limit = abs(iqr(df[value_col])) * THRESHOLD_SMOOTH
-    df['smoothed_deriv'] = savgol_filter(df[value_col], window_length=WINDOW_SMOOTH, polyorder=1, deriv=1)
     df.loc[(df['smoothed_deriv'] >= derivative_limit) & avoid_condition, 'trend_flag'] = 1
     df.loc[(df['smoothed_deriv'] < -derivative_limit) & avoid_condition, 'trend_flag'] = -1
 
     if debug:
         import matplotlib.pyplot as plt
 
+        from .io.plot_pytrendy import _show_plot
+
         ax = df[[value_col, 'snr']].plot(figsize=(20,3), secondary_y='snr')
-        ax.right_ax.axhline(y=THRESHOLD_NOISE, color='gray', linestyle='--', linewidth=2)
+        ax.right_ax.axhline(y=signal_params['threshold_noise'], color='gray', linestyle='--', linewidth=2)
         plt.title("Signal-Noise Ratio (SNR)")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'noise_flag']].plot(figsize=(20,3), secondary_y='noise_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Noise Flag")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed']].plot(figsize=(20,3), secondary_y='smoothed')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Smoothed")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed_std']].plot(figsize=(20,3), secondary_y='smoothed_std')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Smoothed Std")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'flat_flag']].plot(figsize=(20,3), secondary_y='flat_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Flat Flag")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'smoothed_deriv']].plot(figsize=(20,3), secondary_y='smoothed_deriv')
         ax.right_ax.axhline(y=derivative_limit, color='gray', linestyle='--', linewidth=2)
         ax.right_ax.axhline(y=-derivative_limit, color='gray', linestyle=':', linewidth=2)
         plt.title("Smoothed Derivative")
-        plt.show()
+        _show_plot()
 
         ax = df[[value_col, 'trend_flag']].plot(figsize=(20,3), secondary_y='trend_flag')
         ax.right_ax.axhline(y=0, color='gray', linestyle='--', linewidth=2)
         plt.title("Trend Flag")
-        plt.show()
+        _show_plot()
 
     return df

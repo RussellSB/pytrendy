@@ -8,17 +8,21 @@ from copy import deepcopy
 from .update_neighbours import update_prev_segment, update_next_segment
 
 
-def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict]) -> list[dict]:
+def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[dict], method_params: dict) -> list[dict]:
     """
     Refines segment boundaries by expanding or contracting based on local extrema.
 
     Examines ±7 days around each segment's start and end to find stronger turning points.
     Skips segments classified as 'abrupt' to preserve their precision.
+    Optionally pads gradual segments into adjacent flat regions when ``gradual_padding > 0``.
 
     Args:
         df (pd.DataFrame): Time series DataFrame.
         value_col (str): Name of the signal column.
         segments (list): List of segment dictionaries.
+        method_params (dict): Detection parameters. Supported keys:
+
+            - **gradual_padding** (`int`): Days to extend gradual segment ends forward. Defaults to `0`.
 
     Returns:
         list: Refined segment list with updated boundaries.
@@ -26,10 +30,10 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
 
     segments_refined = deepcopy(segments)
 
-    def _get_window_df(center: str, days: int = 7) -> pd.DataFrame:
+    def _get_window_df(center: int, days: int = 7) -> pd.DataFrame:
         """Return a slice of df around a center date ±days."""
-        pre = (pd.to_datetime(center) - pd.Timedelta(days=days)).strftime('%Y-%m-%d')
-        post = (pd.to_datetime(center) + pd.Timedelta(days=days)).strftime('%Y-%m-%d')
+        pre = center - days
+        post = center + days
         return df.loc[pre:post].copy()
 
     for i, segment in enumerate(segments_refined):
@@ -43,9 +47,9 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         if i > 0: # handles right of noise
             prev_seg = segments_refined[i - 1]
             if prev_seg.get('direction') == 'Noise':
-                prev_end = pd.to_datetime(prev_seg['end'])
+                prev_end = prev_seg['end']
                 # Exclude days that belong to the previous noise segment
-                crop_from = (prev_end + pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                crop_from = prev_end + 1
                 cropped = start_df.loc[crop_from:]
                 if not cropped.empty:
                     start_df = cropped
@@ -53,9 +57,9 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         if i < len(segments_refined) - 1: # handles left of noise
             next_seg = segments_refined[i + 1]
             if next_seg.get('direction') == 'Noise':
-                next_start = pd.to_datetime(next_seg['start'])
+                next_start = next_seg['start']
                 # Exclude days that belong to the next noise segment
-                crop_to = (next_start - pd.Timedelta(days=1)).strftime('%Y-%m-%d')
+                crop_to = next_start - 1
                 cropped = end_df.loc[:crop_to]
                 if not cropped.empty:
                     end_df = cropped
@@ -63,10 +67,10 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         if 'trend_class' in segment and segment['trend_class'] == 'abrupt':
             continue # don't expand/contract abrupt trends. Leave precise to shave.
         if segment['direction'] == 'Up':
-            new_start = start_df[value_col].iloc[::-1].idxmin() + pd.Timedelta(days=1) # get min, latest if all same
+            new_start = start_df[value_col].iloc[::-1].idxmin() + 1 # get min, latest if all same
             new_end = end_df[value_col].idxmax()
         elif segment['direction'] == 'Down':
-            new_start = start_df[value_col].iloc[::-1].idxmax() + pd.Timedelta(days=1) # get max, latest if all same
+            new_start = start_df[value_col].iloc[::-1].idxmax() + 1 # get max, latest if all same
             new_end = end_df[value_col].idxmin()
         else:
             continue
@@ -80,9 +84,9 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
         prev_seg = segments_refined[i - 1] if i > 0 else None
         prev_is_noise = prev_seg is not None and prev_seg.get('direction') == 'Noise'
         if segment['direction'] in ('Up', 'Down') and i > 0:
-            prev_end = pd.to_datetime(segments_refined[i - 1]['end'])
-            extremum = pd.to_datetime(new_start) - pd.Timedelta(days=1)
-            distance = (extremum - prev_end).days
+            prev_end = segments_refined[i - 1]['end']
+            extremum = new_start - 1
+            distance = extremum - prev_end
             # Skip orphan check when previous segment is Noise AND the Noise
             # is close (within 3 days) to the extremum — noise boundaries are
             # deliberately fuzzy in that case.  When Noise is far away, the
@@ -96,22 +100,78 @@ def expand_contract_segments(df: pd.DataFrame, value_col: str, segments: list[di
                     start_val = df.loc[new_start, value_col]
                     max_abs = df[value_col].abs().max()
                     if max_abs > 0 and abs(extremum_val - start_val) > 0.2 * max_abs:
-                        new_start -= pd.Timedelta(days=1)
+                        new_start -= 1
 
         # Check for any inversions
-        start_inverted = (new_start >= pd.to_datetime(segment['end']))
-        end_inverted = (new_end <= pd.to_datetime(segment['start']))
+        start_inverted = (new_start >= segment['end'])
+        end_inverted = (new_end <= segment['start'])
 
         # Refine start provided valid to update
-        start_changed = (new_start != pd.to_datetime(segment['start']))
+        start_changed = (new_start != segment['start'])
         if start_changed and not start_inverted:
-            segments_refined[i]['start'] = new_start.strftime('%Y-%m-%d')
+            segments_refined[i]['start'] = new_start
             update_prev_segment(i, new_start, segments, segments_refined)
 
         # Refine end provided valid to update
-        end_changed = (new_end != pd.to_datetime(segment['end']))
+        end_changed = (new_end != segment['end'])
         if end_changed and not end_inverted:
-            segments_refined[i]['end'] = new_end.strftime('%Y-%m-%d')
+            segments_refined[i]['end'] = new_end
             update_next_segment(i, new_end, segments, segments_refined)
 
+    # Pad gradual segments into adjacent flat regions when gradual_padding is set.
+    # Mirrors the abrupt padding pattern: called from within the same module rather
+    # than exposed as a separate top-level step in segments_refine/__init__.py.
+    segments_refined = _pad_gradual_trends(df, segments_refined, method_params)
+
     return segments_refined
+
+
+def _pad_gradual_trends(df: pd.DataFrame, segments: list[dict], method_params: dict) -> list[dict]:
+    """
+    Extends gradual segment end dates by a specified number of days.
+
+    Extends the end date forward, truncating before any non-Flat segment that
+    would be overlapped, and clamping to the last index date. Sets a ``padded``
+    flag on modified segments.
+
+    Args:
+        df (pd.DataFrame): Time series DataFrame.
+        segments (list): List of segment dictionaries.
+        method_params (dict): Supported keys:
+
+            - **gradual_padding** (`int`): Number of days to pad. Defaults to ``0``.
+
+    Returns:
+        list: Segment list with padded gradual boundaries.
+    """
+
+    gradual_padding = method_params.get('gradual_padding', 0)
+    if gradual_padding <= 0:
+        return segments
+
+    segments_padded = deepcopy(segments)
+
+    meta_df = pd.DataFrame(segments)
+
+    for i, segment in enumerate(segments):
+
+        if segment['direction'] not in ['Up', 'Down'] or segment.get('trend_class') != 'gradual':
+            continue
+
+        gradual_end = segment['end']
+
+        new_end = gradual_end + gradual_padding
+        overlaps = meta_df.loc[(meta_df['start'] > gradual_end) & (meta_df['start'] <= new_end)]
+        overlaps_nonflats = overlaps[overlaps['direction'] != 'Flat']
+
+        if not overlaps_nonflats.empty:
+            first_notflat_overlap = overlaps_nonflats.iloc[0]
+            new_end = first_notflat_overlap['start'] - 1
+
+        new_end = min(new_end, df.index[-1])
+        segments_padded[i]['end'] = new_end
+        update_next_segment(i, new_end, segments, segments_padded)
+
+        segments_padded[i]['padded'] = new_end != gradual_end
+
+    return segments_padded
