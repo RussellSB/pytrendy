@@ -1,0 +1,420 @@
+/* Custom badge styles for tutorials */
+
+/* Pre-release version annotation — no border, no background, just muted italic text */
+.version-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    vertical-align: middle;
+    color: #94a3b8;
+    display: inline;
+}
+
+/* Legacy name kept for backwards compat with older generated content */
+.badge-prerelease {
+    font-size: 0.62em;
+    font-weight: 400;
+    font-style: italic;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    vertical-align: middle;
+    color: #94a3b8;
+    display: inline;
+}
+
+
+
+.before-after-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.25rem;
+    margin: 0.5rem 0;
+}
+
+.before-after-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+/* Markdown-inside-div creates <p> wrappers; strip their default margin */
+.before-after-panel p {
+    margin: 0;
+    line-height: 0;
+}
+
+.before-after-panel img {
+    width: 100%;
+    display: block;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.before-after-label {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.before-label {
+    background: rgba(173, 216, 230, 0.2);
+    color: #1e3a5f;
+}
+
+.after-label {
+    background: rgba(144, 238, 144, 0.2);
+    color: #14532d;
+}
+
+/* ── Dark mode overrides for What's New page ────────────────────────── */
+
+[data-md-color-scheme="slate"] .before-label {
+    background: rgba(96, 165, 250, 0.15);
+    color: #93c5fd;
+}
+
+[data-md-color-scheme="slate"] .after-label {
+    background: rgba(74, 222, 128, 0.15);
+    color: #86efac;
+}
+
+[data-md-color-scheme="slate"] .before-after-panel img {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.note > summary {
+    color: #5eead4;
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.example {
+    border-color: #4ade80;
+}
+
+[data-md-color-scheme="slate"] .md-typeset details.example > summary {
+    background-color: rgba(74, 222, 128, 0.12);
+    color: #86efac;
+}
+
+/* ── What's New collapsibles ─────────────────────────────────────────── */
+
+/* ??? note — site teal, no pencil icon */
+.md-typeset details.note {
+    border-color: #0f766e;
+}
+
+.md-typeset details.note > summary {
+    background-color: rgba(15, 118, 110, 0.08);
+    color: #0f766e;
+    padding-left: 0.75rem;
+}
+
+.md-typeset details.note > summary::before {
+    /* Remove the default pencil icon */
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+/* ??? example "Code" — lightgreen (pytrendy Up palette), no book icon */
+.md-typeset details.example {
+    border-color: #22a85a;
+}
+
+.md-typeset details.example > summary {
+    background-color: rgba(144, 238, 144, 0.25);
+    color: #14532d;
+    padding-left: 0.75rem;
+}
+
+.md-typeset details.example > summary::before {
+    width: 0 !important;
+    height: 0 !important;
+    margin-right: 0 !important;
+    -webkit-mask-image: none !important;
+    mask-image: none !important;
+}
+
+.badge-beginner {
+    background-color: #4CAF50;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.badge-advanced {
+    background-color: #FF9800;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    font-weight: bold;
+}
+
+.badge-realworld {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 0.75em;
+    font-weight: bold;
+}
+
+.badge-time {
+    color: #666;
+    margin-left: 10px;
+    font-size: 0.85em;
+}
+
+.badge-time-small {
+    color: #666;
+    font-size: 0.85em;
+}
+
+.transparent * {
+  background-color: transparent !important;
+  padding-bottom: 1px;
+  padding-top: 0px;
+}
+
+.examples-grid {
+    display: grid;
+    gap: 1.25rem;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    margin: 1.5rem 0 2rem;
+}
+
+.example-card {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 22px;
+    text-decoration: none !important;
+    color: inherit !important;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 248, 250, 0.98));
+    border: 1px solid rgba(15, 118, 110, 0.14);
+    box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.example-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(8, 145, 178, 0.34);
+    box-shadow: 0 22px 48px rgba(15, 23, 42, 0.14);
+}
+
+.example-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: #dbeafe;
+}
+
+.example-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.example-card__tag {
+    position: absolute;
+    top: 0.9rem;
+    left: 0.9rem;
+    padding: 0.35rem 0.7rem;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.72);
+    color: #fff;
+    font-size: 0.74rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.example-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: 1.1rem 1.1rem 1.25rem;
+}
+
+.example-card__icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ccfbf1, #bfdbfe);
+    color: #0f172a;
+    font-size: 1.25rem;
+    box-shadow: inset 0 0 0 1px rgba(15, 118, 110, 0.12);
+}
+
+.example-card__body h2 {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+}
+
+.example-card__body p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.8rem;
+    line-height: 1.35;
+}
+
+.example-card__body ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #475569;
+    font-size: 0.94rem;
+}
+
+.example-card__cta {
+    margin-top: auto;
+    color: #0f766e;
+    font-weight: 700;
+}
+
+.examples-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1rem 0 0;
+}
+
+.examples-links a {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.7rem 1rem;
+    border-radius: 999px;
+    text-decoration: none;
+    background: rgba(15, 118, 110, 0.08);
+    color: #0f766e !important;
+    font-weight: 600;
+    
+}
+
+
+/* ── Example Gallery page ──────────────────────────────────────────── */
+
+body:has(h1#example-gallery) .md-main__inner.md-grid {
+    max-width: 100rem;
+    margin-inline: 2rem;
+}
+
+/* ── JupyterLite iframe pages ──────────────────────────────────────── */
+
+body:has(#jupyterlite-iframe) .md-main__inner.md-grid {
+    max-width: 80rem;
+}
+
+body:has(#jupyterlite-iframe) .md-main__inner {
+    margin-top: 0rem;
+}
+
+body:has(#jupyterlite-iframe) .md-typeset h1 {
+    display: none;
+} 
+
+body:has(#jupyterlite-iframe) #jupyterlite-iframe {
+    border: none;
+    background: transparent;
+}
+
+/* ── JupyterLite loading indicator ─────────────────────────────────── */
+
+.jl-wrapper {
+    position: relative;
+}
+
+.jl-loading-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--md-default-bg-color, #fff);
+    color: #64748b;
+    font-size: 0.95rem;
+    z-index: 1;
+    transition: opacity 0.3s ease;
+}
+
+.jl-loading-overlay .spinner {
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2.5px solid rgba(15, 118, 110, 0.2);
+    border-top-color: #0f766e;
+    border-radius: 50%;
+    animation: jl-spin 0.7s linear infinite;
+}
+
+@keyframes jl-spin {
+    to { transform: rotate(360deg); }
+}
+
+.jl-loading-overlay.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* ── Branch indicator badge ──────────────────────────────────────────── */
+
+.branch-indicator {
+    position: fixed;
+    top: 0.65rem;
+    right: 0.9rem;
+    z-index: 10000;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.15em 0.55em;
+    border-radius: 4px;
+    font-size: 0.62rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+    text-decoration: none !important;
+    white-space: nowrap;
+    color: rgba(255, 255, 255, 0.82) !important;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    transition: background 0.18s ease, color 0.18s ease;
+    cursor: pointer;
+    line-height: 1.6;
+}
+
+.branch-indicator:hover {
+    background: rgba(255, 255, 255, 0.22);
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+/* PR preview builds use a <span> — not clickable */
+span.branch-indicator {
+    cursor: default;
+}
+
+span.branch-indicator:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: rgba(255, 255, 255, 0.82) !important;
+}
+
+@media (max-width: 959px) {
+    .branch-indicator {
+        position: inherit;
+        margin-inline: 0.6rem;
+    }
+}
