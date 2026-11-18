@@ -40,6 +40,8 @@ pip install -e ".[dev]"           # dev: pytest, pytest-cov, pytest-mpl, pytest-
 pip install -e ".[dev,docs]"      # add mkdocs material + mkdocstrings for docs work
 ```
 
+Development needs **Python >=3.11**: `matplotlib` is pinned to `3.11.2` in the `dev` extra for pytest-mpl baseline determinism.
+
 **Verify before push** — CI runs core first, then non-core with `--cov-append`:
 
 ```bash

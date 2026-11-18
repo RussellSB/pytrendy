@@ -107,12 +107,12 @@ class TestNonDateCases:
             method_params={'abrupt_padding': 0}
         )
         
-        # Expected segments based on current behavior
+        # Expected segments based on current behavior (weekly infers window_smooth=9)
         expected_segments = [
             {'direction': 'Up',   'start': pd.Timestamp('2026-01-11'),  'end': pd.Timestamp('2026-06-14')},
             {'direction': 'Down', 'start': pd.Timestamp('2026-06-21'),  'end': pd.Timestamp('2026-09-06')},
-            {'direction': 'Flat', 'start': pd.Timestamp('2026-09-13'),  'end': pd.Timestamp('2026-10-04')},
-            {'direction': 'Up',   'start': pd.Timestamp('2026-10-11'),  'end': pd.Timestamp('2027-06-13')},
+            {'direction': 'Up',   'start': pd.Timestamp('2026-09-13'),  'end': pd.Timestamp('2027-05-23')},
+            {'direction': 'Flat', 'start': pd.Timestamp('2027-05-30'),  'end': pd.Timestamp('2027-06-13')},
             {'direction': 'Down', 'start': pd.Timestamp('2027-06-20'),  'end': pd.Timestamp('2027-09-26')},
             {'direction': 'Up',   'start': pd.Timestamp('2027-10-03'),  'end': pd.Timestamp('2028-06-11')},
             {'direction': 'Down', 'start': pd.Timestamp('2028-06-18'),  'end': pd.Timestamp('2029-03-18')},
