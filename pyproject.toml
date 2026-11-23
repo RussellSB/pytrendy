@@ -63,7 +63,7 @@ docs = [
     "mkdocstrings>=0.28.3,<1",
     "mkdocstrings-python>=1.16,<2",
     "mkdocs-jupyterlite==0.4.1",
-    "pymdown-extensions<12.2"
+    "pymdown-extensions<12.4"
 ]
 
 [project.urls]
